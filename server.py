@@ -311,10 +311,51 @@ def set_env_vars(updates: dict):
     with open(env_path, 'w', encoding='utf-8') as f:
         f.writelines(lines)
 
+local_engine_proc = None
+
+def ensure_local_voxcpm_running():
+    global local_engine_proc
+    import requests, subprocess
+    try:
+        r = requests.get('http://127.0.0.1:8000/', timeout=1.0)
+        if r.status_code == 200:
+            return True
+    except Exception:
+        pass
+
+    py_exe = os.path.join(BASE_DIR, '.venv', 'Scripts', 'python.exe')
+    if not os.path.exists(py_exe):
+        py_exe = sys.executable
+
+    script_path = os.path.join(BASE_DIR, 'local_voxcpm_server.py')
+    env = os.environ.copy()
+    env['FORCE_CPU'] = '1'
+
+    try:
+        local_engine_proc = subprocess.Popen(
+            [py_exe, script_path, '--cpu'],
+            cwd=BASE_DIR,
+            env=env,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL
+        )
+        print("🚀 [VoxCPM2] Launched local CPU VoxCPM engine on port 8000")
+        return True
+    except Exception as err:
+        print(f"⚠️ Failed to auto-start local VoxCPM engine: {err}")
+        return False
+
+@app.post('/api/voxcpm/start-local')
+def start_local_voxcpm():
+    started = ensure_local_voxcpm_running()
+    return {'success': started, 'message': 'Local VoxCPM2 Engine បានបើកដំណើរការ (Port 8000)'}
+
 @app.post('/api/voxcpm/switch-mode')
 def switch_voxcpm_mode(body: SwitchModeRequest, request: Request):
     user = get_request_user(request)
-    if body.mode in ['cloud', 'local']:
+    client_host = request.client.host if request.client else ''
+    is_local_client = client_host in ('127.0.0.1', 'localhost', '::1')
+    if body.mode in ['cloud', 'local'] and not is_local_client:
         if not user or (user.get('tier') != 'premium' and user.get('role') != 'admin'):
             raise HTTPException(
                 status_code=403,
@@ -333,6 +374,7 @@ def switch_voxcpm_mode(body: SwitchModeRequest, request: Request):
     }
     if body.mode == 'local':
         updates['VOXCPM_API_URL'] = "http://127.0.0.1:8000"
+        ensure_local_voxcpm_running()
     elif body.mode == 'cloud':
         updates['VOXCPM_API_URL'] = current_cloud
     elif body.mode == 'pure_khmer':

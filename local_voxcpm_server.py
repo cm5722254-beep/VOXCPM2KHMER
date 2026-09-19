@@ -72,10 +72,15 @@ elif not force_cpu and hasattr(torch.backends, "mps") and torch.backends.mps.is_
 else:
     device = "cpu"
     gpu_name = "Local Computer (CPU Mode)"
-    # Optimize CPU multi-threading
+    # Optimize CPU multi-threading for Intel Xeon multi-core
     try:
-        cpu_threads = max(1, (os.cpu_count() or 4) - 1)
+        # Intel Xeon E5-2680 v3 has 12 physical cores, 24 logical threads
+        # Using 12-16 threads provides peak AVX2 matrix throughput without SMT cache thrashing
+        cpu_threads = min(16, max(4, (os.cpu_count() or 4) // 2 if (os.cpu_count() or 4) > 8 else (os.cpu_count() or 4)))
         torch.set_num_threads(cpu_threads)
+        os.environ["OMP_NUM_THREADS"] = str(cpu_threads)
+        os.environ["MKL_NUM_THREADS"] = str(cpu_threads)
+        print(f"⚡ CPU Multi-Threading active: {cpu_threads} worker threads allocated for Intel Xeon")
     except Exception:
         pass
 
@@ -97,11 +102,17 @@ def get_model():
         print("=" * 65)
         import voxcpm
         try:
-            model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device=device, optimize=(device == "cuda"))
+            # optimize=False avoids torch.compile which is unsupported on Windows CPU
+            model = voxcpm.VoxCPM.from_pretrained(
+                "openbmb/VoxCPM2",
+                device=device,
+                optimize=(device == "cuda"),
+                load_denoiser=False
+            )
             print(f"✅ VoxCPM2 Model loaded successfully on {device.upper()}!")
         except Exception as opt_err:
-            print(f"⚠️ Notice: {opt_err}, loading with default settings...")
-            model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device=device)
+            print(f"⚠️ Notice: {opt_err}, attempting standard load fallback...")
+            model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device=device, optimize=False, load_denoiser=False)
             print(f"✅ VoxCPM2 Model loaded successfully on {device.upper()}!")
         model_load_error = None
         return model
@@ -111,6 +122,20 @@ def get_model():
         return None
     finally:
         model_loading = False
+
+@app.on_event("startup")
+def startup_event():
+    import threading
+    threading.Thread(target=get_model, daemon=True).start()
+
+@app.post("/api/load-model")
+@app.get("/api/load-model")
+def trigger_load_model():
+    import threading
+    if model is None and not model_loading:
+        threading.Thread(target=get_model, daemon=True).start()
+        return {"success": True, "message": "Model loading started in background"}
+    return {"success": True, "message": "Model already loaded or loading", "modelLoaded": model is not None, "modelLoading": model_loading}
 
 @app.get("/")
 def home():
