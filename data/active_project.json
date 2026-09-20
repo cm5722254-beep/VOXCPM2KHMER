@@ -1,18 +1,18 @@
 {
-  "timestamp": 1789823429242,
+  "timestamp": 1789881994897,
   "uploadedFile": {
-    "filename": "mediaFile-1789405337638-5.mp4",
-    "originalName": "5.mp4",
-    "size": 12893036,
+    "filename": "mediaFile-1789877120535-video_2026-09-15_09-57-38.mp4",
+    "originalName": "video_2026-09-15_09-57-38.mp4",
+    "size": 74207923,
     "type": "video",
-    "url": "/media/uploads/mediaFile-1789405337638-5.mp4"
+    "url": "/media/uploads/mediaFile-1789877120535-video_2026-09-15_09-57-38.mp4"
   },
   "segments": [],
   "outputVideo": null,
   "outputAudio": null,
   "cleanBgmUrl": null,
-  "voiceMode": "voice_actor_clone",
-  "dubbingScope": "30",
+  "voiceMode": "movie_clone_all",
+  "dubbingScope": "full",
   "maleLeadVoice": "hang_phleung_char_2_male.mp3",
   "femaleLeadVoice": "hang_phleung_char_6_female.mp3",
   "geminiModel": "gemini-3.5-flash",
@@ -25,20 +25,20 @@
     "aspectRatio": "16:9",
     "lutPreset": "none",
     "letterbox": false,
-    "vignette": false,
+    "vignette": true,
     "filmGrain": false,
     "vhsGlitch": false,
     "glowBloom": false,
     "colorTint": "none",
     "watermark": {
       "enabled": true,
-      "text": "© សម្រាយរឿង HD - អាទិទេព DABBER PRO",
-      "position": "top-right",
-      "opacity": 85,
-      "fontSize": 13,
+      "text": " អាទិទេព DABBER PRO",
+      "position": "bottom-left",
+      "opacity": 45,
+      "fontSize": 11,
       "fontFamily": "Outfit",
       "textColor": "#ffffff",
-      "showBadge": true
+      "showBadge": false
     },
     "styleText": {
       "enabled": false,
@@ -62,6 +62,7 @@
     "position": "bottom",
     "animation": "none"
   },
-  "activeTab": "tab-dashboard",
-  "updated_at": 1789823429.24777
+  "activeTab": "tab-dubbing",
+  "activeGroupId": null,
+  "updated_at": 1789881994.8981452
 }

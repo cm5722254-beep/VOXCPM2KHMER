@@ -14,29 +14,35 @@
 
 @layer base {
   :root {
-    /* Colors - Professional Dark Theme */
-    --bg-primary: #0a0b0f;
-    --bg-surface: #0d0e14;
-    --bg-elevated: #14151c;
-    --bg-hover: #1a1b23;
+    /* Colors - Cyber-Cinematic Titanium & Aurora Theme */
+    --bg-primary: #05070c;
+    --bg-canvas: #05070c;
+    --bg-surface: #090d16;
+    --bg-elevated: #101624;
+    --bg-hover: #162035;
     
-    --border-subtle: #1f2937;
-    --border-default: #374151;
-    --border-strong: #4b5563;
+    --border-subtle: rgba(255, 255, 255, 0.07);
+    --border-default: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.22);
+    --border-cyan: rgba(0, 240, 255, 0.35);
+    --border-violet: rgba(139, 92, 246, 0.35);
     
-    --text-primary: #f1f5f9;
+    --text-primary: #f8fafc;
     --text-secondary: #94a3b8;
     --text-muted: #64748b;
     --text-disabled: #475569;
     
-    --accent: #0ea5e9;
-    --accent-hover: #0284c7;
-    --accent-light: #38bdf8;
+    --accent: #00f0ff;
+    --accent-hover: #38bdf8;
+    --accent-light: #7dd3fc;
+    --accent-cyan: #00f0ff;
+    --accent-violet: #8b5cf6;
+    --accent-fuchsia: #d946ef;
     
-    --success: #10b981;
-    --warning: #f59e0b;
-    --error: #ef4444;
-    --info: #3b82f6;
+    --success: #00f59b;
+    --warning: #ffaa00;
+    --error: #ff3366;
+    --info: #00d2ff;
     
     /* Spacing */
     --spacing-xs: 0.25rem;
@@ -51,12 +57,14 @@
     --radius-lg: 0.75rem;
     --radius-full: 9999px;
     
-    /* Shadows */
-    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
-    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
-    --shadow-glow: 0 0 20px rgb(14 165 233 / 0.3);
+    /* Shadows & Glows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.25);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.35);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.5);
+    --shadow-glow: 0 0 25px rgba(0, 240, 255, 0.3);
+    --shadow-glow-violet: 0 0 25px rgba(139, 92, 246, 0.3);
+    --shadow-glow-emerald: 0 0 25px rgba(0, 245, 155, 0.3);
   }
 
   * {
@@ -65,9 +73,7 @@
 
   body {
     @apply bg-[var(--bg-primary)] text-[var(--text-primary)];
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      'Kantumruy Pro', 'Battambang', 'Khmer OS', sans-serif;
+    font-family: 'Kantumruy Pro', 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Battambang', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow: hidden;
@@ -154,16 +160,34 @@
   }
 
   .glass-effect {
-    background: rgba(13, 14, 20, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(9, 13, 22, 0.82);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
   }
 
-  .text-gradient {
-    background: linear-gradient(135deg, #0ea5e9 0%, #38bdf8 100%);
+  .glass-panel {
+    background: rgba(9, 13, 22, 0.85);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-card {
+    background: rgba(16, 22, 36, 0.65);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .text-gradient,
+  .text-aurora {
+    background: linear-gradient(135deg, #00f0ff 0%, #38bdf8 50%, #8b5cf6 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .aurora-btn {
+    background: linear-gradient(135deg, #00f0ff 0%, #0284c7 50%, #7c3aed 100%);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.35);
   }
 
   .scrollbar-hide {
@@ -1401,4 +1425,238 @@ select {
   border-color: rgba(56,189,248,0.5);
   box-shadow: 0 0 16px rgba(56,189,248,0.25);
 }
+
+/* ================================================================
+   PHASE 2 — PREMIUM ANIMATION SYSTEM
+   ================================================================ */
+
+/* ── Karaoke Subtitle Sweep ── */
+@keyframes karaoke-sweep {
+  0%   { width: 0%; }
+  100% { width: 100%; }
+}
+.subtitle-karaoke {
+  position: relative;
+  display: inline-block;
+  color: #f1f5f9;
+}
+.subtitle-karaoke::after {
+  content: '';
+  position: absolute;
+  left: 0; bottom: 0;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg,
+    rgba(0,240,255,0.22) 0%,
+    rgba(56,189,248,0.35) 50%,
+    rgba(139,92,246,0.18) 100%
+  );
+  border-radius: 3px;
+  animation: karaoke-sweep 4s linear infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* ── Button Click Ripple ── */
+@keyframes ripple-expand {
+  0%   { transform: scale(0); opacity: 0.55; }
+  100% { transform: scale(3.5); opacity: 0; }
+}
+.btn-ripple {
+  position: relative;
+  overflow: hidden;
+}
+.btn-ripple::after {
+  content: '';
+  position: absolute;
+  width: 80px; height: 80px;
+  border-radius: 50%;
+  background: rgba(56,189,248,0.35);
+  transform: scale(0);
+  left: 50%; top: 50%;
+  margin-left: -40px; margin-top: -40px;
+  pointer-events: none;
+}
+.btn-ripple:active::after {
+  animation: ripple-expand 0.55s ease-out;
+}
+
+/* ── Generate Double-Ring Spinner ── */
+@keyframes ring-outer {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes ring-inner {
+  0%   { transform: rotate(0deg); }
+  100% { transform: rotate(-360deg); }
+}
+.generate-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px; height: 20px;
+  flex-shrink: 0;
+}
+.generate-ring::before,
+.generate-ring::after {
+  content: '';
+  position: absolute;
+  border-radius: 50%;
+}
+.generate-ring::before {
+  width: 20px; height: 20px;
+  border: 2px solid transparent;
+  border-top-color: #38bdf8;
+  border-right-color: #38bdf8;
+  animation: ring-outer 0.75s linear infinite;
+}
+.generate-ring::after {
+  width: 12px; height: 12px;
+  border: 2px solid transparent;
+  border-bottom-color: #a855f7;
+  border-left-color: #a855f7;
+  animation: ring-inner 0.55s linear infinite;
+}
+
+/* ── Aurora Header Shimmer ── */
+@keyframes aurora-sweep {
+  0%   { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-aurora {
+  background: linear-gradient(
+    90deg,
+    #38bdf8 0%,
+    #818cf8 20%,
+    #e879f9 40%,
+    #38bdf8 60%,
+    #34d399 80%,
+    #38bdf8 100%
+  );
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: aurora-sweep 4s linear infinite;
+}
+
+/* ── Tab Slide-In Transition ── */
+@keyframes tab-fade-up {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+.tab-content-enter {
+  animation: tab-fade-up 220ms cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Neon Border Dance ── */
+@keyframes border-dance-hue {
+  0%,100% { border-color: rgba(56,189,248,0.35); box-shadow: 0 0 16px rgba(56,189,248,0.18); }
+  33%      { border-color: rgba(139,92,246,0.35); box-shadow: 0 0 16px rgba(139,92,246,0.18); }
+  66%      { border-color: rgba(232,121,249,0.35); box-shadow: 0 0 16px rgba(232,121,249,0.18); }
+}
+.border-dance {
+  animation: border-dance-hue 3s ease-in-out infinite;
+}
+
+/* ── Glow Pulse Text ── */
+@keyframes glow-pulse-text-anim {
+  0%,100% { text-shadow: 0 0 8px rgba(56,189,248,0.5); }
+  50%      { text-shadow: 0 0 18px rgba(56,189,248,0.9), 0 0 36px rgba(139,92,246,0.35); }
+}
+.animate-glow-text {
+  animation: glow-pulse-text-anim 2.5s ease-in-out infinite;
+}
+
+/* ── Typewriter Reveal ── */
+@keyframes typewriter-reveal {
+  from { max-width: 0; }
+  to   { max-width: 100%; }
+}
+@keyframes cursor-blink {
+  0%,100% { border-right-color: #38bdf8; }
+  50%      { border-right-color: transparent; }
+}
+.animate-typewriter {
+  display: inline-block;
+  overflow: hidden;
+  max-width: 0;
+  border-right: 2px solid #38bdf8;
+  white-space: nowrap;
+  animation:
+    typewriter-reveal 2s steps(30) both,
+    cursor-blink 0.7s step-end infinite;
+}
+
+/* ── Loading Pulse Bars ── */
+@keyframes bar-bounce {
+  0%,100% { transform: scaleY(0.3); }
+  50%      { transform: scaleY(1); }
+}
+.loading-bars {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+.loading-bars span {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(180deg, #38bdf8, #818cf8);
+  animation: bar-bounce 0.8s ease-in-out infinite alternate;
+  transform-origin: bottom;
+}
+.loading-bars span:nth-child(1) { animation-delay: 0ms; }
+.loading-bars span:nth-child(2) { animation-delay: 100ms; }
+.loading-bars span:nth-child(3) { animation-delay: 200ms; }
+.loading-bars span:nth-child(4) { animation-delay: 300ms; }
+.loading-bars span:nth-child(5) { animation-delay: 400ms; }
+
+/* ── Studio Entrance Splash ── */
+@keyframes studio-enter {
+  0%   { opacity: 0; transform: scale(0.96) translateY(8px); filter: blur(4px); }
+  60%  { filter: blur(0); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.studio-enter {
+  animation: studio-enter 480ms cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+/* ── Generate Button Pulse ── */
+@keyframes btn-generating {
+  0%,100% { box-shadow: 0 4px 20px rgba(56,189,248,0.25), 0 0 0 0 rgba(56,189,248,0.4); }
+  50%      { box-shadow: 0 4px 30px rgba(56,189,248,0.5), 0 0 0 8px rgba(56,189,248,0); }
+}
+.btn-generating {
+  animation: btn-generating 1.4s ease-in-out infinite;
+  pointer-events: none;
+  opacity: 0.9;
+}
+
+/* ── Panel Entrance Stagger ── */
+@keyframes panel-enter {
+  from { opacity: 0; transform: translateX(12px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+.panel-enter { animation: panel-enter 260ms cubic-bezier(0.4,0,0.2,1) both; }
+.panel-enter:nth-child(1) { animation-delay: 0ms; }
+.panel-enter:nth-child(2) { animation-delay: 40ms; }
+.panel-enter:nth-child(3) { animation-delay: 80ms; }
+.panel-enter:nth-child(4) { animation-delay: 120ms; }
+.panel-enter:nth-child(5) { animation-delay: 160ms; }
+.panel-enter:nth-child(6) { animation-delay: 200ms; }
+
+/* ── Active Recording Pulse ── */
+@keyframes record-pulse {
+  0%,100% { background: rgba(248,113,113,0.85); box-shadow: 0 0 0 0 rgba(248,113,113,0.6); }
+  50%      { background: rgba(239,68,68,1);      box-shadow: 0 0 0 6px rgba(248,113,113,0); }
+}
+.animate-record {
+  animation: record-pulse 1.2s ease-in-out infinite;
+  border-radius: 50%;
+}
+
 

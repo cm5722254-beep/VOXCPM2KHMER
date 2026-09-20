@@ -32,7 +32,7 @@ __pycache__/
 *.pyc
 
 # Large Binaries & Desktop Builds
-bin/*.exe
+bin/
 *.exe
 *.apk
 !public/CheatzDabber_Khmer_v1.0.apk

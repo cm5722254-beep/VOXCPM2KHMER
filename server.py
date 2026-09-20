@@ -5,6 +5,7 @@ import json
 import shutil
 import asyncio
 import base64
+from datetime import datetime, timedelta
 
 # Force UTF-8 encoding on Windows console
 if sys.platform == 'win32':
@@ -84,10 +85,24 @@ def require_admin(request: Request) -> dict:
 class AuthRegisterRequest(BaseModel):
     username: str
     password: str
+    deviceId: Optional[str] = None
 
 class AuthLoginRequest(BaseModel):
     username: str
     password: str
+    deviceId: Optional[str] = None
+
+class ActivateLicenseRequest(BaseModel):
+    license_key: str
+
+class CreateLicenseKeyRequest(BaseModel):
+    days: int = 30
+    feature: str = 'voxcpm2'
+
+class ToggleUserVoxcpmRequest(BaseModel):
+    userId: int
+    enabled: bool
+    days: int = 30
 
 class SetPremiumRequest(BaseModel):
     userId: int
@@ -151,6 +166,32 @@ class RenderExportRequest(BaseModel):
     resolution: Optional[str] = '1080p'
     format: Optional[str] = 'mp4'
     bitrate: Optional[str] = 'high'
+    watermark: Optional[dict] = None
+    subtitleStyle: Optional[dict] = None
+    turbo: Optional[bool] = True
+
+class AddShelfVideoRequest(BaseModel):
+    filename: str
+    originalName: Optional[str] = None
+    size: Optional[int] = 0
+    duration: Optional[float] = 0
+    thumbnail: Optional[str] = None
+    groupId: Optional[str] = None
+    groupName: Optional[str] = None
+
+class UpdateShelfVideoGroupRequest(BaseModel):
+    groupId: Optional[str] = None
+    groupName: Optional[str] = None
+
+class CreateProjectGroupRequest(BaseModel):
+    name: str
+    color: Optional[str] = 'cyan'
+    description: Optional[str] = ''
+
+class UpdateProjectGroupRequest(BaseModel):
+    name: Optional[str] = None
+    color: Optional[str] = None
+    description: Optional[str] = None
 
 
 class CharacterSpeakRequest(BaseModel):
@@ -175,9 +216,10 @@ class SwitchModeRequest(BaseModel):
 # --- Authentication & Admin Endpoints ---
 
 @app.post('/api/auth/register')
-def auth_register(body: AuthRegisterRequest):
+def auth_register(body: AuthRegisterRequest, request: Request):
     try:
-        res = auth_db.register_user(body.username, body.password)
+        device_id = body.deviceId or request.headers.get('x-device-id')
+        res = auth_db.register_user(body.username, body.password, device_id)
         return res
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
@@ -185,9 +227,10 @@ def auth_register(body: AuthRegisterRequest):
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post('/api/auth/login')
-def auth_login(body: AuthLoginRequest):
+def auth_login(body: AuthLoginRequest, request: Request):
     try:
-        res = auth_db.login_user(body.username, body.password)
+        device_id = body.deviceId or request.headers.get('x-device-id')
+        res = auth_db.login_user(body.username, body.password, device_id)
         return res
     except ValueError as ve:
         raise HTTPException(status_code=401, detail=str(ve))
@@ -210,8 +253,46 @@ def auth_logout(request: Request):
 def auth_me(request: Request):
     user = get_request_user(request)
     if not user:
-        raise HTTPException(status_code=401, detail="Unauthenticated")
+        raise HTTPException(status_code=401, detail="គណនីរបស់អ្នកត្រូវបានចូលប្រើនៅលើឧបករណ៍ផ្សេងទៀត (Single Device Limit)")
     return {'user': user}
+
+# --- License Key Endpoints (VoxCPM2 Permission System) ---
+
+@app.post('/api/license/activate')
+def api_activate_license(body: ActivateLicenseRequest, request: Request):
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលគណនីជាមុនសិនដើម្បីដំណើរការ Key License")
+    try:
+        res = auth_db.activate_license_key(user['id'], body.license_key)
+        return res
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/api/admin/license-keys')
+def api_admin_list_keys(request: Request):
+    require_admin(request)
+    return {'keys': auth_db.list_license_keys()}
+
+@app.post('/api/admin/license-keys/create')
+def api_admin_create_key(body: CreateLicenseKeyRequest, request: Request):
+    require_admin(request)
+    res = auth_db.create_license_key(body.days, body.feature)
+    return {'success': True, 'key': res}
+
+@app.delete('/api/admin/license-keys/{key_id}')
+def api_admin_delete_key(key_id: int, request: Request):
+    require_admin(request)
+    auth_db.delete_license_key(key_id)
+    return {'success': True}
+
+@app.post('/api/admin/toggle-voxcpm')
+def api_admin_toggle_voxcpm(body: ToggleUserVoxcpmRequest, request: Request):
+    require_admin(request)
+    res = auth_db.admin_toggle_user_voxcpm(body.userId, body.enabled, body.days)
+    return {'success': True, 'data': res}
 
 @app.get('/api/admin/users')
 def admin_list_users(request: Request):
@@ -346,20 +427,24 @@ def ensure_local_voxcpm_running():
         return False
 
 @app.post('/api/voxcpm/start-local')
-def start_local_voxcpm():
+def start_local_voxcpm(request: Request):
+    user = get_request_user(request)
+    if not user or (user.get('role') != 'admin' and not user.get('has_voxcpm_license')):
+        raise HTTPException(
+            status_code=403,
+            detail="គណនីធម្មតាមិនមានសិទ្ធិប្រើប្រាស់ VoxCPM2 ឡើយ។ ទាល់តែដាក់ Key License ពី Admin ទើបប្រើបាន!"
+        )
     started = ensure_local_voxcpm_running()
     return {'success': started, 'message': 'Local VoxCPM2 Engine បានបើកដំណើរការ (Port 8000)'}
 
 @app.post('/api/voxcpm/switch-mode')
 def switch_voxcpm_mode(body: SwitchModeRequest, request: Request):
     user = get_request_user(request)
-    client_host = request.client.host if request.client else ''
-    is_local_client = client_host in ('127.0.0.1', 'localhost', '::1')
-    if body.mode in ['cloud', 'local'] and not is_local_client:
-        if not user or (user.get('tier') != 'premium' and user.get('role') != 'admin'):
+    if body.mode in ['cloud', 'local']:
+        if not user or (user.get('role') != 'admin' and not user.get('has_voxcpm_license')):
             raise HTTPException(
                 status_code=403,
-                detail="មុខងារ VoxCPM2 Cloud និង Computer សម្រាប់តែសមាជិក Premium ប៉ុណ្ណោះ។ គណនី Free អាចប្រើប្រាស់បានតែ Offline Neural Mode។"
+                detail="គណនីធម្មតាមិនមានសិទ្ធិប្រើប្រាស់ VoxCPM2 ឡើយ។ ទាល់តែដាក់ Key License ពី Admin ទើបប្រើបាន!"
             )
 
     current_cloud = os.getenv('VOXCPM_CLOUD_URL') or ''
@@ -1069,7 +1154,18 @@ async def record_line(audio: UploadFile = File(...), lineIndex: int = Form(0)):
     }
 
 @app.post('/api/dubbing/generate-line')
-async def generate_line(body: GenerateLineRequest):
+async def generate_line(body: GenerateLineRequest, request: Request):
+    user = get_request_user(request)
+    is_admin = bool(user and user.get('role') == 'admin')
+    has_license = bool(user and user.get('has_voxcpm_license'))
+    is_vox_voice = bool(body.voiceId and (body.voiceId.startswith('voxcpm:') or body.voiceId == 'movie-live-clone'))
+    
+    if is_vox_voice and not (is_admin or has_license):
+        raise HTTPException(
+            status_code=403,
+            detail="សំឡេង VoxCPM2 / Voice Clone សម្រាប់តែគណនីមាន Key License ពី Admin ប៉ុណ្ណោះ! សូមបញ្ចូល Key License ដើម្បីប្រើប្រាស់។"
+        )
+
     out_name = f"ai_line_{body.lineIndex}_{int(time.time() * 1000)}.wav"
     out_path = os.path.join(OUTPUTS_DIR, out_name)
 
@@ -1248,8 +1344,11 @@ async def assemble_custom(body: AssembleCustomRequest):
     if not os.path.exists(extracted_audio_path):
         audio_processor.extract_audio(input_path, extracted_audio_path)
 
-    mapped_segments = []
-    for i, seg in enumerate(body.segments):
+    # Turbo Hardware Concurrency: Synthesize missing speech in parallel workers
+    concurrency_limit = min(16, max(4, (os.cpu_count() or 4) * 2))
+    sem = asyncio.Semaphore(concurrency_limit)
+
+    async def prepare_segment(i, seg):
         audio_path = None
         if seg.get('audioUrl'):
             base = os.path.basename(seg['audioUrl'])
@@ -1262,25 +1361,30 @@ async def assemble_custom(body: AssembleCustomRequest):
             if text_to_speak:
                 auto_path = os.path.join(OUTPUTS_DIR, f"auto_studio_line_py_{i}_{int(time.time() * 1000)}.wav")
                 try:
-                    is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
-                    role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
-                    theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
-                    fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
-                    pitch = theatrical.get('pitch', '+0Hz')
-                    rate = theatrical.get('rate', '+0%')
-                    await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
+                    async with sem:
+                        is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
+                        role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
+                        theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
+                        fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
+                        pitch = theatrical.get('pitch', '+0Hz')
+                        rate = theatrical.get('rate', '+0%')
+                        await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
                     if os.path.exists(auto_path) and os.path.getsize(auto_path) > 1000:
                         audio_path = auto_path
                 except Exception as ex:
                     print(f"Auto-synthesize line {i} notice: {ex}")
 
         if audio_path:
-            mapped_segments.append({
+            return {
                 **seg,
                 'audioPath': audio_path,
                 'start_time': float(seg.get('start_time', 0)),
                 'end_time': float(seg.get('end_time', float(seg.get('start_time', 0)) + 2.5))
-            })
+            }
+        return None
+
+    raw_mapped = await asyncio.gather(*(prepare_segment(i, seg) for i, seg in enumerate(body.segments)))
+    mapped_segments = [m for m in raw_mapped if m is not None]
 
     if not mapped_segments:
         raise HTTPException(status_code=400, detail="មិនមានឃ្លាសន្ទនាសម្រាប់ដំណើរការ dubbing ឡើយ!")
@@ -1394,11 +1498,14 @@ async def render_export_video(body: RenderExportRequest):
         out_filename = f"studio_burned_{clean_stem}_{ts}.{target_format}"
         out_path = os.path.join(OUTPUTS_DIR, out_filename)
 
-        # 5. Burn permanently with FFmpeg
+        # 5. Burn permanently with FFmpeg (including watermark and custom subtitles styling)
         options = {
             'resolution': body.resolution or '1080p',
             'bitrate': body.bitrate or 'high',
-            'format': target_format
+            'format': target_format,
+            'watermark': body.watermark,
+            'subtitleStyle': body.subtitleStyle,
+            'turbo': body.turbo
         }
 
         audio_processor.burn_overlay_and_subtitles(
@@ -1468,7 +1575,18 @@ def get_character_samples():
     return {'success': True, 'count': 0, 'characters': []}
 
 @app.post('/api/character/speak')
-async def character_speak(body: CharacterSpeakRequest):
+async def character_speak(body: CharacterSpeakRequest, request: Request):
+    user = get_request_user(request)
+    is_admin = bool(user and user.get('role') == 'admin')
+    has_license = bool(user and user.get('has_voxcpm_license'))
+    is_vox_voice = bool(body.voiceId and (body.voiceId.startswith('voxcpm:') or body.voiceId == 'movie-live-clone' or body.referenceAudio))
+    
+    if is_vox_voice and not (is_admin or has_license):
+        raise HTTPException(
+            status_code=403,
+            detail="សំឡេង VoxCPM2 / Voice Clone សម្រាប់តែគណនីមាន Key License ពី Admin ប៉ុណ្ណោះ! សូមបញ្ចូល Key License ដើម្បីប្រើប្រាស់។"
+        )
+
     out_name = f"speak_test_py_{int(time.time() * 1000)}.wav"
     out_path = os.path.join(OUTPUTS_DIR, out_name)
 
@@ -1745,6 +1863,197 @@ def clear_project_state():
     except Exception as e:
         print(f"Error clearing project: {e}")
         raise HTTPException(status_code=500, detail=str(e))
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VIDEO SHELF (10 VIDEO STORAGE CAPACITY) & PROJECT GROUPS
+# ─────────────────────────────────────────────────────────────────────────────
+SHELF_FILE = os.path.join(DATA_DIR, 'video_shelf.json')
+GROUPS_FILE = os.path.join(DATA_DIR, 'project_groups.json')
+
+def load_video_shelf() -> list:
+    if os.path.exists(SHELF_FILE):
+        try:
+            with open(SHELF_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
+
+def save_video_shelf(shelf: list):
+    with open(SHELF_FILE, 'w', encoding='utf-8') as f:
+        json.dump(shelf, f, ensure_ascii=False, indent=2)
+
+def load_project_groups() -> list:
+    if os.path.exists(GROUPS_FILE):
+        try:
+            with open(GROUPS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    defaults = [
+        {"id": "grp_all", "name": "ទូទៅ (General)", "color": "cyan", "description": "គម្រោងវីដេអូទូទៅ", "createdAt": datetime.now().isoformat()},
+        {"id": "grp_chinese_drama", "name": "រឿង ដាវទេពយុទ្ធសិល្ប៍", "color": "purple", "description": "ស៊េរីភាពយន្តភាគចិនបុរាណ", "createdAt": datetime.now().isoformat()},
+        {"id": "grp_anime_action", "name": "រឿង Anime Action", "color": "emerald", "description": "គំនូរជីវចលផ្សងព្រេង", "createdAt": datetime.now().isoformat()}
+    ]
+    save_project_groups(defaults)
+    return defaults
+
+def save_project_groups(groups: list):
+    with open(GROUPS_FILE, 'w', encoding='utf-8') as f:
+        json.dump(groups, f, ensure_ascii=False, indent=2)
+
+@app.get('/api/shelf')
+def get_video_shelf():
+    shelf = load_video_shelf()
+    groups = load_project_groups()
+    return {
+        'success': True,
+        'shelf': shelf,
+        'count': len(shelf),
+        'maxSlots': 10,
+        'usedSlots': len(shelf),
+        'remainingSlots': max(0, 10 - len(shelf)),
+        'groups': groups
+    }
+
+@app.post('/api/shelf/add')
+def add_video_to_shelf(body: AddShelfVideoRequest):
+    shelf = load_video_shelf()
+    if len(shelf) >= 10:
+        raise HTTPException(
+            status_code=400,
+            detail="ឃ្លាំងផ្ទុកវីដេអូបានកំណត់អតិបរមាត្រឹម ១០ វីដេអូប៉ុណ្ណោះ! សូមលុបវីដេអូចាស់ខ្លះចេញជាមុនសិន។"
+        )
+    # Check if already in shelf
+    for s in shelf:
+        if s.get('filename') == body.filename:
+            return {'success': True, 'message': 'វីដេអូនេះមានក្នុងឃ្លាំងរួចហើយ', 'item': s, 'shelf': shelf, 'count': len(shelf)}
+
+    item_id = f"shelf_{int(time.time() * 1000)}"
+    new_item = {
+        'id': item_id,
+        'filename': body.filename,
+        'originalName': body.originalName or body.filename,
+        'size': body.size or 0,
+        'duration': body.duration or 0,
+        'thumbnail': body.thumbnail,
+        'url': f"/media/uploads/{body.filename}",
+        'groupId': body.groupId or 'grp_all',
+        'groupName': body.groupName or 'ទូទៅ (General)',
+        'addedAt': datetime.now().isoformat()
+    }
+    shelf.append(new_item)
+    save_video_shelf(shelf)
+    return {'success': True, 'message': 'បានបន្ថែមវីដេអូទៅកាន់ឃ្លាំងជោគជ័យ', 'item': new_item, 'shelf': shelf, 'count': len(shelf)}
+
+@app.delete('/api/shelf/{item_id}')
+def remove_video_from_shelf(item_id: str):
+    shelf = load_video_shelf()
+    initial_len = len(shelf)
+    shelf = [s for s in shelf if s.get('id') != item_id]
+    if len(shelf) == initial_len:
+        raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូក្នុងឃ្លាំងឡើយ")
+    save_video_shelf(shelf)
+    return {'success': True, 'message': 'បានលុបវីដេអូចេញពីឃ្លាំងរួចរាល់', 'shelf': shelf, 'count': len(shelf), 'usedSlots': len(shelf)}
+
+@app.put('/api/shelf/{item_id}/group')
+def update_shelf_video_group(item_id: str, body: UpdateShelfVideoGroupRequest):
+    shelf = load_video_shelf()
+    updated = False
+    for s in shelf:
+        if s.get('id') == item_id:
+            s['groupId'] = body.groupId or 'grp_all'
+            s['groupName'] = body.groupName or 'ទូទៅ'
+            updated = True
+            break
+    if not updated:
+        raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូក្នុងឃ្លាំងឡើយ")
+    save_video_shelf(shelf)
+    return {'success': True, 'shelf': shelf}
+
+# --- Project & Series Groups Endpoints ---
+@app.get('/api/groups')
+def get_project_groups():
+    groups = load_project_groups()
+    shelf = load_video_shelf()
+    counts = {}
+    for s in shelf:
+        gid = s.get('groupId', 'grp_all')
+        counts[gid] = counts.get(gid, 0) + 1
+    augmented = []
+    for g in groups:
+        augmented.append({
+            **g,
+            'videoCount': counts.get(g['id'], 0)
+        })
+    return {'success': True, 'groups': augmented}
+
+@app.post('/api/groups/create')
+def create_project_group(body: CreateProjectGroupRequest):
+    groups = load_project_groups()
+    clean_name = body.name.strip()
+    if not clean_name:
+        raise HTTPException(status_code=400, detail="សូមបញ្ចូលឈ្មោះ Group រឿង")
+    new_grp = {
+        'id': f"grp_{int(time.time() * 1000)}",
+        'name': clean_name,
+        'color': body.color or 'cyan',
+        'description': body.description or '',
+        'createdAt': datetime.now().isoformat()
+    }
+    groups.append(new_grp)
+    save_project_groups(groups)
+    return {'success': True, 'group': new_grp, 'groups': groups}
+
+@app.put('/api/groups/{group_id}')
+def update_project_group(group_id: str, body: UpdateProjectGroupRequest):
+    groups = load_project_groups()
+    matched = None
+    for g in groups:
+        if g['id'] == group_id:
+            if body.name is not None: g['name'] = body.name.strip()
+            if body.color is not None: g['color'] = body.color
+            if body.description is not None: g['description'] = body.description
+            matched = g
+            break
+    if not matched:
+        raise HTTPException(status_code=404, detail="រកមិនឃើញ Group រឿងនេះទេ")
+    save_project_groups(groups)
+    return {'success': True, 'group': matched, 'groups': groups}
+
+@app.delete('/api/groups/{group_id}')
+def delete_project_group(group_id: str):
+    if group_id == 'grp_all':
+        raise HTTPException(status_code=400, detail="មិនអាចលុប Group ទូទៅបានទេ")
+    groups = load_project_groups()
+    groups = [g for g in groups if g['id'] != group_id]
+    save_project_groups(groups)
+    # Reassign shelf videos in this group to grp_all
+    shelf = load_video_shelf()
+    for s in shelf:
+        if s.get('groupId') == group_id:
+            s['groupId'] = 'grp_all'
+            s['groupName'] = 'ទូទៅ (General)'
+    save_video_shelf(shelf)
+    return {'success': True, 'groups': groups}
+
+# --- Hardware Acceleration & Performance Endpoint ---
+@app.get('/api/system/hardware')
+def get_hardware_info():
+    cpu_cores = os.cpu_count() or 4
+    encoder, enc_flags = audio_processor.detect_best_video_encoder()
+    is_gpu = encoder != 'libx264'
+    gpu_label = "NVIDIA NVENC (GPU Accelerated)" if encoder == 'h264_nvenc' else ("Intel QuickSync (QSV)" if encoder == 'h264_qsv' else "CPU Multi-Core Ultrafast")
+    return {
+        'cpuCores': cpu_cores,
+        'cpuThreads': cpu_cores,
+        'videoEncoder': encoder,
+        'encoderLabel': gpu_label,
+        'isGpuAccelerated': is_gpu,
+        'turboConcurrency': min(16, max(4, cpu_cores * 2)),
+        'hardwareTier': "Ultra High Performance" if cpu_cores >= 8 or is_gpu else "Standard Fast",
+        'performanceMode': 'turbo_max'
+    }
 
 @app.get('/api/system/network-info')
 def get_network_info():

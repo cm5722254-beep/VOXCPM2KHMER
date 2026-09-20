@@ -246,16 +246,47 @@ def get_video_dimensions(video_path: str):
         pass
     return 1920, 1080
 
+def hex_to_ass_color(hex_str: str, alpha: float = 1.0) -> str:
+    """Convert hex color (#RRGGBB or #RGB) and opacity (0.0 - 1.0) to ASS format (&HAABBGGRR)."""
+    if not hex_str:
+        return "&H00FFFFFF"
+    clean = hex_str.strip().lstrip('#')
+    if len(clean) == 3:
+        clean = ''.join(c * 2 for c in clean)
+    if len(clean) != 6:
+        clean = "FFFFFF"
+    r = int(clean[0:2], 16)
+    g = int(clean[2:4], 16)
+    b = int(clean[4:6], 16)
+    # ASS alpha is inverted: 00 is fully opaque, FF is fully transparent
+    a_val = max(0, min(255, int(round((1.0 - alpha) * 255))))
+    return f"&H{a_val:02X}{b:02X}{g:02X}{r:02X}"
+
+def detect_best_video_encoder() -> tuple:
+    """Detect fastest available video encoder (NVIDIA NVENC, Intel QSV, or multi-threaded CPU)."""
+    try:
+        res = subprocess.run('ffmpeg -encoders', shell=True, capture_output=True, text=True)
+        out = res.stdout or ''
+        if 'h264_nvenc' in out:
+            return 'h264_nvenc', '-preset p4 -cq 21'
+        if 'h264_qsv' in out:
+            return 'h264_qsv', '-global_quality 22'
+    except Exception:
+        pass
+    threads = os.cpu_count() or 4
+    return 'libx264', f'-preset ultrafast -threads {threads}'
+
 def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_image_path: str = None, srt_path: str = None, options: dict = None):
     """
-    Permanently burns 3D title/thumbnail overlay and/or subtitles into the video stream.
-    Supports resolution scaling, multi-bitrate profiles, and preserves audio streams.
+    Permanently burns 3D title/thumbnail overlay, watermark, and/or subtitles into the video stream.
+    Supports resolution scaling, multi-bitrate profiles, multi-threading hardware acceleration, and preserves audio streams.
     """
-    from PIL import Image
+    from PIL import Image, ImageDraw, ImageFont
 
     options = options or {}
     resolution = options.get('resolution', 'original')
     bitrate = options.get('bitrate', 'high')
+    turbo_mode = options.get('turbo', True)
 
     video_w, video_h = get_video_dimensions(video_path)
     inputs = [f'-i "{video_path}"']
@@ -298,35 +329,137 @@ def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_
             video_h = int(round(video_h * (2160 / max(1, video_w))))
             video_w = 2160
 
+    # 1. Overlay & Watermark Composition
     temp_scaled_overlay = None
-    if overlay_image_path and os.path.exists(overlay_image_path):
+    watermark = options.get('watermark')
+
+    # Create composite canvas if either overlay or watermark exists
+    if (overlay_image_path and os.path.exists(overlay_image_path)) or (watermark and watermark.get('enabled') and watermark.get('text')):
         try:
-            with Image.open(overlay_image_path) as im:
-                actual_w, actual_h = im.size
-                if (actual_w, actual_h) != (video_w, video_h):
-                    temp_scaled_overlay = f"{overlay_image_path}_scaled_{video_w}x{video_h}.png"
-                    im.resize((video_w, video_h), Image.Resampling.LANCZOS).save(temp_scaled_overlay)
-                    inputs.append(f'-i "{temp_scaled_overlay}"')
-                else:
-                    inputs.append(f'-i "{overlay_image_path}"')
+            composite_img = Image.new('RGBA', (video_w, video_h), (0, 0, 0, 0))
+
+            # Paste existing overlay if present
+            if overlay_image_path and os.path.exists(overlay_image_path):
+                with Image.open(overlay_image_path) as im:
+                    im_rgba = im.convert('RGBA')
+                    if im_rgba.size != (video_w, video_h):
+                        im_rgba = im_rgba.resize((video_w, video_h), Image.Resampling.LANCZOS)
+                    composite_img.paste(im_rgba, (0, 0), im_rgba)
+
+            # Draw Watermark onto composite image
+            if watermark and watermark.get('enabled') and watermark.get('text'):
+                wm_text = watermark.get('text', '')
+                wm_opacity = float(watermark.get('opacity', 85)) / 100.0
+                wm_pos = watermark.get('position', 'top-right')
+                wm_size = int(round((watermark.get('fontSize', 14) / 1080.0) * video_h))
+                wm_size = max(14, min(48, wm_size))
+
+                draw = ImageDraw.Draw(composite_img)
+                # Try to use standard fonts, fallback to default
+                font = None
+                font_candidates = [
+                    'C:/Windows/Fonts/segoeui.ttf',
+                    'C:/Windows/Fonts/arial.ttf',
+                    '/System/Library/Fonts/Helvetica.ttc',
+                    '/Library/Fonts/Arial.ttf'
+                ]
+                for fc in font_candidates:
+                    if os.path.exists(fc):
+                        try:
+                            font = ImageFont.truetype(fc, wm_size)
+                            break
+                        except Exception:
+                            pass
+                if not font:
+                    font = ImageFont.load_default()
+
+                bbox = draw.textbbox((0, 0), wm_text, font=font)
+                text_w = bbox[2] - bbox[0]
+                text_h = bbox[3] - bbox[1]
+                margin = int(round(video_h * 0.035))
+
+                if wm_pos == 'top-left':
+                    x = margin
+                    y = margin
+                elif wm_pos == 'bottom-left':
+                    x = margin
+                    y = video_h - margin - text_h - 16
+                elif wm_pos == 'bottom-right':
+                    x = video_w - margin - text_w - 24
+                    y = video_h - margin - text_h - 16
+                elif wm_pos == 'center':
+                    x = (video_w - text_w) // 2
+                    y = (video_h - text_h) // 2
+                else:  # top-right
+                    x = video_w - margin - text_w - 24
+                    y = margin
+
+                # Draw subtle dark badge pill
+                pad_x, pad_y = 12, 6
+                badge_bg = (0, 0, 0, int(160 * wm_opacity))
+                draw.rounded_rectangle(
+                    [x - pad_x, y - pad_y, x + text_w + pad_x, y + text_h + pad_y],
+                    radius=8,
+                    fill=badge_bg,
+                    outline=(255, 255, 255, int(60 * wm_opacity)),
+                    width=1
+                )
+                text_color = (255, 255, 255, int(255 * wm_opacity))
+                draw.text((x, y), wm_text, font=font, fill=text_color)
+
+            ts = int(time.time() * 1000)
+            temp_scaled_overlay = os.path.join(os.path.dirname(output_video_path), f"temp_comp_ovl_{ts}.png")
+            composite_img.save(temp_scaled_overlay, 'PNG')
+            inputs.append(f'-i "{temp_scaled_overlay}"')
             ovl_idx = len(inputs) - 1
             filter_steps.append(f"{current_v}[{ovl_idx}:v]overlay=0:0[v_ovl]")
             current_v = '[v_ovl]'
         except Exception as ex:
-            print(f"Overlay scaling notice: {ex}")
+            print(f"Overlay & Watermark composition error: {ex}")
 
+    # 2. Custom Subtitle Rendering via ASS force_style
     if srt_path and os.path.exists(srt_path):
         escaped_srt = srt_path.replace('\\', '/').replace(':', '\\:')
-        font_size = options.get('fontSize', 24)
-        force_style = f"FontSize={font_size},PrimaryColour=&H0000FFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2,MarginV=30"
+        sub_style = options.get('subtitleStyle', {})
+        font_name = sub_style.get('fontFamily', 'Kantumruy Pro')
+        font_size = int(round(sub_style.get('fontSize', 22) * (video_h / 720.0)))
+        font_size = max(16, min(56, font_size))
+        
+        text_color_ass = hex_to_ass_color(sub_style.get('textColor', '#FFFFFF'), 1.0)
+        outline_color_ass = hex_to_ass_color(sub_style.get('strokeColor', '#000000'), 1.0)
+        box_color_ass = hex_to_ass_color(sub_style.get('backgroundColor', '#000000'), 0.75)
+        stroke_width = sub_style.get('strokeWidth', 2)
+        pos = sub_style.get('position', 'bottom')
+        margin_v = 35 if pos == 'bottom' else (video_h // 2 if pos == 'center' else video_h - 80)
+        alignment = 2 if pos == 'bottom' else (5 if pos == 'center' else 8)
+        border_style = 3 if sub_style.get('boxEnabled', True) else 1
+
+        force_style = (
+            f"FontName={font_name},"
+            f"FontSize={font_size},"
+            f"PrimaryColour={text_color_ass},"
+            f"OutlineColour={outline_color_ass},"
+            f"BackColour={box_color_ass},"
+            f"BorderStyle={border_style},"
+            f"Outline={stroke_width},"
+            f"Alignment={alignment},"
+            f"MarginV={margin_v}"
+        )
         filter_steps.append(f"{current_v}subtitles='{escaped_srt}':force_style='{force_style}'[v_sub]")
         current_v = '[v_sub]'
 
+    # 3. Fast Video Encoding Selection (NVENC GPU or Ultrafast Multi-threaded CPU)
     crf = '19' if bitrate == 'high' else '22' if bitrate == 'standard' else '26'
     input_flags = " ".join(inputs)
+    threads = os.cpu_count() or 4
+    encoder, enc_flags = detect_best_video_encoder()
+
     if filter_steps:
         fc = ";".join(filter_steps)
-        cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc}" -map "{current_v}" -map 0:a? -c:v libx264 -preset fast -crf {crf} -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+        if encoder == 'libx264':
+            cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc}" -map "{current_v}" -map 0:a? -c:v libx264 -preset ultrafast -threads {threads} -crf {crf} -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+        else:
+            cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc}" -map "{current_v}" -map 0:a? -c:v {encoder} {enc_flags} -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
     else:
         cmd = f'ffmpeg -nostdin -y {input_flags} -c:v copy -c:a copy -movflags +faststart "{output_video_path}"'
 
@@ -340,3 +473,4 @@ def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_
                 pass
 
     return output_video_path
+

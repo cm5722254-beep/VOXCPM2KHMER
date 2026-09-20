@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Sliders, ExternalLink, Save, Copy, HardDrive, Trash2, LogOut, User as UserIcon, Calendar, ShieldCheck, Sparkles, Clock, Crown } from 'lucide-react';
+import { X, Sliders, ExternalLink, Save, Copy, HardDrive, Trash2, LogOut, User as UserIcon, Calendar, ShieldCheck, Sparkles, Clock, Crown, Infinity, Zap } from 'lucide-react';
 import { api } from '../../services/api';
 import { User } from '../../types';
 import { getSubscriptionInfo } from '../../utils/subscription';
@@ -100,35 +100,46 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto flex flex-col gap-4 text-xs">
-          {/* User Account & Subscription Status */}
+          {/* User Account & Subscription Status - Clean Aesthetic Card */}
           {user && (() => {
             const subInfo = getSubscriptionInfo(user);
+            const isAdmin = user.role === 'admin';
+
             return (
-              <div className="bg-[#0b0f19] border border-white/[0.12] rounded-2xl p-4 flex flex-col gap-3.5 shadow-md">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-sky-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/[0.1]">
-                      {user.username.charAt(0).toUpperCase()}
+              <div className="relative overflow-hidden rounded-2xl bg-gradient-to-b from-[#0f1422] to-[#0a0d16] border border-white/[0.08] p-4 shadow-lg flex flex-col gap-3.5">
+                {/* Subtle top ambient glow */}
+                <div className="absolute -top-10 -right-10 w-28 h-28 bg-sky-500/10 rounded-full blur-2xl pointer-events-none" />
+
+                {/* Top Profile Header */}
+                <div className="relative flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Compact Avatar with status ring */}
+                    <div className="relative shrink-0">
+                      <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shadow-md border border-white/10">
+                        {user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-[#0a0d16]" />
                     </div>
-                    <div>
-                      <div className="text-sm font-bold text-white flex items-center gap-2">
-                        <span>{user.username}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold font-mono border ${
-                          subInfo.color === 'emerald'
-                            ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
-                            : subInfo.color === 'amber'
-                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                            : 'bg-slate-500/20 text-slate-300 border-slate-500/30'
-                        }`}>
+
+                    {/* Username & Role */}
+                    <div className="min-w-0">
+                      <div className="text-sm font-semibold text-slate-100 tracking-tight truncate max-w-[190px] sm:max-w-[260px]">
+                        {user.username}
+                      </div>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-[11px]">
+                        <span className="inline-flex items-center gap-1 text-amber-300 font-medium">
+                          <Crown className="w-3 h-3 text-amber-400 shrink-0" />
+                          <span>{isAdmin ? 'Master Admin' : 'សមាជិក'}</span>
+                        </span>
+                        <span className="text-slate-600">•</span>
+                        <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">
                           {subInfo.badge}
                         </span>
-                      </div>
-                      <div className="text-[11px] text-slate-400 mt-0.5">
-                        តួនាទី៖ <span className="font-semibold text-slate-300">{user.role === 'admin' ? '👑 Master Admin' : '👤 សមាជិក (Member)'}</span>
                       </div>
                     </div>
                   </div>
 
+                  {/* Logout Button */}
                   {onLogout && (
                     <button
                       type="button"
@@ -136,7 +147,7 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                         onClose();
                         onLogout();
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 border border-rose-500/30 text-rose-300 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.03] hover:bg-rose-500/15 border border-white/[0.08] hover:border-rose-500/30 text-slate-400 hover:text-rose-300 text-xs font-medium transition-all active:scale-95 cursor-pointer shrink-0"
                     >
                       <LogOut className="w-3.5 h-3.5 text-rose-400" />
                       <span>ចាកចេញ</span>
@@ -144,26 +155,31 @@ export const SettingsModal: React.FC<SettingsModalProps> = ({
                   )}
                 </div>
 
-                {/* Subscription Details Box */}
-                <div className="p-3 rounded-xl bg-white/[0.03] border border-white/[0.06] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-                  <div className="flex items-center gap-2.5">
-                    <Calendar className="w-4 h-4 text-amber-400 shrink-0" />
-                    <div className="flex flex-col">
-                      <span className="text-[10.5px] text-slate-400">កញ្ចប់ & ថ្ងៃផុតកំណត់ (Plan & Expiration)</span>
-                      <div className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                        <span>{subInfo.title}</span>
-                        <span>•</span>
-                        <span>{subInfo.formattedDate}</span>
-                      </div>
-                    </div>
+                {/* Minimalist Stats Strip - Clean, Concise, No Clutter */}
+                <div className="relative grid grid-cols-3 p-2 rounded-xl bg-black/30 border border-white/[0.05] divide-x divide-white/[0.06] text-center">
+                  <div className="flex flex-col items-center px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">កញ្ចប់</span>
+                    <span className="text-xs font-semibold text-slate-200 mt-0.5 truncate max-w-full">
+                      {subInfo.title}
+                    </span>
                   </div>
 
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#070a12] border border-white/[0.08] text-[11px] self-stretch sm:self-auto justify-between sm:justify-start">
-                    <span className="text-slate-400">ស្ថានភាព៖</span>
-                    <span className={`font-bold ${
+                  <div className="flex flex-col items-center px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">សុពលភាព</span>
+                    <span className="text-xs font-semibold text-amber-300/90 mt-0.5 truncate max-w-full font-mono">
+                      {subInfo.formattedDate || 'ពេញមួយជីវិត'}
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col items-center px-1">
+                    <span className="text-[10px] text-slate-400 font-medium">ស្ថានភាព</span>
+                    <span className={`text-xs font-semibold mt-0.5 flex items-center justify-center gap-1.5 ${
                       subInfo.isPremium ? 'text-emerald-400' : 'text-slate-400'
                     }`}>
-                      {subInfo.isPremium ? (subInfo.isLifetime ? '🌟 ពេញមួយជីវិត (Lifetime)' : `Active (${subInfo.daysLeft} ថ្ងៃ)`) : 'Free Limited'}
+                      <span className={`w-1.5 h-1.5 rounded-full ${
+                        subInfo.isPremium ? 'bg-emerald-400 animate-pulse' : 'bg-slate-400'
+                      }`} />
+                      <span>{subInfo.isPremium ? 'សកម្ម' : 'ផុតកំណត់'}</span>
                     </span>
                   </div>
                 </div>

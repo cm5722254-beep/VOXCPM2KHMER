@@ -4,7 +4,7 @@ import {
   ChevronRight, Brain, ScanSearch, CheckCircle2,
   Loader2, Globe2, Mic
 } from 'lucide-react';
-import { ProjectFile } from '../../../types';
+import { ProjectFile, User } from '../../../types';
 import { VoxCPM2OnlineToggle } from '../../ui/VoxCPM2OnlineToggle';
 
 interface Step2ContentLanguageProps {
@@ -31,6 +31,8 @@ interface Step2ContentLanguageProps {
   onSwitchEngine?: (mode: string) => void;
   voxStatus?: any;
   onOpenVoxModal?: () => void;
+  user?: User | null;
+  onOpenLicenseModal?: () => void;
 }
 
 export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
@@ -54,6 +56,8 @@ export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
   onSwitchEngine,
   voxStatus,
   onOpenVoxModal,
+  user,
+  onOpenLicenseModal,
 }) => {
   const [analysisProgress, setAnalysisProgress] = useState(0);
 
@@ -236,8 +240,10 @@ export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
               <VoxCPM2OnlineToggle
                 engineMode={engineMode}
                 voxStatus={voxStatus}
+                user={user}
                 onSwitchEngine={(m) => onSwitchEngine?.(m)}
                 onOpenVoxModal={onOpenVoxModal}
+                onOpenLicenseModal={onOpenLicenseModal}
                 variant="card"
                 title="RUN VOXCPM2: CLONE VOICE CHARACTER (ONLINE / COMPUTER)"
               />

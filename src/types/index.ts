@@ -4,6 +4,22 @@ export interface User {
   role: 'admin' | 'user';
   tier: 'premium' | 'free';
   premium_expires_at?: string | null;
+  has_voxcpm_license?: boolean | number;
+  voxcpm_license_expires_at?: string | null;
+  voxcpm_license_key?: string | null;
+  current_device_id?: string | null;
+  created_at?: string;
+}
+
+export interface LicenseKey {
+  id: number;
+  key_code: string;
+  feature: string;
+  days_valid: number;
+  is_used: number | boolean;
+  used_by_user_id?: number | null;
+  used_by_username?: string | null;
+  used_at?: string | null;
   created_at?: string;
 }
 
@@ -83,13 +99,15 @@ export interface VoxcpmStatus {
 export interface WatermarkConfig {
   enabled: boolean;
   text: string;
+  type?: 'text' | 'logo';
   position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center';
   opacity: number; // 10 to 100
-  fontSize: number; // 10 to 32
+  fontSize: number; // 10 to 36
   fontFamily: string; // 'Outfit' | 'Kantumruy Pro' | 'Koulen' | 'Moul'
   textColor: string;
   showBadge: boolean;
   logoUrl?: string;
+  scale?: number;
 }
 
 export interface VideoStyleTextConfig {
@@ -153,14 +171,49 @@ export interface VideoEffects {
 }
 
 export interface SubtitleStyle {
-  fontSize: number; // 14 to 32
-  fontFamily: string; // 'Kantumruy Pro' | 'Battambang' | 'Moul' | 'Outfit'
-  textColor: string; // '#ffffff' | '#facc15' | '#38bdf8' etc.
+  fontSize: number; // 14 to 48
+  fontFamily: string; // 'Kantumruy Pro' | 'Battambang' | 'Moul' | 'Siemreap' | 'Outfit'
+  textColor: string; // '#ffffff' | '#fef08a' etc.
   strokeColor: string; // '#000000'
-  strokeWidth: number; // 0 to 4
-  backgroundColor: string; // 'transparent' | 'rgba(0,0,0,0.6)'
+  strokeWidth: number; // 0 to 6
+  backgroundColor: string; // 'rgba(0,0,0,0.75)'
+  boxEnabled?: boolean;
   position: 'bottom' | 'center' | 'top';
   animation: 'none' | 'pop' | 'karaoke';
+  preset?: 'classic' | 'boxed' | 'glow' | 'karaoke' | 'custom';
+}
+
+export interface ProjectGroup {
+  id: string;
+  name: string;
+  color: string; // 'cyan' | 'purple' | 'emerald' | 'amber' | 'rose' | 'sky'
+  description?: string;
+  createdAt: string;
+  videoCount?: number;
+}
+
+export interface VideoShelfItem {
+  id: string;
+  filename: string;
+  originalName: string;
+  size: number;
+  duration?: number;
+  thumbnail?: string;
+  url: string;
+  groupId: string;
+  groupName: string;
+  addedAt: string;
+}
+
+export interface HardwareProfile {
+  cpuCores: number;
+  cpuThreads: number;
+  videoEncoder: string;
+  encoderLabel: string;
+  isGpuAccelerated: boolean;
+  turboConcurrency: number;
+  hardwareTier: string;
+  performanceMode: 'turbo_max' | 'balanced' | 'quality';
 }
 
 export interface ThumbnailConfig {
@@ -216,6 +269,8 @@ export interface VideoDownloadResult {
 
 export type TabId =
   | 'tab-dashboard'
+  | 'tab-shelf'
+  | 'tab-groups'
   | 'tab-workflow'
   | 'tab-dubbing'
   | 'tab-manual'
@@ -225,3 +280,4 @@ export type TabId =
   | 'tab-subtitles'
   | 'tab-tuner'
   | 'tab-thumbnail';
+

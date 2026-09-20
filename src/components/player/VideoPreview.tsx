@@ -526,19 +526,22 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
   return (
     <div className="flex-1 bg-[#05070c] flex flex-col items-center justify-center p-3 relative overflow-hidden">
+      {/* Ambient Cyber-Cinematic Backlight Glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[420px] bg-gradient-to-tr from-cyan-500/10 via-violet-600/10 to-indigo-500/5 blur-3xl pointer-events-none rounded-full" />
+
       {/* Upload UI when no video */}
       {!hasVideo && (
-        <div className="flex flex-col items-center justify-center gap-6 text-center p-12">
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-sky-500/20 to-indigo-600/20 border-2 border-sky-500/30 flex items-center justify-center animate-pulse">
-            <Film className="w-12 h-12 text-sky-400" />
+        <div className="flex flex-col items-center justify-center gap-4 text-center p-12 relative z-10 font-khmer">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-600/20 border-2 border-cyan-500/30 flex items-center justify-center animate-pulse shadow-[0_0_20px_rgba(0,240,255,0.2)]">
+            <Film className="w-10 h-10 text-cyan-400" />
           </div>
           
           <div>
-            <h3 className="text-2xl font-bold text-white mb-2">
-              No Video Loaded
+            <h3 className="text-xl font-bold text-white mb-1">
+              មិនទាន់មានវីដេអូ
             </h3>
-            <p className="text-slate-400 mb-6">
-              Upload a video file to start dubbing
+            <p className="text-slate-400 text-xs">
+              សូមជ្រើសរើសវីដេអូដើម្បីចាប់ផ្តើមបញ្ចូលសំឡេង
             </p>
           </div>
 
@@ -554,22 +557,22 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 }
               }}
             />
-            <div className="flex items-center gap-3 px-8 py-4 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white font-bold text-lg transition-all shadow-lg shadow-sky-600/30 active:scale-95">
-              <Download className="w-6 h-6" />
-              <span>Load Video</span>
+            <div className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-500 hover:brightness-110 text-slate-950 font-bold text-sm transition-all shadow-lg shadow-cyan-500/25 active:scale-95">
+              <Download className="w-4 h-4" />
+              <span>ជ្រើសរើសវីដេអូ</span>
             </div>
           </label>
 
           {isUploadingFile && (
-            <div className="mt-4 w-64">
-              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+            <div className="mt-2 w-64">
+              <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-sky-500 to-indigo-600 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-cyan-400 to-violet-500 transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
-              <p className="text-sm text-slate-400 mt-2">
-                Uploading... {uploadProgress}%
+              <p className="text-xs text-slate-400 mt-1">
+                កំពុងផ្ទុកឡើង... {uploadProgress}%
                 {uploadInfo && ` (${uploadInfo.loadedMb} / ${uploadInfo.totalMb})`}
               </p>
             </div>
@@ -647,8 +650,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               onClick={handlePlayPause}
               className="absolute inset-0 flex items-center justify-center cursor-pointer z-15 group/playbtn transition-all"
             >
-              <div className="w-16 h-16 rounded-full bg-sky-500/90 hover:bg-sky-400 text-black flex items-center justify-center shadow-[0_0_25px_rgba(56,189,248,0.6)] transform group-hover/playbtn:scale-110 active:scale-95 transition-all">
-                <Play className="w-7 h-7 fill-black text-black translate-x-0.5" />
+              <div className="w-16 h-16 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 flex items-center justify-center shadow-[0_0_30px_rgba(0,240,255,0.6)] transform group-hover/playbtn:scale-110 active:scale-95 transition-all">
+                <Play className="w-7 h-7 fill-slate-950 text-slate-950 translate-x-0.5" />
               </div>
             </div>
           )}
@@ -974,27 +977,27 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
         })()}
 
         {/* Top Floating Cinematic Badges */}
-        <div className="absolute top-3 left-3 z-20 flex items-center gap-2 select-none">
+        <div className="absolute top-3 left-3 z-20 flex items-center gap-2 select-none font-khmer">
           <div className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-200 text-[11px] font-medium shadow-md">
-            Cinematic Mode
+            ទម្រង់ភាពយន្ត
           </div>
           <div className="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-400 font-mono text-[10.5px]">
             16:9
           </div>
         </div>
 
-        <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 select-none">
+        <div className="absolute top-3 right-3 z-20 flex items-center gap-1.5 select-none font-khmer">
           {onToggleSubtitles && (
             <button
               onClick={onToggleSubtitles}
               className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold backdrop-blur-md border transition-all ${
                 showSubtitles
-                  ? 'bg-sky-500/20 border-sky-400/50 text-sky-300 shadow-md'
+                  ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300 shadow-md'
                   : 'bg-black/60 border-white/[0.1] text-slate-400 hover:text-white'
               }`}
-              title="Toggle Subtitles"
+              title="បើក/បិទ អក្សររត់"
             >
-              CC ON
+              {showSubtitles ? 'អក្សររត់ បើក' : 'អក្សររត់ បិទ'}
             </button>
           )}
           <div className="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-300 font-mono text-[10.5px]">
@@ -1005,15 +1008,26 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           </div>
         </div>
 
-        {/* Dynamic Subtitle Overlay (Clean Cinema Typography) */}
+        {/* Dynamic Subtitle Overlay (Customizable Subtitles) */}
         {showSubtitles && currentSubtitle && (
           <div className={`absolute ${subtitlePositionClass} left-[5%] right-[5%] text-center pointer-events-none z-20 animate-in fade-in duration-100`}>
-            <div className="inline-flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl bg-black/75 backdrop-blur-md border border-white/[0.15] shadow-2xl max-w-[85%] mx-auto">
-              <p className="text-slate-300 text-xs font-medium tracking-wide">
-                我一定会变得更强
-              </p>
+            <div
+              className={`inline-flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl shadow-2xl max-w-[85%] mx-auto transition-all ${
+                subtitleStyle?.boxEnabled !== false ? 'border border-white/[0.15] backdrop-blur-md' : ''
+              }`}
+              style={{
+                backgroundColor: subtitleStyle?.boxEnabled !== false ? (subtitleStyle?.backgroundColor || 'rgba(0,0,0,0.75)') : 'transparent',
+              }}
+            >
               <p
-                className="font-khmer font-bold text-amber-300 text-base leading-relaxed tracking-wide drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                className="font-bold leading-relaxed tracking-wide transition-all select-none"
+                style={{
+                  fontSize: `${subtitleStyle?.fontSize || 22}px`,
+                  fontFamily: `"${subtitleStyle?.fontFamily || 'Kantumruy Pro'}", "Battambang", sans-serif`,
+                  color: subtitleStyle?.textColor || '#ffffff',
+                  WebkitTextStroke: `${subtitleStyle?.strokeWidth || 2}px ${subtitleStyle?.strokeColor || '#000000'}`,
+                  textShadow: '0 2px 8px rgba(0,0,0,0.95)',
+                }}
               >
                 {currentSubtitle}
               </p>
@@ -1039,11 +1053,11 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       )}
 
       {/* Professional Bottom Transport Bar */}
-      <div className="w-full max-w-2xl bg-[#0a0e17] border border-white/[0.08] rounded-xl px-4 py-2 mt-2.5 flex items-center justify-between text-xs select-none shadow-xl">
+      <div className="w-full max-w-2xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-2 mt-2.5 flex items-center justify-between text-xs select-none shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => onStep(-10)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
             title="Skip backward 10s"
           >
             <SkipBack className="w-4 h-4" />
@@ -1051,19 +1065,19 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
           <button
             onClick={handlePlayPause}
-            className="w-9 h-9 rounded-full bg-sky-500 hover:bg-sky-400 text-black flex items-center justify-center transition-transform active:scale-95 shadow-md shadow-sky-500/30"
+            className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-md shadow-cyan-500/30 hover:brightness-110"
             title="Play / Pause (Space)"
           >
             {isPlaying ? (
-              <Pause className="w-4 h-4 fill-black text-black" />
+              <Pause className="w-4 h-4 fill-slate-950 text-slate-950" />
             ) : (
-              <Play className="w-4 h-4 fill-black text-black translate-x-0.5" />
+              <Play className="w-4 h-4 fill-slate-950 text-slate-950 translate-x-0.5" />
             )}
           </button>
 
           <button
             onClick={() => onStep(10)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
             title="Skip forward 10s"
           >
             <SkipForward className="w-4 h-4" />
@@ -1072,14 +1086,14 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* Monospace Timecode + Progress Percentage */}
           <div className="flex items-center gap-2">
             <div className="font-mono text-xs font-semibold px-2 py-1 text-slate-300">
-              <span className="text-sky-400">{formatTimecode(currentTime)}</span>
+              <span className="text-cyan-400 font-bold">{formatTimecode(currentTime)}</span>
               <span className="text-slate-600 mx-1">/</span>
               <span className="text-slate-400">{formatTimecode(duration)}</span>
             </div>
             
             {/* Progress Percentage (ភាគរយ) */}
-            <div className="px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
-              <span className="text-xs font-bold text-sky-400 font-mono">
+            <div className="px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/30">
+              <span className="text-xs font-bold text-cyan-400 font-mono">
                 {duration > 0 ? Math.round((currentTime / duration) * 100) : 0}%
               </span>
             </div>
@@ -1091,7 +1105,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           <select
             value={playbackRate}
             onChange={(e) => onRateChange(parseFloat(e.target.value))}
-            className="bg-[#111827] border border-white/[0.08] text-slate-300 text-xs rounded-lg px-2 py-1 font-mono cursor-pointer outline-none focus:border-sky-400"
+            className="bg-[#0e1322] border border-white/10 text-slate-200 text-xs rounded-lg px-2 py-1 font-mono cursor-pointer outline-none focus:border-cyan-400"
           >
             <option value="0.5">0.5x</option>
             <option value="0.75">0.75x</option>
@@ -1104,7 +1118,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* Mute / Volume */}
           <button
             onClick={onToggleMute}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
             title="Mute / Unmute"
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
@@ -1113,7 +1127,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* Fullscreen */}
           <button
             onClick={handleFullscreen}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
             title="Fullscreen (F)"
           >
             <Maximize className="w-4 h-4" />

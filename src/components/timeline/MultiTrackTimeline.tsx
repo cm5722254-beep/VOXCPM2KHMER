@@ -343,28 +343,28 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
   };
 
   return (
-    <div className="h-68 bg-[#0a0e17] border-t border-sky-500/10 flex flex-col overflow-hidden select-none shadow-2xl shadow-black/50">
+    <div className="h-68 bg-[#060911] border-t border-cyan-500/20 flex flex-col overflow-hidden select-none shadow-2xl shadow-black/50">
       {/* Pro NLE Timeline Toolbar */}
-      <div className="h-10 px-3 bg-[#0d1219] border-b border-white/[0.08] flex items-center justify-between text-xs">
+      <div className="h-10 px-3 bg-[#090d16]/95 backdrop-blur-md border-b border-white/[0.08] flex items-center justify-between text-xs">
         {/* Left Controls: Transport & Pro Editing Tools matching Image 3 */}
-        <div className="flex items-center gap-2">{/* Split (Cut) Button */}
+        <div className="flex items-center gap-2 font-khmer">{/* Split (Cut) Button */}
           <button
             onClick={handleSplitClip}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-medium transition-all hover:border-sky-500/30"
-            title="Split Clip at Playhead"
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs font-medium transition-all hover:border-cyan-500/40"
+            title="កាត់ត្រង់បន្ទាត់ចង្អុល (Split)"
           >
-            <Scissors className="w-3.5 h-3.5 text-sky-400" />
-            <span>Split</span>
+            <Scissors className="w-3.5 h-3.5 text-cyan-400" />
+            <span>កាត់</span>
           </button>
 
           {/* Delete Button */}
           <button
             onClick={handleDeleteClip}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-rose-500/20 border border-white/[0.08] hover:border-rose-500/30 text-slate-300 hover:text-rose-300 text-xs font-medium transition-all"
-            title="Delete Selected Clip"
+            title="លុបបន្ទាត់ដែលបានជ្រើស (Delete)"
           >
             <Trash2 className="w-3.5 h-3.5" />
-            <span>Delete</span>
+            <span>លុប</span>
           </button>
 
           {/* Magnet / Snap Button */}
@@ -372,28 +372,28 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             onClick={() => setSnapEnabled(!snapEnabled)}
             className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-xs font-medium transition-all ${
               snapEnabled
-                ? 'bg-sky-500/20 border-sky-400/50 text-sky-300 shadow-sm'
+                ? 'bg-cyan-500/20 border-cyan-400/60 text-cyan-300 shadow-[0_0_12px_rgba(0,240,255,0.3)]'
                 : 'bg-white/[0.04] border-white/[0.08] text-slate-400'
             }`}
-            title="Toggle Magnet Snap"
+            title="បើក/បិទ ការតោងស្វ័យប្រវត្តិ (Snap)"
           >
             <Magnet className="w-3.5 h-3.5" />
-            <span>Snap</span>
+            <span>តោង</span>
           </button>
 
           {/* Markers / Auto-Arrange */}
           <button
             onClick={handleAutoDeoverlap}
             className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 text-xs font-medium transition-all"
-            title="Auto-Arrange & Align Dialogue Clips"
+            title="រៀបចំតម្រង់បន្ទាត់សំឡេងស្វ័យប្រវត្តិ"
           >
             <LayoutList className="w-3.5 h-3.5 text-indigo-400" />
-            <span>Markers</span>
+            <span>តម្រង់ជួរ</span>
           </button>
         </div>
 
         {/* Right Controls: AI Scan, Zoom Slider, and Assemble Video */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 font-khmer">
           {/* Zoom Slider with Icons */}
           <div className="flex items-center gap-1.5 text-slate-400 text-xs">
             <ZoomOut
@@ -417,22 +417,22 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           {/* Assemble Video Action Button */}
           <button
             onClick={onAssemble}
-            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-md shadow-sky-600/30 active:scale-95"
-            title="Assemble Video"
+            className="flex items-center gap-1.5 px-4 py-1.5 rounded-xl bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 hover:brightness-110 text-slate-950 font-bold text-xs transition-all shadow-md shadow-cyan-500/30 hover:shadow-cyan-500/50 active:scale-95"
+            title="បញ្ចូលសំឡេង និងវីដេអូសម្រេច"
           >
             <CheckCheck className="w-4 h-4" />
-            <span>Assemble Video</span>
+            <span>បញ្ចូលវីដេអូ</span>
           </button>
         </div>
       </div>
 
       {/* Multi-Track Stage */}
-      <div className="flex-1 flex overflow-x-auto overflow-y-hidden relative">
+      <div className="flex-1 flex overflow-x-auto overflow-y-hidden relative font-khmer">
         {/* Left Track Headers (Sticky) */}
         <div className="w-40 shrink-0 bg-[#0a0e17] border-r border-sky-500/10 sticky left-0 z-30 flex flex-col shadow-2xl shadow-black/30">
           <div className="h-7 bg-[#0d1219] border-b border-white/[0.08] flex items-center px-2.5 justify-between">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 font-mono">
-              TRACKS
+            <span className="text-[10px] font-bold tracking-wider text-slate-400">
+              បន្ទាត់សំឡេង
             </span>
             <span className="text-[9px] text-slate-500">M / S</span>
           </div>
@@ -443,7 +443,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono border border-sky-500/30">
                 V1
               </span>
-              <span className="text-xs font-medium text-slate-200 truncate">Video Track</span>
+              <span className="text-xs font-medium text-slate-200 truncate">វីដេអូដើម</span>
             </div>
             <button
               onClick={() => toggleTrackMute('V1')}
@@ -462,7 +462,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-mono">
                 A1
               </span>
-              <span className="text-xs font-semibold text-indigo-300 truncate">Khmer Voice</span>
+              <span className="text-xs font-semibold text-cyan-300 truncate">សំឡេងខ្មែរ</span>
             </div>
             <div className="flex items-center gap-1">
               <button
@@ -470,7 +470,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                 className={`p-1 rounded text-[10px] ${
                   mutedTracks['A1'] ? 'text-rose-400 bg-rose-500/20' : 'text-slate-400 hover:text-white'
                 }`}
-                title="Mute សំឡេងខ្មែរ"
+                title="បិទសំឡេងខ្មែរ"
               >
                 {mutedTracks['A1'] ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
               </button>
@@ -483,7 +483,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">
                 A2
               </span>
-              <span className="text-xs font-medium text-slate-300 truncate">Original Vox</span>
+              <span className="text-xs font-medium text-slate-300 truncate">សំឡេងដើម</span>
             </div>
             <button
               onClick={() => toggleTrackMute('A2')}
@@ -501,7 +501,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono">
                 A3
               </span>
-              <span className="text-xs font-medium text-slate-300 truncate">BGM / FX</span>
+              <span className="text-xs font-medium text-slate-300 truncate">ភ្លេង & BGM</span>
             </div>
             <button
               onClick={() => toggleTrackMute('A3')}
@@ -519,7 +519,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 font-mono">
                 S1
               </span>
-              <span className="text-xs font-medium text-slate-300 truncate">Subtitles</span>
+              <span className="text-xs font-medium text-slate-300 truncate">អក្សររត់</span>
             </div>
             <button
               onClick={() => toggleTrackMute('S1')}
@@ -559,11 +559,11 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
 
           {/* Interactive Playhead Needle */}
           <div
-            className="absolute top-0 bottom-0 w-[2px] bg-sky-400 shadow-[0_0_12px_#38bdf8] pointer-events-none z-40 transition-none"
+            className="absolute top-0 bottom-0 w-[2px] bg-[#00f0ff] shadow-[0_0_14px_#00f0ff] pointer-events-none z-40 transition-none"
             style={{ left: `${playheadPercent}%` }}
           >
             {/* Playhead Handle Header */}
-            <div className="w-4 h-5 bg-sky-400 -translate-x-[7px] [clip-path:polygon(0%_0%,100%_0%,100%_65%,50%_100%,0%_65%)] shadow-lg" />
+            <div className="w-4 h-5 bg-[#00f0ff] -translate-x-[7px] [clip-path:polygon(0%_0%,100%_0%,100%_65%,50%_100%,0%_65%)] shadow-[0_0_10px_#00f0ff]" />
           </div>
 
           {/* ================= TRACK LANES ================= */}
@@ -640,8 +640,19 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                     <div className="w-[1.5px] h-3 bg-white/70" />
                   </div>
 
-                  {/* Clip Label & Dialogue Text */}
-                  <div className="flex items-center gap-1.5 truncate pointer-events-none px-1">
+                  {/* Audio Waveform Peaks Inside Segment Clip */}
+                  <div className="absolute inset-0 flex items-center justify-around px-2 opacity-25 pointer-events-none overflow-hidden">
+                    {[35, 70, 50, 85, 30, 80, 60, 95, 45, 75, 90, 40, 65, 55, 70, 45].map((h, i) => (
+                      <div
+                        key={i}
+                        className="w-[2px] bg-white rounded-full transition-all"
+                        style={{ height: `${Math.max(15, (h * ((idx * 11 + i * 17) % 35 + 65)) / 100)}%` }}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Clip Content Label */}
+                  <div className="flex items-center gap-1.5 min-w-0 flex-1 z-10">
                     <span className="font-bold text-[10px] px-1.5 py-0.5 rounded-md bg-black/40 text-white shrink-0 border border-white/20">
                       #{idx + 1}
                     </span>
@@ -675,18 +686,44 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           </div>
 
           {/* A2 Lane: Original Audio Waveform */}
-          <div className="h-11 border-b border-white/[0.06] relative bg-[#0c111e]/60 flex items-center px-1">
-            <div className="absolute top-1 bottom-1 left-0 w-[96%] bg-emerald-500/10 border border-emerald-500/25 rounded-md px-3 flex items-center justify-between text-xs text-emerald-400 font-medium">
-              <span className="truncate">🎙️ រលកសំឡេងដើម (Original Vocal Stem)</span>
-              <span className="text-[10px] font-mono text-emerald-500/70">48kHz • Stereo</span>
+          <div className="h-11 border-b border-white/[0.06] relative bg-[#0c111e]/60 flex items-center px-1 overflow-hidden">
+            <div className="absolute top-1 bottom-1 left-0 w-[98%] bg-emerald-500/10 border border-emerald-500/25 rounded-md px-3 flex items-center justify-between text-xs text-emerald-400 font-medium relative overflow-hidden">
+              {/* Dense Waveform Simulator */}
+              <div className="absolute inset-0 flex items-center justify-between px-4 opacity-20 pointer-events-none">
+                {Array.from({ length: 48 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-[2px] bg-emerald-400 rounded-full"
+                    style={{ height: `${15 + ((i * 37) % 70)}%` }}
+                  />
+                ))}
+              </div>
+              <span className="truncate relative z-10 flex items-center gap-2">
+                <span>🎙️</span>
+                <span>រលកសំឡេងដើម (Original Vocal Stem)</span>
+              </span>
+              <span className="text-[10px] font-mono text-emerald-500/80 relative z-10">48kHz • Stereo</span>
             </div>
           </div>
 
           {/* A3 Lane: Preserved BGM & Sound Effects */}
-          <div className="h-11 border-b border-white/[0.06] relative bg-[#090e1a]/80 flex items-center px-1">
-            <div className="absolute top-1 bottom-1 left-0 w-[96%] bg-amber-500/10 border border-amber-500/25 rounded-md px-3 flex items-center justify-between text-xs text-amber-400 font-medium">
-              <span className="truncate">🎵 តន្ត្រីផ្ទៃក្រោយ និងសំឡេង Effects (BGM & Foley Preserved)</span>
-              <span className="text-[10px] font-mono text-amber-500/70">Demucs v4 AI Stem</span>
+          <div className="h-11 border-b border-white/[0.06] relative bg-[#090e1a]/80 flex items-center px-1 overflow-hidden">
+            <div className="absolute top-1 bottom-1 left-0 w-[98%] bg-amber-500/10 border border-amber-500/25 rounded-md px-3 flex items-center justify-between text-xs text-amber-400 font-medium relative overflow-hidden">
+              {/* Dense BGM Waveform Simulator */}
+              <div className="absolute inset-0 flex items-center justify-between px-4 opacity-20 pointer-events-none">
+                {Array.from({ length: 48 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-[2px] bg-amber-400 rounded-full"
+                    style={{ height: `${20 + ((i * 29) % 75)}%` }}
+                  />
+                ))}
+              </div>
+              <span className="truncate relative z-10 flex items-center gap-2">
+                <span>🎵</span>
+                <span>តន្ត្រីផ្ទៃក្រោយ និងសំឡេង Effects (BGM & Foley Preserved)</span>
+              </span>
+              <span className="text-[10px] font-mono text-amber-500/80 relative z-10">Demucs v4 AI Stem</span>
             </div>
           </div>
 

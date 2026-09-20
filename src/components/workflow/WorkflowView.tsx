@@ -6,7 +6,7 @@ import { Step3TranslationReview } from './steps/Step3TranslationReview';
 import { Step4VoiceCasting } from './steps/Step4VoiceCasting';
 import { Step5Generating } from './steps/Step5Generating';
 import { Step6Result } from './steps/Step6Result';
-import { ProjectFile, TimelineSegment, CharacterVoice } from '../../types';
+import { ProjectFile, TimelineSegment, CharacterVoice, User } from '../../types';
 
 interface WorkflowViewProps {
   // Global State
@@ -49,6 +49,8 @@ interface WorkflowViewProps {
   onSwitchEngine?: (mode: string) => void;
   voxStatus?: any;
   onOpenVoxModal?: () => void;
+  user?: User | null;
+  onOpenLicenseModal?: () => void;
 }
 
 export const WorkflowView: React.FC<WorkflowViewProps> = (props) => {
@@ -134,6 +136,8 @@ export const WorkflowView: React.FC<WorkflowViewProps> = (props) => {
             onSwitchEngine={props.onSwitchEngine}
             voxStatus={props.voxStatus}
             onOpenVoxModal={props.onOpenVoxModal}
+            user={props.user}
+            onOpenLicenseModal={props.onOpenLicenseModal}
             onBack={() => goToStep('import')}
             onNext={() => completeStep('content-language', 'translation')}
           />
@@ -160,6 +164,8 @@ export const WorkflowView: React.FC<WorkflowViewProps> = (props) => {
             onSwitchEngine={props.onSwitchEngine}
             voxStatus={props.voxStatus}
             onOpenVoxModal={props.onOpenVoxModal}
+            user={props.user}
+            onOpenLicenseModal={props.onOpenLicenseModal}
             onBack={() => goToStep('translation')}
             onNext={() => completeStep('voice-casting', 'generating')}
           />

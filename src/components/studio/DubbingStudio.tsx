@@ -4,7 +4,7 @@ import { ContextualInspector } from '../inspector/ContextualInspector';
 import { MultiTrackTimeline } from '../timeline/MultiTrackTimeline';
 import { VideoEffectsPanel } from '../effects/VideoEffectsPanel';
 import { CharacterCastDrawer } from './CharacterCastDrawer';
-import { ProjectFile, TimelineSegment, VideoEffects, SubtitleStyle, CharacterVoice } from '../../types';
+import { ProjectFile, TimelineSegment, VideoEffects, SubtitleStyle, CharacterVoice, User } from '../../types';
 import { api } from '../../services/api';
 
 interface DubbingStudioProps {
@@ -52,6 +52,8 @@ interface DubbingStudioProps {
   onSwitchEngine?: (mode: string) => void;
   voxStatus?: any;
   onOpenVoxModal?: () => void;
+  user?: User | null;
+  onOpenLicenseModal?: () => void;
 }
 
 export const DubbingStudio: React.FC<DubbingStudioProps> = ({
@@ -95,6 +97,8 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   onSwitchEngine,
   voxStatus,
   onOpenVoxModal,
+  user,
+  onOpenLicenseModal,
 }) => {
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -106,6 +110,25 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   const [showCharacterCastDrawer, setShowCharacterCastDrawer] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(true);
   const [videoSourceMode, setVideoSourceMode] = useState<'original' | 'dubbed'>('original');
+  const [isInspectorCollapsed, setIsInspectorCollapsed] = useState(false);
+
+  // Global hotkeys for studio workstation speed
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+
+      if (e.code === 'KeyI' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setIsInspectorCollapsed((prev) => !prev);
+      } else if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setIsMuted((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // Auto-switch to dubbed video when a new dubbing output is generated
   useEffect(() => {
@@ -315,6 +338,10 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
           onSwitchEngine={onSwitchEngine}
           voxStatus={voxStatus}
           onOpenVoxModal={onOpenVoxModal}
+          user={user}
+          onOpenLicenseModal={onOpenLicenseModal}
+          isCollapsed={isInspectorCollapsed}
+          onToggleCollapse={() => setIsInspectorCollapsed(!isInspectorCollapsed)}
         />
       </div>
 
@@ -359,6 +386,8 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
         voxStatus={voxStatus}
         onOpenVoxModal={onOpenVoxModal}
         onGenerateCustomVideo={onAssemble}
+        user={user}
+        onOpenLicenseModal={onOpenLicenseModal}
       />
 
       {/* ── Video Effects Panel Drawer ── */}

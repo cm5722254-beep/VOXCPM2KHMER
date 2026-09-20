@@ -1,4 +1,4 @@
-import { User, CharacterVoice, TimelineSegment, ProjectFile, StudioConfig, VoxcpmStatus, VideoDownloadResult } from '../types';
+import { User, LicenseKey, CharacterVoice, TimelineSegment, ProjectFile, StudioConfig, VoxcpmStatus, VideoDownloadResult, ProjectGroup, VideoShelfItem, HardwareProfile } from '../types';
 
 const API_BASE = '';
 
@@ -6,12 +6,25 @@ function getAuthToken(): string | null {
   return localStorage.getItem('studio_auth_token');
 }
 
+export function getDeviceId(): string {
+  let devId = localStorage.getItem('studio_device_id');
+  if (!devId) {
+    devId = 'dev_' + Math.random().toString(36).substring(2, 10) + '_' + Date.now().toString(36);
+    localStorage.setItem('studio_device_id', devId);
+  }
+  return devId;
+}
+
 export async function request<T = any>(endpoint: string, options: RequestInit = {}): Promise<T> {
   const token = getAuthToken();
+  const devId = getDeviceId();
   const headers = new Headers(options.headers || {});
 
   if (token && !headers.has('Authorization')) {
     headers.set('Authorization', `Bearer ${token}`);
+  }
+  if (!headers.has('X-Device-Id')) {
+    headers.set('X-Device-Id', devId);
   }
 
   const res = await fetch(`${API_BASE}${endpoint}`, {
@@ -32,24 +45,54 @@ export async function request<T = any>(endpoint: string, options: RequestInit = 
 }
 
 export const api = {
-  // Auth
+  // Auth & Single-Device Session
   login: (body: { username: string; password: string }) =>
     request<{ token: string; user: User }>('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, deviceId: getDeviceId() }),
     }),
 
   register: (body: { username: string; password: string }) =>
     request<{ token: string; user: User }>('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
+      body: JSON.stringify({ ...body, deviceId: getDeviceId() }),
     }),
 
   logout: () => request('/api/auth/logout', { method: 'POST' }),
 
   getMe: () => request<{ user: User }>('/api/auth/me'),
+
+  // License Key & VoxCPM2 Permissions
+  activateLicense: (license_key: string) =>
+    request<{ success: boolean; message: string; user: User }>('/api/license/activate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ license_key }),
+    }),
+
+  adminListLicenseKeys: () =>
+    request<{ keys: LicenseKey[] }>('/api/admin/license-keys'),
+
+  adminCreateLicenseKey: (days: number = 30, feature: string = 'voxcpm2') =>
+    request<{ success: boolean; key: LicenseKey }>('/api/admin/license-keys/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ days, feature }),
+    }),
+
+  adminDeleteLicenseKey: (keyId: number) =>
+    request<{ success: boolean }>(`/api/admin/license-keys/${keyId}`, {
+      method: 'DELETE',
+    }),
+
+  adminToggleUserVoxcpm: (userId: number, enabled: boolean, days?: number) =>
+    request<{ success: boolean; data: any }>('/api/admin/toggle-voxcpm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, enabled, days }),
+    }),
 
   adminListUsers: () => request<{ users: User[] }>('/api/admin/users'),
 
@@ -251,6 +294,9 @@ export const api = {
     resolution?: string;
     format?: string;
     bitrate?: string;
+    watermark?: any;
+    subtitleStyle?: any;
+    turbo?: boolean;
   }) =>
     request<{ success: boolean; outputVideo: string; filename: string; hasOverlay: boolean; hasSubtitles: boolean }>('/api/video/render-export', {
       method: 'POST',
@@ -289,5 +335,71 @@ export const api = {
     request<{ success: boolean; message: string }>('/api/project/clear', {
       method: 'POST',
     }),
+
+  // Video Shelf (Store up to 10 Videos ready for Dubbing)
+  getVideoShelf: () =>
+    request<{
+      success: boolean;
+      shelf: VideoShelfItem[];
+      maxSlots: number;
+      usedSlots: number;
+      remainingSlots: number;
+      groups: ProjectGroup[];
+    }>('/api/shelf'),
+
+  addToShelf: (body: {
+    filename: string;
+    originalName?: string;
+    size?: number;
+    duration?: number;
+    thumbnail?: string;
+    groupId?: string;
+    groupName?: string;
+  }) =>
+    request<{ success: boolean; message: string; item: VideoShelfItem; shelf: VideoShelfItem[] }>('/api/shelf/add', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  removeFromShelf: (itemId: string) =>
+    request<{ success: boolean; message: string; shelf: VideoShelfItem[] }>(`/api/shelf/${itemId}`, {
+      method: 'DELETE',
+    }),
+
+  updateShelfGroup: (itemId: string, groupId: string, groupName: string) =>
+    request<{ success: boolean; shelf: VideoShelfItem[] }>(`/api/shelf/${itemId}/group`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ groupId, groupName }),
+    }),
+
+  // Project & Series Groups
+  getProjectGroups: () =>
+    request<{ success: boolean; groups: ProjectGroup[] }>('/api/groups'),
+
+  createProjectGroup: (body: { name: string; color?: string; description?: string }) =>
+    request<{ success: boolean; group: ProjectGroup; groups: ProjectGroup[] }>('/api/groups/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  updateProjectGroup: (groupId: string, body: { name?: string; color?: string; description?: string }) =>
+    request<{ success: boolean; group: ProjectGroup; groups: ProjectGroup[] }>(`/api/groups/${groupId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  deleteProjectGroup: (groupId: string) =>
+    request<{ success: boolean; groups: ProjectGroup[] }>(`/api/groups/${groupId}`, {
+      method: 'DELETE',
+    }),
+
+  // Hardware Performance Profile
+  getHardwareInfo: () =>
+    request<HardwareProfile>('/api/system/hardware'),
 };
+
 

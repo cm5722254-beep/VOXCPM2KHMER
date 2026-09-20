@@ -18,13 +18,18 @@ import { SettingsModal } from './components/modals/SettingsModal';
 import { ExportModal } from './components/modals/ExportModal';
 import { QuickVoxcpmModal } from './components/modals/QuickVoxcpmModal';
 import { AdminUsersModal } from './components/modals/AdminUsersModal';
+import { LicenseActivationModal } from './components/modals/LicenseActivationModal';
 import { AddVoiceModal } from './components/modals/AddVoiceModal';
 import { EditVoiceModal } from './components/modals/EditVoiceModal';
 import { VoiceAuditionModal } from './components/modals/VoiceAuditionModal';
+import { KeyboardShortcutsModal } from './components/modals/KeyboardShortcutsModal';
 import { SystemStatusModal } from './components/layout/SystemStatusModal';
+import { VideoShelfModal } from './components/shelf/VideoShelfModal';
+import { GroupManagerModal } from './components/groups/GroupManagerModal';
+import { HardwareTurboModal } from './components/settings/HardwareTurboModal';
 
 import { api } from './services/api';
-import { User, CharacterVoice, TimelineSegment, ProjectFile, StudioConfig, VoxcpmStatus, TabId, VideoEffects, SubtitleStyle } from './types';
+import { User, CharacterVoice, TimelineSegment, ProjectFile, StudioConfig, VoxcpmStatus, TabId, VideoEffects, SubtitleStyle, ProjectGroup, VideoShelfItem } from './types';
 import { Mic, Volume2 } from 'lucide-react';
 
 const DEFAULT_PRESET_TIMELINE_SEGMENTS: TimelineSegment[] = [
@@ -38,6 +43,14 @@ export const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<TabId>('tab-dubbing');
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Series Groups & 10-Video Shelf & Hardware Turbo
+  const [isShelfOpen, setIsShelfOpen] = useState(false);
+  const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
+  const [isHardwareTurboOpen, setIsHardwareTurboOpen] = useState(false);
+  const [shelfItems, setShelfItems] = useState<VideoShelfItem[]>([]);
+  const [projectGroups, setProjectGroups] = useState<ProjectGroup[]>([]);
+  const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
 
   // User & Auth
   const [user, setUser] = useState<User | null>(null);
@@ -167,12 +180,31 @@ export const App: React.FC = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isVoxModalOpen, setIsVoxModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
   const [isAddVoiceOpen, setIsAddVoiceOpen] = useState(false);
   const [isDownloaderOpen, setIsDownloaderOpen] = useState(false);
   const [isSystemStatusOpen, setIsSystemStatusOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
   const [diskStats, setDiskStats] = useState<{ formattedSize: string; count: number } | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const isRestoringProjectRef = useRef(true);
+
+  // Global hotkeys for studio speed
+  useEffect(() => {
+    const handleGlobalKeys = (e: KeyboardEvent) => {
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
+      if (e.key === '?' || e.key === 'F1') {
+        e.preventDefault();
+        setIsShortcutsOpen((prev) => !prev);
+      } else if (e.code === 'KeyE' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        setIsExportOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeys);
+    return () => window.removeEventListener('keydown', handleGlobalKeys);
+  }, []);
 
   // Toast Helper with deduplication & max queue protection
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
@@ -209,6 +241,7 @@ export const App: React.FC = () => {
         videoEffects,
         subtitleStyle,
         activeTab,
+        activeGroupId,
       };
 
       // 1. Instant client-side persistence
@@ -275,6 +308,7 @@ export const App: React.FC = () => {
         if (savedData.videoEffects) setVideoEffects(savedData.videoEffects);
         if (savedData.subtitleStyle) setSubtitleStyle(savedData.subtitleStyle);
         if (savedData.activeTab) setActiveTab(savedData.activeTab);
+        if (savedData.activeGroupId) setActiveGroupId(savedData.activeGroupId);
 
         showToast('🔄 បានស្ដារទិន្នន័យគម្រោងមុនរួចរាល់ (Project Restored)', 'info');
       }
@@ -311,9 +345,46 @@ export const App: React.FC = () => {
     // 5. Disk Stats
     api.getOutputStats().then(setDiskStats).catch(() => {});
 
-    // 6. Auto-Restore Project Data (No data loss on refresh)
+    // 6. Video Shelf & Project Groups
+    loadShelfAndGroups();
+
+    // 7. Auto-Restore Project Data (No data loss on refresh)
     restoreSavedProject();
   }, []);
+
+  const loadShelfAndGroups = async () => {
+    try {
+      const [shelfRes, groupsRes] = await Promise.all([
+        api.getVideoShelf(),
+        api.getProjectGroups(),
+      ]);
+      if (shelfRes.success && shelfRes.shelf) {
+        setShelfItems(shelfRes.shelf);
+      }
+      if (groupsRes.success && groupsRes.groups) {
+        setProjectGroups(groupsRes.groups);
+      }
+    } catch (err) {
+      console.error('Error loading shelf or groups:', err);
+    }
+  };
+
+  const handleLoadFromShelf = (item: VideoShelfItem) => {
+    const projectFile: ProjectFile = {
+      filename: item.filename,
+      originalName: item.title,
+      size: item.size || 0,
+      type: 'video',
+      url: item.url,
+    };
+    setUploadedFile(projectFile);
+    if (item.groupId) {
+      setActiveGroupId(item.groupId);
+    }
+    setActiveTab('tab-dubbing');
+    setIsShelfOpen(false);
+    showToast(`បានទាញយកវីដេអូ "${item.title}" ពីឃ្លាំងចូលស្ទូឌីយោ!`, 'success');
+  };
 
   // Debounced Auto-save when segments, media or settings change
   useEffect(() => {
@@ -729,7 +800,7 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#040608] text-slate-100 font-khmer">
+    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#040608] text-slate-100 font-khmer studio-enter">
       {/* Header Bar */}
       <Header
         activeProjectTitle={uploadedFile?.originalName || uploadedFile?.filename || 'Perfect World EP145.mp4'}
@@ -748,6 +819,7 @@ export const App: React.FC = () => {
           }
         }}
         onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
         engineMode={engineMode}
         onSwitchEngine={handleSwitchEngine}
         voxStatus={voxStatus}
@@ -758,6 +830,16 @@ export const App: React.FC = () => {
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         videoCount={recentFiles.length}
+        isDubbing={isDubbing}
+        dubbingProgress={dubbingProgress}
+        onOpenShortcuts={() => setIsShortcutsOpen(true)}
+        projectGroups={projectGroups}
+        activeGroupId={activeGroupId}
+        onSelectGroup={setActiveGroupId}
+        onOpenGroupManager={() => setIsGroupManagerOpen(true)}
+        shelfCount={shelfItems.length}
+        onOpenShelf={() => setIsShelfOpen(true)}
+        onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
       />
 
       {/* Main Workspace Layout */}
@@ -788,6 +870,10 @@ export const App: React.FC = () => {
           onOpenSystemStatus={() => setIsSystemStatusOpen(true)}
           isSystemOnline={Boolean(voxStatus && (voxStatus.online || voxStatus.configured))}
           user={user}
+          shelfCount={shelfItems.length}
+          onOpenShelf={() => setIsShelfOpen(true)}
+          onOpenGroups={() => setIsGroupManagerOpen(true)}
+          onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
         />
 
         {/* Dynamic Studio Views */}
@@ -830,7 +916,7 @@ export const App: React.FC = () => {
 
           {/* 6-Step Workflow View */}
           {activeTab === 'tab-workflow' && (
-            <div className="flex-1 flex flex-col h-full overflow-hidden">
+            <div className="flex-1 flex flex-col h-full overflow-hidden tab-content-enter">
               <WorkflowView
                 uploadedFile={uploadedFile}
                 onUploadFile={handleUploadFile}
@@ -872,6 +958,8 @@ export const App: React.FC = () => {
                 onSwitchEngine={handleSwitchEngine}
                 voxStatus={voxStatus}
                 onOpenVoxModal={() => setIsVoxModalOpen(true)}
+                user={user}
+                onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
               />
             </div>
           )}
@@ -932,11 +1020,13 @@ export const App: React.FC = () => {
               onSwitchEngine={handleSwitchEngine}
               voxStatus={voxStatus}
               onOpenVoxModal={() => setIsVoxModalOpen(true)}
+              user={user}
+              onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
             />
           </div>
 
           {activeTab === 'tab-manual' && (
-            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
+            <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 tab-content-enter">
               <div className="bg-[#111827] border border-white/[0.08] rounded-xl p-4 flex justify-between items-center">
                 <div>
                   <h3 className="text-sm font-bold text-white">បន្ទប់កាត់តសំឡេងលម្អិត (Timeline Dialogue Editor)</h3>
@@ -1171,6 +1261,17 @@ export const App: React.FC = () => {
         onShowToast={showToast}
       />
 
+      <LicenseActivationModal
+        isOpen={isLicenseModalOpen}
+        user={user}
+        onClose={() => setIsLicenseModalOpen(false)}
+        onSuccess={(updatedUser) => {
+          setUser(updatedUser);
+          loadConfigAndStatus();
+        }}
+        onShowToast={showToast}
+      />
+
       <AddVoiceModal
         isOpen={isAddVoiceOpen}
         onClose={() => setIsAddVoiceOpen(false)}
@@ -1222,6 +1323,44 @@ export const App: React.FC = () => {
           setIsSystemStatusOpen(false);
           setIsSettingsOpen(true);
         }}
+      />
+
+      {/* Keyboard Shortcuts Speed HUD Modal */}
+      <KeyboardShortcutsModal
+        isOpen={isShortcutsOpen}
+        onClose={() => setIsShortcutsOpen(false)}
+      />
+
+      {/* 10-Video Shelf Modal */}
+      <VideoShelfModal
+        isOpen={isShelfOpen}
+        onClose={() => setIsShelfOpen(false)}
+        onSelectVideo={handleLoadFromShelf}
+        onShelfUpdated={loadShelfAndGroups}
+        groups={projectGroups}
+        activeGroupId={activeGroupId}
+        onShowToast={showToast}
+      />
+
+      {/* Project / Series Groups Manager Modal */}
+      <GroupManagerModal
+        isOpen={isGroupManagerOpen}
+        onClose={() => setIsGroupManagerOpen(false)}
+        groups={projectGroups}
+        onGroupsUpdated={loadShelfAndGroups}
+        onSelectGroup={(gid) => {
+          setActiveGroupId(gid);
+          setIsGroupManagerOpen(false);
+        }}
+        activeGroupId={activeGroupId}
+        onShowToast={showToast}
+      />
+
+      {/* Hardware Turbo Acceleration Modal */}
+      <HardwareTurboModal
+        isOpen={isHardwareTurboOpen}
+        onClose={() => setIsHardwareTurboOpen(false)}
+        onShowToast={showToast}
       />
 
       {/* Toast Notifications */}

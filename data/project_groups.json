@@ -1,0 +1,37 @@
+[
+  {
+    "id": "grp_all",
+    "name": "ទូទៅ (General)",
+    "color": "cyan",
+    "description": "គម្រោងវីដេអូទូទៅ",
+    "createdAt": "2026-09-19T21:55:07.594890"
+  },
+  {
+    "id": "grp_chinese_drama",
+    "name": "រឿង ដាវទេពយុទ្ធសិល្ប៍",
+    "color": "purple",
+    "description": "ស៊េរីភាពយន្តភាគចិនបុរាណ",
+    "createdAt": "2026-09-19T21:55:07.594890"
+  },
+  {
+    "id": "grp_anime_action",
+    "name": "រឿង Anime Action",
+    "color": "emerald",
+    "description": "គំនូរជីវចលផ្សងព្រេង",
+    "createdAt": "2026-09-19T21:55:07.594890"
+  },
+  {
+    "id": "grp_1789880107612",
+    "name": "រឿង ដាវទេពយុទ្ធសិល្ប៍ ភាគ១-ចប់",
+    "color": "#6366f1",
+    "description": "គម្រោងបញ្ចូលសំឡេងភាគ Anime 2026",
+    "createdAt": "2026-09-19T21:55:07.612042"
+  },
+  {
+    "id": "grp_1789880136164",
+    "name": "រឿង ដាវទេពយុទ្ធសិល្ប៍ ភាគ១-ចប់",
+    "color": "#6366f1",
+    "description": "គម្រោងបញ្ចូលសំឡេងភាគ Anime 2026",
+    "createdAt": "2026-09-19T21:55:36.164780"
+  }
+]

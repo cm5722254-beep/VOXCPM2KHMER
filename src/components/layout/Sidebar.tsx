@@ -20,6 +20,8 @@ import {
   ChevronRight,
   Sparkles,
   Smartphone,
+  Zap,
+  Crown,
 } from 'lucide-react';
 import { TabId, User } from '../../types';
 import { getSubscriptionInfo } from '../../utils/subscription';
@@ -35,6 +37,10 @@ interface SidebarProps {
   onOpenSystemStatus: () => void;
   isSystemOnline?: boolean;
   user?: User | null;
+  shelfCount?: number;
+  onOpenShelf?: () => void;
+  onOpenGroups?: () => void;
+  onOpenHardwareTurbo?: () => void;
 }
 
 interface NavItemProps {
@@ -61,26 +67,26 @@ const SidebarNavItem: React.FC<NavItemProps> = ({
   <button
     onClick={onClick}
     title={isCollapsed ? title || label : undefined}
-    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-md text-xs font-medium transition-all group relative ${
+    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all group relative ${
       active
-        ? 'bg-sky-500/15 text-sky-400 font-semibold border-l-2 border-sky-400 rounded-l-none'
-        : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.04]'
+        ? 'bg-gradient-to-r from-cyan-500/20 via-sky-500/10 to-transparent text-cyan-300 font-bold border-l-2 border-cyan-400 shadow-[inset_0_0_15px_rgba(0,240,255,0.06)] rounded-l-none'
+        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]'
     } ${isCollapsed ? 'justify-center px-0' : ''}`}
   >
-    <span className={`w-4 h-4 shrink-0 transition-colors ${active ? 'text-sky-400' : 'text-slate-400 group-hover:text-slate-200'}`}>
+    <span className={`w-4 h-4 shrink-0 transition-all ${active ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]' : 'text-slate-400 group-hover:text-slate-200'}`}>
       {icon}
     </span>
     {!isCollapsed && (
       <>
-        <span className="flex-1 text-left truncate">{label}</span>
+        <span className="flex-1 text-left truncate tracking-wide">{label}</span>
         {badge && (
           <span
-            className={`text-[9px] font-bold px-1.5 py-0.2 rounded font-mono ${
+            className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full font-mono ${
               badgeVariant === 'emerald'
-                ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/25'
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_8px_rgba(0,245,155,0.2)]'
                 : badgeVariant === 'amber'
-                ? 'bg-amber-500/15 text-amber-300 border border-amber-500/25'
-                : 'bg-sky-500/15 text-sky-300 border border-sky-500/25'
+                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
+                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]'
             }`}
           >
             {badge}
@@ -102,6 +108,10 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenSystemStatus,
   isSystemOnline = true,
   user,
+  shelfCount = 0,
+  onOpenShelf,
+  onOpenGroups,
+  onOpenHardwareTurbo,
 }) => {
   return (
     <aside
@@ -110,146 +120,160 @@ export const Sidebar: React.FC<SidebarProps> = ({
       }`}
     >
       {/* ── Nav Sections ── */}
-      <div className="py-2.5 px-2 flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-3">
+      <div className="py-2.5 px-2 flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-3 font-khmer">
         {/* WORKSPACE */}
         <div className="flex flex-col gap-0.5">
           {!isCollapsed && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
-              WORKSPACE
+            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
+              កន្លែងធ្វើការ
             </div>
           )}
 
           <SidebarNavItem
             icon={<LayoutDashboard className="w-4 h-4" />}
-            label="Dashboard"
+            label="ផ្ទាំងគ្រប់គ្រង"
             active={activeTab === 'tab-dashboard'}
             onClick={() => onSelectTab('tab-dashboard')}
             isCollapsed={isCollapsed}
-            title="Project Dashboard"
+            title="ផ្ទាំងគ្រប់គ្រងគម្រោង"
           />
 
           <SidebarNavItem
-            icon={<Film className="w-4 h-4 text-sky-400" />}
-            label="Dubbing Studio"
+            icon={<Film className="w-4 h-4 text-cyan-400" />}
+            label="ស្ទូឌីយោបញ្ចូលសំឡេង"
             active={activeTab === 'tab-dubbing' || activeTab === 'tab-workflow'}
             onClick={() => onSelectTab('tab-dubbing')}
             isCollapsed={isCollapsed}
             badge="PRO"
             badgeVariant="sky"
-            title="AI Dubbing Studio Workstation"
+            title="ស្ទូឌីយោបញ្ចូលសំឡេង AI"
+          />
+
+          <SidebarNavItem
+            icon={<HardDrive className="w-4 h-4 text-emerald-400" />}
+            label="ឃ្លាំងវីដេអូ"
+            active={activeTab === 'tab-shelf'}
+            onClick={() => {
+              if (onOpenShelf) onOpenShelf();
+              else onSelectTab('tab-shelf');
+            }}
+            isCollapsed={isCollapsed}
+            badge={`${shelfCount}/10`}
+            badgeVariant={shelfCount >= 10 ? 'amber' : 'emerald'}
+            title="ឃ្លាំងផ្ទុកវីដេអូសម្រាប់បញ្ចូលសំឡេង (អតិបរមា ១០ វីដេអូ)"
+          />
+
+          <SidebarNavItem
+            icon={<FolderKanban className="w-4 h-4 text-indigo-400" />}
+            label="ក្រុមរឿង (Series)"
+            active={activeTab === 'tab-groups'}
+            onClick={() => {
+              if (onOpenGroups) onOpenGroups();
+              else onSelectTab('tab-groups');
+            }}
+            isCollapsed={isCollapsed}
+            title="បែងចែកក្រុមរឿងកុំឱ្យច្រឡំគ្នា"
           />
         </div>
 
         {/* PRODUCTION */}
         <div className="flex flex-col gap-0.5">
           {!isCollapsed && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
-              PRODUCTION
+            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
+              ផលិតកម្ម
             </div>
           )}
 
           <SidebarNavItem
             icon={<Users className="w-4 h-4" />}
-            label="AI Voices & Cast"
+            label="សំឡេងតួអង្គ AI"
             active={activeTab === 'tab-character'}
             onClick={() => onSelectTab('tab-character')}
             isCollapsed={isCollapsed}
-            title="Character Voice Casting & Library"
+            title="តារាងសំឡេងតួអង្គ"
           />
 
           <SidebarNavItem
             icon={<Languages className="w-4 h-4" />}
-            label="Translation"
+            label="បកប្រែអត្ថបទ"
             active={activeTab === 'tab-translator'}
             onClick={() => onSelectTab('tab-translator')}
             isCollapsed={isCollapsed}
-            title="AI Script Translation"
+            title="បកប្រែអត្ថបទ AI"
           />
 
           <SidebarNavItem
             icon={<Subtitles className="w-4 h-4" />}
-            label="Subtitles"
+            label="អក្សររត់ (Subtitles)"
             active={activeTab === 'tab-subtitles'}
             onClick={() => onSelectTab('tab-subtitles')}
             isCollapsed={isCollapsed}
-            title="Subtitle Editor & SRT"
+            title="កែសម្រួលអក្សររត់"
           />
 
           <SidebarNavItem
             icon={<SlidersHorizontal className="w-4 h-4" />}
-            label="Audio Mixer"
+            label="កម្រិតសំឡេង Mixer"
             active={activeTab === 'tab-mixer'}
             onClick={() => onSelectTab('tab-mixer')}
             isCollapsed={isCollapsed}
-            title="Audio Mixer Console"
+            title="ផ្ទាំងគ្រប់គ្រងសំឡេង"
           />
 
           <SidebarNavItem
             icon={<Image className="w-4 h-4" />}
-            label="Thumbnail Studio"
+            label="រូបភាពតំណាង (Cover)"
             active={activeTab === 'tab-thumbnail'}
             onClick={() => onSelectTab('tab-thumbnail')}
             isCollapsed={isCollapsed}
-            title="AI Video Thumbnail Generator"
+            title="បង្កើតរូបភាពតំណាង AI"
           />
         </div>
 
         {/* DELIVERY */}
         <div className="flex flex-col gap-0.5">
           {!isCollapsed && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
-              DELIVERY
+            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
+              នាំចេញ
             </div>
           )}
 
           <SidebarNavItem
-            icon={<Share2 className="w-4 h-4 text-sky-400" />}
-            label="Export Video"
+            icon={<Share2 className="w-4 h-4 text-cyan-400" />}
+            label="នាំចេញវីដេអូ"
             onClick={onOpenExport}
             isCollapsed={isCollapsed}
-            title="Render & Export Video"
-          />
-
-          <SidebarNavItem
-            icon={<History className="w-4 h-4" />}
-            label="Render History"
-            active={false}
-            onClick={() => onSelectTab('tab-dashboard')}
-            isCollapsed={isCollapsed}
-            title="View Completed Renders"
+            title="នាំចេញវីដេអូសម្រេច"
           />
         </div>
 
         {/* SYSTEM */}
         <div className="flex flex-col gap-0.5">
           {!isCollapsed && (
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-2.5 py-1">
-              SYSTEM
+            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
+              ប្រព័ន្ធ & ល្បឿន
             </div>
           )}
 
           <SidebarNavItem
-            icon={<Cpu className="w-4 h-4" />}
-            label="API & AI"
-            onClick={onOpenSettings}
+            icon={<Zap className="w-4 h-4 text-amber-400" />}
+            label="កម្លាំង Turbo (Hardware)"
+            onClick={() => {
+              if (onOpenHardwareTurbo) onOpenHardwareTurbo();
+              else onOpenSettings();
+            }}
             isCollapsed={isCollapsed}
-            title="AI Model & Key Settings"
-          />
-
-          <SidebarNavItem
-            icon={<HardDrive className="w-4 h-4" />}
-            label="Storage"
-            onClick={onOpenSettings}
-            isCollapsed={isCollapsed}
-            title="Storage & Disk Management"
+            badge="MAX"
+            badgeVariant="amber"
+            title="កម្លាំងបង្កើនល្បឿនតាម Hardware កុំព្យូទ័រ (CPU/GPU Turbo)"
           />
 
           <SidebarNavItem
             icon={<Settings className="w-4 h-4" />}
-            label="Settings"
+            label="ការកំណត់ស្ទូឌីយោ"
             onClick={onOpenSettings}
             isCollapsed={isCollapsed}
-            title="Studio Preferences"
+            title="ការកំណត់ស្ទូឌីយោ AI & API Keys"
           />
         </div>
       </div>
@@ -259,17 +283,36 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* User Plan Info (if expanded) */}
         {!isCollapsed && user && (() => {
           const subInfo = getSubscriptionInfo(user);
+          const isAdmin = user.role === 'admin';
           return (
             <div
               onClick={onOpenSettings}
-              className="p-2 rounded-lg bg-white/[0.03] border border-white/[0.06] hover:border-sky-500/30 cursor-pointer transition-all"
+              className={`p-2.5 rounded-xl border cursor-pointer transition-all relative overflow-hidden group ${
+                isAdmin
+                  ? 'bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border-amber-500/30 hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]'
+                  : 'bg-white/[0.03] border-white/[0.08] hover:border-sky-500/40 hover:shadow-[0_0_15px_rgba(56,189,248,0.1)]'
+              }`}
               title={`${subInfo.title} | ${subInfo.expiryText}`}
             >
-              <div className="flex items-center justify-between text-[10px]">
-                <span className="text-slate-400 font-semibold">PLAN</span>
-                <span className="text-sky-300 font-bold font-mono">{subInfo.badge}</span>
+              <div className="flex items-center justify-between text-[10px] mb-1">
+                <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase tracking-wider">
+                  {isAdmin ? <Crown className="w-3 h-3 text-amber-400" /> : <Sparkles className="w-3 h-3 text-sky-400" />}
+                  <span>MEMBERSHIP</span>
+                </div>
+                <span
+                  className={`text-[9.5px] px-1.5 py-0.2 rounded font-black font-mono tracking-wider ${
+                    isAdmin
+                      ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
+                      : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                  }`}
+                >
+                  {subInfo.badge}
+                </span>
               </div>
-              <div className="text-[11px] font-bold text-slate-200 truncate mt-0.5">{subInfo.title}</div>
+              <div className="text-xs font-black text-white truncate flex items-center justify-between">
+                <span>{subInfo.title}</span>
+                <ChevronRight className="w-3 h-3 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
+              </div>
             </div>
           );
         })()}

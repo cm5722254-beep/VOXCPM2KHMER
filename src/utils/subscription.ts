@@ -16,12 +16,12 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
   if (!user) {
     return {
       tier: 'guest',
-      title: 'ភ្ញៀវ (Guest)',
+      title: 'Guest',
       badge: 'Guest',
       isPremium: false,
       isLifetime: false,
-      expiryText: 'សូមចូលប្រើប្រាស់គណនី',
-      formattedDate: null,
+      expiryText: 'មិនទាន់ចូលគណនី',
+      formattedDate: 'មិនមាន',
       daysLeft: null,
       color: 'slate',
     };
@@ -31,12 +31,12 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
   if (user.role === 'admin') {
     return {
       tier: 'admin',
-      title: '👑 Admin Master Edition',
+      title: 'Master Admin',
       badge: 'VIP Lifetime',
       isPremium: true,
       isLifetime: true,
-      expiryText: '🌟 ពេញមួយជីវិត (Lifetime / គ្មានថ្ងៃផុតកំណត់)',
-      formattedDate: 'គ្មានថ្ងៃផុតកំណត់ (Lifetime VIP)',
+      expiryText: 'ពេញមួយជីវិត',
+      formattedDate: 'ពេញមួយជីវិត',
       daysLeft: null,
       color: 'emerald',
     };
@@ -47,12 +47,12 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
     if (!user.premium_expires_at) {
       return {
         tier: 'premium',
-        title: '⭐ Premium Lifetime Edition',
+        title: 'VIP Lifetime',
         badge: 'Lifetime',
         isPremium: true,
         isLifetime: true,
-        expiryText: '🌟 ពេញមួយជីវិត (Lifetime / គ្មានថ្ងៃផុតកំណត់)',
-        formattedDate: 'គ្មានថ្ងៃផុតកំណត់ (Lifetime)',
+        expiryText: 'ពេញមួយជីវិត',
+        formattedDate: 'ពេញមួយជីវិត',
         daysLeft: null,
         color: 'amber',
       };
@@ -72,11 +72,11 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
       if (diffDays <= 0) {
         return {
           tier: 'free',
-          title: '🌱 Free Edition (ផុតកំណត់)',
+          title: 'Free Plan',
           badge: 'Expired',
           isPremium: false,
           isLifetime: false,
-          expiryText: `⚠️ បានផុតកំណត់កាលពី ${formattedDate}`,
+          expiryText: 'ផុតកំណត់',
           formattedDate,
           daysLeft: 0,
           color: 'rose',
@@ -85,11 +85,11 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
 
       return {
         tier: 'premium',
-        title: '⭐ Premium Edition',
-        badge: `នៅសល់ ${diffDays} ថ្ងៃ`,
+        title: 'VIP Plan',
+        badge: `${diffDays} ថ្ងៃ`,
         isPremium: true,
         isLifetime: false,
-        expiryText: `📅 ផុតកំណត់៖ ${formattedDate} (នៅសល់ ${diffDays} ថ្ងៃ)`,
+        expiryText: `នៅសល់ ${diffDays} ថ្ងៃ`,
         formattedDate,
         daysLeft: diffDays,
         color: 'amber',
@@ -97,12 +97,12 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
     } catch {
       return {
         tier: 'premium',
-        title: '⭐ Premium Edition',
-        badge: 'Premium',
+        title: 'VIP Plan',
+        badge: 'VIP',
         isPremium: true,
         isLifetime: true,
-        expiryText: '🌟 មិនមានកំណត់',
-        formattedDate: 'គ្មានថ្ងៃផុតកំណត់',
+        expiryText: 'ពេញមួយជីវិត',
+        formattedDate: 'ពេញមួយជីវិត',
         daysLeft: null,
         color: 'amber',
       };
@@ -112,12 +112,12 @@ export function getSubscriptionInfo(user: User | null): SubscriptionInfo {
   // Free User
   return {
     tier: 'free',
-    title: '🌱 Free Edition (កញ្ចប់ឥតគិតថ្លៃ)',
-    badge: 'FREE',
+    title: 'Free Plan',
+    badge: 'Free',
     isPremium: false,
     isLifetime: false,
-    expiryText: 'កម្រិតសាមញ្ញ (Free Version)',
-    formattedDate: 'មិនមាន (កញ្ចប់ឥតគិតថ្លៃ)',
+    expiryText: 'ឥតគិតថ្លៃ',
+    formattedDate: 'មិនមាន',
     daysLeft: null,
     color: 'slate',
   };

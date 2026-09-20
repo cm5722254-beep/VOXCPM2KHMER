@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { TimelineSegment, CharacterVoice } from '../../../types';
+import { TimelineSegment, CharacterVoice, User } from '../../../types';
 import { ChevronRight, Mic2, Play, Users, Settings2, CheckCircle2 } from 'lucide-react';
 import { VoxCPM2OnlineToggle } from '../../ui/VoxCPM2OnlineToggle';
 
@@ -15,6 +15,8 @@ interface Step4VoiceCastingProps {
   onSwitchEngine?: (mode: string) => void;
   voxStatus?: any;
   onOpenVoxModal?: () => void;
+  user?: User | null;
+  onOpenLicenseModal?: () => void;
 }
 
 export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
@@ -29,6 +31,8 @@ export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
   onSwitchEngine,
   voxStatus,
   onOpenVoxModal,
+  user,
+  onOpenLicenseModal,
 }) => {
   const [selectedCharId, setSelectedCharId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all'|'male'|'female'>('all');
@@ -102,8 +106,10 @@ export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
           <VoxCPM2OnlineToggle
             engineMode={engineMode}
             voxStatus={voxStatus}
+            user={user}
             onSwitchEngine={(m) => onSwitchEngine?.(m)}
             onOpenVoxModal={onOpenVoxModal}
+            onOpenLicenseModal={onOpenLicenseModal}
             variant="compact"
           />
         </div>

@@ -14,7 +14,7 @@ import {
   CloudLightning,
   Laptop,
 } from 'lucide-react';
-import { TimelineSegment, CharacterVoice } from '../../types';
+import { TimelineSegment, CharacterVoice, User } from '../../types';
 import { VoxCPM2OnlineToggle } from '../ui/VoxCPM2OnlineToggle';
 
 interface CharacterCastDrawerProps {
@@ -24,13 +24,15 @@ interface CharacterCastDrawerProps {
   characters: CharacterVoice[];
   onChangeVoiceForCharacter: (characterKey: string, newVoiceId: string) => void;
   onAutoCastUniqueVoices: () => void;
-  onPreviewVoice: (voiceIdOrFilename: string) => void;
+  onPreviewVoice: (filename: string) => void;
   onShowToast: (msg: string, type: 'success' | 'error' | 'info') => void;
   engineMode?: string;
   onSwitchEngine?: (mode: string) => void;
   voxStatus?: any;
   onOpenVoxModal?: () => void;
   onGenerateCustomVideo?: () => void;
+  user?: User | null;
+  onOpenLicenseModal?: () => void;
 }
 
 export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
@@ -47,6 +49,8 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
   voxStatus,
   onOpenVoxModal,
   onGenerateCustomVideo,
+  user,
+  onOpenLicenseModal,
 }) => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [audioElem, setAudioElem] = useState<HTMLAudioElement | null>(null);
@@ -231,10 +235,12 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
           <VoxCPM2OnlineToggle
             engineMode={engineMode}
             voxStatus={voxStatus}
+            user={user}
             onSwitchEngine={(m) => onSwitchEngine?.(m)}
             onOpenVoxModal={onOpenVoxModal}
+            onOpenLicenseModal={onOpenLicenseModal}
             variant="card"
-            title="RUN VOXCPM2 MODE: CLONE VOICE CHARACTER ONLINE / COMPUTER"
+            title="ម៉ាស៊ីនក្លូនសំឡេង AI (Online / Local)"
           />
         </div>
 
@@ -338,17 +344,13 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                   >
                     {engineMode === 'cloud' ? (
                       <>
-                        <CloudLightning className="w-3.5 h-3.5 text-sky-400 shrink-0" />
-                        <span className="hidden sm:inline">VOXCPM2:</span>
-                        <span className="text-sky-200">ONLINE</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-sky-400/30 text-sky-200 font-black border border-sky-400/50">ON</span>
+                        <CloudLightning className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
+                        <span className="text-cyan-200">Cloud GPU</span>
                       </>
                     ) : (
                       <>
-                        <Laptop className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
-                        <span className="hidden sm:inline">VOXCPM2:</span>
-                        <span className="text-indigo-200">COMPUTER</span>
-                        <span className="text-[9px] px-1.5 py-0.2 rounded bg-indigo-400/30 text-indigo-200 font-black border border-indigo-400/50">ON</span>
+                        <Laptop className="w-3.5 h-3.5 text-violet-400 shrink-0" />
+                        <span className="text-violet-200">ម៉ាស៊ីនផ្ទាល់</span>
                       </>
                     )}
                   </button>
