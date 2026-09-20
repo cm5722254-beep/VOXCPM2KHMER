@@ -164,7 +164,8 @@ build_exe.bat
 លោកអ្នកអាចចូលមើលឯកសារបច្ចេកទេស និងក្បួនណែនាំបន្ថែមក្នុង Folder [docs/](docs/)៖
 - 📘 [WORKFLOW_STATUS.md](docs/WORKFLOW_STATUS.md) — ស្ថានភាព និងរចនាសម្ព័ន្ធដំណើរការ Workflow
 - 🎙️ [EMOTIONAL_VOICE_GUIDE.md](docs/EMOTIONAL_VOICE_GUIDE.md) — របៀបប្រើប្រាស់សំឡេងតាមអារម្មណ៍តួអង្គ
-- 🎛️ [របៀបប្រើប្រាស់_SIDEBAR.md](docs/របៀបប្រើប្រាស់_SIDEBAR.md) — មុខងារ និងការបញ្ជាលើ Sidebar
+- 🎛️ [KHMER_SIDEBAR_GUIDE.md](docs/KHMER_SIDEBAR_GUIDE.md) — មុខងារ និងការបញ្ជាលើ Sidebar
+- 📑 [KHMER_ALL_FEATURES_GUIDE.md](docs/KHMER_ALL_FEATURES_GUIDE.md) — សៀវភៅណែនាំមុខងារសរុបទាំងអស់
 - ✅ [FEATURE_TEST_CHECKLIST.md](docs/FEATURE_TEST_CHECKLIST.md) — បញ្ជីត្រួតពិនិត្យមុខងារទាំងអស់
 
 ---
