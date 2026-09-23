@@ -1,6 +1,6 @@
 {
-  "update_server": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates",
-  "update_server_backup": "https://your-backup-server.com/updates",
+  "update_server": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates",
+  "update_server_backup": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates",
   "check_interval_seconds": 3600,
   "auto_check_enabled": true,
   "auto_download_enabled": true,
@@ -16,5 +16,5 @@
     "desktop_app.py",
     "server.py"
   ],
-  "update_manifest_url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/manifest.json"
+  "update_manifest_url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/manifest.json"
 }

@@ -3,7 +3,7 @@
   "release_date": "2026-09-23T12:00:00Z",
   "min_supported_version": "V2.0PRO",
   "update_type": "bugfix",
-  "download_url": "https://github.com/mazercheat-dotcom/animeducksystem/releases/download/v2.3.1/ATITEBDABBERPRO_V2.3.1PRO.exe",
+  "download_url": "https://github.com/cm5722254-beep/VOXCPM2KHMER/releases/download/v2.3.1/ATITEBDABBERPRO_V2.3.1PRO.exe",
   "patch_size_mb": 2.5,
   "changelog": [
     {
@@ -31,7 +31,7 @@
       "files": [
         {
           "path": "server.py",
-          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3.1PRO/server.py",
+          "url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/V2.3.1PRO/server.py",
           "hash": "sha256:updated_server_with_async_fix",
           "size": 125000,
           "action": "update",
@@ -39,28 +39,28 @@
         },
         {
           "path": "services/progress_tracker.py",
-          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3.1PRO/services/progress_tracker.py",
+          "url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/V2.3.1PRO/services/progress_tracker.py",
           "hash": "sha256:progress_tracker_enhanced",
           "size": 8500,
           "action": "add_or_update"
         },
         {
           "path": "public/css/glass-ui.css",
-          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3.1PRO/public/css/glass-ui.css",
+          "url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/V2.3.1PRO/public/css/glass-ui.css",
           "hash": "sha256:glass_ui_stylesheet",
           "size": 12000,
           "action": "add_or_update"
         },
         {
           "path": "public/js/check-version.js",
-          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3.1PRO/public/js/check-version.js",
+          "url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/V2.3.1PRO/public/js/check-version.js",
           "hash": "sha256:check_version_script",
           "size": 6000,
           "action": "add_or_update"
         },
         {
           "path": "app_version.json",
-          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3.1PRO/app_version.json",
+          "url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/V2.3.1PRO/app_version.json",
           "hash": "sha256:version_manifest",
           "size": 1200,
           "action": "update"
