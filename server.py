@@ -23,6 +23,7 @@ from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
 import queue
+import asyncio
 
 # Resolve APP_DIR and BUNDLE_DIR (both one-file and one-dir PyInstaller modes)
 if getattr(sys, 'frozen', False):
@@ -1414,8 +1415,8 @@ async def stream_progress(job_id: str, request: Request):
     អោយឃើញ % Process ផ្ទាល់ក្នុង Tool
     """
     async def event_generator():
-        # Create queue for this client
-        client_queue = queue.Queue()
+        # Create async queue for this client
+        client_queue = asyncio.Queue()
         if job_id not in progress_subscribers:
             progress_subscribers[job_id] = []
         progress_subscribers[job_id].append(client_queue)
@@ -1426,15 +1427,15 @@ async def stream_progress(job_id: str, request: Request):
                 if await request.is_disconnected():
                     break
                 
-                # Get progress update from queue (non-blocking)
+                # Get progress update from queue (async with timeout)
                 try:
-                    progress_data = client_queue.get(timeout=1)
+                    progress_data = await asyncio.wait_for(client_queue.get(), timeout=1.0)
                     yield f"data: {json.dumps(progress_data)}\n\n"
                     
                     # If job completed or failed, stop streaming
                     if progress_data.get('status') in ['completed', 'failed']:
                         break
-                except queue.Empty:
+                except asyncio.TimeoutError:
                     # Send heartbeat to keep connection alive
                     if job_id in active_jobs:
                         yield f"data: {json.dumps(active_jobs[job_id])}\n\n"
@@ -1466,7 +1467,7 @@ def broadcast_progress(job_id: str, progress_data: dict):
     if job_id in progress_subscribers:
         for client_queue in progress_subscribers[job_id]:
             try:
-                client_queue.put(progress_data)
+                client_queue.put_nowait(progress_data)
             except:
                 pass
     
