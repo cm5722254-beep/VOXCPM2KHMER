@@ -1297,7 +1297,12 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
             job['status'] = 'extracting'
             broadcast_progress(job_id, job.copy())
             
-            audio_processor.extract_audio(input_path, extracted_audio_path)
+            # Run extract_audio in separate thread
+            await asyncio.to_thread(
+                audio_processor.extract_audio,
+                input_path,
+                extracted_audio_path
+            )
             tracker.complete_step(0)
             
             job['progress'] = 10
@@ -1946,7 +1951,14 @@ async def assemble_custom(body: AssembleCustomRequest):
     video_ext = os.path.splitext(input_path)[1]
     out_video_filename = f"custom_dubbed_khmer_py_{ts}{video_ext}"
     out_video_path = os.path.join(OUTPUTS_DIR, out_video_filename)
-    audio_processor.merge_video_audio(input_path, dubbed_audio_path, out_video_path)
+    
+    # Run merge in separate thread to avoid blocking
+    await asyncio.to_thread(
+        audio_processor.merge_video_audio,
+        input_path,
+        dubbed_audio_path,
+        out_video_path
+    )
 
     return {
         'success': True,
@@ -1957,6 +1969,10 @@ async def assemble_custom(body: AssembleCustomRequest):
 
 @app.post('/api/video/render-export')
 async def render_export_video(body: RenderExportRequest):
+    """
+    Render and export video with overlay and subtitles
+    Fixed: Use asyncio.to_thread() for blocking FFmpeg operations
+    """
     # 1. Resolve source video path
     input_path = None
     if body.inputVideo:
@@ -2024,6 +2040,7 @@ async def render_export_video(body: RenderExportRequest):
         out_path = os.path.join(OUTPUTS_DIR, out_filename)
 
         # 5. Burn permanently with FFmpeg (including watermark and custom subtitles styling)
+        # Run in separate thread to avoid blocking async event loop
         options = {
             'resolution': body.resolution or '1080p',
             'bitrate': body.bitrate or 'high',
@@ -2033,7 +2050,9 @@ async def render_export_video(body: RenderExportRequest):
             'turbo': body.turbo
         }
 
-        audio_processor.burn_overlay_and_subtitles(
+        # Use asyncio.to_thread() to run blocking FFmpeg operation without blocking event loop
+        await asyncio.to_thread(
+            audio_processor.burn_overlay_and_subtitles,
             video_path=input_path,
             output_video_path=out_path,
             overlay_image_path=temp_overlay_path,
@@ -2049,6 +2068,12 @@ async def render_export_video(body: RenderExportRequest):
             'hasSubtitles': bool(temp_srt_path and os.path.exists(out_path))
         }
 
+    except Exception as e:
+        import traceback
+        print(f"Render export error: {e}")
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"កំហុសក្នុងការ render video: {str(e)}")
+    
     finally:
         # Cleanup temporary files
         if temp_overlay_path and os.path.exists(temp_overlay_path):

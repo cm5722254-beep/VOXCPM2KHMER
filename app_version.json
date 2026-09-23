@@ -1,6 +1,6 @@
 {
-  "current_version": "V2.3.1PRO",
-  "latest_version": "V2.3.1PRO",
+  "current_version": "V2.3.2PRO",
+  "latest_version": "V2.3.2PRO",
   "has_update": false,
   "release_date": "2026-09-23",
   "download_url": "",
@@ -8,35 +8,23 @@
   "changelog": [
     {
       "type": "FIXED",
-      "text": "🔧 Fixed WebSocket Internal Server Error"
+      "text": "🔧 Fixed Render/Export Internal Server Error"
     },
     {
       "type": "FIXED",
-      "text": "✅ Fixed SSE progress streaming using async queues"
+      "text": "✅ Fixed blocking FFmpeg operations in async endpoints"
+    },
+    {
+      "type": "FIXED",
+      "text": "🔧 Fixed WebSocket Internal Server Error"
     },
     {
       "type": "IMPROVED",
-      "text": "🚀 Improved real-time progress tracking stability"
-    },
-    {
-      "type": "NEW",
-      "text": "🔄 Auto-Update System - Update without reinstalling EXE"
-    },
-    {
-      "type": "NEW",
-      "text": "🔥 Hot Module Reloading - Instant feature updates"
-    },
-    {
-      "type": "NEW",
-      "text": "💾 Automatic Backups - Safe updates with rollback"
+      "text": "🚀 All FFmpeg operations now run in separate threads"
     },
     {
       "type": "IMPROVED",
-      "text": "Enhanced performance and stability"
-    },
-    {
-      "type": "IMPROVED",
-      "text": "Beautiful update notification UI"
+      "text": "⚡ No more 'Internal Server Error' during export/render"
     }
   ]
 }
