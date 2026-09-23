@@ -66,12 +66,15 @@ export interface TimelineSegment {
 }
 
 export interface ProjectFile {
+  id?: string;
   filename: string;
   originalName?: string;
   size: number;
-  type: 'video' | 'audio';
+  type?: 'video' | 'audio' | string;
   created?: number;
   url: string;
+  duration?: number;
+  uploadedAt?: string;
 }
 
 export interface StudioConfig {
@@ -190,12 +193,17 @@ export interface ProjectGroup {
   description?: string;
   createdAt: string;
   videoCount?: number;
+  maleLeadVoice?: string;
+  femaleLeadVoice?: string;
+  narratorVoice?: string;
+  supportingVoice?: string;
 }
 
 export interface VideoShelfItem {
   id: string;
   filename: string;
   originalName: string;
+  title?: string;
   size: number;
   duration?: number;
   thumbnail?: string;
@@ -273,6 +281,7 @@ export type TabId =
   | 'tab-groups'
   | 'tab-workflow'
   | 'tab-dubbing'
+  | 'tab-offline'
   | 'tab-manual'
   | 'tab-character'
   | 'tab-translator'
@@ -280,4 +289,75 @@ export type TabId =
   | 'tab-subtitles'
   | 'tab-tuner'
   | 'tab-thumbnail';
+
+// ── 3 Studio Engine Options ──
+export type StudioEngineOption =
+  | 'voxcpm_computer' // Option 1: VOXCPM2 COMPUTER (Local RTX / PyTorch Hardware)
+  | 'voxcpm_claude'   // Option 2: VOXCPM2 CLAUDE (Cloud Server / Claude AI)
+  | 'khmer_offline';  // Option 3: KHMER OFFLINE (Ultra-fast Edge / Offline TTS 1-20 episodes)
+
+// ── Offline Episode Video Item for Batch 1-20 ──
+export interface OfflineEpisodeItem {
+  id: string;
+  episodeIndex: number; // 1 to 20
+  title: string;
+  filename: string;
+  url?: string;
+  duration?: string;
+  sizeMb?: number;
+  isSelected: boolean; // Ability to select or deselect
+  status: 'ready' | 'processing' | 'done' | 'empty';
+}
+
+// ── Khmer Offline Batch Configuration ──
+export interface KhmerOfflineConfig {
+  batchEpisodes: number; // 1 to 20 episodes
+  mode: 'episodes' | 'full_movie'; // Individual episodes vs Single merged full movie
+  turboThreads: number; // 2, 4, 8, 16 threads
+  voiceId: string;
+  episodes?: OfflineEpisodeItem[]; // Batch list of 1 to 20 videos with selection
+}
+
+// ── Commercial Video / Ads Overlay Configuration ──
+export interface CommercialOverlayConfig {
+  enabled: boolean;
+  videoUrl: string;
+  originalFilename?: string;
+  position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center';
+  size: 'small' | 'medium' | 'large' | 'half';
+  opacity: number; // 30 to 100
+  startTime: number; // In seconds
+  duration: number; // In seconds (0 = full length of ad)
+  volume: number; // 0 to 100
+  loop: boolean;
+}
+
+// ── Custom UI Tool Theme, Background Style & Color Glass ──
+export type GlassColorPreset = 'obsidian' | 'cyan' | 'purple' | 'emerald' | 'amber' | 'sakura' | 'ice' | 'crimson';
+export type BackgroundPreset = 'default_dark' | 'cyberpunk' | 'anime_sunset' | 'midnight_purple' | 'emerald_matrix' | 'nebula_space' | 'custom';
+
+export interface StudioCustomSticker {
+  id: string;
+  url: string;
+  name: string;
+  x: number; // 0 to 100 percentage
+  y: number; // 0 to 100 percentage
+  scale: number; // 0.5 to 2.5
+  rotation: number; // -180 to 180 deg
+}
+
+export interface StudioCustomUITheme {
+  wallpaperUrl?: string | null;
+  wallpaperOpacity: number; // 10 to 100
+  wallpaperBlur: number; // 0 to 20px
+  accentColor: 'cyan' | 'purple' | 'emerald' | 'amber' | 'rose' | 'sapphire';
+  stickers: StudioCustomSticker[];
+  // ── Style Background & Color Glass ──
+  glassColor?: GlassColorPreset;
+  glassOpacity?: number; // 20 to 95
+  glassBlur?: number; // 0 to 30px
+  glassBorderGlow?: 'subtle' | 'vibrant' | 'neon';
+  backgroundPreset?: BackgroundPreset;
+}
+
 

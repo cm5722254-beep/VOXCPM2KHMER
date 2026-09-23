@@ -99,20 +99,6 @@ namespace CheatzDabber
             }
         }
 
-        private string FindNodeExecutable()
-        {
-            string localNode = Path.Combine(appDir, "bin", "node.exe");
-            if (File.Exists(localNode)) return localNode;
-
-            string pfNode = @"C:\Program Files\nodejs\node.exe";
-            if (File.Exists(pfNode)) return pfNode;
-
-            string pfx86 = @"C:\Program Files (x86)\nodejs\node.exe";
-            if (File.Exists(pfx86)) return pfx86;
-
-            return "node.exe";
-        }
-
         private void EnsureServerStarted()
         {
             if (IsServerHealthy())
@@ -121,13 +107,42 @@ namespace CheatzDabber
                 return;
             }
 
-            string nodePath = FindNodeExecutable();
-            string serverScript = Path.Combine(appDir, "server.js");
-            Log("Starting node from: " + nodePath + " with script: " + serverScript);
+            // 1. Check if standalone ATITEBDABBERPRO.exe exists (dist or alongside launcher)
+            string bundledExe = Path.Combine(appDir, "dist", "ATITEBDABBERPRO", "ATITEBDABBERPRO.exe");
+            if (!File.Exists(bundledExe)) bundledExe = Path.Combine(appDir, "ATITEBDABBERPRO.exe");
+            if (!File.Exists(bundledExe)) bundledExe = Path.Combine(appDir, "dist", "CheatZDabberPro", "CheatZDabberPro.exe");
+            if (!File.Exists(bundledExe)) bundledExe = Path.Combine(appDir, "CheatZDabberPro.exe");
+
+            if (File.Exists(bundledExe))
+            {
+                Log("Launching standalone CheatZDabberPro: " + bundledExe);
+                ProcessStartInfo psiBundled = new ProcessStartInfo();
+                psiBundled.FileName = bundledExe;
+                psiBundled.WorkingDirectory = Path.GetDirectoryName(bundledExe);
+                psiBundled.UseShellExecute = true;
+                try
+                {
+                    serverProcess = Process.Start(psiBundled);
+                    Log("Standalone process started with PID: " + serverProcess.Id);
+                }
+                catch (Exception ex)
+                {
+                    Log("Failed to launch standalone process: " + ex.Message);
+                }
+                return;
+            }
+
+            // 2. Launch Python FastAPI Server
+            string pyPath = Path.Combine(appDir, ".venv", "Scripts", "python.exe");
+            if (!File.Exists(pyPath)) pyPath = Path.Combine(appDir, ".venv312", "Scripts", "python.exe");
+            if (!File.Exists(pyPath)) pyPath = "python.exe";
+
+            string pyScript = Path.Combine(appDir, "server.py");
+            Log("Starting Python server from: " + pyPath + " with script: " + pyScript);
 
             ProcessStartInfo psi = new ProcessStartInfo();
-            psi.FileName = nodePath;
-            psi.Arguments = "\"" + serverScript + "\"";
+            psi.FileName = pyPath;
+            psi.Arguments = "\"" + pyScript + "\"";
             psi.WorkingDirectory = appDir;
             psi.UseShellExecute = false;
             psi.CreateNoWindow = true;
@@ -136,14 +151,14 @@ namespace CheatzDabber
             try
             {
                 serverProcess = Process.Start(psi);
-                Log("Node server process launched with PID: " + serverProcess.Id);
+                Log("Python server process launched with PID: " + serverProcess.Id);
             }
             catch (Exception ex)
             {
-                Log("Failed to launch node process: " + ex.Message);
+                Log("Failed to launch python process: " + ex.Message);
             }
 
-            for (int i = 0; i < 30; i++)
+            for (int i = 0; i < 40; i++)
             {
                 Thread.Sleep(500);
                 if (IsServerHealthy())

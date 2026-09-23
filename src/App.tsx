@@ -27,16 +27,41 @@ import { SystemStatusModal } from './components/layout/SystemStatusModal';
 import { VideoShelfModal } from './components/shelf/VideoShelfModal';
 import { GroupManagerModal } from './components/groups/GroupManagerModal';
 import { HardwareTurboModal } from './components/settings/HardwareTurboModal';
+import { UserGuideModal } from './components/modals/UserGuideModal';
+import { VideoTrimmerModal } from './components/trimmer/VideoTrimmerModal';
+import { CommercialOverlayModal } from './components/overlay/CommercialOverlayModal';
+import { StudioCustomizerModal } from './components/customizer/StudioCustomizerModal';
+import { SoftwareUpdateModal } from './components/modals/SoftwareUpdateModal';
+import { KhmerOfflineStudioPage } from './components/offline/KhmerOfflineStudioPage';
 
 import { api } from './services/api';
-import { User, CharacterVoice, TimelineSegment, ProjectFile, StudioConfig, VoxcpmStatus, TabId, VideoEffects, SubtitleStyle, ProjectGroup, VideoShelfItem } from './types';
+import {
+  User,
+  CharacterVoice,
+  TimelineSegment,
+  ProjectFile,
+  StudioConfig,
+  VoxcpmStatus,
+  TabId,
+  VideoEffects,
+  SubtitleStyle,
+  ProjectGroup,
+  VideoShelfItem,
+  StudioEngineOption,
+  CommercialOverlayConfig,
+  KhmerOfflineConfig,
+  StudioCustomUITheme,
+} from './types';
 import { Mic, Volume2 } from 'lucide-react';
+import { initGlobalClickSound } from './utils/soundEffects';
 
 const DEFAULT_PRESET_TIMELINE_SEGMENTS: TimelineSegment[] = [
   { line_index: 0, start_time: 1.2, end_time: 4.8, speaker_name: "Xiao Yan (តួឯកប្រុស)", gender: "male", speaker_role: "male_lead", voiceId: "voxcpm:kxev_char_01_male.mp3", voiceFilename: "kxev_char_01_male.mp3", voiceLabel: "👑 អ្នកប្រុសធំ ផេ (តួឯកប្រុស)", chinese_text: "你好，欢迎来到这里。", khmer_translation: "សួស្តី សូមស្វាគមន៍មកកាន់ទីនេះ!", status: "ready" },
   { line_index: 1, start_time: 5.5, end_time: 9.0, speaker_name: "Yun Yun (តួឯកស្រី)", gender: "female", speaker_role: "female_lead", voiceId: "voxcpm:kxev_char_02_female.mp3", voiceFilename: "kxev_char_02_female.mp3", voiceLabel: "🌸 ប្អូនស្រី ស៊ាវអ៊ី (តួឯកស្រី)", chinese_text: "今天的天气真好，我们走吧。", khmer_translation: "អាកាសធាតុថ្ងៃនេះពិតជាល្អណាស់ តោះពួកយើងចេញដំណើរទៅ។", status: "ready" },
   { line_index: 2, start_time: 10.2, end_time: 14.5, speaker_name: "Elder Gu (ព្រឹទ្ធាចារ្យ)", gender: "male", speaker_role: "elder", voiceId: "voxcpm:kxev_char_04_male.mp3", voiceFilename: "kxev_char_04_male.mp3", voiceLabel: "💼 លោកប្រធាន (ព្រឹទ្ធាចារ្យ)", chinese_text: "大家一定要小心前方的危险！", khmer_translation: "អ្នកទាំងអស់គ្នាត្រូវតែប្រុងប្រយ័ត្ននឹងគ្រោះថ្នាក់នៅខាងមុខ!", status: "ready" }
 ];
+
+const DEFAULT_ANIME_WALLPAPER = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2560&q=95&auto=format&fit=crop';
 
 export const App: React.FC = () => {
   // Navigation & Shell
@@ -60,6 +85,78 @@ export const App: React.FC = () => {
   const [config, setConfig] = useState<StudioConfig | null>(null);
   const [voxStatus, setVoxStatus] = useState<VoxcpmStatus | null>(null);
   const [engineMode, setEngineMode] = useState('local');
+
+  // ── 2026 Core 3 Options & Features ──
+  const [studioEngine, setStudioEngine] = useState<StudioEngineOption>('khmer_offline');
+  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(() => {
+    return !localStorage.getItem('animestudio_guide_dismissed');
+  });
+  const [isVideoTrimmerOpen, setIsVideoTrimmerOpen] = useState(false);
+  const [isCommercialOverlayOpen, setIsCommercialOverlayOpen] = useState(false);
+  const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [versionInfo, setVersionInfo] = useState<{
+    current_version: string;
+    latest_version: string;
+    has_update: boolean;
+    force_update?: boolean;
+    download_url?: string;
+    patch_size_mb?: number;
+    changelog?: any[];
+  } | null>(null);
+  const [voiceVolumeGain, setVoiceVolumeGain] = useState(100);
+
+  const [commercialOverlayConfig, setCommercialOverlayConfig] = useState<CommercialOverlayConfig>({
+    enabled: false,
+    videoUrl: '',
+    position: 'top-right',
+    size: 'small',
+    opacity: 90,
+    startTime: 10,
+    duration: 20,
+    volume: 80,
+    loop: false,
+  });
+
+  const [khmerOfflineConfig, setKhmerOfflineConfig] = useState<KhmerOfflineConfig>({
+    batchEpisodes: 5,
+    mode: 'episodes',
+    turboThreads: 8,
+    voiceId: 'hang_phleung_char_2_male.mp3',
+  });
+
+  const [customUITheme, setCustomUITheme] = useState<StudioCustomUITheme>(() => {
+    try {
+      const saved = localStorage.getItem('animestudio_custom_theme');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return {
+          wallpaperUrl: parsed.wallpaperUrl !== undefined ? parsed.wallpaperUrl : DEFAULT_ANIME_WALLPAPER,
+          wallpaperOpacity: parsed.wallpaperOpacity || 75,
+          wallpaperBlur: parsed.wallpaperBlur || 0,
+          accentColor: parsed.accentColor || 'cyan',
+          stickers: parsed.stickers || [],
+          glassColor: parsed.glassColor || 'cyan',
+          glassOpacity: parsed.glassOpacity !== undefined ? parsed.glassOpacity : 70,
+          glassBlur: parsed.glassBlur !== undefined ? parsed.glassBlur : 12,
+          glassBorderGlow: parsed.glassBorderGlow || 'vibrant',
+          backgroundPreset: parsed.backgroundPreset || 'anime_sunset',
+        };
+      }
+    } catch {}
+    return {
+      wallpaperUrl: DEFAULT_ANIME_WALLPAPER,
+      wallpaperOpacity: 75,
+      wallpaperBlur: 0,
+      accentColor: 'cyan',
+      stickers: [],
+      glassColor: 'cyan',
+      glassOpacity: 70,
+      glassBlur: 12,
+      glassBorderGlow: 'vibrant',
+      backgroundPreset: 'anime_sunset',
+    };
+  });
 
   // Media & Dubbing
   const [uploadedFile, setUploadedFile] = useState<ProjectFile | null>(null);
@@ -140,6 +237,14 @@ export const App: React.FC = () => {
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState(0);
   const [isScanningTimeline, setIsScanningTimeline] = useState(false);
 
+  // License Guard: If user does not have key license, strictly lock engine to Option 3: Khmer Offline!
+  useEffect(() => {
+    const isLicensed = Boolean(user && (user.role === 'admin' || user.has_voxcpm_license));
+    if (!isLicensed && studioEngine !== 'khmer_offline') {
+      setStudioEngine('khmer_offline');
+    }
+  }, [user, studioEngine]);
+
   // Helper to ensure segments are sorted chronologically and never overlap with each other
   const sanitizeSegments = (segs: TimelineSegment[]): TimelineSegment[] => {
     if (!segs || segs.length === 0) return [];
@@ -188,6 +293,42 @@ export const App: React.FC = () => {
   const [diskStats, setDiskStats] = useState<{ formattedSize: string; count: number } | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const isRestoringProjectRef = useRef(true);
+
+  // Global tactile audio feedback for options, switches, and buttons
+  useEffect(() => {
+    return initGlobalClickSound();
+  }, []);
+
+  // In-App Auto-Update & Version Check (Startup & Periodic polling)
+  useEffect(() => {
+    let isMounted = true;
+    const loadVersionAndCheckUpdate = async () => {
+      try {
+        const v = await api.getAppVersion();
+        if (isMounted && v) {
+          setVersionInfo(v);
+        }
+        // Active check from remote GitHub / Supabase / Cloud
+        const remoteCheck = await api.checkUpdate().catch(() => null);
+        if (isMounted && remoteCheck && remoteCheck.latest_version) {
+          setVersionInfo((prev: any) => ({
+            ...(prev || {}),
+            ...remoteCheck,
+          }));
+        }
+      } catch (err) {
+        console.error('Failed to load version:', err);
+      }
+    };
+
+    loadVersionAndCheckUpdate();
+    // Poll every 15 minutes for new versions
+    const interval = setInterval(loadVersionAndCheckUpdate, 15 * 60 * 1000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
 
   // Global hotkeys for studio speed
   useEffect(() => {
@@ -350,6 +491,16 @@ export const App: React.FC = () => {
 
     // 7. Auto-Restore Project Data (No data loss on refresh)
     restoreSavedProject();
+
+    // 8. Software Version & In-App Auto Update Check
+    api
+      .getAppVersion()
+      .then((v) => {
+        if (v) {
+          setVersionInfo(v);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const loadShelfAndGroups = async () => {
@@ -370,9 +521,10 @@ export const App: React.FC = () => {
   };
 
   const handleLoadFromShelf = (item: VideoShelfItem) => {
+    const displayName = item.title || item.originalName || item.filename;
     const projectFile: ProjectFile = {
       filename: item.filename,
-      originalName: item.title,
+      originalName: displayName,
       size: item.size || 0,
       type: 'video',
       url: item.url,
@@ -383,7 +535,7 @@ export const App: React.FC = () => {
     }
     setActiveTab('tab-dubbing');
     setIsShelfOpen(false);
-    showToast(`បានទាញយកវីដេអូ "${item.title}" ពីឃ្លាំងចូលស្ទូឌីយោ!`, 'success');
+    showToast(`បានទាញយកវីដេអូ "${displayName}" ពីឃ្លាំងចូលស្ទូឌីយោ!`, 'success');
   };
 
   // Debounced Auto-save when segments, media or settings change
@@ -799,8 +951,131 @@ export const App: React.FC = () => {
     );
   };
 
+  // ── CapCut Style Video Trim ──
+  const handleApplyTrim = (inTime: number, outTime: number) => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = inTime;
+    }
+    if (segments.length > 0) {
+      const filtered = segments.filter(
+        (s) => s.end_time >= inTime && s.start_time <= outTime
+      );
+      if (filtered.length > 0) {
+        setSegments(filtered);
+      }
+    }
+    showToast(`✂️ បានកាត់វីដេអូចន្លោះ ${inTime.toFixed(1)}s ដល់ ${outTime.toFixed(1)}s ជោគជ័យ!`, 'success');
+  };
+
+  // ── Option 3: Khmer Offline Dubbing ──
+  const handleStartOfflineDubbing = async () => {
+    const selectedEps = (khmerOfflineConfig.episodes || []).filter((e) => e.isSelected);
+    let targetFilename = uploadedFile?.filename;
+    if (!targetFilename && selectedEps.length > 0) {
+      targetFilename = selectedEps[0].filename;
+      if (!uploadedFile) {
+        setUploadedFile({
+          id: selectedEps[0].id,
+          filename: selectedEps[0].filename,
+          originalName: selectedEps[0].title,
+          url: selectedEps[0].url || `/media/uploads/${selectedEps[0].filename}`,
+          size: (selectedEps[0].sizeMb || 150) * 1024 * 1024,
+          type: 'video',
+          duration: 1440,
+          uploadedAt: new Date().toISOString(),
+        });
+      }
+    }
+
+    if (!targetFilename) {
+      showToast('⚠️ សូមជ្រើសរើស ឬ SELECT វីដេអូយ៉ាងហោចណាស់ ១ ភាគជាមុនសិន!', 'warning');
+      return;
+    }
+
+    const targetEpCount = selectedEps.length > 0 ? selectedEps.length : khmerOfflineConfig.batchEpisodes;
+    setIsDubbing(true);
+    setDubbingProgress(15);
+    setDubbingMessage(`⚡ កំពុងដំណើរការ KHMER OFFLINE (ចំនួន ${targetEpCount} ភាគ ${khmerOfflineConfig.mode === 'full_movie' ? '• រឿងពេញ' : ''})...`);
+    showToast(`⚡ កំពុងដំណើរការ KHMER OFFLINE ល្បឿនលឿន Multi-thread (${khmerOfflineConfig.turboThreads}x)...`, 'info');
+
+    try {
+      const res = await api.assembleCustom({
+        filename: targetFilename,
+        segments: segments.length > 0 ? segments : DEFAULT_PRESET_TIMELINE_SEGMENTS,
+        bgmAudio: cleanBgmUrl || undefined,
+        removeOriginalVocals: true,
+      });
+
+      if (res.success) {
+        setOutputVideo(res.outputVideo);
+        if (res.outputAudio) setOutputAudio(res.outputAudio);
+        setIsDubbing(false);
+        setDubbingProgress(100);
+        showToast(`🎉 បានបញ្ចប់ KHMER OFFLINE ${targetEpCount} ភាគជោគជ័យ!`, 'success');
+        setActiveTab('tab-dubbing');
+      } else {
+        setIsDubbing(false);
+        showToast('ការបង្កើតមិនទាន់ជោគជ័យ', 'error');
+      }
+    } catch (e: any) {
+      setIsDubbing(false);
+      showToast(`កំហុស: ${e.message}`, 'error');
+    }
+  };
+
+  const glassColorPresets: Record<string, { tint: string; border: string; glow: string; accent: string }> = {
+    cyan: { tint: 'rgba(6, 182, 212, 0.10)', border: 'rgba(6, 182, 212, 0.3)', glow: '0 0 35px rgba(6, 182, 212, 0.2)', accent: '#06b6d4' },
+    purple: { tint: 'rgba(168, 85, 247, 0.10)', border: 'rgba(168, 85, 247, 0.3)', glow: '0 0 35px rgba(168, 85, 247, 0.2)', accent: '#a855f7' },
+    amber: { tint: 'rgba(245, 158, 11, 0.10)', border: 'rgba(245, 158, 11, 0.3)', glow: '0 0 35px rgba(245, 158, 11, 0.2)', accent: '#f59e0b' },
+    emerald: { tint: 'rgba(16, 185, 129, 0.10)', border: 'rgba(16, 185, 129, 0.3)', glow: '0 0 35px rgba(16, 185, 129, 0.2)', accent: '#10b981' },
+    ice: { tint: 'rgba(56, 189, 248, 0.10)', border: 'rgba(56, 189, 248, 0.3)', glow: '0 0 35px rgba(56, 189, 248, 0.2)', accent: '#38bdf8' },
+    obsidian: { tint: 'rgba(15, 23, 42, 0.40)', border: 'rgba(255, 255, 255, 0.1)', glow: '0 0 35px rgba(0, 0, 0, 0.6)', accent: '#64748b' },
+    crimson: { tint: 'rgba(239, 68, 68, 0.10)', border: 'rgba(239, 68, 68, 0.3)', glow: '0 0 35px rgba(239, 68, 68, 0.2)', accent: '#ef4444' },
+    sakura: { tint: 'rgba(244, 114, 182, 0.10)', border: 'rgba(244, 114, 182, 0.3)', glow: '0 0 35px rgba(244, 114, 182, 0.2)', accent: '#f472b6' },
+  };
+
+  const activeGlass = glassColorPresets[customUITheme.glassColor || 'cyan'] || glassColorPresets.cyan;
+
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-[#040608] text-slate-100 font-khmer studio-enter">
+    <div
+      className="flex flex-col h-screen w-screen overflow-hidden bg-[#040608] text-slate-100 font-khmer studio-enter relative"
+      style={{
+        ...(customUITheme.wallpaperUrl
+          ? {
+              backgroundImage: `linear-gradient(rgba(8,12,20,${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100) * 0.35).toFixed(2)}), rgba(8,12,20,${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100) * 0.35).toFixed(2)})), url("${customUITheme.wallpaperUrl}")`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center',
+              backgroundRepeat: 'no-repeat',
+              backgroundAttachment: 'fixed',
+            }
+          : {}),
+        backdropFilter: customUITheme.wallpaperBlur ? `blur(${customUITheme.wallpaperBlur}px)` : undefined,
+      }}
+    >
+      {/* Dynamic Ambient Color Glass Lighting */}
+      {customUITheme.glassColor && customUITheme.glassColor !== 'obsidian' && (
+        <div
+          className="absolute inset-0 pointer-events-none z-[1] transition-all duration-700"
+          style={{
+            background: `radial-gradient(ellipse at 50% -15%, ${activeGlass.tint}, transparent 65%), radial-gradient(ellipse at 100% 100%, ${activeGlass.tint}, transparent 55%)`,
+          }}
+        />
+      )}
+      {/* Custom UI Floating Stickers */}
+      {customUITheme.stickers.map((st) => (
+        <div
+          key={st.id}
+          className="absolute z-30 pointer-events-none select-none text-3xl drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)]"
+          style={{
+            left: `${st.x}%`,
+            top: `${st.y}%`,
+            transform: `scale(${st.scale}) rotate(${st.rotation}deg)`,
+          }}
+        >
+          {st.url}
+        </div>
+      ))}
+
       {/* Header Bar */}
       <Header
         activeProjectTitle={uploadedFile?.originalName || uploadedFile?.filename || 'Perfect World EP145.mp4'}
@@ -840,6 +1115,12 @@ export const App: React.FC = () => {
         shelfCount={shelfItems.length}
         onOpenShelf={() => setIsShelfOpen(true)}
         onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
+        onOpenGuide={() => setIsGuideOpen(true)}
+        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onOpenUpdateModal={() => setIsUpdateModalOpen(true)}
+        hasUpdateAvailable={Boolean(versionInfo?.has_update && versionInfo?.current_version !== versionInfo?.latest_version)}
+        latestVersion={versionInfo?.latest_version || 'V2.1PRO'}
+        currentVersion={versionInfo?.current_version || 'V2.1PRO'}
       />
 
       {/* Main Workspace Layout */}
@@ -877,7 +1158,7 @@ export const App: React.FC = () => {
         />
 
         {/* Dynamic Studio Views */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-[#04060a]">
+        <main className="flex-1 flex flex-col overflow-hidden bg-transparent">
           {activeTab === 'tab-dashboard' && (
             <DashboardView
               files={recentFiles}
@@ -1022,8 +1303,54 @@ export const App: React.FC = () => {
               onOpenVoxModal={() => setIsVoxModalOpen(true)}
               user={user}
               onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
+              studioEngine={studioEngine}
+              onSelectStudioEngine={setStudioEngine}
+              commercialOverlay={commercialOverlayConfig}
+              onOpenCommercialOverlay={() => setIsCommercialOverlayOpen(true)}
+              onOpenVideoTrimmer={() => setIsVideoTrimmerOpen(true)}
+              voiceVolumeGain={voiceVolumeGain}
+              onChangeVoiceVolumeGain={setVoiceVolumeGain}
+              khmerOfflineConfig={khmerOfflineConfig}
+              onChangeKhmerOfflineConfig={setKhmerOfflineConfig}
+              onStartOfflineDubbing={handleStartOfflineDubbing}
+              onOpenGuide={() => setIsGuideOpen(true)}
+              onOpenCustomizer={() => setIsCustomizerOpen(true)}
+              projectGroups={projectGroups}
+              activeGroupId={activeGroupId}
+              onSelectGroup={setActiveGroupId}
+              onOpenGroupManager={() => setIsGroupManagerOpen(true)}
             />
           </div>
+
+          {/* Dedicated Khmer Offline Studio Full Page (1-20 Episodes / Full Movie) */}
+          {activeTab === 'tab-offline' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden tab-content-enter">
+              <KhmerOfflineStudioPage
+                config={khmerOfflineConfig}
+                onChangeConfig={setKhmerOfflineConfig}
+                onStartOfflineDubbing={handleStartOfflineDubbing}
+                isProcessing={isDubbing}
+                progress={dubbingProgress}
+                message={dubbingMessage}
+                onOpenTimelineStudio={(url, filename) => {
+                  if (url) {
+                    setUploadedFile({
+                      filename: filename || 'offline_episode.mp4',
+                      originalName: filename || 'offline_episode.mp4',
+                      size: 0,
+                      type: 'video',
+                      url,
+                    });
+                  }
+                  setActiveTab('tab-dubbing');
+                  showToast('បានផ្ទុកវីដេអូភាគចូលក្នុងស្ទូឌីយោ Timeline!', 'info');
+                }}
+                onShowToast={showToast}
+                user={user}
+                onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
+              />
+            </div>
+          )}
 
           {activeTab === 'tab-manual' && (
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 tab-content-enter">
@@ -1143,6 +1470,16 @@ export const App: React.FC = () => {
               onOpenAddModal={() => setIsAddVoiceOpen(true)}
               onOpenEditModal={(c) => setSelectedCharForEdit(c)}
               onOpenAuditionModal={(c) => setSelectedCharForAudition(c)}
+              user={user}
+              onDeleteVoice={(char) => {
+                setCharacters((prev) => prev.filter((c) => c.id !== char.id));
+              }}
+              onSelectVoice={(char) => {
+                setMaleLeadVoice(char.filename);
+                showToast(`បានជ្រើសរើស "${char.label}" ជាសំឡេងតួឯក!`, 'success');
+              }}
+              selectedVoiceId={maleLeadVoice}
+              onShowToast={showToast}
             />
           )}
 
@@ -1354,6 +1691,8 @@ export const App: React.FC = () => {
         }}
         activeGroupId={activeGroupId}
         onShowToast={showToast}
+        characters={characters}
+        isLicensed={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
       />
 
       {/* Hardware Turbo Acceleration Modal */}
@@ -1361,6 +1700,74 @@ export const App: React.FC = () => {
         isOpen={isHardwareTurboOpen}
         onClose={() => setIsHardwareTurboOpen(false)}
         onShowToast={showToast}
+      />
+
+      {/* ── 2026 Core Upgraded Modals ── */}
+      <UserGuideModal
+        isOpen={isGuideOpen}
+        onClose={() => setIsGuideOpen(false)}
+        onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
+        onOpenOfflineStudio={() => {
+          setIsGuideOpen(false);
+          setActiveTab('tab-offline');
+        }}
+        onOpenTrimmer={() => {
+          setIsGuideOpen(false);
+          setIsVideoTrimmerOpen(true);
+        }}
+        onOpenCustomizer={() => {
+          setIsGuideOpen(false);
+          setIsCustomizerOpen(true);
+        }}
+      />
+
+      <VideoTrimmerModal
+        isOpen={isVideoTrimmerOpen}
+        onClose={() => setIsVideoTrimmerOpen(false)}
+        videoSrc={outputVideo || uploadedFile?.url || ''}
+        videoTitle={uploadedFile?.originalName || uploadedFile?.filename || 'video.mp4'}
+        onApplyTrim={handleApplyTrim}
+        onShowToast={showToast}
+      />
+
+      <CommercialOverlayModal
+        isOpen={isCommercialOverlayOpen}
+        onClose={() => setIsCommercialOverlayOpen(false)}
+        config={commercialOverlayConfig}
+        onChangeConfig={setCommercialOverlayConfig}
+        mainVideoSrc={outputVideo || uploadedFile?.url || ''}
+        onShowToast={showToast}
+      />
+
+      <StudioCustomizerModal
+        isOpen={isCustomizerOpen}
+        onClose={() => setIsCustomizerOpen(false)}
+        theme={customUITheme}
+        onChangeTheme={setCustomUITheme}
+        onShowToast={showToast}
+      />
+
+      {/* In-App One-Click Software Update Modal */}
+      <SoftwareUpdateModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        currentVersion={versionInfo?.current_version || 'V2.1PRO'}
+        latestVersion={versionInfo?.latest_version || 'V2.1PRO'}
+        hasUpdate={Boolean(versionInfo?.has_update && versionInfo?.current_version !== versionInfo?.latest_version)}
+        downloadUrl={versionInfo?.download_url}
+        patchSizeMb={versionInfo?.patch_size_mb}
+        changelog={versionInfo?.changelog}
+        onUpdateSuccess={(newVer) => {
+          setVersionInfo((prev: any) => ({
+            ...prev,
+            current_version: newVer,
+            latest_version: newVer,
+            has_update: false,
+          }));
+          showToast(`🎉 បានធ្វើបច្ចុប្បន្នភាពទៅ ${newVer} ដោយជោគជ័យ!`, 'success');
+        }}
+        onShowToast={showToast}
+        isAdmin={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
       />
 
       {/* Toast Notifications */}

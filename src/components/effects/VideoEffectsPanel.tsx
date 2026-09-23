@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  X,
   Sliders,
   Type,
   Film,
@@ -43,6 +44,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
   subtitleStyle,
   onChangeSubtitleStyle,
   onShowToast,
+  onClose,
 }) => {
   const [activeTab, setActiveTab] = useState<'video' | 'effect3d' | 'text3d' | 'watermark' | 'styletext' | 'subtitles' | 'audio'>('text3d');
   const [filterSearch, setFilterSearch] = useState('');
@@ -53,6 +55,17 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
   const [selectedLutCategory, setSelectedLutCategory] = useState<string>('All');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All');
   const [selected3dCategory, setSelected3dCategory] = useState<string>('All');
+
+  // Handle Escape Key to Close
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && onClose) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   const aspectRatios = [
     { id: '16:9', label: '16:9 Landscape', desc: 'YouTube / TV' },
@@ -228,106 +241,139 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
   };
 
   return (
-    <div className="bg-[#0b101d] border border-white/[0.08] rounded-xl p-4 flex flex-col gap-4 max-h-[85vh] overflow-hidden">
-      {/* Tab Selector & Reset Header */}
+    <div className="bg-[#0b101d] border border-white/[0.08] rounded-2xl p-4 sm:p-5 flex flex-col gap-3.5 max-h-[88vh] overflow-hidden select-none font-khmer">
+      {/* ── Modal Top Header with Title & Close (X) Button ── */}
       <div className="flex items-center justify-between border-b border-white/[0.08] pb-3 shrink-0">
-        <div className="flex items-center gap-1 bg-[#070b14] p-1 rounded-xl border border-white/[0.06] overflow-x-auto max-w-[320px] sm:max-w-none">
-          <button
-            onClick={() => setActiveTab('video')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'video'
-                ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Sliders className="w-3.5 h-3.5" />
-            <span>LUTs & FX</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('text3d')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'text3d'
-                ? 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-600 text-white shadow-lg shadow-fuchsia-500/30'
-                : 'text-fuchsia-400 hover:text-white'
-            }`}
-          >
-            <Type className="w-3.5 h-3.5" />
-            <span>អក្ស3D ({text3dPresets.length}+)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('effect3d')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'effect3d'
-                ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold shadow-md shadow-rose-500/25'
-                : 'text-amber-400 hover:text-white'
-            }`}
-          >
-            <Box className="w-3.5 h-3.5" />
-            <span>Effect 3D ({EFFECT_3D_PRESETS.length}+)</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('watermark')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'watermark'
-                ? 'bg-amber-500 text-black font-bold shadow-sm shadow-amber-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Shield className="w-3.5 h-3.5" />
-            <span>Watermark</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('styletext')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'styletext'
-                ? 'bg-rose-500 text-white font-bold shadow-sm shadow-rose-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>អក្សរ Style</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('subtitles')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'subtitles'
-                ? 'bg-purple-500 text-white shadow-sm shadow-purple-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Type className="w-3.5 h-3.5" />
-            <span>Subtitles</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('audio')}
-            className={`px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
-              activeTab === 'audio'
-                ? 'bg-emerald-500 text-black font-bold shadow-sm shadow-emerald-500/20'
-                : 'text-slate-400 hover:text-white'
-            }`}
-          >
-            <Volume2 className="w-3.5 h-3.5" />
-            <span>Audio</span>
-          </button>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-cyan-500/20 via-purple-500/20 to-pink-500/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-md shadow-cyan-500/10">
+            <Sparkles className="w-4 h-4 text-cyan-300" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-black text-white tracking-wide">
+                3D EFFECTS & VIDEO STYLING STUDIO
+              </h3>
+              <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">
+                105+ PRESETS
+              </span>
+            </div>
+            <p className="text-[11px] text-slate-400 mt-0.5">
+              បែបផែនភាពយន្ត 3D, អក្សររត់ Subtitles, Watermark និងតម្រងសំឡេង
+            </p>
+          </div>
         </div>
 
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              if (activeTab === 'video') resetVideoEffects();
+              else if (activeTab === 'effect3d') reset3DEffects();
+              else resetSubtitleStyle();
+            }}
+            className="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] transition-colors"
+            title="កំណត់ឡើងវិញ (Reset)"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset</span>
+          </button>
+
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="w-9 h-9 rounded-xl bg-white/[0.06] hover:bg-red-500/20 hover:text-red-400 border border-white/[0.08] hover:border-red-500/40 text-slate-300 flex items-center justify-center transition-all shadow-sm active:scale-95"
+              title="បិទផ្ទាំង (ចុច Esc ឬ X)"
+            >
+              <X className="w-4 h-4 stroke-[2.5]" />
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── Tab Selector Navigation ── */}
+      <div className="flex items-center gap-1 bg-[#070b14] p-1 rounded-xl border border-white/[0.06] overflow-x-auto shrink-0">
         <button
-          onClick={() => {
-            if (activeTab === 'video') resetVideoEffects();
-            else if (activeTab === 'effect3d') reset3DEffects();
-            else resetSubtitleStyle();
-          }}
-          className="text-xs text-slate-400 hover:text-white flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors shrink-0"
-          title="កំណត់ឡើងវិញ"
+          onClick={() => setActiveTab('video')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'video'
+              ? 'bg-sky-500 text-white shadow-sm shadow-sky-500/20'
+              : 'text-slate-400 hover:text-white'
+          }`}
         >
-          <RotateCcw className="w-3 h-3" />
-          <span>Reset</span>
+          <Sliders className="w-3.5 h-3.5" />
+          <span>LUTs & FX</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('text3d')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'text3d'
+              ? 'bg-gradient-to-r from-rose-500 via-fuchsia-500 to-purple-600 text-white shadow-lg shadow-fuchsia-500/30'
+              : 'text-fuchsia-400 hover:text-white'
+          }`}
+        >
+          <Type className="w-3.5 h-3.5" />
+          <span>អក្សរ 3D ({text3dPresets.length}+)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('effect3d')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'effect3d'
+              ? 'bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white font-bold shadow-md shadow-rose-500/25'
+              : 'text-amber-400 hover:text-white'
+          }`}
+        >
+          <Box className="w-3.5 h-3.5" />
+          <span>Effect 3D ({EFFECT_3D_PRESETS.length}+)</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('watermark')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'watermark'
+              ? 'bg-amber-500 text-black font-bold shadow-sm shadow-amber-500/20'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Shield className="w-3.5 h-3.5" />
+          <span>Watermark</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('styletext')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'styletext'
+              ? 'bg-rose-500 text-white font-bold shadow-sm shadow-rose-500/20'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5" />
+          <span>អក្សរ Style</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('subtitles')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'subtitles'
+              ? 'bg-purple-500 text-white shadow-sm shadow-purple-500/20'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Type className="w-3.5 h-3.5" />
+          <span>Subtitles</span>
+        </button>
+
+        <button
+          onClick={() => setActiveTab('audio')}
+          className={`px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all whitespace-nowrap ${
+            activeTab === 'audio'
+              ? 'bg-emerald-500 text-black font-bold shadow-sm shadow-emerald-500/20'
+              : 'text-slate-400 hover:text-white'
+          }`}
+        >
+          <Volume2 className="w-3.5 h-3.5" />
+          <span>Audio</span>
         </button>
       </div>
 
@@ -1822,6 +1868,36 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
             </div>
           </div>
         )}
+      </div>
+
+      {/* ── Modal Bottom Action Footer ── */}
+      <div className="pt-3 border-t border-white/[0.08] flex items-center justify-between shrink-0 bg-[#070b14]/70 -mx-4 sm:-mx-5 -mb-4 sm:-mb-5 p-3 px-4 sm:px-5 rounded-b-2xl">
+        <div className="text-[11px] text-slate-400 flex items-center gap-2">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span className="hidden sm:inline">ការផ្លាស់ប្ដូរ Effect & Style ទាំងអស់ត្រូវបានរក្សាទុកដោយស្វ័យប្រវត្តិ</span>
+          <span className="sm:hidden">Auto-Saved</span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {onClose && (
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-300 hover:text-white text-xs font-semibold transition-all active:scale-95"
+            >
+              បិទ (Close)
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 via-sky-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-bold text-xs shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
+          >
+            <Check className="w-4 h-4 stroke-[2.5]" />
+            <span>រួចរាល់ / ចេញ (Done & Exit)</span>
+          </button>
+        </div>
       </div>
     </div>
   );

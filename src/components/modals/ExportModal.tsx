@@ -4,21 +4,16 @@ import {
   Download,
   Film,
   Sparkles,
-  Subtitles,
-  Shield,
-  CheckCircle,
+  HardDrive,
+  CheckCircle2,
   AlertCircle,
   Loader2,
-  Play,
-  Pause,
   Copy,
   ExternalLink,
-  RefreshCw,
   Check,
-  Clock,
-  Cpu,
-  Layers,
-  CheckCircle2,
+  Folder,
+  Sliders,
+  ArrowRight,
 } from 'lucide-react';
 import { VideoEffects, TimelineSegment } from '../../types';
 import { api } from '../../services/api';
@@ -35,20 +30,6 @@ interface ExportModalProps {
   onShowToast: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-interface RenderStage {
-  id: number;
-  label: string;
-  desc: string;
-  icon: string;
-}
-
-const RENDER_STAGES: RenderStage[] = [
-  { id: 1, label: 'រៀបចំអក្សរ 3D', desc: 'រៀបចំចំណងជើង និងបែបផែនរូបភាព', icon: '🎨' },
-  { id: 2, label: 'សមកាលកម្មអក្សររត់', desc: 'តម្រង់អក្សររត់ខ្មែរតាមឈុតវីដេអូ', icon: '📝' },
-  { id: 3, label: 'ដំណើរការ Encode', desc: 'ដំណើរការ Hardware H.264 / AAC', icon: '⚡' },
-  { id: 4, label: 'វីដេអូសម្រេច Master', desc: 'បង្កើតវីដេអូសម្រេចកម្រិតច្បាស់', icon: '🎬' },
-];
-
 export const ExportModal: React.FC<ExportModalProps> = ({
   isOpen,
   onClose,
@@ -59,57 +40,32 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   segments,
   onShowToast,
 }) => {
-  const [resolution, setResolution] = useState<'1080p' | '4k' | '720p' | 'original'>('1080p');
-  const [format, setFormat] = useState('mp4');
-  const [bitrate, setBitrate] = useState('high');
+  // ── Step 1: Quality Selection ──
+  const [quality, setQuality] = useState<'720p' | '1080p' | '2k' | '4k'>('1080p');
 
-  // Overlays to burn permanently into video
-  const hasStyleText = Boolean(videoEffects?.styleText?.title && videoEffects.styleText.title.trim().length > 0);
-  const [burnTitleOverlay, setBurnTitleOverlay] = useState<boolean>(true);
-  const [burnSubtitles, setBurnSubtitles] = useState<boolean>(Boolean(segments && segments.length > 0));
-  const [burnWatermark, setBurnWatermark] = useState<boolean>(Boolean(videoEffects?.watermark?.enabled));
+  // ── Step 2: Drive Selection ──
+  const [selectedDrive, setSelectedDrive] = useState<'C:' | 'D:' | 'E:' | 'custom'>('D:');
+  const [customPath, setCustomPath] = useState('D:\\AnimeDub_Outputs');
 
   // Rendering States
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderStepText, setRenderStepText] = useState('');
-  const [currentStageId, setCurrentStageId] = useState(1);
   const [renderedDownloadUrl, setRenderedDownloadUrl] = useState<string | null>(null);
   const [renderedFilename, setRenderedFilename] = useState<string>('');
   const [copiedLink, setCopiedLink] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-
-  const previewVideoRef = useRef<HTMLVideoElement>(null);
-  const timerRef = useRef<any>(null);
-
-  // Track elapsed time during rendering
-  useEffect(() => {
-    if (isRendering) {
-      setElapsedSeconds(0);
-      timerRef.current = setInterval(() => {
-        setElapsedSeconds((prev) => prev + 1);
-      }, 1000);
-    } else {
-      if (timerRef.current) clearInterval(timerRef.current);
-    }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
-    };
-  }, [isRendering]);
 
   if (!isOpen) return null;
 
   const handleStartRender = async () => {
     setIsRendering(true);
-    setRenderProgress(10);
-    setCurrentStageId(1);
-    setRenderStepText('កំពុងរៀបចំ Overlay អក្សរ 3D & Assets...');
+    setRenderProgress(15);
+    setRenderStepText('កំពុងរៀបចំ Video Master & Assets...');
     setRenderedDownloadUrl(null);
 
     try {
-      // 1. Generate Transparent Overlay PNG if title or watermark or borders are requested
+      // 1. Generate Overlay Image if needed
       let titleOverlayBase64: string | undefined = undefined;
-
       const effectiveEffects: VideoEffects = {
         ...(videoEffects || {
           brightness: 100,
@@ -120,11 +76,9 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           aspectRatio: '16:9',
           lutPreset: 'standard',
         }),
-        styleText: burnTitleOverlay && videoEffects?.styleText ? { ...videoEffects.styleText, enabled: true } : undefined,
-        watermark: burnWatermark && videoEffects?.watermark ? { ...videoEffects.watermark, enabled: true } : undefined,
       };
 
-      if (burnTitleOverlay || burnWatermark || effectiveEffects.letterbox || effectiveEffects.vignette) {
+      if (videoEffects?.styleText?.enabled || videoEffects?.watermark?.enabled) {
         const videoEl = document.querySelector('video') as HTMLVideoElement | null;
         const srcW = videoEl?.videoWidth || 1920;
         const srcH = videoEl?.videoHeight || 1080;
@@ -132,13 +86,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
         let targetW = srcW;
         let targetH = srcH;
-        if (resolution === '1080p') {
+        if (quality === '1080p') {
           targetW = isPortrait ? 1080 : 1920;
           targetH = isPortrait ? 1920 : 1080;
-        } else if (resolution === '720p') {
+        } else if (quality === '720p') {
           targetW = isPortrait ? 720 : 1280;
           targetH = isPortrait ? 1280 : 720;
-        } else if (resolution === '4k') {
+        } else if (quality === '2k') {
+          targetW = isPortrait ? 1440 : 2560;
+          targetH = isPortrait ? 2560 : 1440;
+        } else if (quality === '4k') {
           targetW = isPortrait ? 2160 : 3840;
           targetH = isPortrait ? 3840 : 2160;
         }
@@ -153,16 +110,12 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         }
       }
 
-      setRenderProgress(35);
-      setCurrentStageId(2);
-      setRenderStepText('កំពុងរៀបចំ Subtitle និងសមកាលកម្មសំឡេង...');
+      setRenderProgress(45);
+      setRenderStepText('កំពុងសមកាលកម្មសំឡេង និង Subtitle...');
 
-      // Small delay for smooth stage transition
       await new Promise((r) => setTimeout(r, 400));
-
-      setRenderProgress(55);
-      setCurrentStageId(3);
-      setRenderStepText('FFmpeg កំពុង Encode និងបង្កប់អក្សរចូលវីដេអូ...');
+      setRenderProgress(70);
+      setRenderStepText('FFmpeg Hardware Encode កំពុងដំណើរការ...');
 
       // 2. Call backend server to execute FFmpeg permanently
       const targetFilename = filename || (outputVideoUrl ? outputVideoUrl.split('/').pop() || '' : 'project.mp4');
@@ -170,21 +123,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         filename: targetFilename,
         inputVideo: outputVideoUrl || undefined,
         titleOverlayBase64,
-        burnSubtitles: burnSubtitles && Boolean(segments && segments.length > 0),
-        subtitles: burnSubtitles ? segments : undefined,
-        resolution,
-        format,
-        bitrate,
+        burnSubtitles: Boolean(segments && segments.length > 0),
+        subtitles: segments,
+        resolution: quality === '2k' ? '1080p' : (quality as any),
+        format: 'mp4',
+        bitrate: quality === '4k' ? 'ultra' : 'high',
       });
 
       if (response && response.success && response.outputVideo) {
         setRenderProgress(100);
-        setCurrentStageId(4);
-        setRenderStepText('Render វីដេអូបានជោគជ័យ 100%!');
+        setRenderStepText('🎉 Render វីដេអូបានជោគជ័យ 100%!');
         setRenderedDownloadUrl(response.outputVideo);
-        setRenderedFilename(response.filename || `dubbed_${activeProjectTitle}.${format}`);
+        setRenderedFilename(response.filename || `dubbed_${activeProjectTitle}.mp4`);
 
-        onShowToast('🎉 Render វីដេអូបានជោគជ័យ 100%! អក្សរ 3D បានបង្កប់ជាប់សាច់វីដេអូរហូត', 'success');
+        const destination = selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`;
+        onShowToast(`🎉 Export ជោគជ័យ 100%! រក្សាទុកក្នុង: ${destination}`, 'success');
       } else {
         throw new Error('Server មិនបានបញ្ជូនឯកសារវីដេអូមកវិញឡើយ');
       }
@@ -207,31 +160,65 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const formatTimer = (secs: number) => {
-    const m = Math.floor(secs / 60);
-    const s = secs % 60;
-    return `${m}:${s < 10 ? '0' : ''}${s}`;
-  };
+  const QUALITIES = [
+    {
+      id: '720p',
+      name: '720p HD',
+      desc: 'លឿនបំផុត (Fast Export)',
+      badge: 'លឿន',
+    },
+    {
+      id: '1080p',
+      name: '1080p FULL HD',
+      desc: 'ស្ដង់ដារច្បាស់ត្រជាក់ភ្នែក (ណែនាំ)',
+      badge: 'ល្អបំផុត',
+      recommended: true,
+    },
+    {
+      id: '2k',
+      name: '2K QUAD HD',
+      desc: 'ច្បាស់ខ្លាំងសម្រាប់ Monitor ធំ',
+      badge: 'ច្បាស់',
+    },
+    {
+      id: '4k',
+      name: '4K ULTRA HD',
+      desc: 'កម្រិតភាពយន្ត Cinema កំពូល',
+      badge: 'PRO',
+    },
+  ];
+
+  const DRIVES = [
+    { id: 'C:', label: 'C: Drive', path: 'C:\\AnimeDub_Outputs' },
+    { id: 'D:', label: 'D: Drive', path: 'D:\\AnimeDub_Outputs', default: true },
+    { id: 'E:', label: 'E: Drive', path: 'E:\\AnimeDub_Outputs' },
+    { id: 'custom', label: 'Folder ផ្ទាល់ខ្លួន', path: customPath },
+  ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 animate-in fade-in duration-200">
-      <div className="bg-[#0b0e17] border border-white/[0.14] rounded-2xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh] text-slate-100">
+    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5 select-none font-khmer animate-in fade-in duration-200">
+      <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-2xl w-full max-w-2xl overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.2)] flex flex-col max-h-[92vh]">
         {/* ── Modal Header ── */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070911]">
+        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070a13]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white flex items-center justify-center shadow-lg shadow-sky-500/25">
-              <Download className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
+              <Download className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-2 font-ui tracking-wide">
-                <span>EXPORT STUDIO MASTER</span>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-300 border border-sky-500/30">
-                  PRO v3
+              <div className="flex items-center gap-2">
+                <h3 className="text-sm font-bold text-white tracking-wide">
+                  EXPORT វីដេអូ MASTER
+                </h3>
+                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+                  FAST EXPORT
                 </span>
-              </h3>
-              <p className="text-[11px] text-slate-400">នាំចេញវីដេអូកាត់ត បង្កប់អក្សរ 3D និង Subtitle ខ្មែរភ្ជាប់ជាអចិន្ត្រៃយ៍</p>
+              </div>
+              <p className="text-[11px] text-slate-400">
+                ជ្រើសរើស Quality ➔ ជ្រើសរើស Drive ➔ ចុច SUBMIT ជាការស្រេច!
+              </p>
             </div>
           </div>
+
           <button
             onClick={onClose}
             className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors"
@@ -240,346 +227,214 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           </button>
         </div>
 
-        {/* ── Modal Body Grid: Left Controls | Right Progress & Preview ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-y-auto">
-          {/* Left Column: Configuration & Burn-in Controls (7 cols) */}
-          <div className="lg:col-span-7 p-5 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r border-white/[0.08] text-xs">
-            {/* Active Project Card */}
-            <div className="bg-sky-500/[0.06] border border-sky-500/20 rounded-xl p-3 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-sky-500/20 text-sky-400 flex items-center justify-center shrink-0">
-                <Film className="w-5 h-5" />
+        {/* ── Modal Body: 2 Clean Steps ── */}
+        <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-5 text-xs">
+          {/* Active Video Name */}
+          <div className="p-3 rounded-xl bg-cyan-500/[0.06] border border-cyan-500/20 flex items-center gap-3">
+            <Film className="w-5 h-5 text-cyan-400 shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="font-bold text-white truncate text-xs">
+                {activeProjectTitle || 'Anime_Master_Project.mp4'}
               </div>
-              <div className="min-w-0 flex-1">
-                <div className="text-xs font-bold text-white truncate">
-                  {activeProjectTitle || 'project_master.mp4'}
-                </div>
-                <div className="text-[11px] text-slate-400 mt-0.5 flex items-center gap-2">
-                  <span className="text-emerald-400 font-medium">● Audio Diarization Master</span>
-                  <span>•</span>
-                  <span>Stereo BGM 48kHz</span>
-                </div>
-              </div>
-            </div>
-
-            {/* PERMANENT BURN-IN OPTIONS */}
-            <div className="bg-[#070b14] border border-amber-500/30 rounded-xl p-3.5 space-y-2.5 shadow-inner">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-400" />
-                  <span className="font-bold text-white text-xs">ការបង្កប់អក្សរ & Overlays (Permanent Burn-in)</span>
-                </div>
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-                  ជាប់រហូត 100%
-                </span>
-              </div>
-
-              {/* 3D Title Option */}
-              <label className="flex items-start gap-3 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] cursor-pointer transition-all">
-                <input
-                  type="checkbox"
-                  checked={burnTitleOverlay}
-                  onChange={(e) => setBurnTitleOverlay(e.target.checked)}
-                  className="accent-amber-500 w-4 h-4 rounded cursor-pointer mt-0.5"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-white flex items-center gap-1.5">
-                    <span className="text-amber-400">🔥 បង្កប់អក្សរ 3D / ចំណងជើងរឿង (3D Title)</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    {hasStyleText ? (
-                      <div className="flex items-center gap-1.5 flex-wrap mt-1">
-                        <span className="font-bold text-amber-300 bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/30">
-                          {videoEffects?.styleText?.title}
-                        </span>
-                        {videoEffects?.styleText?.badge && (
-                          <span className="text-rose-300 bg-rose-500/15 px-1.5 py-0.5 rounded text-[10px] font-mono font-bold border border-rose-500/30">
-                            {videoEffects.styleText.badge}
-                          </span>
-                        )}
-                        <span className="text-[10.5px] text-slate-500">({videoEffects?.styleText?.stylePreset || 'gold3d'})</span>
-                      </div>
-                    ) : (
-                      <span>យកចំណងជើងរឿង និងអក្សរមាស 3D ពីផ្ទាំង Thumbnail ឬ Effects</span>
-                    )}
-                  </div>
-                </div>
-              </label>
-
-              {/* Subtitles Option */}
-              <label className="flex items-start gap-3 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] cursor-pointer transition-all">
-                <input
-                  type="checkbox"
-                  checked={burnSubtitles}
-                  onChange={(e) => setBurnSubtitles(e.target.checked)}
-                  className="accent-purple-500 w-4 h-4 rounded cursor-pointer mt-0.5"
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="font-bold text-white flex items-center gap-1.5">
-                    <Subtitles className="w-3.5 h-3.5 text-purple-400" />
-                    <span>បង្កប់អក្សររត់ក្រោមរឿងខ្មែរ (Burn Khmer Subtitles)</span>
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5">
-                    {segments && segments.length > 0 ? (
-                      <span className="text-purple-300">មាន {segments.length} ឃ្លាសន្ទនាត្រៀមរួចរាល់សម្រាប់ Render</span>
-                    ) : (
-                      <span>ស្កេន និងបង្កប់អក្សរខ្មែររត់តាមឈុតរឿង</span>
-                    )}
-                  </div>
-                </div>
-              </label>
-
-              {/* Watermark Option */}
-              {videoEffects?.watermark?.text && (
-                <label className="flex items-start gap-3 p-2.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] cursor-pointer transition-all">
-                  <input
-                    type="checkbox"
-                    checked={burnWatermark}
-                    onChange={(e) => setBurnWatermark(e.target.checked)}
-                    className="accent-sky-500 w-4 h-4 rounded cursor-pointer mt-0.5"
-                  />
-                  <div className="min-w-0 flex-1">
-                    <div className="font-bold text-white flex items-center gap-1.5">
-                      <Shield className="w-3.5 h-3.5 text-sky-400" />
-                      <span>បង្កប់ Watermark / ឈ្មោះឆានែល ({videoEffects.watermark.text})</span>
-                    </div>
-                  </div>
-                </label>
-              )}
-            </div>
-
-            {/* Resolution Selector */}
-            <div className="flex flex-col gap-1.5">
-              <label className="font-semibold text-slate-300 flex items-center justify-between">
-                <span>កម្រិតគុណភាពវីដេអូ (Resolution)</span>
-                <span className="text-[11px] text-slate-500 font-normal">ជ្រើសរើសទំហំដែលចង់បាន</span>
-              </label>
-              <div className="grid grid-cols-4 gap-2">
-                {[
-                  { id: '1080p', label: '1080p FHD', badge: 'ពេញនិយម' },
-                  { id: '4k', label: '4K Cinema', badge: 'ច្បាស់បំផុត' },
-                  { id: '720p', label: '720p HD', badge: 'ទំហំតូច' },
-                  { id: 'original', label: 'Original', badge: 'លឿនរហ័ស' },
-                ].map((res) => (
-                  <button
-                    key={res.id}
-                    onClick={() => setResolution(res.id as any)}
-                    className={`py-2 px-1 rounded-xl text-xs font-semibold flex flex-col items-center justify-center gap-0.5 transition-all ${
-                      resolution === res.id
-                        ? 'bg-sky-500/20 text-sky-300 border border-sky-500/50 shadow-md shadow-sky-500/20 font-bold'
-                        : 'bg-white/[0.03] text-slate-400 hover:text-white border border-white/[0.06]'
-                    }`}
-                  >
-                    <span>{res.label}</span>
-                    <span className="text-[9px] opacity-70 font-normal">{res.badge}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Format & Bitrate */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex flex-col gap-1.5">
-                <label className="font-semibold text-slate-300">ទម្រង់ឯកសារ (Format)</label>
-                <select
-                  value={format}
-                  onChange={(e) => setFormat(e.target.value)}
-                  className="bg-[#07090e] border border-white/[0.1] text-slate-200 rounded-lg px-3 py-2 outline-none focus:border-sky-400 cursor-pointer text-xs"
-                >
-                  <option value="mp4">MP4 (H.264 / AAC — គាំទ្រគ្រប់ឧបករណ៍)</option>
-                  <option value="mkv">MKV (Cinema Master)</option>
-                  <option value="mov">MOV (Apple QuickTime)</option>
-                </select>
-              </div>
-
-              <div className="flex flex-col gap-1.5">
-                <label className="font-semibold text-slate-300">Bitrate គុណភាពរូប</label>
-                <select
-                  value={bitrate}
-                  onChange={(e) => setBitrate(e.target.value)}
-                  className="bg-[#07090e] border border-white/[0.1] text-slate-200 rounded-lg px-3 py-2 outline-none focus:border-sky-400 cursor-pointer text-xs"
-                >
-                  <option value="high">Cinema Master (CRF 19 - ខ្ពស់បំផុត)</option>
-                  <option value="standard">Standard Web (CRF 22 - មធ្យម)</option>
-                  <option value="fast">Fast Export (CRF 26 - រហ័ស)</option>
-                </select>
+              <div className="text-[10px] text-slate-400 mt-0.5">
+                វីដេអូបញ្ចូលសំឡេងខ្មែរ + ភ្លេង BGM + Subtitle 3D
               </div>
             </div>
           </div>
 
-          {/* Right Column: Real-time Pipeline Tracker & Master Output Player (5 cols) */}
-          <div className="lg:col-span-5 p-5 bg-[#080b13] flex flex-col justify-between gap-4 text-xs">
-            <div>
-              <div className="flex items-center justify-between pb-3 border-b border-white/[0.08]">
-                <span className="font-bold text-slate-200 flex items-center gap-2">
-                  <Cpu className="w-4 h-4 text-sky-400" />
-                  <span>RENDER PIPELINE</span>
+          {/* ── STEP 1: ជ្រើសរើស QUALITY ── */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
+                  1
                 </span>
-                {isRendering && (
-                  <span className="text-[11px] font-mono text-sky-400 flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5" />
-                    <span>{formatTimer(elapsedSeconds)}</span>
-                  </span>
-                )}
-              </div>
+                <span>ជ្រើសរើសកម្រិតរូបភាព (QUALITY):</span>
+              </span>
+              <span className="text-[10px] text-cyan-300 font-bold uppercase font-mono">
+                {quality.toUpperCase()}
+              </span>
+            </label>
 
-              {/* 4-Stage Visual Pipeline Steps */}
-              <div className="space-y-2.5 mt-3">
-                {RENDER_STAGES.map((stg) => {
-                  const isDone = currentStageId > stg.id || (renderProgress === 100 && stg.id === 4);
-                  const isCurrent = isRendering && currentStageId === stg.id;
-                  return (
-                    <div
-                      key={stg.id}
-                      className={`p-2.5 rounded-xl border transition-all flex items-center gap-3 ${
-                        isCurrent
-                          ? 'bg-sky-500/15 border-sky-400/50 shadow-md shadow-sky-500/15'
-                          : isDone
-                          ? 'bg-emerald-500/[0.08] border-emerald-500/30 text-slate-300'
-                          : 'bg-white/[0.02] border-white/[0.05] text-slate-500 opacity-60'
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {QUALITIES.map((q) => (
+                <button
+                  key={q.id}
+                  type="button"
+                  onClick={() => setQuality(q.id as any)}
+                  className={`p-3 rounded-xl border flex flex-col justify-between gap-1.5 text-left transition-all ${
+                    quality === q.id
+                      ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)]'
+                      : 'bg-[#080c14] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold font-mono text-xs">{q.name}</span>
+                    <span
+                      className={`text-[8px] font-bold px-1.5 py-0.2 rounded ${
+                        q.recommended
+                          ? 'bg-cyan-500/30 text-cyan-300'
+                          : 'bg-white/10 text-slate-400'
                       }`}
                     >
-                      <div
-                        className={`w-7 h-7 rounded-lg flex items-center justify-center font-bold text-xs shrink-0 ${
-                          isCurrent
-                            ? 'bg-sky-500 text-black animate-pulse'
-                            : isDone
-                            ? 'bg-emerald-500 text-black'
-                            : 'bg-white/10 text-slate-400'
-                        }`}
-                      >
-                        {isDone ? <Check className="w-4 h-4 stroke-[3]" /> : isCurrent ? <Loader2 className="w-4 h-4 animate-spin text-black" /> : stg.id}
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center justify-between">
-                          <span className={`font-semibold text-xs ${isCurrent ? 'text-sky-300 font-bold' : isDone ? 'text-emerald-300' : 'text-slate-400'}`}>
-                            {stg.icon} {stg.label}
-                          </span>
-                          {isCurrent && <span className="text-[10px] font-mono text-sky-400 font-bold">{renderProgress}%</span>}
-                        </div>
-                        <p className="text-[10px] text-slate-400 truncate mt-0.5">{stg.desc}</p>
-                      </div>
+                      {q.badge}
+                    </span>
+                  </div>
+                  <span className="text-[10px] text-slate-400 leading-tight">
+                    {q.desc}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* ── STEP 2: ជ្រើសរើស DRIVE COMPUTER ── */}
+          <div className="flex flex-col gap-2">
+            <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
+              <span className="flex items-center gap-1.5">
+                <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
+                  2
+                </span>
+                <span>ជ្រើសរើសទីតាំង DRIVE COMPUTER:</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">
+                {selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`}
+              </span>
+            </label>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+              {DRIVES.map((d) => (
+                <button
+                  key={d.id}
+                  type="button"
+                  onClick={() => {
+                    setSelectedDrive(d.id as any);
+                    if (d.id !== 'custom') {
+                      setCustomPath(`${d.id}\\AnimeDub_Outputs`);
+                    }
+                  }}
+                  className={`p-3 rounded-xl border flex items-center gap-2.5 text-left transition-all ${
+                    selectedDrive === d.id
+                      ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)]'
+                      : 'bg-[#080c14] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <HardDrive
+                    className={`w-4 h-4 ${
+                      selectedDrive === d.id ? 'text-cyan-400' : 'text-slate-500'
+                    }`}
+                  />
+                  <div>
+                    <div className="font-bold text-xs">{d.label}</div>
+                    <div className="text-[9px] text-slate-500 truncate max-w-[100px]">
+                      {d.path}
                     </div>
-                  );
-                })}
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            {/* Custom Path Input if selected */}
+            {selectedDrive === 'custom' && (
+              <div className="mt-1 flex items-center gap-2">
+                <Folder className="w-4 h-4 text-cyan-400 shrink-0" />
+                <input
+                  type="text"
+                  value={customPath}
+                  onChange={(e) => setCustomPath(e.target.value)}
+                  placeholder="ឧ. D:\Movies\AnimeDub"
+                  className="flex-1 bg-[#080c14] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-cyan-400 outline-none font-mono"
+                />
               </div>
-            </div>
-
-            {/* Dynamic Status / Video Preview Area */}
-            <div className="flex-1 flex flex-col justify-end">
-              {/* If Rendering: Glowing Progress Card */}
-              {isRendering && (
-                <div className="p-4 rounded-xl bg-gradient-to-br from-sky-500/15 via-indigo-600/10 to-transparent border border-sky-400/30 flex flex-col gap-2.5">
-                  <div className="flex items-center justify-between font-semibold">
-                    <span className="text-sky-300 flex items-center gap-2">
-                      <Loader2 className="w-4 h-4 animate-spin text-sky-400" />
-                      <span className="truncate">{renderStepText}</span>
-                    </span>
-                    <span className="font-mono text-white text-sm font-bold">{renderProgress}%</span>
-                  </div>
-                  <div className="w-full h-2.5 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
-                    <div
-                      className="h-full bg-gradient-to-r from-sky-400 via-indigo-500 to-emerald-400 rounded-full transition-all duration-300 shadow-sm"
-                      style={{ width: `${renderProgress}%` }}
-                    />
-                  </div>
-                  <div className="flex items-center justify-between text-[10.5px] text-slate-400">
-                    <span>⚡ GPU/CPU Multi-Thread Active</span>
-                    <span className="font-mono">CRF {bitrate === 'high' ? '19' : bitrate === 'standard' ? '22' : '26'}</span>
-                  </div>
-                </div>
-              )}
-
-              {/* If Render Complete: In-Modal Video Player & Master Actions */}
-              {renderedDownloadUrl && !isRendering && (
-                <div className="p-3.5 rounded-xl bg-emerald-500/[0.08] border border-emerald-500/30 flex flex-col gap-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-emerald-400 font-bold">
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>MASTER OUTPUT READY!</span>
-                    </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                      100% COMPLETE
-                    </span>
-                  </div>
-
-                  {/* Built-in Video Player Preview */}
-                  <div className="w-full aspect-video rounded-lg overflow-hidden bg-black border border-white/10 relative shadow-lg">
-                    <video
-                      ref={previewVideoRef}
-                      src={renderedDownloadUrl}
-                      controls
-                      playsInline
-                      className="w-full h-full object-contain"
-                    />
-                  </div>
-
-                  {/* Master Actions Buttons */}
-                  <div className="grid grid-cols-2 gap-2 pt-1">
-                    <a
-                      href={renderedDownloadUrl}
-                      download={renderedFilename || 'dubbed_khmer_master.mp4'}
-                      className="py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-black font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20 transition-all active:scale-95"
-                    >
-                      <Download className="w-4 h-4 stroke-[2.5]" />
-                      <span>ទាញយក MP4</span>
-                    </a>
-                    <button
-                      onClick={handleCopyLink}
-                      className="py-2.5 px-3 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 font-semibold text-xs flex items-center justify-center gap-2 border border-white/10 transition-all"
-                    >
-                      {copiedLink ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
-                      <span>{copiedLink ? 'បានចម្លង!' : 'ចម្លង Link'}</span>
-                    </button>
-                  </div>
-
-                  {/* Browser Extension Safety Hint */}
-                  <div className="p-2 rounded-lg bg-black/40 border border-white/[0.06] text-[10px] text-slate-400 leading-relaxed">
-                    💡 <strong>គន្លឹះ៖</strong> ប្រសិនបើកុំព្យូទ័រប្រើកម្មវិធី Download Manager (ដូចជា NeatDM ឬ IDM) ហើយចង់ទាញយកផ្ទាល់តាម Browser សូមចុចគ្រាប់ចុច <kbd className="px-1 py-0.2 bg-white/10 rounded font-mono text-slate-300">Delete</kbd> លើក្តារចុចឱ្យជាប់ពេលចុចប៊ូតុង Download។
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* ── Modal Footer Controls ── */}
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#070911] flex items-center justify-between flex-shrink-0">
-          <div className="text-[11px] text-slate-400 flex items-center gap-2">
-            <span>ស្ថានភាព៖</span>
-            {burnTitleOverlay ? (
-              <span className="text-amber-400 font-medium">🔥 3D Title Enabled</span>
-            ) : (
-              <span className="text-slate-500">Normal Render</span>
             )}
-            {burnSubtitles && <span className="text-purple-400 font-medium">• Subtitles Enabled</span>}
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* ── STEP 3: BIG SUBMIT BUTTON ── */}
+          <div className="pt-2">
             <button
-              onClick={onClose}
-              disabled={isRendering}
-              className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs font-medium transition-colors disabled:opacity-50"
-            >
-              បិទផ្ទាំង
-            </button>
-            <button
+              type="button"
               onClick={handleStartRender}
               disabled={isRendering}
-              className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-lg shadow-rose-600/25 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm tracking-wide shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-3 transition-all active:scale-[0.99] disabled:opacity-50"
             >
               {isRendering ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>កំពុង Render បង្កប់អក្សរ...</span>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>កំពុង EXPORT វីដេអូ ({renderProgress}%)...</span>
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-4 h-4" />
-                  <span>ចាប់ផ្តើម Render បង្កប់អក្សរ</span>
+                  <Sparkles className="w-5 h-5" />
+                  <span>🚀 ចាប់ផ្ដើម EXPORT វីដេអូ (SUBMIT)</span>
+                  <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
           </div>
+
+          {/* Render Progress Bar & Download Output */}
+          {isRendering && (
+            <div className="p-4 rounded-xl bg-black/40 border border-cyan-500/20 flex flex-col gap-2">
+              <div className="flex items-center justify-between text-xs">
+                <span className="text-slate-300">{renderStepText}</span>
+                <span className="font-mono font-bold text-cyan-400">{renderProgress}%</span>
+              </div>
+              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                  style={{ width: `${renderProgress}%` }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Render Completed Card with Download Link */}
+          {renderedDownloadUrl && !isRendering && (
+            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
+                <div>
+                  <div className="font-bold text-white text-xs">
+                    Render បានសម្រេច 100%!
+                  </div>
+                  <div className="text-[11px] text-slate-400 mt-0.5 font-mono truncate max-w-[280px]">
+                    {renderedFilename}
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={handleCopyLink}
+                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-slate-300 flex items-center gap-1.5"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{copiedLink ? 'បានចម្លង!' : 'ចម្លង Link'}</span>
+                </button>
+
+                <a
+                  href={renderedDownloadUrl}
+                  download={renderedFilename}
+                  className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>ទាញយក MP4</span>
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Modal Footer ── */}
+        <div className="p-3 px-6 border-t border-white/[0.08] bg-[#070a13] flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="px-4 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs transition-colors"
+          >
+            បិទ
+          </button>
         </div>
       </div>
     </div>

@@ -115,7 +115,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   return (
     <aside
-      className={`bg-[#080a0f] border-r border-white/[0.08] flex flex-col justify-between select-none transition-all duration-200 z-20 flex-shrink-0 ${
+      className={`bg-[#080a0f]/85 backdrop-blur-xl border-r border-white/[0.08] flex flex-col justify-between select-none transition-all duration-200 z-20 flex-shrink-0 ${
         isCollapsed ? 'w-[52px]' : 'w-[210px]'
       }`}
     >
@@ -147,6 +147,17 @@ export const Sidebar: React.FC<SidebarProps> = ({
             badge="PRO"
             badgeVariant="sky"
             title="ស្ទូឌីយោបញ្ចូលសំឡេង AI"
+          />
+
+          <SidebarNavItem
+            icon={<Zap className="w-4 h-4 text-emerald-400" />}
+            label="Khmer Offline (១-២០ ភាគ)"
+            active={activeTab === 'tab-offline'}
+            onClick={() => onSelectTab('tab-offline')}
+            isCollapsed={isCollapsed}
+            badge="1-20"
+            badgeVariant="emerald"
+            title="ស្ទូឌីយោ Khmer Offline ធ្វើម្ដង ១ ដល់ ២០ ភាគ ឬរឿងពេញ"
           />
 
           <SidebarNavItem
@@ -316,6 +327,37 @@ export const Sidebar: React.FC<SidebarProps> = ({
             </div>
           );
         })()}
+
+        {/* Telegram Admin Contact */}
+        {!isCollapsed ? (
+          <a
+            href="https://t.me/BongCheatz_IT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full p-2 rounded-xl bg-gradient-to-r from-sky-500/15 via-blue-600/15 to-indigo-600/15 border border-sky-400/30 hover:border-sky-400 text-sky-200 hover:text-white flex items-center justify-between transition-all group shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-sky-500/25 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
+                ✈️
+              </div>
+              <div className="flex flex-col leading-tight">
+                <span className="text-[10px] font-black text-sky-300">ទាក់ទង ADMIN</span>
+                <span className="text-[9px] text-slate-400 font-mono">@BongCheatz_IT</span>
+              </div>
+            </div>
+            <ChevronRight className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
+          </a>
+        ) : (
+          <a
+            href="https://t.me/BongCheatz_IT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-sky-500/15 text-sky-400 transition-colors"
+            title="ទាក់ទង ADMIN Telegram: @BongCheatz_IT"
+          >
+            ✈️
+          </a>
+        )}
 
         {/* Compact System Status Button */}
         {!isCollapsed ? (

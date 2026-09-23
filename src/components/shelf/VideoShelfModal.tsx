@@ -22,7 +22,11 @@ import { api } from '../../services/api';
 interface VideoShelfModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectVideoForDubbing: (videoFile: ProjectFile) => void;
+  onSelectVideoForDubbing?: (videoFile: ProjectFile) => void;
+  onSelectVideo?: (item: VideoShelfItem) => void;
+  onShelfUpdated?: () => Promise<void> | void;
+  groups?: ProjectGroup[];
+  activeGroupId?: string | null;
   onShowToast: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
   onOpenGroupManager?: () => void;
 }
@@ -40,6 +44,10 @@ export const VideoShelfModal: React.FC<VideoShelfModalProps> = ({
   isOpen,
   onClose,
   onSelectVideoForDubbing,
+  onSelectVideo,
+  onShelfUpdated,
+  groups: externalGroups,
+  activeGroupId,
   onShowToast,
   onOpenGroupManager,
 }) => {
@@ -163,14 +171,18 @@ export const VideoShelfModal: React.FC<VideoShelfModalProps> = ({
   };
 
   const handleLoadToDubbingStudio = (item: VideoShelfItem) => {
-    const projectFile: ProjectFile = {
-      filename: item.filename,
-      originalName: item.originalName,
-      size: item.size,
-      type: 'video',
-      url: `/media/uploads/${item.filename}`,
-    };
-    onSelectVideoForDubbing(projectFile);
+    if (onSelectVideo) {
+      onSelectVideo(item);
+    } else if (onSelectVideoForDubbing) {
+      const projectFile: ProjectFile = {
+        filename: item.filename,
+        originalName: item.originalName,
+        size: item.size,
+        type: 'video',
+        url: `/media/uploads/${item.filename}`,
+      };
+      onSelectVideoForDubbing(projectFile);
+    }
     onShowToast(`🎬 បានយក "${item.originalName}" មកបញ្ចូលសំឡេងក្នុង Studio រួចរាល់!`, 'success');
     onClose();
   };

@@ -1659,4 +1659,35 @@ select {
   border-radius: 50%;
 }
 
+/* ── Modern 2026 Cyberpunk & Aurora Shimmer ── */
+@keyframes aurora-gradient {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-aurora {
+  background: linear-gradient(270deg, #00f0ff, #a855f7, #ec4899, #00f59b);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: aurora-gradient 6s ease infinite;
+}
+
+@keyframes bounce-subtle {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.animate-bounce-subtle {
+  animation: bounce-subtle 3.5s ease-in-out infinite;
+}
+
+@keyframes neon-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.4)); }
+  50% { filter: drop-shadow(0 0 18px rgba(0, 240, 255, 0.85)); }
+}
+.animate-pulse-glow {
+  animation: neon-glow-pulse 2.5s ease-in-out infinite;
+}
+
+
 

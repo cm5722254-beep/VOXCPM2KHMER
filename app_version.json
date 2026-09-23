@@ -1,0 +1,30 @@
+{
+  "current_version": "V2.3PRO",
+  "latest_version": "V2.3PRO",
+  "has_update": false,
+  "release_date": "2026-09-22",
+  "download_url": "",
+  "patch_size_mb": 0,
+  "changelog": [
+    {
+      "type": "NEW",
+      "text": "🔄 Auto-Update System - Update without reinstalling EXE"
+    },
+    {
+      "type": "NEW",
+      "text": "🔥 Hot Module Reloading - Instant feature updates"
+    },
+    {
+      "type": "NEW",
+      "text": "💾 Automatic Backups - Safe updates with rollback"
+    },
+    {
+      "type": "IMPROVED",
+      "text": "Enhanced performance and stability"
+    },
+    {
+      "type": "IMPROVED",
+      "text": "Beautiful update notification UI"
+    }
+  ]
+}

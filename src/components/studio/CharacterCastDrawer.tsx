@@ -14,7 +14,7 @@ import {
   CloudLightning,
   Laptop,
 } from 'lucide-react';
-import { TimelineSegment, CharacterVoice, User } from '../../types';
+import { TimelineSegment, CharacterVoice, User, ProjectGroup } from '../../types';
 import { VoxCPM2OnlineToggle } from '../ui/VoxCPM2OnlineToggle';
 
 interface CharacterCastDrawerProps {
@@ -33,6 +33,8 @@ interface CharacterCastDrawerProps {
   onGenerateCustomVideo?: () => void;
   user?: User | null;
   onOpenLicenseModal?: () => void;
+  activeGroup?: ProjectGroup | null;
+  onApplyGroupVoices?: () => void;
 }
 
 export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
@@ -51,6 +53,8 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
   onGenerateCustomVideo,
   user,
   onOpenLicenseModal,
+  activeGroup,
+  onApplyGroupVoices,
 }) => {
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [audioElem, setAudioElem] = useState<HTMLAudioElement | null>(null);
@@ -218,16 +222,30 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
             )}
           </div>
 
-          <button
-            onClick={() => {
-              onAutoCastUniqueVoices();
-              onShowToast('បានចាត់ចែងសំឡេង ១ តួអង្គ = ១ សំឡេងដោយស្វ័យប្រវត្តិកំពុងរៀបចំ!', 'success');
-            }}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-sky-500/25 transition-all active:scale-95 shrink-0"
-          >
-            <Sparkles className="w-4 h-4 text-amber-300" />
-            <span>✨ ចាត់ចែងសំឡេង 1:1 ដោយស្វ័យប្រវត្តិ</span>
-          </button>
+          <div className="flex items-center gap-2 flex-wrap shrink-0">
+            {activeGroup && onApplyGroupVoices && (
+              <button
+                type="button"
+                onClick={onApplyGroupVoices}
+                className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 hover:brightness-110 text-slate-950 text-xs font-black shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
+                title={`អនុវត្តសំឡេងតាម Group "${activeGroup.name}" មិនច្រឡំរឿងផ្សេង`}
+              >
+                <Sparkles className="w-4 h-4" />
+                <span>⚡ ប្រើសំឡេងតាម Group ({activeGroup.name})</span>
+              </button>
+            )}
+
+            <button
+              onClick={() => {
+                onAutoCastUniqueVoices();
+                onShowToast('បានចាត់ចែងសំឡេង ១ តួអង្គ = ១ សំឡេងដោយស្វ័យប្រវត្តិ!', 'success');
+              }}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-sky-500/25 transition-all active:scale-95"
+            >
+              <Sparkles className="w-4 h-4 text-amber-300" />
+              <span>✨ ចាត់ចែងសំឡេង 1:1 ដោយស្វ័យប្រវត្តិ</span>
+            </button>
+          </div>
         </div>
 
         {/* RUN VOXCPM2 MODE: ONLINE vs COMPUTER Option Section */}

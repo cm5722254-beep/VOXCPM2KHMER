@@ -633,6 +633,7 @@ export const AUDIO_EFFECT_PRESETS: AudioEffectPreset[] = [
   { id: 'loudspeaker_square', label: '📢 City Square Loudspeaker', category: 'Special & Vintage', description: 'Echoing announcement horn', pitchAdjust: '+2Hz', rateAdjust: '+4%', volumeBoost: 1.4 },
   { id: 'robot_cyber_mech', label: '🤖 Cybernetic Mecha Voice', category: 'Special & Vintage', description: 'Robotic synthetic modulation', pitchAdjust: '-8Hz', rateAdjust: '+8%', volumeBoost: 1.2 },
   { id: 'phantom_demon', label: '👹 Possessed Demon Beast', category: 'Special & Vintage', description: 'Terrifying underworld growl', pitchAdjust: '-14Hz', rateAdjust: '-8%', volumeBoost: 1.3 },
+  { id: 'nostalgic_flashback_dream', label: '💭 សំឡេងស្រមើលស្រមៃអតីតកាល (Nostalgic Flashback Dream)', category: 'Special & Vintage', description: 'សំឡេងស្រមើស្រមៃអតីតកាល Reverb + Echo បែបអនុស្សាវរីយ៍ចាស់ៗ', pitchAdjust: '+3Hz', rateAdjust: '-8%', volumeBoost: 1.15 },
   { id: 'dream_memory', label: '💭 Faded Childhood Memory', category: 'Special & Vintage', description: 'Soft nostalgic flashback tone', pitchAdjust: '+2Hz', rateAdjust: '-10%', volumeBoost: 0.95 },
   { id: 'telephone_call', label: '☎️ Smartphone Handset Call', category: 'Special & Vintage', description: 'Clean phone receiver speaker', pitchAdjust: '+2Hz', rateAdjust: '+0%', volumeBoost: 1.0 }
 ];

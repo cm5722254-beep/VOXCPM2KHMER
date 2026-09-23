@@ -1,19 +1,16 @@
-﻿@echo off
+@echo off
 chcp 65001 > nul
 setlocal enabledelayedexpansion
 
 echo.
 echo ============================================================
-echo   CheatZ Dabber PRO - Windows EXE Build Script
-echo   ==========================================
-echo   Output: dist\CheatZDabberPro\CheatZDabberPro.exe
+echo   CheatZ Dabber PRO - Standalone Windows Portable Builder
+echo   ========================================================
+echo   Target: dist\CheatZDabberPro\ (100%% Portable, No Install Needed)
 echo ============================================================
 echo.
 
-:: Check that we are in the project directory
 if not exist "server.py" (
-    echo ERROR: Run this script from the animeclone project folder.
-    pause
     exit /b 1
 )
 
@@ -21,62 +18,63 @@ if not exist "server.py" (
 echo [1/5] Building React Frontend (npm run build)...
 call npm run build
 if errorlevel 1 (
-    echo ERROR: npm run build failed. Check your Node.js / TypeScript errors.
-    pause
+    echo ERROR: npm run build failed.
     exit /b 1
 )
 echo       React frontend built to public/ - OK
 echo.
 
-:: ── Step 2: Install Python dependencies ─────────────────────────────────────
-echo [2/5] Installing Python dependencies...
-.venv\Scripts\pip.exe install -q pywebview>=5.0.0 pyinstaller>=6.0.0
-if errorlevel 1 (
-    echo WARNING: Some packages may not have installed. Continuing...
+:: ── Step 2: Ensure PyInstaller Python 3.12 ──────────────────────────────────
+echo [2/5] Checking PyInstaller...
+set "PYINST=.venv312\Scripts\pyinstaller.exe"
+if not exist "!PYINST!" set "PYINST=.venv\Scripts\pyinstaller.exe"
+
+if not exist "!PYINST!" (
+    echo [INFO] Preparing Python 3.12 build venv...
+    where uv >nul 2>nul
+    if !errorlevel! equ 0 (
+        uv venv .venv312 --python 3.12
+        uv pip install -r requirements.txt pyinstaller pywebview --python .venv312\Scripts\python.exe
+    ) else (
+        python -m venv .venv312
+        .venv312\Scripts\pip install -r requirements.txt pyinstaller pywebview
+    )
+    set "PYINST=.venv312\Scripts\pyinstaller.exe"
 )
-echo       Python packages installed - OK
+echo       PyInstaller ready at !PYINST! - OK
 echo.
 
 :: ── Step 3: Clean previous build ────────────────────────────────────────────
-echo [3/5] Cleaning previous build artifacts...
-if exist "dist\CheatZDabberPro" rmdir /s /q "dist\CheatZDabberPro"
-if exist "build" rmdir /s /q "build"
+echo [3/4] Cleaning previous build artifacts...
+if exist "dist\ATITEBDABBERPRO" rmdir /s /q "dist\ATITEBDABBERPRO" 2>nul
+if exist "dist\ATITEBDABBERPRO.exe" del /f /q "dist\ATITEBDABBERPRO.exe" 2>nul
+if exist "build" rmdir /s /q "build" 2>nul
 echo       Cleaned - OK
 echo.
 
-:: ── Step 4: Run PyInstaller ──────────────────────────────────────────────────
-echo [4/5] Running PyInstaller (this may take 2-5 minutes)...
-.venv\Scripts\pyinstaller.exe animeclone.spec --noconfirm --clean
+:: ── Step 4: Run PyInstaller (Single Standalone Executable) ───────────────────
+echo [4/4] Running PyInstaller (Compiling into ONE Standalone .EXE)...
+echo       Bundling Python 3.12 runtime, FastAPI, Webview, React UI and FFmpeg...
+"!PYINST!" animeclone.spec --noconfirm --clean
 if errorlevel 1 (
-    echo ERROR: PyInstaller failed. Check the error output above.
-    pause
+    echo ERROR: PyInstaller compilation failed.
     exit /b 1
 )
-echo       PyInstaller completed - OK
+echo       PyInstaller single-file build completed - OK
 echo.
 
-:: ── Step 5: Copy runtime folders to dist ────────────────────────────────────
-echo [5/5] Copying runtime data to dist...
-if not exist "dist\CheatZDabberPro\data" mkdir "dist\CheatZDabberPro\data"
-if not exist "dist\CheatZDabberPro\uploads" mkdir "dist\CheatZDabberPro\uploads"
-if not exist "dist\CheatZDabberPro\outputs" mkdir "dist\CheatZDabberPro\outputs"
-
-:: Copy env template if .env is not bundled
-if exist ".env" copy /y ".env" "dist\CheatZDabberPro\.env" > nul
-
-echo       Runtime folders created - OK
-echo.
+if exist "dist\ATITEBDABBERPRO.exe" (
+    copy /y "dist\ATITEBDABBERPRO.exe" "ATITEBDABBERPRO.exe" > nul
+)
 
 :: ── Done ────────────────────────────────────────────────────────────────────
 echo ============================================================
-echo   BUILD COMPLETE!
-echo   
-echo   Run the app:
-echo   dist\CheatZDabberPro\CheatZDabberPro.exe
+echo   BUILD SUCCESSFUL! (100%% SINGLE STANDALONE EXECUTABLE)
+echo ============================================================
 echo.
-echo   To distribute, ZIP the entire folder:
-echo   dist\CheatZDabberPro\
+echo   DONE.
 echo ============================================================
 echo.
 
-pause
+
+

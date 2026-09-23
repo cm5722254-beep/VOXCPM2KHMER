@@ -32,6 +32,11 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
   // Check license permission
   const isLicensed = Boolean(user && (user.role === 'admin' || user.has_voxcpm_license));
 
+  // If user does not have key license, completely hide VoxCPM2 toggle from UI!
+  if (!isLicensed) {
+    return null;
+  }
+
   const isOnline = engineMode === 'cloud';
   const isConnected = Boolean(voxStatus && (voxStatus.online || voxStatus.configured));
   const activeVariant = variant || (compact ? 'compact' : 'card');

@@ -25,10 +25,11 @@ import {
   Layers,
   Film,
 } from 'lucide-react';
-import { VideoEffects, SubtitleStyle } from '../../types';
+import { VideoEffects, SubtitleStyle, CommercialOverlayConfig } from '../../types';
 import { LUT_PRESETS, EFFECT_3D_PRESETS } from '../effects/effectsLibrary';
 
 interface VideoPreviewProps {
+  commercialOverlay?: CommercialOverlayConfig;
   videoSrc?: string; // Made optional for when no video loaded
   src?: string; // Deprecated, use videoSrc
   currentTime: number;
@@ -114,6 +115,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
   videoSourceMode = 'original',
   onVideoSourceModeChange,
   dubbingOutputVideo,
+  commercialOverlay,
 }) => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const videoRef = externalVideoRef || localVideoRef;
@@ -972,6 +974,65 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   </div>
                 </div>
               )}
+            </div>
+          );
+        })()}
+
+        {/* 8. Commercial Video Overlay (Picture-in-Picture Ads / Sponsor) */}
+        {commercialOverlay?.enabled && commercialOverlay.videoUrl && (() => {
+          const isVisible =
+            commercialOverlay.duration === 0 ||
+            (currentTime >= commercialOverlay.startTime &&
+              currentTime <= commercialOverlay.startTime + commercialOverlay.duration);
+          if (!isVisible) return null;
+
+          const getPos = () => {
+            switch (commercialOverlay.position) {
+              case 'top-left':
+                return 'top-4 left-4';
+              case 'top-right':
+                return 'top-4 right-4';
+              case 'bottom-left':
+                return 'bottom-12 left-4';
+              case 'bottom-right':
+                return 'bottom-12 right-4';
+              case 'center':
+                return 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2';
+              default:
+                return 'top-4 right-4';
+            }
+          };
+
+          const getSize = () => {
+            switch (commercialOverlay.size) {
+              case 'small':
+                return 'w-28';
+              case 'medium':
+                return 'w-44';
+              case 'large':
+                return 'w-60';
+              case 'half':
+                return 'w-80';
+              default:
+                return 'w-44';
+            }
+          };
+
+          return (
+            <div
+              className={`absolute z-30 ${getPos()} ${getSize()} aspect-video rounded-xl overflow-hidden border-2 border-amber-400 shadow-2xl bg-black pointer-events-none transition-all duration-300`}
+              style={{ opacity: (commercialOverlay.opacity || 90) / 100 }}
+            >
+              <video
+                src={commercialOverlay.videoUrl}
+                className="w-full h-full object-cover"
+                autoPlay
+                muted={commercialOverlay.volume === 0}
+                loop={commercialOverlay.loop}
+              />
+              <div className="absolute top-1 left-1 px-1.5 py-0.2 rounded bg-black/80 text-[8px] text-amber-300 font-bold uppercase tracking-wider">
+                SPONSOR AD
+              </div>
             </div>
           );
         })()}

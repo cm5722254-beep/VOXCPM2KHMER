@@ -37,7 +37,10 @@ export const LicenseActivationModal: React.FC<LicenseActivationModalProps> = ({
 
     setIsLoading(true);
     try {
-      const res = await api.activateLicense(cleanKey);
+      const res = await api.activateLicense(cleanKey) as any;
+      if (res.token) {
+        localStorage.setItem('studio_auth_token', res.token);
+      }
       onShowToast(res.message || 'បានដំណើរការ Key License ជោគជ័យ!', 'success');
       setKeyCode('');
       if (res.user) {
@@ -147,8 +150,16 @@ export const LicenseActivationModal: React.FC<LicenseActivationModalProps> = ({
 
           {/* 4 License Tiers Information */}
           <div className="pt-2 border-t border-white/[0.06] space-y-2">
-            <div className="text-[11px] font-bold text-slate-400 font-khmer">
-              ប្រភេទកញ្ចប់ Key License ដែលគាំទ្រ:
+            <div className="flex items-center justify-between text-[11px] font-bold text-slate-400 font-khmer">
+              <span>ប្រភេទកញ្ចប់ Key License ដែលគាំទ្រ:</span>
+              <a
+                href="https://t.me/BongCheatz_IT"
+                target="_blank"
+                rel="noreferrer"
+                className="text-cyan-400 hover:text-cyan-300 underline inline-flex items-center gap-1 font-semibold"
+              >
+                ✈️ ទាក់ទង Admin
+              </a>
             </div>
             <div className="grid grid-cols-2 gap-1.5 text-[10px] font-khmer">
               <div className="p-2 rounded-lg bg-white/[0.02] border border-white/[0.06] flex items-center gap-1.5">
@@ -172,7 +183,16 @@ export const LicenseActivationModal: React.FC<LicenseActivationModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 px-6 border-t border-white/[0.08] bg-[#0b0f19] flex justify-end">
+        <div className="p-3 px-6 border-t border-white/[0.08] bg-[#0b0f19] flex items-center justify-between">
+          <a
+            href="https://t.me/BongCheatz_IT"
+            target="_blank"
+            rel="noreferrer"
+            className="flex items-center gap-1.5 text-xs text-sky-400 hover:text-sky-300 bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 px-3 py-1.5 rounded-lg transition-all font-khmer"
+          >
+            <span>✈️</span>
+            <span>ទិញ KEY: @BongCheatz_IT</span>
+          </a>
           <button
             type="button"
             onClick={onClose}

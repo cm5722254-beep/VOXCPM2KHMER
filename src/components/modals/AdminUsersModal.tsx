@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShieldCheck, Key, Users, Plus, Copy, Check, Trash2, Sparkles, ToggleLeft, ToggleRight, Loader2 } from 'lucide-react';
+import { X, ShieldCheck, Key, Users, Plus, Copy, Check, Trash2, Sparkles, ToggleLeft, ToggleRight, Loader2, Search, Smartphone, KeyRound } from 'lucide-react';
 import { api } from '../../services/api';
 import { User, LicenseKey } from '../../types';
 
@@ -19,6 +19,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
   const [keys, setKeys] = useState<LicenseKey[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
+  const [userSearch, setUserSearch] = useState('');
 
   // Key creation state
   const [newKeyDays, setNewKeyDays] = useState<number>(30);
@@ -55,6 +56,49 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
       loadData();
     } catch (e: any) {
       onShowToast(`កំហុស: ${e.message}`, 'error');
+    }
+  };
+
+  const handleRevokePremium = async (userId: number) => {
+    try {
+      await api.adminRevokePremium(userId);
+      onShowToast('បានដក Premium មកជា Free រួចរាល់', 'info');
+      loadData();
+    } catch (e: any) {
+      onShowToast(`កំហុស: ${e.message}`, 'error');
+    }
+  };
+
+  const handleResetDevice = async (userId: number) => {
+    try {
+      const res = await api.adminResetDevice(userId);
+      onShowToast(res.message || 'បានដោះសោរឧបករណ៍ Device រួចរាល់!', 'success');
+      loadData();
+    } catch (e: any) {
+      onShowToast(`កំហុស: ${e.message}`, 'error');
+    }
+  };
+
+  const handleResetPassword = async (userId: number, currentUsername: string) => {
+    const newPass = window.prompt(`កំណត់ពាក្យសម្ងាត់ថ្មីសម្រាប់ ${currentUsername}:`, '123456');
+    if (!newPass || !newPass.trim()) return;
+    try {
+      const res = await api.adminResetPassword(userId, newPass.trim());
+      onShowToast(res.message || 'បានប្តូរពាក្យសម្ងាត់ជោគជ័យ!', 'success');
+      loadData();
+    } catch (e: any) {
+      onShowToast(`កំហុស: ${e.message}`, 'error');
+    }
+  };
+
+  const handleDeleteUser = async (userId: number, currentUsername: string) => {
+    if (!window.confirm(`តើអ្នកពិតជាចង់លុបគណនី "${currentUsername}" មែនទេ?`)) return;
+    try {
+      await api.adminDeleteUser(userId);
+      onShowToast(`បានលុបគណនី ${currentUsername} រួចរាល់`, 'info');
+      loadData();
+    } catch (e: any) {
+      onShowToast(`កំហុសលុបគណនី: ${e.message}`, 'error');
     }
   };
 
@@ -179,6 +223,26 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
           ) : activeTab === 'users' ? (
             /* Tab 1: Users Table */
             <div className="space-y-3">
+              {/* User Search Bar */}
+              <div className="flex items-center gap-2 bg-[#0b0f19] border border-white/[0.08] rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-slate-400" />
+                <input
+                  type="text"
+                  value={userSearch}
+                  onChange={(e) => setUserSearch(e.target.value)}
+                  placeholder="ស្វែងរកតាមឈ្មោះអ្នកប្រើ ឬ ID..."
+                  className="bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none w-full font-khmer"
+                />
+                {userSearch && (
+                  <button
+                    onClick={() => setUserSearch('')}
+                    className="text-xs text-slate-400 hover:text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
               <div className="overflow-x-auto border border-white/[0.06] rounded-xl">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
@@ -188,76 +252,127 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                       <th className="py-2.5 px-3">តួនាទី</th>
                       <th className="py-2.5 px-3">Tier</th>
                       <th className="py-2.5 px-3">VoxCPM2 សិទ្ធិ</th>
-                      <th className="py-2.5 px-3 text-right">សកម្មភាព</th>
+                      <th className="py-2.5 px-3 text-right">សកម្មភាពគ្រប់គ្រង</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-white/[0.04]">
-                    {users.map((u) => {
-                      const hasVox = Boolean(u.role === 'admin' || u.has_voxcpm_license);
-                      return (
-                        <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                          <td className="py-2.5 px-3 font-mono text-slate-400">#{u.id}</td>
-                          <td className="py-2.5 px-3 font-medium text-white">
-                            <div>{u.username}</div>
-                            {u.current_device_id && (
-                              <div className="text-[10px] text-slate-500 font-mono">
-                                Dev: {u.current_device_id.slice(0, 10)}...
-                              </div>
-                            )}
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span
-                              className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                                u.role === 'admin'
-                                  ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
-                                  : 'bg-sky-500/15 text-sky-300'
-                              }`}
-                            >
-                              {u.role}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <span
-                              className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
-                                u.tier === 'premium'
-                                  ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                                  : 'bg-slate-500/15 text-slate-400'
-                              }`}
-                            >
-                              {u.tier}
-                            </span>
-                          </td>
-                          <td className="py-2.5 px-3">
-                            <button
-                              onClick={() => handleToggleVoxcpm(u.id, u.has_voxcpm_license)}
-                              disabled={u.role === 'admin'}
-                              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-khmer font-semibold transition-all ${
-                                hasVox
-                                  ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                                  : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
-                              } disabled:opacity-75`}
-                            >
-                              {hasVox ? (
-                                <ToggleRight className="w-3.5 h-3.5 text-cyan-400" />
+                    {users
+                      .filter((u) =>
+                        !userSearch
+                          ? true
+                          : u.username.toLowerCase().includes(userSearch.toLowerCase()) ||
+                            String(u.id).includes(userSearch)
+                      )
+                      .map((u) => {
+                        const hasVox = Boolean(u.role === 'admin' || u.has_voxcpm_license);
+                        return (
+                          <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
+                            <td className="py-2.5 px-3 font-mono text-slate-400">#{u.id}</td>
+                            <td className="py-2.5 px-3 font-medium text-white">
+                              <div>{u.username}</div>
+                              {u.current_device_id ? (
+                                <div className="text-[10px] text-amber-400/80 font-mono flex items-center gap-1">
+                                  <span>🔒 Dev: {u.current_device_id.slice(0, 8)}...</span>
+                                </div>
                               ) : (
-                                <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
+                                <div className="text-[10px] text-emerald-400/80">
+                                  🔓 គ្មាន Lock ឧបករណ៍
+                                </div>
                               )}
-                              <span>{hasVox ? 'បានបើក' : 'បិទ'}</span>
-                            </button>
-                          </td>
-                          <td className="py-2.5 px-3 text-right">
-                            {u.role !== 'admin' && (
-                              <button
-                                onClick={() => handleSetPremium(u.id)}
-                                className="px-2.5 py-1 rounded bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-[11px] font-semibold font-khmer transition-colors border border-sky-500/20"
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <span
+                                className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
+                                  u.role === 'admin'
+                                    ? 'bg-amber-500/15 text-amber-300 border border-amber-500/30'
+                                    : 'bg-sky-500/15 text-sky-300'
+                                }`}
                               >
-                                ដាក់ Premium
+                                {u.role}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <span
+                                className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
+                                  u.tier === 'premium'
+                                    ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
+                                    : 'bg-slate-500/15 text-slate-400'
+                                }`}
+                              >
+                                {u.tier}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-3">
+                              <button
+                                onClick={() => handleToggleVoxcpm(u.id, u.has_voxcpm_license)}
+                                disabled={u.role === 'admin'}
+                                className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-khmer font-semibold transition-all ${
+                                  hasVox
+                                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
+                                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                                } disabled:opacity-75`}
+                              >
+                                {hasVox ? (
+                                  <ToggleRight className="w-3.5 h-3.5 text-cyan-400" />
+                                ) : (
+                                  <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
+                                )}
+                                <span>{hasVox ? 'បានបើក' : 'បិទ'}</span>
                               </button>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
+                            </td>
+                            <td className="py-2.5 px-3 text-right">
+                              {u.role !== 'admin' && (
+                                <div className="flex items-center justify-end gap-1.5">
+                                  {u.tier === 'premium' ? (
+                                    <button
+                                      onClick={() => handleRevokePremium(u.id)}
+                                      title="ដក Premium មកជា Free"
+                                      className="px-2 py-1 rounded bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-[10px] font-semibold font-khmer transition-colors border border-amber-500/20"
+                                    >
+                                      ដក Premium
+                                    </button>
+                                  ) : (
+                                    <button
+                                      onClick={() => handleSetPremium(u.id)}
+                                      title="ដាក់ Premium (30 ថ្ងៃ)"
+                                      className="px-2 py-1 rounded bg-sky-500/15 hover:bg-sky-500/25 text-sky-300 text-[10px] font-semibold font-khmer transition-colors border border-sky-500/20"
+                                    >
+                                      + Premium
+                                    </button>
+                                  )}
+
+                                  {/* Unlock Device */}
+                                  <button
+                                    onClick={() => handleResetDevice(u.id)}
+                                    title="ដោះសោរឧបករណ៍ (Reset Device ID)"
+                                    className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-cyan-400 transition-colors"
+                                  >
+                                    <Smartphone className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  {/* Reset Password */}
+                                  <button
+                                    onClick={() => handleResetPassword(u.id, u.username)}
+                                    title="ប្តូរពាក្យសម្ងាត់ (Reset Password)"
+                                    className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-amber-400 transition-colors"
+                                  >
+                                    <KeyRound className="w-3.5 h-3.5" />
+                                  </button>
+
+                                  {/* Delete User */}
+                                  <button
+                                    onClick={() => handleDeleteUser(u.id, u.username)}
+                                    title="លុបគណនីនេះ"
+                                    className="p-1 rounded bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 transition-colors"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
                   </tbody>
                 </table>
               </div>

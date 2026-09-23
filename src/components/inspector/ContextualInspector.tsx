@@ -140,10 +140,21 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
     { id: 'shout', label: 'ស្រែក', icon: '📢' },
   ];
 
+  const isLicensed = Boolean(user && (user.role === 'admin' || user.has_voxcpm_license));
+
+  // Voice Modes (Guarded by License)
+  const availableVoiceModes = !isLicensed
+    ? [{ id: 'khmer_natural', label: '🎙️ សំឡេងខ្មែរស្ទូឌីយោ (Khmer Offline Audio)' }]
+    : [
+        { id: 'voice_actor_clone', label: '🎭 សំឡេងតួអង្គខ្មែរ (Voice Actor)' },
+        { id: 'movie_clone_all', label: '🎯 ក្លូនសំឡេងដើមពីភាពយន្ត (Live Clone)' },
+        { id: 'khmer_natural', label: '🎙️ សំឡេងខ្មែរធម្មជាតិ (Neural TTS)' },
+      ];
+
   // Collapsed Minimal Dock (48px)
   if (isCollapsed) {
     return (
-      <aside className="w-12 bg-[#07090e] border-l border-white/[0.08] flex flex-col items-center py-2.5 gap-2 select-none flex-shrink-0 z-10 transition-all duration-200 font-khmer">
+      <aside className="w-12 bg-[#07090e]/85 backdrop-blur-xl border-l border-white/[0.08] flex flex-col items-center py-2.5 gap-2 select-none flex-shrink-0 z-10 transition-all duration-200 font-khmer">
         <button
           onClick={onToggleCollapse}
           className="w-8 h-8 rounded-lg bg-white/[0.04] hover:bg-cyan-500/20 text-slate-400 hover:text-cyan-300 flex items-center justify-center transition-all border border-white/[0.06]"
@@ -181,9 +192,9 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
   }
 
   return (
-    <aside className="w-[340px] bg-[#090b10] border-l border-white/[0.08] flex flex-col overflow-hidden select-none flex-shrink-0 z-10 transition-all duration-200 font-khmer">
+    <aside className="w-[340px] bg-[#090b10]/85 backdrop-blur-xl border-l border-white/[0.08] flex flex-col overflow-hidden select-none flex-shrink-0 z-10 transition-all duration-200 font-khmer">
       {/* ── Top Header & Tab Navigation ── */}
-      <div className="border-b border-white/[0.08] bg-[#07090e] p-2 flex flex-col gap-1.5 flex-shrink-0">
+      <div className="border-b border-white/[0.08] bg-[#07090e]/80 p-2 flex flex-col gap-1.5 flex-shrink-0">
         <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200">
             <Sliders className="w-3.5 h-3.5 text-cyan-400" />
@@ -251,11 +262,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex flex-col gap-1.5">
               <span className="text-[11px] font-bold text-slate-300">ទម្រង់បញ្ចូលសំឡេង</span>
               <div className="grid grid-cols-1 gap-1">
-                {[
-                  { id: 'voice_actor_clone', label: '🎭 សំឡេងតួអង្គខ្មែរ (Voice Actor)' },
-                  { id: 'movie_clone_all', label: '🎯 ក្លូនសំឡេងដើមពីភាពយន្ត (Live Clone)' },
-                  { id: 'khmer_natural', label: '🎙️ សំឡេងខ្មែរធម្មជាតិ (Neural TTS)' },
-                ].map((m) => (
+                {availableVoiceModes.map((m) => (
                   <button
                     key={m.id}
                     onClick={() => onVoiceModeChange(m.id)}
@@ -456,17 +463,41 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                   onChange={(e) => onSelectCharacterVoice?.(e.target.value)}
                   className="w-full bg-[#07090e] border border-white/[0.12] rounded-lg px-2 py-1.5 text-xs text-slate-200 outline-none focus:border-cyan-400 cursor-pointer truncate"
                 >
-                  <option value={`movie_clone:${selectedSegment?.speaker_id || selectedCharName}`}>
-                    🎯 ក្លូនសំឡេងដើមផ្ទាល់ ({selectedCharName})
-                  </option>
-                  <option value={selectedSegment?.gender === 'female' ? 'km-KH-SreymomNeural' : 'km-KH-PisethNeural'}>
-                    🎙️ សំឡេងខ្មែរ ({selectedSegment?.gender === 'female' ? 'ស្រី - ស្រីមុំ' : 'ប្រុស - ពិសិដ្ឋ'})
-                  </option>
-                  {characters.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.gender === 'female' ? '🌸' : '🎙️'} {c.label}
-                    </option>
-                  ))}
+                  {!isLicensed ? (
+                    <>
+                      <option value={selectedSegment?.gender === 'female' ? 'km-KH-SreymomNeural' : 'km-KH-PisethNeural'}>
+                        🎙️ សំឡេងខ្មែរស្ទូឌីយោ ({selectedSegment?.gender === 'female' ? 'ស្រី - ស្រីមុំ' : 'ប្រុស - ពិសិដ្ឋ'})
+                      </option>
+                      <option value="khmer_male_lead">🎭 តួប្រុសឯក (Khmer Male Hero)</option>
+                      <option value="khmer_female_lead">🌸 តួស្រីឯក (Khmer Female Heroine)</option>
+                      <option value="khmer_narrator">📜 អ្នកនិទានរឿង (Theatrical Narrator)</option>
+                      <option value="khmer_comedy">😄 តួកំប្លែង (Comic Relief)</option>
+                      <option value="khmer_villain">⚡ តួកាច/មេកន្ទ្រាញ (Villain)</option>
+                      <option value="khmer_elder">👴 មនុស្សចាស់/ព្រឹទ្ធាចារ្យ (Elder)</option>
+                      <option value="khmer_child">🧒 កុមារ/ក្មេងតូច (Child)</option>
+                      {characters
+                        .filter((c) => !c.id.startsWith('voxcpm:'))
+                        .map((c) => (
+                          <option key={c.id} value={c.id}>
+                            {c.gender === 'female' ? '🌸' : '🎙️'} {c.label}
+                          </option>
+                        ))}
+                    </>
+                  ) : (
+                    <>
+                      <option value={`movie_clone:${selectedSegment?.speaker_id || selectedCharName}`}>
+                        🎯 ក្លូនសំឡេងដើមផ្ទាល់ ({selectedCharName})
+                      </option>
+                      <option value={selectedSegment?.gender === 'female' ? 'km-KH-SreymomNeural' : 'km-KH-PisethNeural'}>
+                        🎙️ សំឡេងខ្មែរ ({selectedSegment?.gender === 'female' ? 'ស្រី - ស្រីមុំ' : 'ប្រុស - ពិសិដ្ឋ'})
+                      </option>
+                      {characters.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.gender === 'female' ? '🌸' : '🎙️'} {c.label}
+                        </option>
+                      ))}
+                    </>
+                  )}
                 </select>
               </div>
             </div>

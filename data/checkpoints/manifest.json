@@ -1,0 +1,53 @@
+[
+  {
+    "id": "cp_20260922_173509_pre_update_v2_2pro",
+    "name": "Auto Backup មុន Update (ទៅ V2.2PRO)",
+    "version": "V2.2PRO",
+    "type": "pre_update",
+    "created_at": "2026-09-22T17:35:09.243719",
+    "formatted_date": "2026-09-22 17:35:09",
+    "size_mb": 22.34,
+    "files_count": 65,
+    "components": [
+      "public",
+      "services",
+      "version_file"
+    ],
+    "note": "Automatic safety checkpoint before installing V2.2PRO",
+    "folder": "D:\\Voxcpm2khmer\\data\\checkpoints\\cp_20260922_173509_pre_update_v2_2pro"
+  },
+  {
+    "id": "cp_20260922_170355_manual_v2_1pro",
+    "name": "Test Initial Checkpoint",
+    "version": "V2.1PRO",
+    "type": "manual",
+    "created_at": "2026-09-22T17:03:55.421802",
+    "formatted_date": "2026-09-22 17:03:55",
+    "size_mb": 21.22,
+    "files_count": 63,
+    "components": [
+      "public",
+      "services",
+      "version_file"
+    ],
+    "note": "Verification test",
+    "folder": "D:\\Voxcpm2khmer\\data\\checkpoints\\cp_20260922_170355_manual_v2_1pro"
+  },
+  {
+    "id": "cp_20260922_170302_manual_v2_1pro",
+    "name": "Test Initial Checkpoint",
+    "version": "V2.1PRO",
+    "type": "manual",
+    "created_at": "2026-09-22T17:03:03.900506",
+    "formatted_date": "2026-09-22 17:03:03",
+    "size_mb": 21.22,
+    "files_count": 63,
+    "components": [
+      "public",
+      "services",
+      "version_file"
+    ],
+    "note": "Verification test",
+    "folder": "D:\\Voxcpm2khmer\\data\\checkpoints\\cp_20260922_170302_manual_v2_1pro"
+  }
+]

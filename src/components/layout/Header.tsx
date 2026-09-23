@@ -18,9 +18,14 @@ import {
   HardDrive,
   Zap,
   Plus,
+  BookOpen,
+  Palette,
+  Volume2,
+  VolumeX,
 } from 'lucide-react';
 import { User, VoxcpmStatus, ProjectGroup } from '../../types';
 import { VoxCPM2OnlineToggle } from '../ui/VoxCPM2OnlineToggle';
+import { isSoundMuted, toggleSoundMute, playOptionSound } from '../../utils/soundEffects';
 
 interface HeaderProps {
   activeProjectTitle: string;
@@ -55,6 +60,12 @@ interface HeaderProps {
   shelfCount?: number;
   onOpenShelf?: () => void;
   onOpenHardwareTurbo?: () => void;
+  onOpenGuide?: () => void;
+  onOpenCustomizer?: () => void;
+  onOpenUpdateModal?: () => void;
+  hasUpdateAvailable?: boolean;
+  latestVersion?: string;
+  currentVersion?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -85,12 +96,33 @@ export const Header: React.FC<HeaderProps> = ({
   shelfCount = 0,
   onOpenShelf,
   onOpenHardwareTurbo,
+  onOpenGuide,
+  onOpenCustomizer,
+  onOpenUpdateModal,
+  hasUpdateAvailable = false,
+  latestVersion = 'v10.1.0',
+  currentVersion = 'V2.1PRO',
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
+  const [soundMuted, setSoundMutedState] = useState(() => isSoundMuted());
+
+  const handleToggleSound = () => {
+    const next = toggleSoundMute();
+    setSoundMutedState(next);
+    if (!next) {
+      playOptionSound();
+    }
+  };
 
   // Extract clean project and episode names
   const rawTitle = activeProjectTitle || 'Perfect World EP145.mp4';
-  const cleanName = rawTitle.replace(/\.(mp4|mkv|mov|avi|webm)$/i, '');
+  // Clean up upload artifacts: remove 'mediaFile---', timestamps like -123456789@, etc.
+  const cleanedRaw = rawTitle
+    .replace(/^mediaFile---?/i, '')       // strip 'mediaFile---' prefix
+    .replace(/-?\d{6,}@[^.\s]*/g, '')     // strip -159@Top style suffixes
+    .replace(/[-_]{2,}/g, ' ')            // replace multiple dashes/underscores with space
+    .trim();
+  const cleanName = cleanedRaw.replace(/\.(mp4|mkv|mov|avi|webm)$/i, '');
   const epMatch = cleanName.match(/(EP\s*\d+|ភាគ\s*\d+|Episode\s*\d+|\b\d+\b)/i);
   const epLabel = epMatch ? epMatch[0].toUpperCase() : 'EP 145';
   const displayTitle = cleanName.replace(epLabel, '').trim() || cleanName;
@@ -103,25 +135,44 @@ export const Header: React.FC<HeaderProps> = ({
       <div className="flex items-center gap-3">
         {/* Animated Studio Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="relative group">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-violet-600 flex items-center justify-center shadow-[0_0_20px_rgba(0,240,255,0.4)] ring-1 ring-white/30 group-hover:scale-105 transition-all animate-pulse-glow">
-              <Film className="w-4 h-4 text-white stroke-[2.5]" />
+          <div className="relative group cursor-pointer" onClick={onOpenUpdateModal}>
+            <div className="w-9 h-9 rounded-xl overflow-hidden shadow-[0_0_20px_rgba(0,240,255,0.4)] ring-1 ring-cyan-400/50 group-hover:scale-105 transition-all animate-pulse-glow bg-[#0b0e17]">
+              <img
+                src="/app_logo.png"
+                alt="ATITEBDABBER"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
             </div>
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#070a13] animate-record" />
           </div>
 
-          <div className="flex flex-col">
+          <div className="flex flex-col cursor-pointer" onClick={onOpenUpdateModal} title="ចុចដើម្បីបើក Update & Checkpoint Manager">
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-black tracking-tight font-ui animate-aurora">
-                ANIMESTUDIO
+                ATITEBDABBER
               </span>
               <span className="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-cyan-500/15 border border-cyan-400/30 text-cyan-300 border-dance">
-                PRO 2026
+                {currentVersion}
               </span>
             </div>
             <span className="text-[10px] text-slate-400 font-medium">ស្ទូឌីយោបញ្ចូលសំឡេង AI</span>
           </div>
         </div>
+
+        {/* Update Pill Badge if available */}
+        {hasUpdateAvailable && onOpenUpdateModal && (
+          <button
+            onClick={onOpenUpdateModal}
+            className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-400 hover:to-orange-400 text-white text-[11px] font-bold shadow-md shadow-orange-500/25 transition-all active:scale-95 animate-pulse"
+            title="មាន Update ថ្មី! ចុចដើម្បីទាញយក"
+          >
+            <Sparkles className="w-3 h-3 fill-white" />
+            <span>Update {latestVersion}</span>
+          </button>
+        )}
 
         <div className="h-4 w-px bg-white/10 hidden sm:block" />
 
@@ -274,11 +325,64 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Primary Export Action */}
         <button
           onClick={onOpenExport}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-500 hover:brightness-110 text-slate-950 shadow-[0_0_18px_rgba(0,240,255,0.35)] transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-cyan-400 via-sky-400 to-violet-500 hover:brightness-110 text-slate-950 shadow-[0_0_18px_rgba(0,240,255,0.35)] transition-all active:scale-95 shrink-0"
           title="នាំចេញវីដេអូសម្រេច (ចុច E)"
         >
           <Share2 className="w-3.5 h-3.5 stroke-[2.5]" />
-          <span>នាំចេញវីដេអូ</span>
+          <span className="hidden sm:inline">នាំចេញវីដេអូ</span>
+        </button>
+
+        {/* Telegram Admin Contact Button */}
+        <a
+          href="https://t.me/BongCheatz_IT"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black bg-gradient-to-r from-sky-500/25 via-blue-500/20 to-indigo-500/25 hover:from-sky-500/40 hover:to-blue-500/40 border border-sky-400/50 text-sky-200 shadow-md shadow-sky-500/20 transition-all active:scale-95 shrink-0"
+          title="ទាក់ទង ADMIN តាម Telegram: https://t.me/BongCheatz_IT"
+        >
+          <span className="text-sm">✈️</span>
+          <span className="hidden sm:inline">ទាក់ទង ADMIN</span>
+        </a>
+
+        {/* Custom UI Style Background & Color Glass Button */}
+        {onOpenCustomizer && (
+          <button
+            onClick={onOpenCustomizer}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-cyan-500/15 via-purple-500/15 to-pink-500/15 hover:brightness-125 border border-cyan-400/30 text-cyan-200 transition-all shadow-sm shrink-0"
+            title="ដូរ Style Background Tool & Color Glass"
+          >
+            <Palette className="w-3.5 h-3.5 text-cyan-300" />
+            <span className="hidden lg:inline">STYLE & GLASS</span>
+          </button>
+        )}
+
+        {/* User Guide Tutorial Button */}
+        {onOpenGuide && (
+          <button
+            onClick={onOpenGuide}
+            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-sky-500/10 hover:bg-sky-500/20 border border-sky-500/30 text-sky-300 transition-all shadow-sm shrink-0"
+            title="មគ្គុទ្ទេសក៍របៀបប្រើប្រាស់ Tool"
+          >
+            <BookOpen className="w-3.5 h-3.5" />
+            <span className="hidden xl:inline">របៀបប្រើប្រាស់</span>
+          </button>
+        )}
+
+        {/* Sound Feedback Toggle */}
+        <button
+          onClick={handleToggleSound}
+          className={`p-1.5 rounded-md transition-colors ${
+            soundMuted
+              ? 'text-slate-500 hover:text-slate-300 hover:bg-white/[0.06]'
+              : 'text-cyan-400 hover:text-cyan-300 hover:bg-cyan-500/10'
+          }`}
+          title={soundMuted ? 'បើកសំឡេង Button Click (Muted)' : 'បិទសំឡេង Button Click (Audio Enabled)'}
+        >
+          {soundMuted ? (
+            <VolumeX className="w-4 h-4" />
+          ) : (
+            <Volume2 className="w-4 h-4" />
+          )}
         </button>
 
         {/* Settings */}

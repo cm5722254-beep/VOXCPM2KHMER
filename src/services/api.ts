@@ -103,6 +103,34 @@ export const api = {
       body: JSON.stringify({ userId, days }),
     }),
 
+  adminRevokePremium: (userId: number) =>
+    request('/api/admin/revoke-premium', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    }),
+
+  adminResetDevice: (userId: number) =>
+    request<{ success: boolean; message: string }>('/api/admin/reset-device', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    }),
+
+  adminResetPassword: (userId: number, newPassword: string) =>
+    request<{ success: boolean; message: string }>('/api/admin/reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId, newPassword }),
+    }),
+
+  adminDeleteUser: (userId: number) =>
+    request<{ success: boolean }>('/api/admin/delete-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ userId }),
+    }),
+
   // Config & System
   getConfig: () => request<StudioConfig>('/api/config'),
 
@@ -378,14 +406,33 @@ export const api = {
   getProjectGroups: () =>
     request<{ success: boolean; groups: ProjectGroup[] }>('/api/groups'),
 
-  createProjectGroup: (body: { name: string; color?: string; description?: string }) =>
+  createProjectGroup: (body: {
+    name: string;
+    color?: string;
+    description?: string;
+    maleLeadVoice?: string;
+    femaleLeadVoice?: string;
+    narratorVoice?: string;
+    supportingVoice?: string;
+  }) =>
     request<{ success: boolean; group: ProjectGroup; groups: ProjectGroup[] }>('/api/groups/create', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     }),
 
-  updateProjectGroup: (groupId: string, body: { name?: string; color?: string; description?: string }) =>
+  updateProjectGroup: (
+    groupId: string,
+    body: {
+      name?: string;
+      color?: string;
+      description?: string;
+      maleLeadVoice?: string;
+      femaleLeadVoice?: string;
+      narratorVoice?: string;
+      supportingVoice?: string;
+    }
+  ) =>
     request<{ success: boolean; group: ProjectGroup; groups: ProjectGroup[] }>(`/api/groups/${groupId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -400,6 +447,101 @@ export const api = {
   // Hardware Performance Profile
   getHardwareInfo: () =>
     request<HardwareProfile>('/api/system/hardware'),
+
+  // In-App Software Update System
+  getAppVersion: () =>
+    request<{
+      current_version: string;
+      latest_version: string;
+      has_update: boolean;
+      release_date: string;
+      download_url?: string;
+      changelog: Array<{ type: string; text: string }>;
+      patch_size_mb?: number;
+    }>('/api/system/version'),
+
+  checkUpdate: () =>
+    request<{
+      has_update: boolean;
+      current_version: string;
+      latest_version: string;
+      download_url?: string;
+      patch_size_mb?: number;
+      changelog: Array<{ type: string; text: string }>;
+      source?: string;
+    }>('/api/system/check-update', { method: 'POST' }),
+
+  applyUpdate: (body?: { target_version?: string; download_url?: string }) =>
+    request<{ success: boolean; message: string; new_version: string }>('/api/system/apply-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : undefined,
+    }),
+
+  uploadPatchFile: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return request<{ success: boolean; message: string; new_version: string }>('/api/system/upload-patch', {
+      method: 'POST',
+      body: formData,
+    });
+  },
+
+  // Checkpoints & Restore System
+  getCheckpoints: () =>
+    request<{
+      success: boolean;
+      checkpoints: Array<{
+        id: string;
+        name: string;
+        version: string;
+        type: string;
+        created_at: string;
+        formatted_date: string;
+        size_mb: number;
+        files_count: number;
+        components: string[];
+        note?: string;
+      }>;
+      count: number;
+      current_version: string;
+    }>('/api/system/checkpoints'),
+
+  createCheckpoint: (name?: string, note?: string) =>
+    request<{ success: boolean; message: string; checkpoint: any }>('/api/system/checkpoints/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, note }),
+    }),
+
+  restoreCheckpoint: (checkpoint_id: string) =>
+    request<{ success: boolean; message: string; restored_version: string }>('/api/system/checkpoints/restore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ checkpoint_id }),
+    }),
+
+  deleteCheckpoint: (checkpoint_id: string) =>
+    request<{ success: boolean; message: string }>(`/api/system/checkpoints/${checkpoint_id}`, {
+      method: 'DELETE',
+    }),
+
+  publishAdminUpdate: (payload: {
+    latest_version: string;
+    changelog: Array<{ type: string; text: string }>;
+    download_url?: string;
+    patch_size_mb?: number;
+  }) =>
+    request('/api/system/admin/publish-update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    }),
+
+  rollbackUpdate: () =>
+    request<{ success: boolean; message: string; restored_version?: string }>('/api/system/update/rollback', {
+      method: 'POST',
+    }),
 };
 
 

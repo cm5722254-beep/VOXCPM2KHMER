@@ -17,7 +17,8 @@ sys.path.insert(0, "/content/VoxCPM")
 
 import torch
 import soundfile as sf
-from fastapi import FastAPI, UploadFile, File, Form, HTTPException
+from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Depends
+from fastapi.security import APIKeyHeader
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
@@ -35,6 +36,14 @@ else:
 app = FastAPI(title="VoxCPM2 Khmer Voice API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
+API_KEY_SECRET = "cheatz_secret_key_123" # អាចប្តូរលេខកូដនេះបានតាមចិត្ត
+api_key_header = APIKeyHeader(name="X-API-Key", auto_error=True)
+
+def verify_api_key(api_key: str = Depends(api_key_header)):
+    if api_key != API_KEY_SECRET:
+        raise HTTPException(status_code=403, detail="សោរ API Key មិនត្រឹមត្រូវទេ! (Invalid API Key)")
+    return api_key
+
 os.makedirs("/content/uploads", exist_ok=True)
 os.makedirs("/content/outputs", exist_ok=True)
 
@@ -42,14 +51,64 @@ from starlette.concurrency import run_in_threadpool
 
 @app.get("/")
 def home():
-    return {"status": "ok", "model": "VoxCPM2", "service": "Khmer Voice Cloning API"}
+    return {"status": "ok", "model": "VoxCPM2", "service": "Khmer Voice Cloning API", "protected_by": "API Key"}
+
+
+@app.get("/api/update/manifest")
+def get_update_manifest():
+    """Serve update manifest for auto-update system."""
+    return {
+        "latest_version": "V2.3PRO",
+        "release_date": "2026-09-22T10:00:00Z",
+        "min_supported_version": "V2.0PRO",
+        "update_type": "feature",
+        "changelog": [
+            {
+                "version": "V2.3PRO",
+                "date": "2026-09-22",
+                "type": "feature",
+                "changes": [
+                    {
+                        "type": "NEW",
+                        "text": "Auto-Update System with hot module reloading"
+                    },
+                    {
+                        "type": "NEW",
+                        "text": "Dynamic feature updates without EXE reinstallation"
+                    },
+                    {
+                        "type": "IMPROVED",
+                        "text": "Enhanced performance and stability"
+                    }
+                ],
+                "files": [
+                    {
+                        "path": "services/update_manager.py",
+                        "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3PRO/services/update_manager.py",
+                        "hash": "sha256:placeholder",
+                        "size": 15360,
+                        "action": "add_or_update"
+                    },
+                    {
+                        "path": "services/module_loader.py",
+                        "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3PRO/services/module_loader.py",
+                        "hash": "sha256:placeholder",
+                        "size": 8192,
+                        "action": "add_or_update"
+                    }
+                ]
+            }
+        ]
+    }
+
 
 @app.post("/api/clone-and-speak")
 async def clone_and_speak(
     text: str = Form(...),
     reference_audio: UploadFile = File(None),
     timesteps: int = Form(10),
-    cfg_value: float = Form(2.0)
+    cfg_value: float = Form(2.0),
+    api_key: str = Depends(verify_api_key)
 ):
     try:
         ref_path = None

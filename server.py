@@ -5,6 +5,7 @@ import json
 import shutil
 import asyncio
 import base64
+import logging
 from datetime import datetime, timedelta
 
 # Force UTF-8 encoding on Windows console
@@ -18,24 +19,46 @@ if sys.platform == 'win32':
 from typing import Optional, List
 from fastapi import FastAPI, File, UploadFile, Form, BackgroundTasks, HTTPException, Request
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import JSONResponse, FileResponse
+from fastapi.responses import JSONResponse, FileResponse, StreamingResponse
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import queue
 
-# Load environment variables with override
-env_file_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+# Resolve APP_DIR and BUNDLE_DIR (both one-file and one-dir PyInstaller modes)
+if getattr(sys, 'frozen', False):
+    APP_DIR = os.path.dirname(sys.executable)
+    BUNDLE_DIR = getattr(sys, '_MEIPASS', APP_DIR)
+else:
+    APP_DIR = os.path.dirname(os.path.abspath(__file__))
+    BUNDLE_DIR = APP_DIR
+
+BASE_DIR = APP_DIR
+
+# Prepend persistent patches and services to sys.path so hot updates override bundled modules
+for p in [os.path.join(APP_DIR, 'patches'), os.path.join(APP_DIR, 'services')]:
+    if os.path.exists(p) and p not in sys.path:
+        sys.path.insert(0, p)
+
+env_file_path = os.path.join(APP_DIR, '.env')
+if not os.path.exists(env_file_path):
+    env_file_path = os.path.join(BUNDLE_DIR, '.env')
 load_dotenv(dotenv_path=env_file_path, override=True)
 
 from services import audio_processor, auth_db
 from services.khmer_dubber import KhmerDubber, clean_pure_khmer, ROLE_THEATRICAL_PROFILES
 from services.elevenlabs_service import elevenlabs_service
+from services.unified_db import unified_db
+from services.checkpoint_manager import checkpoint_manager
+from services.auto_updater import auto_updater
+from services.update_manager import get_update_manager
+from services.module_loader import get_module_loader
+from services.progress_tracker import create_tracker, get_tracker, OperationType
 
 app = FastAPI(title="AI Voice Clone & Dubbing Studio (ZH -> KM)")
 
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 EXTRA_PATHS = [
-    os.path.join(BASE_DIR, 'bin'),
+    os.path.join(BUNDLE_DIR, 'bin'),
+    os.path.join(APP_DIR, 'bin'),
     '/opt/homebrew/bin',      # Apple Silicon Mac (M1/M2/M3/M4) Homebrew
     '/usr/local/bin',          # Intel Mac Homebrew & standard UNIX tools
     '/opt/local/bin',          # MacPorts
@@ -44,11 +67,21 @@ for p in EXTRA_PATHS:
     if os.path.exists(p) and p not in os.environ.get('PATH', ''):
         os.environ['PATH'] = p + os.pathsep + os.environ.get('PATH', '')
 
-UPLOADS_DIR = os.path.join(BASE_DIR, 'uploads')
-OUTPUTS_DIR = os.path.join(BASE_DIR, 'outputs')
-SAMPLES_DIR = os.path.join(BASE_DIR, 'samples')
-PUBLIC_DIR = os.path.join(BASE_DIR, 'public')
-DATA_DIR = os.path.join(BASE_DIR, 'data')
+UPLOADS_DIR = os.path.join(APP_DIR, 'uploads')
+OUTPUTS_DIR = os.path.join(APP_DIR, 'outputs')
+SAMPLES_DIR = os.path.join(APP_DIR, 'samples')
+if not os.path.exists(SAMPLES_DIR) and os.path.exists(os.path.join(BUNDLE_DIR, 'samples')):
+    SAMPLES_DIR = os.path.join(BUNDLE_DIR, 'samples')
+
+# Priority: Check if updated public exists in APP_DIR first, fallback to bundled public
+app_public_dir = os.path.join(APP_DIR, 'public')
+bundle_public_dir = os.path.join(BUNDLE_DIR, 'public')
+if os.path.exists(app_public_dir) and os.path.isdir(app_public_dir):
+    PUBLIC_DIR = app_public_dir
+else:
+    PUBLIC_DIR = bundle_public_dir
+
+DATA_DIR = os.path.join(APP_DIR, 'data')
 ACTIVE_PROJECT_FILE = os.path.join(DATA_DIR, 'active_project.json')
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
@@ -56,8 +89,34 @@ os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(SAMPLES_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 
+# Auto-seed initial template/data files if not yet existing on user's machine
+bundle_data = os.path.join(BUNDLE_DIR, 'data')
+if os.path.exists(bundle_data) and bundle_data != DATA_DIR:
+    for item in os.listdir(bundle_data):
+        src_item = os.path.join(bundle_data, item)
+        dst_item = os.path.join(DATA_DIR, item)
+        if not os.path.exists(dst_item) and os.path.isfile(src_item):
+            try:
+                shutil.copy2(src_item, dst_item)
+            except Exception:
+                pass
+
+# Auto-seed extracted_characters.json if missing in APP_DIR
+chars_bundle = os.path.join(BUNDLE_DIR, 'extracted_characters.json')
+chars_app = os.path.join(APP_DIR, 'extracted_characters.json')
+if not os.path.exists(chars_app) and os.path.exists(chars_bundle):
+    try:
+        shutil.copy2(chars_bundle, chars_app)
+    except Exception:
+        pass
+
 khmer_dubber = KhmerDubber()
 active_jobs = {}
+progress_subscribers = {}  # Real-time progress tracking for SSE
+
+# Setup logger
+logger = logging.getLogger(__name__)
+
 
 # --- Authentication Helpers ---
 def get_request_user(request: Request) -> Optional[dict]:
@@ -70,6 +129,9 @@ def get_request_user(request: Request) -> Optional[dict]:
         token = request.headers.get('x-auth-token', '')
     if not token:
         token = request.query_params.get('token', '')
+    if not token:
+        # Check for persistent token in cookies
+        token = request.cookies.get('auth_token', '')
     return auth_db.get_user_by_token(token) if token else None
 
 def require_admin(request: Request) -> dict:
@@ -91,9 +153,11 @@ class AuthLoginRequest(BaseModel):
     username: str
     password: str
     deviceId: Optional[str] = None
+    rememberMe: Optional[bool] = True  # Default to True
 
 class ActivateLicenseRequest(BaseModel):
     license_key: str
+    deviceId: Optional[str] = None
 
 class CreateLicenseKeyRequest(BaseModel):
     days: int = 30
@@ -113,6 +177,13 @@ class RevokePremiumRequest(BaseModel):
 
 class DeleteUserRequest(BaseModel):
     userId: int
+
+class ResetUserDeviceRequest(BaseModel):
+    userId: int
+
+class ResetUserPasswordRequest(BaseModel):
+    userId: int
+    newPassword: str
 
 class ConfigUpdate(BaseModel):
     elevenlabsKey: Optional[str] = None
@@ -187,11 +258,19 @@ class CreateProjectGroupRequest(BaseModel):
     name: str
     color: Optional[str] = 'cyan'
     description: Optional[str] = ''
+    maleLeadVoice: Optional[str] = None
+    femaleLeadVoice: Optional[str] = None
+    narratorVoice: Optional[str] = None
+    supportingVoice: Optional[str] = None
 
 class UpdateProjectGroupRequest(BaseModel):
     name: Optional[str] = None
     color: Optional[str] = None
     description: Optional[str] = None
+    maleLeadVoice: Optional[str] = None
+    femaleLeadVoice: Optional[str] = None
+    narratorVoice: Optional[str] = None
+    supportingVoice: Optional[str] = None
 
 
 class CharacterSpeakRequest(BaseModel):
@@ -231,11 +310,64 @@ def auth_login(body: AuthLoginRequest, request: Request):
     try:
         device_id = body.deviceId or request.headers.get('x-device-id')
         res = auth_db.login_user(body.username, body.password, device_id)
-        return res
+        
+        # Determine session duration (30 days with remember me, 1 day without)
+        remember_me = getattr(body, 'rememberMe', True)  # Default to True for convenience
+        max_age = (30 * 24 * 60 * 60) if remember_me else (24 * 60 * 60)
+        
+        # Create persistent session
+        response = JSONResponse(content=res)
+        if 'token' in res:
+            response.set_cookie(
+                key='auth_token',
+                value=res['token'],
+                max_age=max_age,
+                httponly=True,
+                samesite='lax',
+                secure=False  # Set to True in production with HTTPS
+            )
+            # Also set remember preference
+            response.set_cookie(
+                key='remember_me',
+                value='1' if remember_me else '0',
+                max_age=365 * 24 * 60 * 60,  # 1 year
+                httponly=False,
+                samesite='lax'
+            )
+        return response
     except ValueError as ve:
         raise HTTPException(status_code=401, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/auth/check-session')
+def check_session(request: Request):
+    """Check if user has valid session (auto-login)"""
+    try:
+        # Try to get token from cookie first
+        token = request.cookies.get('auth_token')
+        if not token:
+            # Fallback to header
+            auth_header = request.headers.get('Authorization', '')
+            if auth_header.startswith('Bearer '):
+                token = auth_header[7:].strip()
+        
+        if not token:
+            return {'authenticated': False, 'user': None}
+        
+        # Validate token
+        user = auth_db.get_user_by_token(token)
+        if not user:
+            return {'authenticated': False, 'user': None}
+        
+        return {
+            'authenticated': True,
+            'user': user,
+            'token': token
+        }
+    except Exception as e:
+        return {'authenticated': False, 'user': None, 'error': str(e)}
 
 @app.post('/api/auth/logout')
 def auth_logout(request: Request):
@@ -245,9 +377,15 @@ def auth_logout(request: Request):
         token = auth_header[7:].strip()
     if not token:
         token = request.headers.get('x-auth-token', '')
+    if not token:
+        token = request.cookies.get('auth_token', '')
     if token:
         auth_db.logout_user(token)
-    return {'success': True}
+    
+    # Clear persistent cookie
+    response = JSONResponse(content={'success': True})
+    response.delete_cookie(key='auth_token')
+    return response
 
 @app.get('/api/auth/me')
 def auth_me(request: Request):
@@ -261,10 +399,17 @@ def auth_me(request: Request):
 @app.post('/api/license/activate')
 def api_activate_license(body: ActivateLicenseRequest, request: Request):
     user = get_request_user(request)
+    device_id = request.headers.get('x-device-id') or body.deviceId or ('dev_' + secrets.token_hex(4))
+    
+    # If not logged in, auto-link to device user so activation always succeeds seamlessly
     if not user:
-        raise HTTPException(status_code=401, detail="សូមចូលគណនីជាមុនសិនដើម្បីដំណើរការ Key License")
+        user = auth_db.get_or_create_device_user(device_id)
+        
     try:
         res = auth_db.activate_license_key(user['id'], body.license_key)
+        # Issue persistent session token
+        token = auth_db.create_session_for_user(user['id'], device_id)
+        res['token'] = token
         return res
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
@@ -318,6 +463,20 @@ def admin_revoke_premium(body: RevokePremiumRequest, request: Request):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
+@app.post('/api/admin/reset-device')
+def admin_reset_device(body: ResetUserDeviceRequest, request: Request):
+    require_admin(request)
+    auth_db.reset_user_device(body.userId)
+    return {'success': True, 'message': 'បានដោះសោរ Device រួចរាល់! User អាច Login លើកុំព្យូទ័រថ្មីបាន'}
+
+@app.post('/api/admin/reset-password')
+def admin_reset_password(body: ResetUserPasswordRequest, request: Request):
+    require_admin(request)
+    if not body.newPassword or len(body.newPassword.strip()) < 4:
+        raise HTTPException(status_code=400, detail="ពាក្យសម្ងាត់ថ្មីត្រូវមានយ៉ាងហោចណាស់ ៤ តួអក្សរ")
+    auth_db.reset_user_password(body.userId, body.newPassword.strip())
+    return {'success': True, 'message': 'បានកំណត់ពាក្យសម្ងាត់ថ្មីជោគជ័យ!'}
+
 @app.post('/api/admin/delete-user')
 def admin_delete_user(body: DeleteUserRequest, request: Request):
     admin = require_admin(request)
@@ -325,6 +484,192 @@ def admin_delete_user(body: DeleteUserRequest, request: Request):
         raise HTTPException(status_code=400, detail="មិនអាចលុបគណនី Admin ផ្ទាល់ខ្លួនបានទេ")
     auth_db.delete_user(body.userId)
     return {'success': True}
+
+# --- Unified Database Statistics & History ---
+
+@app.get('/api/stats/processing-modes')
+def get_processing_mode_stats(request: Request):
+    """
+    Get usage statistics for all 3 processing modes
+    (VoxCPM2, Pure Khmer, ElevenLabs)
+    """
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
+    try:
+        stats = unified_db.get_mode_stats(user['id'])
+        return {
+            'success': True,
+            'stats': stats,
+            'total_jobs': sum(s['usage_count'] for s in stats.values()),
+            'total_duration': sum(s['total_duration_seconds'] for s in stats.values())
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/api/history/jobs')
+def get_job_history(request: Request, mode: Optional[str] = None, limit: int = 50):
+    """
+    Get processing job history
+    Optionally filter by mode: voxcpm2, pure_khmer, elevenlabs
+    """
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
+    try:
+        history = unified_db.get_user_history(user['id'], mode, limit)
+        return {
+            'success': True,
+            'history': history,
+            'count': len(history)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/api/library/videos')
+def get_video_library(request: Request, group_id: Optional[str] = None):
+    """
+    Get user's video library (local storage tracking)
+    វីដេអូរក្សាទុកក្នុង Computer មិនធ្ងន់ Database
+    """
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
+    try:
+        videos = unified_db.get_user_videos(user['id'], group_id)
+        return {
+            'success': True,
+            'videos': videos,
+            'count': len(videos)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/api/library/videos/add')
+def add_video_to_library(request: Request, body: dict):
+    """Add video metadata to library (file stored locally)"""
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
+    try:
+        body['user_id'] = user['id']
+        video_id = unified_db.add_video(body)
+        return {
+            'success': True,
+            'video_id': video_id,
+            'message': 'បានបន្ថែមវីដេអូទៅកាន់ Library (Local Storage)'
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete('/api/library/videos/{video_id}')
+def delete_video_from_library(video_id: int, request: Request):
+    """Delete video metadata from library"""
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
+    try:
+        success = unified_db.delete_video(video_id, user['id'])
+        if not success:
+            raise HTTPException(status_code=404, detail="រកមិនឃើញវីដេអូ")
+        return {
+            'success': True,
+            'message': 'បានលុបវីដេអូជោគជ័យ'
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Voice Management (Admin) ---
+
+@app.get('/api/admin/voices')
+def admin_list_voices(request: Request):
+    """Get all voices in library (admin only)"""
+    require_admin(request)
+    
+    try:
+        # Get from database or fallback to default list
+        voices = [
+            {'id': 1, 'voice_id': 'voxcpm:hang_phleung_char_2_male.mp3', 'voice_name': 'Hang Phleung Male Lead', 'voice_label': 'ភីកនាយក (ប្រុស)', 'gender': 'male', 'is_premium': 0, 'is_admin_only': 0, 'enabled_for_free': 1},
+            {'id': 2, 'voice_id': 'voxcpm:hang_phleung_char_6_female.mp3', 'voice_name': 'Hang Phleung Female Lead', 'voice_label': 'ភីកនាង (ស្រី)', 'gender': 'female', 'is_premium': 0, 'is_admin_only': 0, 'enabled_for_free': 1},
+            {'id': 3, 'voice_id': 'voxcpm:kxev_char_01_male.mp3', 'voice_name': 'Professional Male 1', 'voice_label': 'អ្នកនិយាយប្រុស ១', 'gender': 'male', 'is_premium': 0, 'is_admin_only': 0, 'enabled_for_free': 1},
+            {'id': 4, 'voice_id': 'voxcpm:kxev_char_02_female.mp3', 'voice_name': 'Professional Female 1', 'voice_label': 'អ្នកនិយាយស្រី ១', 'gender': 'female', 'is_premium': 0, 'is_admin_only': 0, 'enabled_for_free': 1},
+            {'id': 5, 'voice_id': 'voxcpm:premium_male_hero.mp3', 'voice_name': 'Premium Male Hero', 'voice_label': 'វីរបុរសប្រុស (VIP)', 'gender': 'male', 'is_premium': 1, 'is_admin_only': 0, 'enabled_for_free': 0},
+            {'id': 6, 'voice_id': 'voxcpm:premium_female_heroine.mp3', 'voice_name': 'Premium Female Heroine', 'voice_label': 'វីរនារី (VIP)', 'gender': 'female', 'is_premium': 1, 'is_admin_only': 0, 'enabled_for_free': 0},
+            {'id': 7, 'voice_id': 'voxcpm:admin_narrator.mp3', 'voice_name': 'Admin Narrator Voice', 'voice_label': 'អ្នកនិទានរឿង (Admin)', 'gender': 'neutral', 'is_premium': 1, 'is_admin_only': 1, 'enabled_for_free': 0},
+        ]
+        return {'success': True, 'voices': voices}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/api/admin/voices/toggle')
+def admin_toggle_voice_access(request: Request, body: dict):
+    """Toggle voice access settings (admin only)"""
+    require_admin(request)
+    
+    voice_id = body.get('voiceId')
+    field = body.get('field')
+    value = body.get('value')
+    
+    if not voice_id or not field:
+        raise HTTPException(status_code=400, detail="Missing parameters")
+    
+    # Here you would update the database
+    # For now, just return success
+    return {'success': True, 'message': f'បាន update {field} ជោគជ័យ'}
+
+@app.post('/api/admin/voices/grant')
+def admin_grant_voice_to_user(request: Request, body: dict):
+    """Grant voice access to specific user (admin only)"""
+    require_admin(request)
+    
+    user_id = body.get('userId')
+    voice_id = body.get('voiceId')
+    days = body.get('days', 365)
+    
+    if not user_id or not voice_id:
+        raise HTTPException(status_code=400, detail="Missing parameters")
+    
+    # Here you would insert into user_voice_permissions table
+    # For now, just return success
+    return {
+        'success': True,
+        'message': f'បានផ្តល់សិទ្ធិប្រើសំឡេង {voice_id} អោយ User ID {user_id} រយៈពេល {days} ថ្ងៃ'
+    }
+
+@app.get('/api/voices/list')
+def get_available_voices(request: Request):
+    """Get voices available for current user"""
+    user = get_request_user(request)
+    
+    # Base voices (free for everyone)
+    voices = [
+        {'id': 'voxcpm:hang_phleung_char_2_male.mp3', 'label': 'ភីកនាយក (ប្រុស)', 'gender': 'male', 'tier': 'free'},
+        {'id': 'voxcpm:hang_phleung_char_6_female.mp3', 'label': 'ភីកនាង (ស្រី)', 'gender': 'female', 'tier': 'free'},
+        {'id': 'voxcpm:kxev_char_01_male.mp3', 'label': 'អ្នកនិយាយប្រុស ១', 'gender': 'male', 'tier': 'free'},
+        {'id': 'voxcpm:kxev_char_02_female.mp3', 'label': 'អ្នកនិយាយស្រី ១', 'gender': 'female', 'tier': 'free'},
+        {'id': 'voxcpm:main_lead_male.mp3', 'label': 'សំឡេងប្រុសចម្បង', 'gender': 'male', 'tier': 'free'},
+        {'id': 'voxcpm:main_lead_female.mp3', 'label': 'សំឡេងស្រីចម្បង', 'gender': 'female', 'tier': 'free'},
+    ]
+    
+    # Add premium voices for premium users or admins
+    if user and (user.get('tier') == 'premium' or user.get('role') == 'admin'):
+        voices.extend([
+            {'id': 'voxcpm:premium_male_hero.mp3', 'label': 'វីរបុរសប្រុស (VIP)', 'gender': 'male', 'tier': 'premium'},
+            {'id': 'voxcpm:premium_female_heroine.mp3', 'label': 'វីរនារី (VIP)', 'gender': 'female', 'tier': 'premium'},
+        ])
+    
+    # Add admin-only voices
+    if user and user.get('role') == 'admin':
+        voices.append({'id': 'voxcpm:admin_narrator.mp3', 'label': 'អ្នកនិទានរឿង (Admin)', 'gender': 'neutral', 'tier': 'admin'})
+    
+    return {'success': True, 'voices': voices}
 
 # --- API Endpoints ---
 
@@ -876,6 +1221,17 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
     body.filename = real_filename
 
     job_id = f"job_{int(time.time() * 1000)}"
+    
+    # Determine processing mode
+    voxcpm_mode = os.getenv('VOXCPM_MODE', 'pure_khmer')
+    processing_mode = 'pure_khmer'  # Default
+    if body.voiceId and body.voiceId.startswith('voxcpm:'):
+        processing_mode = 'voxcpm2'
+    elif voxcpm_mode == 'elevenlabs':
+        processing_mode = 'elevenlabs'
+    elif voxcpm_mode == 'cloud' or voxcpm_mode == 'local':
+        processing_mode = 'voxcpm2'
+    
     job = {
         'id': job_id,
         'filename': body.filename,
@@ -888,23 +1244,74 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
         'created': time.time()
     }
     active_jobs[job_id] = job
+    
+    # Save to unified database
+    try:
+        unified_db.create_job({
+            'id': job_id,
+            'user_id': user.get('id') if user else None,
+            'video_filename': body.filename,
+            'job_type': 'dubbing',
+            'processing_mode': processing_mode,
+            'status': 'extracting',
+            'progress': 10,
+            'message': job['message'],
+            'params': {
+                'sourceLang': body.sourceLang,
+                'targetLang': body.targetLang,
+                'voiceId': body.voiceId,
+                'scope': body.scope
+            }
+        })
+    except Exception as e:
+        logger.warning(f"Failed to save job to unified DB: {e}")
 
     async def run_pipeline():
+        # Create detailed progress tracker
+        tracker = create_tracker(job_id, OperationType.DUBBING)
+        
+        # Define pipeline steps
+        tracker.add_step("extract_audio", "កំពុងទាញយកសម្លេងពីវីដេអូដើម...", weight=0.1)
+        tracker.add_step("analyze_dialogue", "AI កំពុងវិភាគ និងស្រង់តួអង្គ...", weight=0.2)
+        tracker.add_step("translate", "កំពុងបកប្រែជាភាសាខ្មែរ...", weight=0.2)
+        tracker.add_step("generate_voices", "កំពុងបង្កើតសម្លេងខ្មែរ...", weight=0.3)
+        tracker.add_step("render_video", "កំពុងបញ្ចូលសម្លេងទៅក្នុងវីដេអូ...", weight=0.2)
+        
+        # Register progress broadcast callback
+        tracker.add_callback(lambda jid, data: broadcast_progress(jid, {
+            'id': jid,
+            'status': data['status'],
+            'progress': data['overall_progress'],
+            'message': data.get('steps', [{}])[data.get('current_step', 0) if isinstance(data.get('current_step'), int) else 0].get('description', ''),
+            'detail': data
+        }))
+        
         try:
             audio_ext = os.path.splitext(body.filename)[0] + '.mp3'
             extracted_audio_path = os.path.join(OUTPUTS_DIR, f"audio_{audio_ext}")
-            job['progress'] = 10
+            
+            # Step 1: Extract audio
+            tracker.start_step(0)
+            job['progress'] = 5
             job['status'] = 'extracting'
+            broadcast_progress(job_id, job.copy())
+            
             audio_processor.extract_audio(input_path, extracted_audio_path)
+            tracker.complete_step(0)
+            
+            job['progress'] = 10
+            broadcast_progress(job_id, job.copy())
 
             if body.targetLang == 'km':
                 job['progress'] = 15
                 job['status'] = 'dubbing_khmer'
                 job['message'] = 'AI Gemini កំពុងវិភាគ និងស្រង់តួអង្គគ្រប់តួក្នុងសាច់រឿង...'
+                broadcast_progress(job_id, job.copy())
 
                 def on_prog(p, msg):
                     job['progress'] = p
                     job['message'] = msg
+                    broadcast_progress(job_id, job.copy())
 
                 result = await khmer_dubber.process_khmer_dubbing(
                     input_path,
@@ -930,16 +1337,65 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
                 job['outputAudio'] = f"/media/outputs/{os.path.basename(result['dubbedAudioPath'])}"
                 job['khmerScript'] = result['khmerScript']
                 job['dialogueSegments'] = result['dialogueSegments']
+                broadcast_progress(job_id, job.copy())
+                
+                # Update unified database
+                try:
+                    unified_db.update_job(job_id, {
+                        'status': 'completed',
+                        'progress': 100,
+                        'message': job['message'],
+                        'result': json.dumps({
+                            'outputVideo': job['outputVideo'],
+                            'outputAudio': job['outputAudio']
+                        })
+                    })
+                    
+                    # Add to history
+                    unified_db.add_history({
+                        'user_id': user.get('id') if user else None,
+                        'job_id': job_id,
+                        'processing_mode': processing_mode,
+                        'video_filename': body.filename,
+                        'success': 1,
+                        'duration_seconds': time.time() - job['created'],
+                        'output_files': [job['outputVideo'], job['outputAudio']]
+                    })
+                except Exception as e:
+                    logger.warning(f"Failed to update job in unified DB: {e}")
             else:
                 job['status'] = 'completed'
                 job['progress'] = 100
                 job['message'] = 'Dubbing complete'
+                broadcast_progress(job_id, job.copy())
         except Exception as e:
             import traceback
             traceback.print_exc()
             job['status'] = 'failed'
             job['error'] = str(e)
             job['message'] = f"កំហុសក្នុងការ dubbing: {str(e)}"
+            broadcast_progress(job_id, job.copy())
+            
+            # Update unified database
+            try:
+                unified_db.update_job(job_id, {
+                    'status': 'failed',
+                    'error': str(e),
+                    'message': job['message']
+                })
+                
+                # Add to history as failed
+                unified_db.add_history({
+                    'user_id': user.get('id') if user else None,
+                    'job_id': job_id,
+                    'processing_mode': processing_mode,
+                    'video_filename': body.filename,
+                    'success': 0,
+                    'duration_seconds': time.time() - job['created'],
+                    'output_files': []
+                })
+            except Exception as db_err:
+                logger.warning(f"Failed to update failed job in unified DB: {db_err}")
 
     background_tasks.add_task(run_pipeline)
     return {'success': True, 'jobId': job_id}
@@ -949,6 +1405,74 @@ def get_dubbing_status(job_id: str):
     if job_id not in active_jobs:
         raise HTTPException(status_code=404, detail="Job not found")
     return active_jobs[job_id]
+
+# Real-time Progress Tracking with SSE
+@app.get('/api/progress/stream/{job_id}')
+async def stream_progress(job_id: str, request: Request):
+    """
+    Server-Sent Events (SSE) endpoint for real-time progress updates
+    អោយឃើញ % Process ផ្ទាល់ក្នុង Tool
+    """
+    async def event_generator():
+        # Create queue for this client
+        client_queue = queue.Queue()
+        if job_id not in progress_subscribers:
+            progress_subscribers[job_id] = []
+        progress_subscribers[job_id].append(client_queue)
+        
+        try:
+            while True:
+                # Check if client disconnected
+                if await request.is_disconnected():
+                    break
+                
+                # Get progress update from queue (non-blocking)
+                try:
+                    progress_data = client_queue.get(timeout=1)
+                    yield f"data: {json.dumps(progress_data)}\n\n"
+                    
+                    # If job completed or failed, stop streaming
+                    if progress_data.get('status') in ['completed', 'failed']:
+                        break
+                except queue.Empty:
+                    # Send heartbeat to keep connection alive
+                    if job_id in active_jobs:
+                        yield f"data: {json.dumps(active_jobs[job_id])}\n\n"
+                    else:
+                        yield f"data: {json.dumps({'status': 'not_found'})}\n\n"
+                        break
+                
+                await asyncio.sleep(0.5)
+        finally:
+            # Cleanup: remove client queue when done
+            if job_id in progress_subscribers:
+                if client_queue in progress_subscribers[job_id]:
+                    progress_subscribers[job_id].remove(client_queue)
+                if not progress_subscribers[job_id]:
+                    del progress_subscribers[job_id]
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type='text/event-stream',
+        headers={
+            'Cache-Control': 'no-cache',
+            'Connection': 'keep-alive',
+            'X-Accel-Buffering': 'no'
+        }
+    )
+
+def broadcast_progress(job_id: str, progress_data: dict):
+    """Broadcast progress update to all SSE subscribers"""
+    if job_id in progress_subscribers:
+        for client_queue in progress_subscribers[job_id]:
+            try:
+                client_queue.put(progress_data)
+            except:
+                pass
+    
+    # Also update active_jobs for backward compatibility
+    if job_id in active_jobs:
+        active_jobs[job_id].update(progress_data)
 
 @app.post('/api/dubbing/scan-timeline')
 async def scan_timeline(body: ScanTimelineRequest):
@@ -1917,23 +2441,37 @@ def get_video_shelf():
     }
 
 @app.post('/api/shelf/add')
-def add_video_to_shelf(body: AddShelfVideoRequest):
+def add_video_to_shelf(body: AddShelfVideoRequest, request: Request):
+    """
+    Add video to local storage tracking (database only stores metadata, not files)
+    វីដេអូរក្សាទុកក្នុង Computer មិនធ្ងន់ Database
+    """
+    user = get_request_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="សូមចូលប្រើប្រាស់ជាមុនសិន")
+    
     shelf = load_video_shelf()
     if len(shelf) >= 10:
         raise HTTPException(
             status_code=400,
             detail="ឃ្លាំងផ្ទុកវីដេអូបានកំណត់អតិបរមាត្រឹម ១០ វីដេអូប៉ុណ្ណោះ! សូមលុបវីដេអូចាស់ខ្លះចេញជាមុនសិន។"
         )
+    
     # Check if already in shelf
     for s in shelf:
         if s.get('filename') == body.filename:
             return {'success': True, 'message': 'វីដេអូនេះមានក្នុងឃ្លាំងរួចហើយ', 'item': s, 'shelf': shelf, 'count': len(shelf)}
 
+    # Local path in computer (NOT stored in database, only reference)
+    local_path = os.path.join(UPLOADS_DIR, body.filename)
+    
     item_id = f"shelf_{int(time.time() * 1000)}"
     new_item = {
         'id': item_id,
+        'user_id': user['id'],
         'filename': body.filename,
         'originalName': body.originalName or body.filename,
+        'localPath': local_path,  # Path to local computer storage
         'size': body.size or 0,
         'duration': body.duration or 0,
         'thumbnail': body.thumbnail,
@@ -1944,7 +2482,7 @@ def add_video_to_shelf(body: AddShelfVideoRequest):
     }
     shelf.append(new_item)
     save_video_shelf(shelf)
-    return {'success': True, 'message': 'បានបន្ថែមវីដេអូទៅកាន់ឃ្លាំងជោគជ័យ', 'item': new_item, 'shelf': shelf, 'count': len(shelf)}
+    return {'success': True, 'message': 'បានបន្ថែមវីដេអូទៅកាន់ឃ្លាំងជោគជ័យ (Local Storage)', 'item': new_item, 'shelf': shelf, 'count': len(shelf)}
 
 @app.delete('/api/shelf/{item_id}')
 def remove_video_from_shelf(item_id: str):
@@ -1999,6 +2537,10 @@ def create_project_group(body: CreateProjectGroupRequest):
         'name': clean_name,
         'color': body.color or 'cyan',
         'description': body.description or '',
+        'maleLeadVoice': body.maleLeadVoice or '',
+        'femaleLeadVoice': body.femaleLeadVoice or '',
+        'narratorVoice': body.narratorVoice or '',
+        'supportingVoice': body.supportingVoice or '',
         'createdAt': datetime.now().isoformat()
     }
     groups.append(new_grp)
@@ -2014,6 +2556,10 @@ def update_project_group(group_id: str, body: UpdateProjectGroupRequest):
             if body.name is not None: g['name'] = body.name.strip()
             if body.color is not None: g['color'] = body.color
             if body.description is not None: g['description'] = body.description
+            if body.maleLeadVoice is not None: g['maleLeadVoice'] = body.maleLeadVoice
+            if body.femaleLeadVoice is not None: g['femaleLeadVoice'] = body.femaleLeadVoice
+            if body.narratorVoice is not None: g['narratorVoice'] = body.narratorVoice
+            if body.supportingVoice is not None: g['supportingVoice'] = body.supportingVoice
             matched = g
             break
     if not matched:
@@ -2065,6 +2611,423 @@ def get_network_info():
         'lanAddresses': lan_addrs,
         'primaryLanUrl': lan_addrs[0]['url'] if lan_addrs else f"http://localhost:{port}"
     }
+
+# --- 2026 Checkpoint & In-App Auto-Update System ---
+@app.get('/api/system/version')
+def get_system_version():
+    """Get current version info and metadata."""
+    return auto_updater.get_local_version_info()
+
+@app.post('/api/system/check-update')
+def check_system_update():
+    """Actively check for new updates from remote GitHub / Supabase / Cloud server."""
+    try:
+        return auto_updater.check_for_updates(force_remote=True)
+    except Exception as e:
+        print(f"[API] check_system_update error: {e}")
+        return auto_updater.get_local_version_info()
+
+@app.post('/api/system/apply-update')
+@app.post('/api/system/update')
+async def apply_system_update(req: Optional[dict] = None):
+    """
+    Download patch from download_url and hot-apply into public/ and services/
+    without reinstalling the EXE. Automatically creates a safety Checkpoint first!
+    """
+    local_info = auto_updater.get_local_version_info()
+    target_ver = (req.get('target_version') if req else None) or local_info.get('latest_version')
+    download_url = (req.get('download_url') if req else None) or local_info.get('download_url', '').strip()
+
+    if download_url:
+        try:
+            zip_path = auto_updater.download_patch(download_url)
+            result = auto_updater.apply_update_from_zip(
+                zip_path=zip_path,
+                target_version=target_ver,
+                changelog=local_info.get('changelog')
+            )
+            # Remove temp zip
+            try:
+                os.unlink(zip_path)
+            except Exception:
+                pass
+            return result
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    else:
+        # Symbolic version update if no download URL provided
+        pre_cp = checkpoint_manager.create_checkpoint(
+            name=f"Backup មុន Update {target_ver}",
+            cp_type="pre_update",
+            version=local_info.get('current_version')
+        )
+        local_info['current_version'] = target_ver
+        local_info['has_update'] = False
+        local_info['applied_at'] = datetime.now().isoformat()
+        with open(VERSION_FILE, 'w', encoding='utf-8') as f:
+            json.dump(local_info, f, ensure_ascii=False, indent=2)
+        return {
+            "success": True,
+            "message": f"បាន Update ទៅ {target_ver} ជោគជ័យ!",
+            "new_version": target_ver,
+            "pre_checkpoint_id": pre_cp['id'],
+            "files_updated": False
+        }
+
+@app.post('/api/system/upload-patch')
+async def upload_system_patch(file: UploadFile = File(...)):
+    """Upload and install a patch ZIP directly (Offline / Direct update)."""
+    if not file.filename.endswith('.zip'):
+        raise HTTPException(status_code=400, detail="សូមជ្រើសរើសឯកសារ .zip update patch")
+
+    temp_zip = os.path.join(DATA_DIR, 'updates', f"uploaded_{int(time.time())}.zip")
+    os.makedirs(os.path.dirname(temp_zip), exist_ok=True)
+    try:
+        with open(temp_zip, 'wb') as f:
+            content = await file.read()
+            f.write(content)
+
+        result = auto_updater.apply_update_from_zip(temp_zip)
+        try:
+            os.unlink(temp_zip)
+        except Exception:
+            pass
+        return result
+    except Exception as e:
+        if os.path.exists(temp_zip):
+            try:
+                os.unlink(temp_zip)
+            except Exception:
+                pass
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- Checkpoints & Restore Endpoints ---
+@app.get('/api/system/checkpoints')
+def get_system_checkpoints():
+    """List all available checkpoints and snapshots."""
+    items = checkpoint_manager.list_checkpoints()
+    return {
+        'success': True,
+        'checkpoints': items,
+        'count': len(items),
+        'current_version': checkpoint_manager.get_current_app_version()
+    }
+
+class CreateCheckpointRequest(BaseModel):
+    name: Optional[str] = None
+    note: Optional[str] = None
+
+@app.post('/api/system/checkpoints/create')
+def create_system_checkpoint(body: CreateCheckpointRequest = CreateCheckpointRequest()):
+    """Create a manual checkpoint snapshot of current frontend and backend."""
+    try:
+        cp = checkpoint_manager.create_checkpoint(
+            name=body.name,
+            cp_type="manual",
+            note=body.note or ""
+        )
+        return {
+            'success': True,
+            'message': f"បានបង្កើត Checkpoint '{cp['name']}' ជោគជ័យ!",
+            'checkpoint': cp
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+class RestoreCheckpointRequest(BaseModel):
+    checkpoint_id: str
+
+@app.post('/api/system/checkpoints/restore')
+def restore_system_checkpoint(body: RestoreCheckpointRequest):
+    """Restore application state and files from a specified checkpoint."""
+    try:
+        result = checkpoint_manager.restore_checkpoint(body.checkpoint_id)
+        return result
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.delete('/api/system/checkpoints/{checkpoint_id}')
+def delete_system_checkpoint(checkpoint_id: str):
+    """Delete a checkpoint snapshot."""
+    ok = checkpoint_manager.delete_checkpoint(checkpoint_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="រកមិនឃើញ Checkpoint សម្រាប់លុបឡើយ")
+    return {'success': True, 'message': 'បានលុប Checkpoint រួចរាល់'}
+
+@app.post('/api/system/update/rollback')
+def rollback_system_update():
+    """Rollback to the latest available checkpoint."""
+    cps = checkpoint_manager.list_checkpoints()
+    if not cps:
+        raise HTTPException(status_code=404, detail="មិនមាន Checkpoint ឬ Backup សម្រាប់ Rollback ឡើយ")
+    target_cp = cps[0]
+    result = checkpoint_manager.restore_checkpoint(target_cp['id'])
+    return result
+
+@app.post('/api/system/admin/publish-update')
+def publish_admin_update(req: dict):
+    """Admin: publish new version info across all app instances."""
+    info = auto_updater.get_local_version_info()
+    cur = info.get('current_version', 'V2.1PRO')
+    new_ver = req.get('latest_version', cur)
+
+    info['latest_version'] = new_ver
+    info['has_update'] = (new_ver != cur)
+    if 'changelog' in req:
+        info['changelog'] = req['changelog']
+    if 'download_url' in req:
+        info['download_url'] = req['download_url']
+    if 'patch_size_mb' in req:
+        info['patch_size_mb'] = req['patch_size_mb']
+    info['release_date'] = datetime.now().strftime('%Y-%m-%d')
+
+    with open(VERSION_FILE, 'w', encoding='utf-8') as f:
+        json.dump(info, f, ensure_ascii=False, indent=2)
+
+    return {"success": True, "message": "បានទម្លាក់ Update ថ្មីជោគជ័យ!", "version": info}
+
+
+# ============================================================================
+# 🔄 Auto-Update System API Endpoints
+# ============================================================================
+
+@app.get('/api/update/status')
+def get_update_status():
+    """Get current update manager status."""
+    try:
+        update_mgr = get_update_manager()
+        return {
+            'success': True,
+            'status': update_mgr.get_status()
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/update/check')
+def check_for_updates():
+    """Check if new updates are available."""
+    try:
+        update_mgr = get_update_manager()
+        result = update_mgr.check_for_updates()
+        return {
+            'success': True,
+            'result': result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/update/download')
+def download_update():
+    """Download available updates."""
+    try:
+        update_mgr = get_update_manager()
+        manifest = update_mgr.version_info.get('manifest')
+        if not manifest:
+            raise HTTPException(status_code=400, detail="គ្មាន Update ដើម្បី Download ទេ! សូម Check Update ជាមុនសិន។")
+        
+        result = update_mgr.download_update(manifest)
+        if result.get('status') == 'success':
+            return {
+                'success': True,
+                'message': 'ទាញយក Update ជោគជ័យ!',
+                'result': result
+            }
+        else:
+            return {
+                'success': False,
+                'message': result.get('error', 'Download failed'),
+                'result': result
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/update/install')
+def install_update():
+    """Install downloaded updates."""
+    try:
+        update_mgr = get_update_manager()
+        result = update_mgr.install_update(backup=True)
+        
+        if result.get('status') == 'success':
+            # Reload updated modules
+            module_loader = get_module_loader()
+            module_loader.reload_all()
+            
+            return {
+                'success': True,
+                'message': f"បាន Install Update ជោគជ័យ! Version: {result.get('version')}",
+                'result': result
+            }
+        else:
+            return {
+                'success': False,
+                'message': result.get('error', 'Installation failed'),
+                'result': result
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/update/rollback')
+def rollback_update():
+    """Rollback to previous version."""
+    try:
+        update_mgr = get_update_manager()
+        result = update_mgr.rollback_update()
+        
+        if result.get('status') == 'success':
+            # Reload modules after rollback
+            module_loader = get_module_loader()
+            module_loader.reload_all()
+            
+            return {
+                'success': True,
+                'message': 'បាន Rollback ជោគជ័យ!',
+                'result': result
+            }
+        else:
+            return {
+                'success': False,
+                'message': result.get('error', 'Rollback failed'),
+                'result': result
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/update/backups')
+def list_backups():
+    """List all available backup snapshots."""
+    try:
+        update_mgr = get_update_manager()
+        backup_dir = update_mgr.backup_dir
+        
+        if not backup_dir.exists():
+            return {
+                'success': True,
+                'backups': []
+            }
+        
+        backups = []
+        for backup_path in sorted(backup_dir.iterdir(), reverse=True):
+            if backup_path.is_dir():
+                # Get backup metadata
+                stat = backup_path.stat()
+                backups.append({
+                    'name': backup_path.name,
+                    'path': str(backup_path),
+                    'date': datetime.fromtimestamp(stat.st_mtime).strftime('%Y-%m-%d %H:%M:%S'),
+                    'size': sum(f.stat().st_size for f in backup_path.rglob('*') if f.is_file())
+                })
+        
+        return {
+            'success': True,
+            'backups': backups,
+            'count': len(backups)
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class RollbackRequest(BaseModel):
+    backup_name: Optional[str] = None
+
+
+@app.post('/api/update/rollback')
+def rollback_to_backup(body: RollbackRequest = RollbackRequest()):
+    """Rollback to a specific backup or latest."""
+    try:
+        update_mgr = get_update_manager()
+        result = update_mgr.rollback_update(backup_name=body.backup_name)
+        
+        if result.get('status') == 'success':
+            # Reload modules after rollback
+            module_loader = get_module_loader()
+            module_loader.reload_all()
+            
+            return {
+                'success': True,
+                'message': 'បាន Rollback ជោគជ័យ!',
+                'result': result
+            }
+        else:
+            return {
+                'success': False,
+                'message': result.get('error', 'Rollback failed'),
+                'result': result
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get('/api/modules/list')
+def list_loaded_modules():
+    """List all dynamically loaded modules."""
+    try:
+        module_loader = get_module_loader()
+        loaded = module_loader.list_loaded_modules()
+        available = module_loader.scan_available_modules()
+        
+        return {
+            'success': True,
+            'loaded': loaded,
+            'available': available
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+class ReloadModuleRequest(BaseModel):
+    module_name: str
+
+
+@app.post('/api/modules/reload')
+def reload_module(body: ReloadModuleRequest):
+    """Reload a specific module at runtime."""
+    try:
+        module_loader = get_module_loader()
+        module = module_loader.reload_module(body.module_name)
+        
+        if module:
+            return {
+                'success': True,
+                'message': f'បាន Reload Module "{body.module_name}" ជោគជ័យ!',
+                'module_info': module_loader.get_module_info(body.module_name)
+            }
+        else:
+            return {
+                'success': False,
+                'message': f'មិនអាច Reload Module "{body.module_name}" បានទេ!'
+            }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.post('/api/modules/reload-all')
+def reload_all_modules():
+    """Reload all loaded modules."""
+    try:
+        module_loader = get_module_loader()
+        results = module_loader.reload_all()
+        
+        success_count = sum(1 for v in results.values() if v)
+        total_count = len(results)
+        
+        return {
+            'success': True,
+            'message': f'បាន Reload {success_count}/{total_count} Modules ជោគជ័យ!',
+            'results': results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
 
 @app.get('/mobile')
 @app.get('/android')

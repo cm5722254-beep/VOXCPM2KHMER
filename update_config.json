@@ -1,0 +1,20 @@
+{
+  "update_server": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates",
+  "update_server_backup": "https://your-backup-server.com/updates",
+  "check_interval_seconds": 3600,
+  "auto_check_enabled": true,
+  "auto_download_enabled": true,
+  "auto_install_enabled": false,
+  "allow_beta_updates": false,
+  "modules_updatable": [
+    "services/*.py",
+    "patches/*.py",
+    "static/**/*",
+    "templates/**/*"
+  ],
+  "modules_protected": [
+    "desktop_app.py",
+    "server.py"
+  ],
+  "update_manifest_url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/manifest.json"
+}

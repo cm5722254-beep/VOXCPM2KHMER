@@ -1,0 +1,54 @@
+{
+  "latest_version": "V2.3PRO",
+  "release_date": "2026-09-22T10:00:00Z",
+  "min_supported_version": "V2.0PRO",
+  "update_type": "feature",
+  "changelog": [
+    {
+      "version": "V2.3PRO",
+      "date": "2026-09-22",
+      "type": "feature",
+      "changes": [
+        {
+          "type": "NEW",
+          "text": "Auto-Update System with hot module reloading"
+        },
+        {
+          "type": "NEW",
+          "text": "Dynamic feature updates without EXE reinstallation"
+        },
+        {
+          "type": "IMPROVED",
+          "text": "Enhanced performance and stability"
+        }
+      ],
+      "files": [
+        {
+          "path": "services/update_manager.py",
+          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3PRO/services/update_manager.py",
+          "hash": "sha256:placeholder",
+          "size": 15360,
+          "action": "add_or_update"
+        },
+        {
+          "path": "services/module_loader.py",
+          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3PRO/services/module_loader.py",
+          "hash": "sha256:placeholder",
+          "size": 8192,
+          "action": "add_or_update"
+        },
+        {
+          "path": "static/css/update_ui.css",
+          "url": "https://raw.githubusercontent.com/mazercheat-dotcom/animeducksystem/main/updates/V2.3PRO/static/css/update_ui.css",
+          "hash": "sha256:placeholder",
+          "size": 4096,
+          "action": "add_or_update"
+        }
+      ],
+      "scripts": {
+        "pre_update": "python scripts/backup_before_update.py",
+        "post_update": "python scripts/verify_update.py"
+      }
+    }
+  ]
+}
