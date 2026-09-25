@@ -58,8 +58,8 @@ def home():
 def get_update_manifest():
     """Serve update manifest for auto-update system."""
     return {
-        "latest_version": "V2.3PRO",
-        "release_date": "2026-09-22T10:00:00Z",
+        "latest_version": "V2.3.4PRO",
+        "release_date": "2026-09-25T12:00:00Z",
         "min_supported_version": "V2.0PRO",
         "update_type": "feature",
         "changelog": [
