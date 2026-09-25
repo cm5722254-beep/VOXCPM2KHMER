@@ -36,11 +36,11 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#0a0e1a] border-b border-white/[0.05] py-5 px-8 select-none z-20 shadow-md">
+    <div className="w-full bg-white/95 dark:bg-[#0a0e1a] border-b border-slate-200 dark:border-white/[0.05] py-4 px-6 select-none z-20 shadow-xs backdrop-blur-md transition-colors">
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center justify-between relative">
           {/* Connection Lines Background */}
-          <div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-white/[0.03] -z-10" />
+          <div className="absolute top-[18px] left-[5%] right-[5%] h-0.5 bg-slate-200 dark:bg-white/[0.03] -z-10" />
           
           {/* Connection Line Progress */}
           <div 
@@ -66,19 +66,19 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center border-[2px] transition-all duration-500 ${
                     state === 'completed'
-                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                       : state === 'current'
-                      ? 'bg-[#0a0e1a] border-sky-400 shadow-[0_0_15px_rgba(56,189,248,0.4)]'
-                      : 'bg-[#0a0e1a] border-white/10 text-white/20'
+                      ? 'bg-sky-50 dark:bg-[#0a0e1a] border-sky-500 text-sky-700 dark:text-sky-300 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+                      : 'bg-slate-100 dark:bg-[#0a0e1a] border-slate-300 dark:border-white/10 text-slate-400 dark:text-white/20'
                   } ${isClickable ? 'group-hover:scale-110' : ''}`}
                 >
                   {state === 'completed' ? (
                     <Check className="w-4 h-4 text-white" />
                   ) : state === 'current' ? (
                     step.id === 'generating' ? (
-                      <Loader2 className="w-4 h-4 text-sky-400 animate-spin" />
+                      <Loader2 className="w-4 h-4 text-sky-600 dark:text-sky-400 animate-spin" />
                     ) : (
-                      <div className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
                     )
                   ) : (
                     <span className="text-[11px] font-bold">{step.number}</span>
@@ -87,16 +87,16 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
 
                 {/* Step Label */}
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+                  <span className="text-[9px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider font-mono">
                     ជំហានទី {step.number}
                   </span>
                   <span
                     className={`text-[11px] font-bold transition-colors ${
                       state === 'completed'
-                        ? 'text-emerald-400'
+                        ? 'text-emerald-700 dark:text-emerald-400'
                         : state === 'current'
-                        ? 'text-sky-300'
-                        : 'text-slate-600'
+                        ? 'text-sky-700 dark:text-sky-300 font-black'
+                        : 'text-slate-500 dark:text-slate-500'
                     }`}
                   >
                     {step.label}

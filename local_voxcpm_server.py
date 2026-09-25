@@ -112,8 +112,19 @@ def get_model():
             print(f"✅ VoxCPM2 Model loaded successfully on {device.upper()}!")
         except Exception as opt_err:
             print(f"⚠️ Notice: {opt_err}, attempting standard load fallback...")
-            model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device=device, optimize=False, load_denoiser=False)
-            print(f"✅ VoxCPM2 Model loaded successfully on {device.upper()}!")
+            try:
+                model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device=device, optimize=False, load_denoiser=False)
+                print(f"✅ VoxCPM2 Model loaded successfully on {device.upper()}!")
+            except Exception as e_cuda:
+                if device == "cuda":
+                    print(f"⚠️ GPU VRAM error ({e_cuda}). Auto-falling back to CPU...")
+                    try:
+                        torch.cuda.empty_cache()
+                    except Exception: pass
+                    model = voxcpm.VoxCPM.from_pretrained("openbmb/VoxCPM2", device="cpu", optimize=False, load_denoiser=False)
+                    print(f"✅ VoxCPM2 Model loaded successfully on CPU fallback!")
+                else:
+                    raise e_cuda
         model_load_error = None
         return model
     except Exception as e:
@@ -193,38 +204,41 @@ async def clone_and_speak(
         out_file = os.path.join(OUTPUTS_DIR, f"voice_{int(time.time()*1000)}.wav")
 
         if active_model is not None:
-            gen_kwargs = {
-                "text": clean_text,
-                "cfg_value": cfg_value,
-                "inference_timesteps": timesteps,
-                "normalize": True,
-                "denoise": True
-            }
-            if ref_path and os.path.exists(ref_path) and os.path.getsize(ref_path) > 1000:
-                gen_kwargs["reference_wav_path"] = ref_path
-
-            wav = active_model.generate(**gen_kwargs)
-            sf.write(out_file, wav, 48000)
-            return FileResponse(out_file, media_type="audio/wav")
-        else:
-            # High quality fallback synthesizer using edge-tts if model weights are not loaded
-            import edge_tts
-            tts = edge_tts.Communicate(clean_text, "km-KH-PisethNeural")
-            temp_mp3 = out_file.replace(".wav", ".mp3")
-            await tts.save(temp_mp3)
-            # Cross-platform convert to wav 48kHz
             try:
-                subprocess.run(
-                    ['ffmpeg', '-nostdin', '-y', '-i', temp_mp3, '-ar', '48000', '-ac', '2', out_file],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                    check=False
-                )
-            except Exception:
-                pass
-            if not os.path.exists(out_file):
-                out_file = temp_mp3
-            return FileResponse(out_file, media_type="audio/wav" if out_file.endswith(".wav") else "audio/mpeg")
+                gen_kwargs = {
+                    "text": clean_text,
+                    "cfg_value": cfg_value,
+                    "inference_timesteps": timesteps,
+                    "normalize": True,
+                    "denoise": True
+                }
+                if ref_path and os.path.exists(ref_path) and os.path.getsize(ref_path) > 1000:
+                    gen_kwargs["reference_wav_path"] = ref_path
+
+                wav = active_model.generate(**gen_kwargs)
+                sf.write(out_file, wav, 48000)
+                return FileResponse(out_file, media_type="audio/wav")
+            except Exception as gen_err:
+                print(f"⚠️ GPU/Generation notice: {gen_err}. Using Khmer Studio Neural Audio...")
+
+        # High quality fallback synthesizer using edge-tts
+        import edge_tts
+        tts = edge_tts.Communicate(clean_text, "km-KH-PisethNeural")
+        temp_mp3 = out_file.replace(".wav", ".mp3")
+        await tts.save(temp_mp3)
+        # Cross-platform convert to wav 48kHz
+        try:
+            subprocess.run(
+                ['ffmpeg', '-nostdin', '-y', '-i', temp_mp3, '-ar', '48000', '-ac', '2', out_file],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False
+            )
+        except Exception:
+            pass
+        if not os.path.exists(out_file):
+            out_file = temp_mp3
+        return FileResponse(out_file, media_type="audio/wav" if out_file.endswith(".wav") else "audio/mpeg")
 
     except Exception as e:
         print(f"❌ Error in local clone-and-speak: {e}")

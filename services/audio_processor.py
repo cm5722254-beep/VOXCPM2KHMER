@@ -4,6 +4,14 @@ import math
 
 import sys
 
+# Ensure UTF-8 stdout/stderr on Windows to avoid charmap encoding errors
+if sys.platform == 'win32':
+    try:
+        sys.stdout.reconfigure(encoding='utf-8', errors='replace')
+        sys.stderr.reconfigure(encoding='utf-8', errors='replace')
+    except Exception:
+        pass
+
 # Automatically ensure FFmpeg paths are in PATH (cross-platform Windows & macOS)
 if getattr(sys, 'frozen', False):
     APP_DIR = os.path.dirname(sys.executable)
@@ -43,8 +51,26 @@ def get_media_duration(file_path: str) -> float:
     except Exception:
         return 0.0
 
+def has_audio_stream(file_path: str) -> bool:
+    """Check if the media file has at least one audio stream."""
+    try:
+        cmd = f'ffprobe -v error -select_streams a -show_entries stream=codec_type -of default=noprint_wrappers=1:nokey=1 "{file_path}"'
+        out = run_command(cmd)
+        return "audio" in out.lower()
+    except Exception:
+        return False
+
 def extract_audio(video_path: str, output_audio_path: str):
     """Extract audio track from video as high quality MP3."""
+    if not has_audio_stream(video_path):
+        dur = get_media_duration(video_path)
+        if dur <= 0:
+            dur = 5.0
+        # Generate silent audio matching video duration so downstream pipeline doesn't break
+        cmd = f'ffmpeg -nostdin -y -f lavfi -i anullsrc=r=44100:cl=stereo -t {dur} -b:a 192k "{output_audio_path}"'
+        run_command(cmd)
+        return output_audio_path
+
     cmd = f'ffmpeg -nostdin -y -i "{video_path}" -vn -ar 44100 -ac 2 -b:a 192k "{output_audio_path}"'
     run_command(cmd)
     return output_audio_path
@@ -52,22 +78,23 @@ def extract_audio(video_path: str, output_audio_path: str):
 def mix_vocals_with_original(original_audio_path: str, dubbed_audio_path: str, output_path: str, vocal_gain: float = 2.2, bgm_gain: float = 0.85):
     """
     Mix new dubbed vocals with the original audio:
-    - Cancels center-channel original foreign speech (vocal suppression via stereotools mlev + vocal EQ notch)
-    - Preserves low bass (kick, cello, sub) and wide stereo background music (BGM) at full normal richness
-    - Deeply ducks original audio during Khmer speech (broadcast sidechain ducking ratio 16)
+    - Cancels center-channel original foreign speech (vocal suppression via stereotools mlev=0.015625 + dual notch filter)
+    - Prevents side-channel vocal reverb leak (slev=0.70 instead of boosting)
+    - Ultra-sensitive deep ducking during Khmer speech (threshold=0.003, ratio=20, attack=5ms, release=350ms)
     - Boosts dubbed Khmer human voice to crystal-clear studio loudness (vocal_gain 2.2)
     - Pads vocal track with apad so full movie duration is preserved 100%
     """
     total_duration = get_media_duration(original_audio_path)
     pad_dur = max(1, math.ceil(total_duration))
 
+    # Clean isolated BGM filter: pure bass + clean sides with vocal notches
     advanced_bgm_filter = (
         f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
         f"[1:a]asplit=2[low_b][mid_high];"
-        f"[low_b]lowpass=f=260,volume={bgm_gain}[bass];"
-        f"[mid_high]stereotools=mlev=0.015625:slev=1.35,highpass=f=240,equalizer=f=1100:width_type=o:w=2.2:g=-16,volume={bgm_gain}[bgm_sides];"
+        f"[low_b]lowpass=f=220,volume={bgm_gain}[bass];"
+        f"[mid_high]stereotools=mlev=0.015625:slev=0.70,highpass=f=220,equalizer=f=1000:width_type=o:w=2.5:g=-24,equalizer=f=2500:width_type=o:w=2.0:g=-20,volume={bgm_gain}[bgm_sides];"
         f"[bass][bgm_sides]amix=inputs=2:dropout_transition=0[clean_bgm];"
-        f"[clean_bgm][khmer_vox]sidechaincompress=threshold=0.015:ratio=16:attack=10:release=250[ducked_bgm];"
+        f"[clean_bgm][khmer_vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
         f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
     )
 
@@ -79,8 +106,8 @@ def mix_vocals_with_original(original_audio_path: str, dubbed_audio_path: str, o
     except Exception as err:
         fallback_filter = (
             f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
-            f"[1:a]pan=stereo|c0=c0-c1|c1=c1-c0,equalizer=f=1100:width_type=o:w=2.2:g=-16,volume={bgm_gain}[bgm_clean];"
-            f"[bgm_clean][khmer_vox]sidechaincompress=threshold=0.015:ratio=16:attack=10:release=250[ducked_bgm];"
+            f"[1:a]pan=stereo|c0=c0-c1|c1=c1-c0,equalizer=f=1100:width_type=o:w=2.5:g=-20,volume={bgm_gain * 0.75}[bgm_clean];"
+            f"[bgm_clean][khmer_vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
             f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
         )
         fallback_cmd = f'ffmpeg -nostdin -y -i "{dubbed_audio_path}" -i "{original_audio_path}" -filter_complex "{fallback_filter}" -c:a libmp3lame -b:a 192k "{output_path}"'
@@ -90,8 +117,8 @@ def mix_vocals_with_original(original_audio_path: str, dubbed_audio_path: str, o
         except Exception:
             simple_filter = (
                 f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
-                f"[1:a]volume={bgm_gain * 0.7}[bgm_clean];"
-                f"[bgm_clean][khmer_vox]sidechaincompress=threshold=0.015:ratio=16:attack=10:release=250[ducked_bgm];"
+                f"[1:a]volume={bgm_gain * 0.5}[bgm_clean];"
+                f"[bgm_clean][khmer_vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
                 f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
             )
             simple_cmd = f'ffmpeg -nostdin -y -i "{dubbed_audio_path}" -i "{original_audio_path}" -filter_complex "{simple_filter}" -c:a libmp3lame -b:a 192k "{output_path}"'
@@ -103,8 +130,14 @@ def merge_video_audio(video_path: str, audio_path: str, output_video_path: str):
     Combine original video with the new dubbed audio track.
     Fast stream copy without re-encoding, preserving 100% video length.
     """
-    cmd = f'ffmpeg -nostdin -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 -movflags +faststart "{output_video_path}"'
-    run_command(cmd)
+    movflags = "-movflags +faststart" if output_video_path.lower().endswith(('.mp4', '.m4v', '.mov')) else ""
+    cmd = f'ffmpeg -nostdin -y -i "{video_path}" -i "{audio_path}" -c:v copy -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 {movflags} "{output_video_path}"'
+    try:
+        run_command(cmd)
+    except Exception:
+        # Fallback with re-encoding video to libx264 in case input video codec isn't compatible with container
+        fallback_cmd = f'ffmpeg -nostdin -y -i "{video_path}" -i "{audio_path}" -c:v libx264 -preset veryfast -crf 22 -c:a aac -b:a 192k -map 0:v:0 -map 1:a:0 {movflags} "{output_video_path}"'
+        run_command(fallback_cmd)
     return output_video_path
 
 def remix_audio_with_effects(original_audio_path: str, dubbed_audio_path: str, output_path: str, options: dict = None):
@@ -112,20 +145,20 @@ def remix_audio_with_effects(original_audio_path: str, dubbed_audio_path: str, o
     options = options or {}
     vocal_gain = options.get('vocalGain', 2.2)
     bgm_gain = options.get('bgmGain', 0.85)
-    vocal_suppression = options.get('vocalSuppression', 'medium')
+    vocal_suppression = options.get('vocalSuppression', 'strong')
     reverb_preset = options.get('reverbPreset', 'none')
 
     total_duration = get_media_duration(original_audio_path)
     pad_dur = max(1, math.ceil(total_duration))
 
     mlev_val = 0.015625
-    slev_val = 1.35
+    slev_val = 0.70
     if vocal_suppression == 'mild':
-        mlev_val = 0.15
-        slev_val = 1.1
+        mlev_val = 0.05
+        slev_val = 0.85
     elif vocal_suppression == 'strong':
         mlev_val = 0.015625
-        slev_val = 1.5
+        slev_val = 0.65
 
     reverb_filter = ''
     if reverb_preset == 'imperial':
@@ -138,10 +171,10 @@ def remix_audio_with_effects(original_audio_path: str, dubbed_audio_path: str, o
     complex_filter = (
         f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain}{reverb_filter},alimiter=limit=0.95[vox];"
         f"[1:a]asplit=2[low_b][mid_high];"
-        f"[low_b]lowpass=f=260,volume={bgm_gain}[bass];"
-        f"[mid_high]stereotools=mlev={mlev_val}:slev={slev_val},highpass=f=240,equalizer=f=1100:width_type=o:w=2.2:g=-16,volume={bgm_gain}[bgm_sides];"
+        f"[low_b]lowpass=f=220,volume={bgm_gain}[bass];"
+        f"[mid_high]stereotools=mlev={mlev_val}:slev={slev_val},highpass=f=220,equalizer=f=1000:width_type=o:w=2.5:g=-24,equalizer=f=2500:width_type=o:w=2.0:g=-20,volume={bgm_gain}[bgm_sides];"
         f"[bass][bgm_sides]amix=inputs=2:dropout_transition=0[clean_bgm];"
-        f"[clean_bgm][vox]sidechaincompress=threshold=0.015:ratio=16:attack=10:release=250[ducked_bgm];"
+        f"[clean_bgm][vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
         f"[vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
     )
 
@@ -152,8 +185,8 @@ def remix_audio_with_effects(original_audio_path: str, dubbed_audio_path: str, o
     except Exception:
         fallback_filter = (
             f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain}{reverb_filter},alimiter=limit=0.95[vox];"
-            f"[1:a]volume={bgm_gain}[bgm_clean];"
-            f"[bgm_clean][vox]sidechaincompress=threshold=0.015:ratio=16:attack=10:release=250[ducked_bgm];"
+            f"[1:a]volume={bgm_gain * 0.5}[bgm_clean];"
+            f"[bgm_clean][vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
             f"[vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
         )
         fallback_cmd = f'ffmpeg -nostdin -y -i "{dubbed_audio_path}" -i "{original_audio_path}" -filter_complex "{fallback_filter}" -c:a libmp3lame -b:a 192k "{output_path}"'
@@ -273,19 +306,41 @@ def hex_to_ass_color(hex_str: str, alpha: float = 1.0) -> str:
     a_val = max(0, min(255, int(round((1.0 - alpha) * 255))))
     return f"&H{a_val:02X}{b:02X}{g:02X}{r:02X}"
 
-def detect_best_video_encoder() -> tuple:
-    """Detect fastest available video encoder (NVIDIA NVENC, Intel QSV, or multi-threaded CPU)."""
+_CACHED_ENCODER = None
+
+def _probe_encoder(codec: str, flags: str = "") -> bool:
+    """Probe if an encoder is genuinely functional on this hardware (runs 0.04s test frame)."""
     try:
-        res = subprocess.run('ffmpeg -encoders', shell=True, capture_output=True, text=True)
-        out = res.stdout or ''
-        if 'h264_nvenc' in out:
-            return 'h264_nvenc', '-preset p4 -cq 21'
-        if 'h264_qsv' in out:
-            return 'h264_qsv', '-global_quality 22'
+        cmd = f'ffmpeg -nostdin -y -f lavfi -i color=c=black:s=64x64:d=0.04 -c:v {codec} {flags} -f null -'
+        res = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=3)
+        return res.returncode == 0
     except Exception:
-        pass
+        return False
+
+def detect_best_video_encoder() -> tuple:
+    """Detect fastest verified working video encoder (NVIDIA NVENC, AMD AMF, Intel QSV, Apple Metal, or CPU)."""
+    global _CACHED_ENCODER
+    if _CACHED_ENCODER is not None:
+        return _CACHED_ENCODER
+
     threads = os.cpu_count() or 4
-    return 'libx264', f'-preset ultrafast -threads {threads}'
+    candidates = [
+        ('h264_nvenc', '-preset p4 -cq 21'),
+        ('h264_amf', '-usage transcoding -quality speed'),
+        ('h264_qsv', '-global_quality 22'),
+    ]
+    if sys.platform == 'darwin':
+        candidates.insert(0, ('h264_videotoolbox', '-q:v 60'))
+
+    for codec, flags in candidates:
+        if _probe_encoder(codec, flags):
+            print(f"[Hardware Acceleration] Active video encoder: {codec}")
+            _CACHED_ENCODER = (codec, flags)
+            return _CACHED_ENCODER
+
+    print(f"[CPU Encoding] Multi-core video encoding: libx264 ({threads} threads)")
+    _CACHED_ENCODER = ('libx264', f'-preset ultrafast -threads {threads}')
+    return _CACHED_ENCODER
 
 def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_image_path: str = None, srt_path: str = None, options: dict = None):
     """
@@ -475,7 +530,16 @@ def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_
         cmd = f'ffmpeg -nostdin -y {input_flags} -c:v copy -c:a copy -movflags +faststart "{output_video_path}"'
 
     try:
-        run_command(cmd)
+        try:
+            run_command(cmd)
+        except Exception as hw_err:
+            if encoder != 'libx264' and filter_steps:
+                print(f"[Warning] Hardware encoder ({encoder}) failed during render: {hw_err}")
+                print(f"[Fallback] Automatically retrying with CPU multi-core (libx264 ultrafast)...")
+                cpu_cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc}" -map "{current_v}" -map 0:a? -c:v libx264 -preset ultrafast -threads {threads} -crf {crf} -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+                run_command(cpu_cmd)
+            else:
+                raise
     finally:
         if temp_scaled_overlay and os.path.exists(temp_scaled_overlay):
             try:

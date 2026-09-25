@@ -44,7 +44,7 @@ for p in EXTRA_PATHS:
 os.chdir(BASE_DIR)
 
 # Prepend persistent patches and services to sys.path so hot updates override bundled modules
-for p in [os.path.join(BASE_DIR, 'patches'), os.path.join(BASE_DIR, 'services')]:
+for p in [os.path.join(BASE_DIR, 'patches'), os.path.join(BASE_DIR, 'services'), BASE_DIR]:
     if os.path.exists(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -110,7 +110,7 @@ def main():
     # 5. Launch Native Desktop Window (Edge WebView2 on Windows) with browser fallback
     try:
         window = webview.create_window(
-            title='🎬 ATITEBDABBERPRO — AI Khmer Dubbing Studio',
+            title='🎬 ស្ដេចអាទិទេព PRO — AI Khmer Dubbing Studio',
             url='http://127.0.0.1:3000',
             width=1440,
             height=900,

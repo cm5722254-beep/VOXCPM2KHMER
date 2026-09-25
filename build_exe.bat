@@ -63,8 +63,14 @@ if errorlevel 1 (
 echo       PyInstaller single-file build completed - OK
 echo.
 
-if exist "dist\ATITEBDABBERPRO.exe" (
-    copy /y "dist\ATITEBDABBERPRO.exe" "ATITEBDABBERPRO.exe" > nul
+if exist "dist\SDACH_ATITEB_PRO.exe" (
+    copy /y "dist\SDACH_ATITEB_PRO.exe" "ស្ដេចអាទិទេព_PRO.exe" > nul
+    copy /y "dist\SDACH_ATITEB_PRO.exe" "SDACH_ATITEB_PRO.exe" > nul
+    copy /y "dist\SDACH_ATITEB_PRO.exe" "ATITEBDABBERPROKHMER_V2.3.3PRO.exe" > nul
+)
+if exist "dist\ATITEBDABBERPROKHMER.exe" (
+    copy /y "dist\ATITEBDABBERPROKHMER.exe" "ស្ដេចអាទិទេព_PRO.exe" > nul
+    copy /y "dist\ATITEBDABBERPROKHMER.exe" "SDACH_ATITEB_PRO.exe" > nul
 )
 
 :: ── Done ────────────────────────────────────────────────────────────────────

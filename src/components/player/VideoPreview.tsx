@@ -512,12 +512,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
   const aspectClass =
     videoEffects?.aspectRatio === '9:16'
-      ? 'aspect-[9/16] max-w-[340px]'
+      ? 'aspect-[9/16] h-full max-w-full'
       : videoEffects?.aspectRatio === '1:1'
-      ? 'aspect-square max-w-[460px]'
+      ? 'aspect-square h-full max-w-full'
       : videoEffects?.aspectRatio === '4:3'
-      ? 'aspect-[4/3] max-w-[620px]'
-      : 'aspect-video w-full';
+      ? 'aspect-[4/3] h-full max-w-full'
+      : 'aspect-video h-full max-w-full';
 
   const subtitlePositionClass =
     subtitleStyle?.position === 'top'
@@ -527,13 +527,13 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       : 'bottom-6';
 
   return (
-    <div className="flex-1 bg-[#05070c] flex flex-col items-center justify-center p-3 relative overflow-hidden">
+    <div className="w-full h-full flex flex-col items-center justify-between p-2 relative overflow-hidden bg-gradient-to-b from-[#060810] to-[#040609]">
       {/* Ambient Cyber-Cinematic Backlight Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[420px] bg-gradient-to-tr from-cyan-500/10 via-violet-600/10 to-indigo-500/5 blur-3xl pointer-events-none rounded-full" />
 
       {/* Upload UI when no video */}
       {!hasVideo && (
-        <div className="flex flex-col items-center justify-center gap-4 text-center p-12 relative z-10 font-khmer">
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 text-center p-12 relative z-10 font-khmer">
           <div className="w-20 h-20 rounded-full bg-gradient-to-br from-cyan-500/20 to-violet-600/20 border-2 border-cyan-500/30 flex items-center justify-center animate-pulse shadow-[0_0_20px_rgba(0,240,255,0.2)]">
             <Film className="w-10 h-10 text-cyan-400" />
           </div>
@@ -584,10 +584,11 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
       {/* Screen Frame - Only show when video exists */}
       {hasVideo && (
-      <div
-        ref={frameRef}
-        className={`relative ${aspectClass} max-h-[calc(100%-48px)] bg-black rounded-lg shadow-2xl flex items-center justify-center overflow-hidden border border-white/[0.06] transition-all group`}
-      >
+      <div className="flex-1 w-full min-h-0 flex items-center justify-center relative p-1">
+        <div
+          ref={frameRef}
+          className={`relative ${aspectClass} max-h-full max-w-full bg-black rounded-xl shadow-2xl flex items-center justify-center overflow-hidden border border-white/[0.08] transition-all group`}
+        >
         {/* 3D Spatial Wrapper */}
         <div
           className={`w-full h-full relative flex items-center justify-center transition-all duration-300 ${motion3dClass}`}
@@ -1039,11 +1040,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
         {/* Top Floating Cinematic Badges */}
         <div className="absolute top-3 left-3 z-20 flex items-center gap-2 select-none font-khmer">
-          <div className="px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-200 text-[11px] font-medium shadow-md">
-            ទម្រង់ភាពយន្ត
+          <div className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/[0.12] text-slate-200 text-[11px] font-bold shadow-md flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span>ស្ទូឌីយោភាពយន្ត</span>
           </div>
-          <div className="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-400 font-mono text-[10.5px]">
-            16:9
+          <div className="px-2 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-white/[0.12] text-cyan-300 font-mono text-[10.5px] font-bold tracking-wider">
+            16:9 REC.709
           </div>
         </div>
 
@@ -1061,11 +1063,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               {showSubtitles ? 'អក្សររត់ បើក' : 'អក្សររត់ បិទ'}
             </button>
           )}
-          <div className="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-slate-300 font-mono text-[10.5px]">
-            HD
-          </div>
-          <div className="px-2 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/[0.1] text-sky-400 font-mono text-[10.5px] font-semibold">
-            1080p
+          <div className="px-2.5 py-1 rounded-lg bg-black/75 backdrop-blur-md border border-cyan-500/30 text-cyan-300 font-mono text-[11px] font-black shadow-[0_0_12px_rgba(0,240,255,0.2)]">
+            1080p 60fps
           </div>
         </div>
 
@@ -1111,14 +1110,15 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           />
         </div>
       </div>
+      </div>
       )}
 
       {/* Professional Bottom Transport Bar */}
-      <div className="w-full max-w-2xl bg-[#090d16]/90 backdrop-blur-xl border border-white/10 rounded-2xl px-4 py-2 mt-2.5 flex items-center justify-between text-xs select-none shadow-[0_10px_30px_rgba(0,0,0,0.6)]">
+      <div className="w-full max-w-3xl bg-white/95 backdrop-blur-xl border border-slate-200/90 rounded-2xl px-4 py-2 mt-2 flex items-center justify-between text-xs select-none shadow-md shadow-slate-200/50 shrink-0 z-20 text-slate-800">
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => onStep(-10)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
             title="Skip backward 10s"
           >
             <SkipBack className="w-4 h-4" />
@@ -1126,19 +1126,19 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
           <button
             onClick={handlePlayPause}
-            className="w-9 h-9 rounded-full bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 flex items-center justify-center transition-transform active:scale-95 shadow-md shadow-cyan-500/30 hover:brightness-110"
+            className="w-9 h-9 rounded-full bg-gradient-to-r from-sky-500 to-blue-600 text-white flex items-center justify-center transition-transform active:scale-95 shadow-md shadow-sky-500/25 hover:brightness-110"
             title="Play / Pause (Space)"
           >
             {isPlaying ? (
-              <Pause className="w-4 h-4 fill-slate-950 text-slate-950" />
+              <Pause className="w-4 h-4 fill-white text-white" />
             ) : (
-              <Play className="w-4 h-4 fill-slate-950 text-slate-950 translate-x-0.5" />
+              <Play className="w-4 h-4 fill-white text-white translate-x-0.5" />
             )}
           </button>
 
           <button
             onClick={() => onStep(10)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
             title="Skip forward 10s"
           >
             <SkipForward className="w-4 h-4" />
@@ -1146,15 +1146,15 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
           {/* Monospace Timecode + Progress Percentage */}
           <div className="flex items-center gap-2">
-            <div className="font-mono text-xs font-semibold px-2 py-1 text-slate-300">
-              <span className="text-cyan-400 font-bold">{formatTimecode(currentTime)}</span>
-              <span className="text-slate-600 mx-1">/</span>
-              <span className="text-slate-400">{formatTimecode(duration)}</span>
+            <div className="font-mono text-xs font-semibold px-2 py-1 text-slate-700">
+              <span className="text-sky-700 font-bold">{formatTimecode(currentTime)}</span>
+              <span className="text-slate-400 mx-1">/</span>
+              <span className="text-slate-500">{formatTimecode(duration)}</span>
             </div>
             
             {/* Progress Percentage (ភាគរយ) */}
-            <div className="px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/30">
-              <span className="text-xs font-bold text-cyan-400 font-mono">
+            <div className="px-2 py-0.5 rounded-md bg-sky-50 border border-sky-200">
+              <span className="text-xs font-bold text-sky-700 font-mono">
                 {duration > 0 ? Math.round((currentTime / duration) * 100) : 0}%
               </span>
             </div>
@@ -1166,7 +1166,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           <select
             value={playbackRate}
             onChange={(e) => onRateChange(parseFloat(e.target.value))}
-            className="bg-[#0e1322] border border-white/10 text-slate-200 text-xs rounded-lg px-2 py-1 font-mono cursor-pointer outline-none focus:border-cyan-400"
+            className="bg-slate-100 border border-slate-200 text-slate-800 text-xs rounded-lg px-2 py-1 font-mono cursor-pointer outline-none focus:border-sky-400"
           >
             <option value="0.5">0.5x</option>
             <option value="0.75">0.75x</option>
@@ -1179,16 +1179,16 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* Mute / Volume */}
           <button
             onClick={onToggleMute}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
             title="Mute / Unmute"
           >
-            {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+            {isMuted ? <VolumeX className="w-4 h-4 text-rose-500" /> : <Volume2 className="w-4 h-4 text-slate-700" />}
           </button>
 
           {/* Fullscreen */}
           <button
             onClick={handleFullscreen}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 hover:text-slate-950 hover:bg-slate-100 transition-colors"
             title="Fullscreen (F)"
           >
             <Maximize className="w-4 h-4" />

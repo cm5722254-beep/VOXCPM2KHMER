@@ -42,6 +42,7 @@ bin/
 dist/
 build/
 *.spec
+studio_auth.db
 
 # Android & Gradle Caches
 .gradle/

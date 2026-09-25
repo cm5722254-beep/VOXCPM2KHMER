@@ -241,6 +241,7 @@ class RenderExportRequest(BaseModel):
     watermark: Optional[dict] = None
     subtitleStyle: Optional[dict] = None
     turbo: Optional[bool] = True
+    outputDir: Optional[str] = None
 
 class AddShelfVideoRequest(BaseModel):
     filename: str
@@ -1377,9 +1378,18 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
         except Exception as e:
             import traceback
             traceback.print_exc()
+            err_raw = str(e)
+            user_friendly_error = err_raw
+            if "does not contain any stream" in err_raw:
+                user_friendly_error = "វីដេអូនេះគ្មានខ្សែសំឡេង (Audio Stream) ឡើយ! ប្រព័ន្ធបានជួសជុលដោយស្វ័យប្រវត្តិកំណត់ជា Silent Audio រួចរាល់ សូមចុចដំណើរការម្តងទៀត។"
+            elif "CUDA out of memory" in err_raw:
+                user_friendly_error = "GPU VRAM មិនគ្រប់គ្រាន់ឡើយ សូមប្ដូរទៅប្រើ CPU ឬ Cloud GPU Mode។"
+            elif "No such file or directory" in err_raw:
+                user_friendly_error = "រកមិនឃើញឯកសារវីដេអូដើម ឬ Folder ឡើយ។ សូម Upload វីដេអូឡើងវិញ។"
+
             job['status'] = 'failed'
-            job['error'] = str(e)
-            job['message'] = f"កំហុសក្នុងការ dubbing: {str(e)}"
+            job['error'] = user_friendly_error
+            job['message'] = f"កំហុសក្នុងការ dubbing: {user_friendly_error}"
             broadcast_progress(job_id, job.copy())
             
             # Update unified database
@@ -1885,33 +1895,43 @@ async def assemble_custom(body: AssembleCustomRequest):
             p = os.path.join(OUTPUTS_DIR, base)
             if os.path.exists(p): audio_path = p
 
-        # Auto-synthesize any missing line so ZERO lines are dropped!
+        # Auto-synthesize any missing line with retry so ZERO lines are dropped!
         if not audio_path and (seg.get('khmer_translation') or seg.get('chinese_text')):
-            text_to_speak = clean_pure_khmer(seg.get('khmer_translation') or seg.get('chinese_text') or '')
+            raw_text = seg.get('khmer_translation') or seg.get('chinese_text') or ''
+            text_to_speak = clean_pure_khmer(raw_text) or raw_text.strip()
             if text_to_speak:
                 auto_path = os.path.join(OUTPUTS_DIR, f"auto_studio_line_py_{i}_{int(time.time() * 1000)}.wav")
-                try:
-                    async with sem:
-                        is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
-                        role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
-                        theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
-                        fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
-                        pitch = theatrical.get('pitch', '+0Hz')
-                        rate = theatrical.get('rate', '+0%')
-                        await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
-                    if os.path.exists(auto_path) and os.path.getsize(auto_path) > 1000:
-                        audio_path = auto_path
-                except Exception as ex:
-                    print(f"Auto-synthesize line {i} notice: {ex}")
+                is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
+                role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
+                theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
+                fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
+                pitch = theatrical.get('pitch', '+0Hz')
+                rate = theatrical.get('rate', '+0%')
 
-        if audio_path:
-            return {
-                **seg,
-                'audioPath': audio_path,
-                'start_time': float(seg.get('start_time', 0)),
-                'end_time': float(seg.get('end_time', float(seg.get('start_time', 0)) + 2.5))
-            }
-        return None
+                # Retry up to 3 times
+                for attempt in range(3):
+                    try:
+                        async with sem:
+                            await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
+                        if os.path.exists(auto_path) and os.path.getsize(auto_path) > 500:
+                            audio_path = auto_path
+                            break
+                    except Exception as ex:
+                        print(f"Auto-synthesize line {i} attempt {attempt+1} notice: {ex}")
+                        await asyncio.sleep(0.3)
+
+        if not audio_path:
+            # Fallback silence placeholder so line is NEVER dropped
+            silence_path = os.path.join(OUTPUTS_DIR, f"silent_line_{i}.wav")
+            audio_processor.run_command(f'ffmpeg -nostdin -y -f lavfi -i anullsrc=r=44100:cl=stereo -t 1.0 "{silence_path}"')
+            audio_path = silence_path
+
+        return {
+            **seg,
+            'audioPath': audio_path,
+            'start_time': float(seg.get('start_time', 0)),
+            'end_time': float(seg.get('end_time', float(seg.get('start_time', 0)) + 2.5))
+        }
 
     raw_mapped = await asyncio.gather(*(prepare_segment(i, seg) for i, seg in enumerate(body.segments)))
     mapped_segments = [m for m in raw_mapped if m is not None]
@@ -2059,6 +2079,17 @@ async def render_export_video(body: RenderExportRequest):
             srt_path=temp_srt_path,
             options=options
         )
+
+        # Copy to custom destination directory if requested (e.g. D:\VIDEO AI or D:\AnimeDub_Outputs)
+        if body.outputDir and os.path.exists(out_path):
+            try:
+                os.makedirs(body.outputDir, exist_ok=True)
+                dest_file = os.path.join(body.outputDir, out_filename)
+                import shutil
+                shutil.copy2(out_path, dest_file)
+                print(f"✅ Video exported directly to destination folder: {dest_file}")
+            except Exception as copy_err:
+                print(f"Warning: Failed to copy to {body.outputDir}: {copy_err}")
 
         return {
             'success': True,
@@ -2614,8 +2645,17 @@ def delete_project_group(group_id: str):
 def get_hardware_info():
     cpu_cores = os.cpu_count() or 4
     encoder, enc_flags = audio_processor.detect_best_video_encoder()
+    if encoder == 'h264_nvenc':
+        gpu_label = "NVIDIA NVENC (GPU Accelerated)"
+    elif encoder == 'h264_amf':
+        gpu_label = "AMD AMF (GPU Accelerated)"
+    elif encoder == 'h264_qsv':
+        gpu_label = "Intel QuickSync (QSV)"
+    elif encoder == 'h264_videotoolbox':
+        gpu_label = "Apple VideoToolbox (Metal)"
+    else:
+        gpu_label = "CPU Multi-Core Ultrafast"
     is_gpu = encoder != 'libx264'
-    gpu_label = "NVIDIA NVENC (GPU Accelerated)" if encoder == 'h264_nvenc' else ("Intel QuickSync (QSV)" if encoder == 'h264_qsv' else "CPU Multi-Core Ultrafast")
     return {
         'cpuCores': cpu_cores,
         'cpuThreads': cpu_cores,

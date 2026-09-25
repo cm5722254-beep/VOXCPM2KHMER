@@ -186,7 +186,7 @@ def check_and_expire_subscription(user: Dict[str, Any]) -> Dict[str, Any]:
         expires_at_str = user.get('premium_expires_at')
         if expires_at_str:
             try:
-                expires_at = datetime.fromisoformat(expires_at_str.replace('Z', '+00:00'))
+                expires_at = datetime.fromisoformat(str(expires_at_str).replace('Z', '+00:00')).replace(tzinfo=None)
                 if datetime.now() >= expires_at:
                     if not conn:
                         conn = get_db()
@@ -205,7 +205,7 @@ def check_and_expire_subscription(user: Dict[str, Any]) -> Dict[str, Any]:
         vox_exp_str = user.get('voxcpm_license_expires_at')
         if vox_exp_str:
             try:
-                vox_exp = datetime.fromisoformat(vox_exp_str.replace('Z', '+00:00'))
+                vox_exp = datetime.fromisoformat(str(vox_exp_str).replace('Z', '+00:00')).replace(tzinfo=None)
                 if datetime.now() >= vox_exp:
                     if not conn:
                         conn = get_db()
@@ -702,12 +702,61 @@ def admin_toggle_user_voxcpm(user_id: int, enable: bool, days: int = 30) -> Dict
 # USER ADMIN LISTING & MANAGEMENT
 # ─────────────────────────────────────────────────────────────────────────────
 
+def sync_supabase_users_to_local(sb_users: List[Dict[str, Any]]):
+    """Sync list of users from Supabase into local SQLite so local DB is always consistent."""
+    if not sb_users:
+        return
+    try:
+        conn = get_db()
+        cur = conn.cursor()
+        for u in sb_users:
+            uid = u.get('id')
+            uname = u.get('username')
+            if not uid or not uname:
+                continue
+            cur.execute("DELETE FROM users WHERE username = ? AND id != ?", (uname, uid))
+            cur.execute('''
+                INSERT INTO users (id, username, password_hash, salt, role, tier, premium_expires_at, has_voxcpm_license, voxcpm_license_expires_at, voxcpm_license_key, current_device_id, created_at, is_active)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(id) DO UPDATE SET
+                    username = excluded.username,
+                    password_hash = excluded.password_hash,
+                    salt = excluded.salt,
+                    role = excluded.role,
+                    tier = excluded.tier,
+                    premium_expires_at = excluded.premium_expires_at,
+                    has_voxcpm_license = excluded.has_voxcpm_license,
+                    voxcpm_license_expires_at = excluded.voxcpm_license_expires_at,
+                    voxcpm_license_key = excluded.voxcpm_license_key,
+                    current_device_id = excluded.current_device_id,
+                    is_active = excluded.is_active
+            ''', (
+                uid,
+                uname,
+                u.get('password_hash', ''),
+                u.get('salt', ''),
+                u.get('role', 'user'),
+                u.get('tier', 'free'),
+                u.get('premium_expires_at'),
+                1 if u.get('has_voxcpm_license') else 0,
+                u.get('voxcpm_license_expires_at'),
+                u.get('voxcpm_license_key'),
+                u.get('current_device_id'),
+                u.get('created_at', datetime.now().isoformat()),
+                u.get('is_active', 1)
+            ))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error syncing Supabase users to local: {e}")
+
 def list_all_users() -> List[Dict[str, Any]]:
     """List all registered users for Admin panel."""
     if supabase_db.is_supabase_enabled():
         try:
             sb_users = supabase_db.sb_get('users', {'order': 'id.desc'})
             if sb_users is not None:
+                sync_supabase_users_to_local(sb_users)
                 res = []
                 for u in sb_users:
                     u = check_and_expire_subscription(u)
@@ -736,21 +785,42 @@ def list_all_users() -> List[Dict[str, Any]]:
 
 def set_user_premium(user_id: int, days: int) -> Dict[str, Any]:
     """Grant Premium tier to a user with specific duration in days (or -1 for lifetime)."""
+    user_row = None
+    current_tier = 'free'
+    current_exp = None
+
+    # Check Supabase first if enabled
+    if supabase_db.is_supabase_enabled():
+        try:
+            sb_users = supabase_db.sb_get('users', {'id': f'eq.{user_id}'})
+            if sb_users:
+                user_row = sb_users[0]
+                current_tier = user_row.get('tier', 'free')
+                current_exp = user_row.get('premium_expires_at')
+        except Exception as e:
+            print(f"Supabase set_user_premium lookup error: {e}")
+
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
-    row = cur.fetchone()
-    if not row:
+    if not user_row:
+        cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+        local_row = cur.fetchone()
+        if local_row:
+            user_row = dict(local_row)
+            current_tier = user_row.get('tier', 'free')
+            current_exp = user_row.get('premium_expires_at')
+
+    if not user_row:
         conn.close()
         raise ValueError("រកមិនឃើញគណនីនេះទេ")
 
     if days == -1:
         expires_at_iso = None
     else:
-        current_exp = row['premium_expires_at']
-        if current_exp and row['tier'] == 'premium':
+        if current_exp and current_tier == 'premium':
             try:
-                base_dt = max(datetime.now(), datetime.fromisoformat(current_exp))
+                base_str = str(current_exp).replace('Z', '+00:00')
+                base_dt = max(datetime.now(), datetime.fromisoformat(base_str).replace(tzinfo=None))
             except Exception:
                 base_dt = datetime.now()
         else:
@@ -762,6 +832,28 @@ def set_user_premium(user_id: int, days: int) -> Dict[str, Any]:
         SET tier = 'premium', premium_expires_at = ? 
         WHERE id = ?
     ''', (expires_at_iso, user_id))
+
+    if cur.rowcount == 0 and user_row:
+        try:
+            cur.execute('''
+                INSERT OR REPLACE INTO users (id, username, password_hash, salt, role, tier, premium_expires_at, has_voxcpm_license, voxcpm_license_expires_at, voxcpm_license_key, current_device_id, created_at, is_active)
+                VALUES (?, ?, ?, ?, ?, 'premium', ?, ?, ?, ?, ?, ?, 1)
+            ''', (
+                user_id,
+                user_row.get('username'),
+                user_row.get('password_hash', ''),
+                user_row.get('salt', ''),
+                user_row.get('role', 'user'),
+                expires_at_iso,
+                user_row.get('has_voxcpm_license', 0),
+                user_row.get('voxcpm_license_expires_at'),
+                user_row.get('voxcpm_license_key'),
+                user_row.get('current_device_id'),
+                user_row.get('created_at', datetime.now().isoformat())
+            ))
+        except Exception as e:
+            print(f"Error caching user into local SQLite: {e}")
+
     conn.commit()
     conn.close()
 
@@ -771,8 +863,8 @@ def set_user_premium(user_id: int, days: int) -> Dict[str, Any]:
                 'tier': 'premium',
                 'premium_expires_at': expires_at_iso
             })
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Supabase patch premium error: {e}")
 
     return {
         'id': user_id,
@@ -798,8 +890,8 @@ def revoke_user_premium(user_id: int) -> Dict[str, Any]:
                 'tier': 'free',
                 'premium_expires_at': None
             })
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Supabase revoke premium error: {e}")
 
     return {'id': user_id, 'tier': 'free', 'premium_expires_at': None}
 
@@ -816,8 +908,8 @@ def delete_user(user_id: int) -> bool:
         try:
             supabase_db.sb_delete('sessions', {'user_id': f'eq.{user_id}'})
             supabase_db.sb_delete('users', {'id': f'eq.{user_id}'})
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Supabase delete user error: {e}")
 
     return True
 
@@ -834,8 +926,8 @@ def reset_user_device(user_id: int) -> bool:
         try:
             supabase_db.sb_patch('users', {'id': f'eq.{user_id}'}, {'current_device_id': None})
             supabase_db.sb_delete('sessions', {'user_id': f'eq.{user_id}'})
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Supabase reset device error: {e}")
 
     return True
 
@@ -854,8 +946,8 @@ def reset_user_password(user_id: int, new_password: str) -> bool:
         try:
             supabase_db.sb_patch('users', {'id': f'eq.{user_id}'}, {'password_hash': pwd_hash, 'salt': salt})
             supabase_db.sb_delete('sessions', {'user_id': f'eq.{user_id}'})
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"Supabase reset password error: {e}")
 
     return True
 

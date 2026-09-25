@@ -16,10 +16,32 @@ function runCommand(command) {
   });
 }
 
+async function hasAudioStream(filePath) {
+  try {
+    const { exec } = require('child_process');
+    return await new Promise((resolve) => {
+      exec(`ffprobe -v error -select_streams a -show_entries stream=codec_type -of default=noprint_wrappers=1:nokey=1 "${filePath}"`, (error, stdout) => {
+        if (error) return resolve(false);
+        resolve(stdout && stdout.toLowerCase().includes('audio'));
+      });
+    });
+  } catch (e) {
+    return false;
+  }
+}
+
 /**
  * Extract audio from a video file
  */
 async function extractAudio(videoPath, outputAudioPath) {
+  const hasAudio = await hasAudioStream(videoPath);
+  if (!hasAudio) {
+    const dur = await getMediaDuration(videoPath);
+    const validDur = dur > 0 ? dur : 5.0;
+    const cmd = `ffmpeg -y -f lavfi -i anullsrc=r=44100:cl=stereo -t ${validDur} -b:a 192k "${outputAudioPath}"`;
+    await runCommand(cmd);
+    return outputAudioPath;
+  }
   // -vn: ignore video, -acodec libmp3lame or pcm_s16le, -ar 44100
   const cmd = `ffmpeg -y -i "${videoPath}" -vn -ar 44100 -ac 2 -b:a 192k "${outputAudioPath}"`;
   await runCommand(cmd);

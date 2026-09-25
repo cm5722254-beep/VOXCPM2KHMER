@@ -735,6 +735,7 @@ class KhmerDubber:
                 pass
 
         chunk_size = 90.0
+        chunk_step = 85.0  # 5.0 seconds overlap between consecutive chunks to never cut sentences
         temp_dir = os.path.join(os.path.dirname(audio_path), f"chunks_py_{int(asyncio.get_event_loop().time() * 1000)}")
         os.makedirs(temp_dir, exist_ok=True)
         all_segments = []
@@ -752,12 +753,14 @@ class KhmerDubber:
                     break
 
                 chunk_len = min(chunk_size, total_duration - current_offset)
-                if chunk_len <= 4.0:
+                if chunk_len <= 3.0:
                     break
 
                 chunk_path = os.path.join(temp_dir, f"chunk_{chunk_index}.mp3")
                 chunks_to_process.append((chunk_index, current_offset, chunk_len, chunk_path))
-                current_offset += chunk_len
+                if current_offset + chunk_size >= total_duration:
+                    break
+                current_offset += chunk_step
                 chunk_index += 1
 
             total_chunks = len(chunks_to_process)
@@ -794,20 +797,35 @@ class KhmerDubber:
             except Exception:
                 pass
 
-        # Sort chronologically and de-overlap any collided segments cleanly
+        # Sort chronologically and de-duplicate any overlapping segments from boundary overlap
         if all_segments:
             all_segments.sort(key=lambda s: float(s.get('start_time', 0.0)))
             cleaned_segs = []
             for s in all_segments:
                 cur_start = max(0.0, float(s.get('start_time', 0.0)))
                 cur_end = max(cur_start + 0.6, float(s.get('end_time', cur_start + 2.5)))
-                cur_dur = cur_end - cur_start
+                khmer_txt = (s.get('khmer_translation') or '').strip()
+                chinese_txt = (s.get('chinese_text') or '').strip()
+                if not khmer_txt and not chinese_txt:
+                    continue
 
                 if cleaned_segs:
-                    prev_end = float(cleaned_segs[-1].get('end_time', 0.0))
-                    if cur_start < prev_end + 0.2:
-                        cur_start = prev_end + 0.25
-                        cur_end = cur_start + cur_dur
+                    prev = cleaned_segs[-1]
+                    prev_start = float(prev.get('start_time', 0.0))
+                    prev_end = float(prev.get('end_time', 0.0))
+                    prev_khmer = (prev.get('khmer_translation') or '').strip()
+                    prev_chinese = (prev.get('chinese_text') or '').strip()
+
+                    # Deduplicate if start_time is very close (< 2.5s) and texts match or overlap
+                    is_dup_text = (khmer_txt and khmer_txt == prev_khmer) or (chinese_txt and chinese_txt == prev_chinese)
+                    if abs(cur_start - prev_start) < 2.5 and (is_dup_text or abs(cur_end - prev_end) < 1.0):
+                        continue
+
+                    # Soft anti-collision: avoid overlap without runaway drift
+                    if cur_start < prev_end:
+                        if prev_end - cur_start <= 0.8:
+                            cur_start = prev_end + 0.05
+                            cur_end = max(cur_start + 0.6, cur_end)
 
                 s['start_time'] = round(cur_start, 2)
                 s['end_time'] = round(cur_end, 2)

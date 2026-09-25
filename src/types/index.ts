@@ -288,7 +288,8 @@ export type TabId =
   | 'tab-mixer'
   | 'tab-subtitles'
   | 'tab-tuner'
-  | 'tab-thumbnail';
+  | 'tab-thumbnail'
+  | 'tab-projects';
 
 // ── 3 Studio Engine Options ──
 export type StudioEngineOption =
@@ -334,7 +335,22 @@ export interface CommercialOverlayConfig {
 
 // ── Custom UI Tool Theme, Background Style & Color Glass ──
 export type GlassColorPreset = 'obsidian' | 'cyan' | 'purple' | 'emerald' | 'amber' | 'sakura' | 'ice' | 'crimson';
-export type BackgroundPreset = 'default_dark' | 'cyberpunk' | 'anime_sunset' | 'midnight_purple' | 'emerald_matrix' | 'nebula_space' | 'custom';
+export type BackgroundPreset =
+  | 'clean_white'
+  | 'pearl_snow'
+  | 'ice_crystal'
+  | 'warm_ivory'
+  | 'slate_light'
+  | 'aurora_light'
+  | 'mint_light'
+  | 'sakura_light'
+  | 'cyberpunk'
+  | 'anime_sunset'
+  | 'midnight_purple'
+  | 'emerald_matrix'
+  | 'nebula_space'
+  | 'default_dark'
+  | 'custom';
 
 export interface StudioCustomSticker {
   id: string;
@@ -350,7 +366,9 @@ export interface StudioCustomUITheme {
   wallpaperUrl?: string | null;
   wallpaperOpacity: number; // 10 to 100
   wallpaperBlur: number; // 0 to 20px
-  accentColor: 'cyan' | 'purple' | 'emerald' | 'amber' | 'rose' | 'sapphire';
+  backgroundColor?: string; // Solid or gradient color, e.g. '#ffffff' or CSS gradient
+  bgMode?: 'color' | 'wallpaper'; // 'color' for clean pure solid/gradient background, 'wallpaper' for wallpaper image
+  accentColor: 'cyan' | 'purple' | 'emerald' | 'amber' | 'rose' | 'sapphire' | 'sky';
   stickers: StudioCustomSticker[];
   // ── Style Background & Color Glass ──
   glassColor?: GlassColorPreset;
@@ -358,6 +376,8 @@ export interface StudioCustomUITheme {
   glassBlur?: number; // 0 to 30px
   glassBorderGlow?: 'subtle' | 'vibrant' | 'neon';
   backgroundPreset?: BackgroundPreset;
+  themeMode?: 'light' | 'dark';
 }
+
 
 

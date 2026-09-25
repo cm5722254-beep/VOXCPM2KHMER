@@ -118,7 +118,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
       setRenderStepText('FFmpeg Hardware Encode កំពុងដំណើរការ...');
 
       // 2. Call backend server to execute FFmpeg permanently
-      const targetFilename = filename || (outputVideoUrl ? outputVideoUrl.split('/').pop() || '' : 'project.mp4');
+      const destination = selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`;
+      const targetFilename = filename || (outputVideoUrl ? outputVideoUrl.split('/').pop()?.split('?')[0] : undefined) || 'project_video.mp4';
       const response = await api.renderExportVideo({
         filename: targetFilename,
         inputVideo: outputVideoUrl || undefined,
@@ -128,6 +129,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         resolution: quality === '2k' ? '1080p' : (quality as any),
         format: 'mp4',
         bitrate: quality === '4k' ? 'ultra' : 'high',
+        outputDir: destination,
       });
 
       if (response && response.success && response.outputVideo) {

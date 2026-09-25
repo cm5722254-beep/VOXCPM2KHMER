@@ -325,6 +325,7 @@ export const api = {
     watermark?: any;
     subtitleStyle?: any;
     turbo?: boolean;
+    outputDir?: string;
   }) =>
     request<{ success: boolean; outputVideo: string; filename: string; hasOverlay: boolean; hasSubtitles: boolean }>('/api/video/render-export', {
       method: 'POST',

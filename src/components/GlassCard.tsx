@@ -9,7 +9,7 @@ interface GlassCardProps {
   onClick?: () => void;
 }
 
-export default function GlassCard({ 
+export function GlassCard({ 
   children, 
   className, 
   hover = false, 
@@ -268,3 +268,5 @@ export function GlassModal({ isOpen, onClose, children, title, size = 'md' }: Gl
     </div>
   );
 }
+
+export default GlassCard;

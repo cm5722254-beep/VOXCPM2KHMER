@@ -78,14 +78,14 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
         WebkitBackdropFilter: 'blur(20px) saturate(180%)',
       }}
     >
-      <div className="flex items-center justify-between gap-3 px-3.5 py-2.5">
-        <div className="flex items-center gap-2.5 overflow-hidden flex-1">
+      <div className="flex items-start justify-between gap-3 px-3.5 py-2.5">
+        <div className="flex items-start gap-2.5 overflow-hidden flex-1">
           <Icon
-            className="w-4 h-4 shrink-0"
+            className="w-4 h-4 shrink-0 mt-0.5"
             style={{ color: styles.iconColor }}
           />
           <span
-            className="text-xs font-medium leading-relaxed truncate"
+            className="text-xs font-medium leading-relaxed break-words"
             style={{ color: styles.text }}
           >
             {toast.message}
@@ -118,10 +118,10 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
 };
 
 export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
-  const visibleToasts = toasts.slice(-3);
+  const visibleToasts = toasts.slice(-4);
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-sm w-full">
+    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-md w-full">
       {visibleToasts.map(toast => (
         <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
       ))}

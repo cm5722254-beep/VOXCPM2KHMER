@@ -151,14 +151,11 @@ export default function ProcessingModeSelector({
               className={`
                 relative text-left transition-all duration-300 group
                 ${isSelected
-                  ? 'ring-2 ring-offset-2 ring-offset-[var(--bg-primary)] scale-105'
-                  : 'hover:scale-102'
+                  ? 'ring-2 ring-sky-400/50 ring-offset-2 ring-offset-[var(--bg-primary)] scale-105'
+                  : 'hover:scale-102 ring-transparent'
                 }
                 ${isDisabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}
-              style={{
-                ringColor: isSelected ? 'rgb(56 189 248 / 0.5)' : 'transparent'
-              }}
             >
               <GlassCard className={`
                 p-4 md:p-5 h-full

@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS public.video_library (
     filename TEXT NOT NULL,
     original_name TEXT,
     local_path TEXT NOT NULL,
-    file_size BIGINT,
+    file_size BIGINT,​
     duration FLOAT,
     thumbnail_path TEXT,
     group_id TEXT,

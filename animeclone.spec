@@ -92,7 +92,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='ATITEBDABBERPROKHMER',
+    name='SDACH_ATITEB_PRO',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

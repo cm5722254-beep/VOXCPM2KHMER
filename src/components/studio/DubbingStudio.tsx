@@ -32,6 +32,10 @@ import {
   Flame,
   Palette,
   FolderKanban,
+  Loader2,
+  Play,
+  Download,
+  Film,
 } from 'lucide-react';
 
 interface DubbingStudioProps {
@@ -167,6 +171,8 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   const [isMuted, setIsMuted] = useState(false);
   const [playbackRate, setPlaybackRate] = useState(1.0);
   const [zoom, setZoom] = useState(100);
+  const [timelineHeight, setTimelineHeight] = useState<'normal' | 'expanded' | 'compact'>('normal');
+  const [mobileStudioTab, setMobileStudioTab] = useState<'preview' | 'inspector'>('preview');
   const [showEffectsDrawer, setShowEffectsDrawer] = useState(false);
   const [showCharacterCastDrawer, setShowCharacterCastDrawer] = useState(false);
   const [showSubtitles, setShowSubtitles] = useState(true);
@@ -474,10 +480,10 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   return (
     <div className="flex flex-col h-full overflow-hidden bg-transparent select-none font-khmer">
       {/* ── Studio Top Toolbar: 3 Options & Quick Feature Actions ── */}
-      <div className="p-2 px-3 bg-[#080b13]/85 backdrop-blur-xl border-b border-white/[0.08] flex flex-col gap-2 z-30">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2.5">
-          {/* 3 Engine Option Selector */}
-          <div className="flex-1 max-w-2xl">
+      <div className="p-2 px-3 bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl border-b border-slate-200/90 dark:border-slate-800 flex flex-col gap-2 z-30 shadow-2xs transition-colors duration-200">
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-2.5">
+          {/* Group 1: 3 Engine Option Selector */}
+          <div className="flex-1 max-w-full xl:max-w-2xl overflow-x-auto">
             <EngineOptionSelector
               activeEngine={studioEngine}
               onSelectEngine={(eng) => onSelectStudioEngine && onSelectStudioEngine(eng)}
@@ -488,114 +494,148 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
             />
           </div>
 
-          {/* Quick Studio Action Buttons */}
+          {/* Groups 2, 3, 4: Production Actions, Audio Tools & Support */}
           <div className="flex items-center gap-1.5 flex-wrap">
-            {/* CapCut Style Trimmer */}
-            <button
-              type="button"
-              onClick={onOpenVideoTrimmer}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-pink-500/15 hover:bg-pink-500/25 border border-pink-500/30 text-pink-300 text-xs font-bold transition-all active:scale-95 shadow-sm"
-              title="កាត់តវីដេអូវែងៗដូច CapCut"
-            >
-              <Scissors className="w-3.5 h-3.5 text-pink-400" />
-              <span>កាត់តវីដេអូ</span>
-            </button>
-
-            {/* Commercial Ads Overlay */}
-            <button
-              type="button"
-              onClick={onOpenCommercialOverlay}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all active:scale-95 shadow-sm ${
-                commercialOverlay?.enabled
-                  ? 'bg-amber-500/25 border-amber-400 text-amber-200'
-                  : 'bg-amber-500/15 hover:bg-amber-500/25 border-amber-500/30 text-amber-300'
-              }`}
-              title="ដាក់វីដេអូ Overlay ពាណិជ្ជកម្ម Sponsor"
-            >
-              <Tv className="w-3.5 h-3.5 text-amber-400" />
-              <span>Ads Overlay</span>
-              {commercialOverlay?.enabled && (
-                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-              )}
-            </button>
-
-            {/* Transcription / Character Cast */}
-            <button
-              type="button"
-              onClick={() => setShowCharacterCastDrawer(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/15 hover:bg-purple-500/25 border border-purple-500/30 text-purple-300 text-xs font-bold transition-all active:scale-95 shadow-sm"
-              title="Transcription រើសតួអង្គតាមឃ្លា"
-            >
-              <Layers className="w-3.5 h-3.5 text-purple-400" />
-              <span>រើសតួអង្គតាមឃ្លា</span>
-            </button>
-
-            {/* Voice Volume Gain Slider HUD */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.1] text-xs">
-              <Volume2 className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-              <span className="text-[10px] text-slate-400">សំឡេង:</span>
-              <input
-                type="range"
-                min={0}
-                max={200}
-                step={5}
-                value={voiceVolumeGain}
-                onChange={(e) =>
-                  onChangeVoiceVolumeGain &&
-                  onChangeVoiceVolumeGain(parseInt(e.target.value, 10))
-                }
-                className="w-16 h-1 accent-cyan-400 bg-slate-800 rounded cursor-pointer"
-                title={`កម្រិតសំឡេងនិយាយ: ${voiceVolumeGain}%`}
-              />
-              <span className="text-[10px] font-mono font-bold text-cyan-300 w-8 text-right">
-                {voiceVolumeGain}%
-              </span>
-            </div>
-
-            {/* Effects & 3D Title Drawer */}
-            <button
-              type="button"
-              onClick={() => setShowEffectsDrawer(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-cyan-500/15 hover:bg-cyan-500/25 border border-cyan-500/30 text-cyan-300 text-xs font-bold transition-all active:scale-95 shadow-sm"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
-              <span>3D Effects</span>
-            </button>
-
-            {/* Telegram Admin Contact Button */}
-            <a
-              href="https://t.me/BongCheatz_IT"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-500/25 via-blue-600/20 to-indigo-600/25 hover:from-sky-500/35 hover:to-blue-600/35 border border-sky-400/40 text-sky-200 text-xs font-black transition-all active:scale-95 shadow-sm"
-              title="ទាក់ទង ADMIN តាម Telegram: https://t.me/BongCheatz_IT"
-            >
-              <span>✈️</span>
-              <span>ទាក់ទង ADMIN</span>
-            </a>
-
-            {/* User Guide Button */}
-            {onOpenGuide && (
+            {/* ── Group 2: AI Production Actions ── */}
+            <div className="flex items-center gap-1.5 p-0.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
+              {/* Flagship Primary AI CTA Action */}
               <button
                 type="button"
-                onClick={onOpenGuide}
-                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] border border-white/10 text-slate-300 text-xs font-semibold transition-all"
-                title="មគ្គុទ្ទេសក៍របៀបប្រើប្រាស់"
+                onClick={onStartDubbing}
+                disabled={isDubbing || !uploadedFile}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-black text-xs transition-all active:scale-95 disabled:opacity-50 shadow-sm ${
+                  isDubbing
+                    ? 'bg-sky-600 cursor-wait text-white shadow-sky-500/30'
+                    : 'bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white shadow-sky-500/25 hover:shadow-md'
+                }`}
+                title="ចុចដើម្បីចាប់ផ្តើម AI បង្កើតសំឡេងខ្មែរស្វ័យប្រវត្តិ"
               >
-                <BookOpen className="w-3.5 h-3.5 text-sky-400" />
-                <span className="hidden sm:inline">របៀបប្រើប្រាស់</span>
+                {isDubbing ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                    <span className="text-white">កំពុងបង្កើត... {dubbingProgress}%</span>
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-3.5 h-3.5 fill-white text-white" />
+                    <span>AI បង្កើតសំឡេងខ្មែរ</span>
+                  </>
+                )}
               </button>
-            )}
+
+              {/* CapCut Style Trimmer */}
+              <button
+                type="button"
+                onClick={onOpenVideoTrimmer}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-pink-50 dark:bg-pink-950/40 hover:bg-pink-100 dark:hover:bg-pink-900/60 border border-pink-200 dark:border-pink-800 text-pink-700 dark:text-pink-300 text-xs font-bold transition-all active:scale-95 shadow-2xs"
+                title="កាត់តវីដេអូវែងៗដូច CapCut"
+              >
+                <Scissors className="w-3.5 h-3.5 text-pink-600 dark:text-pink-400" />
+                <span>កាត់តវីដេអូ</span>
+              </button>
+
+              {/* Commercial Ads Overlay */}
+              <button
+                type="button"
+                onClick={onOpenCommercialOverlay}
+                className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs font-bold transition-all active:scale-95 shadow-2xs ${
+                  commercialOverlay?.enabled
+                    ? 'bg-amber-100 dark:bg-amber-950/60 border-amber-300 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-black'
+                    : 'bg-amber-50 dark:bg-amber-950/30 hover:bg-amber-100 dark:hover:bg-amber-900/40 border-amber-200 dark:border-amber-800/60 text-amber-800 dark:text-amber-300'
+                }`}
+                title="ដាក់វីដេអូ Overlay ពាណិជ្ជកម្ម Sponsor"
+              >
+                <Tv className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
+                <span>Ads Overlay</span>
+                {commercialOverlay?.enabled && (
+                  <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                )}
+              </button>
+            </div>
+
+            {/* ── Group 3: Voice & Audio Tuning Tools ── */}
+            <div className="flex items-center gap-1.5 p-0.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700/60">
+              {/* Transcription / Character Cast */}
+              <button
+                type="button"
+                onClick={() => setShowCharacterCastDrawer(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-purple-50 dark:bg-purple-950/40 hover:bg-purple-100 dark:hover:bg-purple-900/60 border border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300 text-xs font-bold transition-all active:scale-95 shadow-2xs"
+                title="Transcription រើសតួអង្គតាមឃ្លា"
+              >
+                <Layers className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                <span>រើសតួអង្គ</span>
+              </button>
+
+              {/* Effects & 3D Title Drawer */}
+              <button
+                type="button"
+                onClick={() => setShowEffectsDrawer(true)}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800 text-sky-700 dark:text-sky-300 text-xs font-bold transition-all active:scale-95 shadow-2xs"
+                title="3D Text & Video Effects"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span>3D Effects</span>
+              </button>
+
+              {/* Voice Volume Gain Slider HUD */}
+              <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-xs shadow-2xs">
+                <Volume2 className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400 shrink-0" />
+                <input
+                  type="range"
+                  min={0}
+                  max={200}
+                  step={5}
+                  value={voiceVolumeGain}
+                  onChange={(e) =>
+                    onChangeVoiceVolumeGain &&
+                    onChangeVoiceVolumeGain(parseInt(e.target.value, 10))
+                  }
+                  className="w-14 h-1 accent-sky-600 bg-slate-200 dark:bg-slate-700 rounded cursor-pointer"
+                  title={`កម្រិតសំឡេងនិយាយ: ${voiceVolumeGain}%`}
+                />
+                <span className="text-[10px] font-mono font-bold text-sky-700 dark:text-sky-300 w-7 text-right">
+                  {voiceVolumeGain}%
+                </span>
+              </div>
+            </div>
+
+            {/* ── Group 4: Support & Guide ── */}
+            <div className="flex items-center gap-1">
+              {/* Telegram Admin Contact Button */}
+              <a
+                href="https://t.me/BongCheatz_IT"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-300 dark:border-sky-700 text-sky-800 dark:text-sky-200 text-xs font-black transition-all active:scale-95 shadow-2xs"
+                title="ទាក់ទង ADMIN តាម Telegram: https://t.me/BongCheatz_IT"
+              >
+                <span>✈️</span>
+                <span className="hidden sm:inline">ADMIN</span>
+              </a>
+
+              {/* User Guide Button */}
+              {onOpenGuide && (
+                <button
+                  type="button"
+                  onClick={onOpenGuide}
+                  className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 border border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all shadow-2xs"
+                  title="មគ្គុទ្ទេសក៍របៀបប្រើប្រាស់"
+                >
+                  <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                  <span className="hidden sm:inline">ជំនួយ</span>
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Option 3 Khmer Offline Quick Status Pill */}
         {studioEngine === 'khmer_offline' && (
-          <div className="pt-1 flex flex-wrap items-center justify-between gap-2.5 px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-950/60 via-teal-950/40 to-slate-900/60 border border-emerald-500/30 text-xs shadow-inner">
-            <div className="flex items-center gap-2 text-emerald-300">
-              <Flame className="w-4 h-4 text-emerald-400 animate-pulse shrink-0" />
+          <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-emerald-50/95 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-xs shadow-2xs">
+            <div className="flex items-center gap-2 text-emerald-900 dark:text-emerald-200 flex-wrap">
+              <Flame className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-pulse shrink-0" />
               <span className="font-bold">KHMER OFFLINE STUDIO (១ ដល់ ២០ ភាគ / រឿងពេញ)</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700 font-mono font-bold">
                 {khmerOfflineConfig?.episodes?.length || 0} ភាគក្នុងបញ្ជី ({khmerOfflineConfig?.mode === 'full_movie' ? 'ភ្ជាប់ជារឿងពេញ' : 'ភាគដាច់ដោយឡែក'})
               </span>
             </div>
@@ -603,7 +643,7 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
             <button
               type="button"
               onClick={() => onOpenTab && onOpenTab('tab-offline')}
-              className="flex items-center gap-1.5 px-3.5 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-black shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
+              className="flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-sm transition-all active:scale-95 w-full sm:w-auto"
             >
               <span>🚀 បើកផ្ទាំង Batch 1-20 ភាគពេញលេញ (Full Page)</span>
               <span>➔</span>
@@ -613,48 +653,28 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
 
         {/* Project / Series Group & Assigned Voices Bar */}
         {activeGroup && (
-          <div className="pt-1 flex flex-wrap items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#070d18] via-[#091322] to-[#070d18] border border-cyan-500/20 text-xs shadow-inner">
+          <div className="pt-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-3 py-1.5 rounded-xl bg-slate-50/95 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 text-xs shadow-2xs">
             <div className="flex items-center gap-2 flex-wrap">
               <button
                 type="button"
                 onClick={onOpenGroupManager}
-                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-white transition-all shadow-sm"
+                className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-50 dark:bg-sky-950/50 hover:bg-sky-100 dark:hover:bg-sky-900/60 border border-sky-200 dark:border-sky-800 text-sky-900 dark:text-sky-200 transition-all shadow-2xs"
                 title="ចុចដើម្បីគ្រប់គ្រង Group ឬប្តូរស៊េរីរឿង"
               >
-                <FolderKanban className="w-3.5 h-3.5 text-cyan-400" />
-                <span className="text-[11px] text-slate-300">Group រឿង:</span>
-                <span className="text-[11px] font-bold text-cyan-300">{activeGroup.name}</span>
+                <FolderKanban className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
+                <span className="text-[11px] text-slate-600 dark:text-slate-400 font-medium">Group រឿង:</span>
+                <span className="text-[11px] font-bold text-sky-800 dark:text-sky-300">{activeGroup.name}</span>
               </button>
-
-              {/* Quick Assigned Voice Badges for this Story Group */}
-              <div className="flex items-center gap-1.5 flex-wrap text-[10px]">
-                <span className="px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-300 border border-cyan-500/20" title="សំឡេងតួប្រុសប្រចាំរឿងនេះ">
-                  🎙️ ប្រុស: {getVoiceDisplayName(activeGroup.maleLeadVoice || 'km-KH-PisethNeural')}
-                </span>
-                <span className="px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-300 border border-rose-500/20" title="សំឡេងតួស្រីប្រចាំរឿងនេះ">
-                  🌸 ស្រី: {getVoiceDisplayName(activeGroup.femaleLeadVoice || 'km-KH-SreymomNeural')}
-                </span>
-                {activeGroup.narratorVoice && (
-                  <span className="hidden md:inline px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20" title="សំឡេងអ្នកនិទានប្រចាំរឿងនេះ">
-                    📜 និទាន: {getVoiceDisplayName(activeGroup.narratorVoice)}
-                  </span>
-                )}
-                {activeGroup.supportingVoice && (
-                  <span className="hidden lg:inline px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20" title="សំឡេងតួបន្ទាប់បន្សំប្រចាំរឿងនេះ">
-                    😄 បន្ទាប់បន្សំ: {getVoiceDisplayName(activeGroup.supportingVoice)}
-                  </span>
-                )}
-              </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={handleApplyGroupVoices}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-slate-950 font-black text-xs shadow-md shadow-cyan-500/25 transition-all active:scale-95"
+                className="flex items-center justify-center gap-1.5 px-3 py-1 rounded-lg bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs shadow-sm transition-all active:scale-95 w-full sm:w-auto"
                 title="អនុវត្តសំឡេងដែលបានកំណត់ក្នុង Group នេះទៅលើតួអង្គទាំងអស់ក្នុងវីដេអូ មិនច្រឡំរឿងផ្សេងឡើយ"
               >
-                <Sparkles className="w-3.5 h-3.5" />
+                <Sparkles className="w-3.5 h-3.5 text-white" />
                 <span>⚡ អនុវត្តសំឡេងតាម Group ({activeGroup.name})</span>
               </button>
             </div>
@@ -662,10 +682,40 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
         )}
       </div>
 
+      {/* ── Mobile View Switcher (lg:hidden) ── */}
+      <div className="lg:hidden flex items-center justify-center p-1.5 bg-slate-100 border-b border-slate-200">
+        <div className="flex rounded-xl bg-white p-0.5 border border-slate-200 text-xs font-bold w-full max-w-xs justify-between shadow-2xs">
+          <button
+            onClick={() => setMobileStudioTab('preview')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
+              mobileStudioTab === 'preview'
+                ? 'bg-sky-500 text-white font-black shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Film className="w-3.5 h-3.5" />
+            <span>វីដេអូ & Timeline</span>
+          </button>
+          <button
+            onClick={() => setMobileStudioTab('inspector')}
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 rounded-lg transition-all ${
+              mobileStudioTab === 'inspector'
+                ? 'bg-sky-500 text-white font-black shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Sliders className="w-3.5 h-3.5" />
+            <span>ផ្ទាំងកែសម្រួល</span>
+          </button>
+        </div>
+      </div>
+
       {/* ── Main Workstation: Center Video Workspace + Right Contextual Inspector ── */}
-      <div className="flex flex-1 min-w-0 min-h-0 overflow-hidden">
+      <div className="flex flex-col lg:flex-row flex-1 min-w-0 min-h-0 overflow-y-auto lg:overflow-hidden">
         {/* Center: Video Workspace (16:9 Cinematic Visual Center) */}
-        <div className="flex-1 min-w-0 min-h-0 flex flex-col items-center justify-center p-2 sm:p-4 relative overflow-hidden bg-black/20 backdrop-blur-md">
+        <div className={`${
+          mobileStudioTab === 'preview' ? 'flex' : 'hidden lg:flex'
+        } flex-1 min-w-0 min-h-[220px] sm:min-h-[280px] flex-col items-center justify-center p-1 sm:p-2 relative overflow-hidden bg-slate-100/70 dark:bg-slate-950/70`}>
           <VideoPreview
             videoRef={videoRef}
             videoSrc={activeVideoSrc}
@@ -698,7 +748,10 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
         </div>
 
         {/* Right: Contextual Inspector */}
-        <ContextualInspector
+        <div className={`${
+          mobileStudioTab === 'inspector' ? 'flex' : 'hidden lg:flex'
+        } w-full lg:w-auto shrink-0 flex-col`}>
+          <ContextualInspector
           uploadedFile={uploadedFile}
           isUploadingFile={isUploadingFile}
           uploadProgress={uploadProgress}
@@ -740,9 +793,14 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
           onToggleCollapse={() => setIsInspectorCollapsed(!isInspectorCollapsed)}
         />
       </div>
+      </div>
 
       {/* ── Bottom: Professional Multi-Track Timeline ── */}
-      <div className="h-60 bg-[#080a10]/80 backdrop-blur-xl border-t border-white/[0.08] flex flex-col overflow-hidden flex-shrink-0 z-20">
+      <div className={`${
+        mobileStudioTab === 'preview' ? 'flex' : 'hidden lg:flex'
+      } ${
+        timelineHeight === 'expanded' ? 'h-[380px] sm:h-[410px]' : timelineHeight === 'compact' ? 'h-[200px] sm:h-[225px]' : 'h-[270px] sm:h-[315px]'
+      } bg-white dark:bg-[#0a0e1a] border-t border-slate-200/90 dark:border-slate-800 shadow-sm flex-col overflow-hidden flex-shrink-0 z-20 transition-all duration-200`}>
         <MultiTrackTimeline
           duration={duration}
           currentTime={currentTime}
@@ -763,6 +821,8 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
           onAssemble={onAssemble}
           zoom={zoom}
           onZoomChange={setZoom}
+          timelineHeight={timelineHeight}
+          onToggleTimelineHeight={() => setTimelineHeight((prev) => prev === 'normal' ? 'expanded' : prev === 'expanded' ? 'compact' : 'normal')}
           onShowToast={onShowToast}
         />
       </div>

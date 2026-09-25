@@ -1,30 +1,30 @@
 {
-  "current_version": "V2.3.2PRO",
-  "latest_version": "V2.3.2PRO",
+  "current_version": "V2.3.4PRO",
+  "latest_version": "V2.3.4PRO",
   "has_update": false,
-  "release_date": "2026-09-23",
+  "release_date": "2026-09-24",
   "download_url": "",
   "patch_size_mb": 0,
   "changelog": [
     {
-      "type": "FIXED",
-      "text": "🔧 Fixed Render/Export Internal Server Error"
-    },
-    {
-      "type": "FIXED",
-      "text": "✅ Fixed blocking FFmpeg operations in async endpoints"
-    },
-    {
-      "type": "FIXED",
-      "text": "🔧 Fixed WebSocket Internal Server Error"
+      "type": "IMPROVED",
+      "text": "👑 ប្ដូរឈ្មោះកម្មវិធីជាផ្លូវការទៅជា «ស្ដេចអាទិទេព PRO» (Official Khmer Name)"
     },
     {
       "type": "IMPROVED",
-      "text": "🚀 All FFmpeg operations now run in separate threads"
+      "text": "⚪ បន្ថែមមុខងារប្ដូរផ្ទៃខាងក្រោយពណ៌សស្អាតសុទ្ធ (Clean White Studio Mode)"
     },
     {
       "type": "IMPROVED",
-      "text": "⚡ No more 'Internal Server Error' during export/render"
+      "text": "🖼️ កែលម្អមុខងារ Wallpaper 4K Customizer និងបណ្ដុំពណ៌ផ្ទៃខាងក្រោយគ្រប់ប្រភេទ"
+    },
+    {
+      "type": "NEW",
+      "text": "📥 បន្ថែមប៊ូតុងទាញយកឯកសារ Subtitle (.SRT) លើ Timeline ភ្លាមៗសម្រាប់ YouTube & Facebook"
+    },
+    {
+      "type": "IMPROVED",
+      "text": "🎚️ បន្ថែមមុខងារ Auto BGM Ducking បន្ថយភ្លេងស្វ័យប្រវត្តិកាន់តែរលូន"
     }
   ]
 }

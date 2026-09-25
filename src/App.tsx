@@ -12,6 +12,7 @@ import { ThumbnailGenerator } from './components/thumbnail/ThumbnailGenerator';
 import { VideoDownloaderModal } from './components/downloader/VideoDownloaderModal';
 import { ToastContainer, ToastMessage } from './components/ui/Toast';
 import { WorkflowView } from './components/workflow/WorkflowView';
+import { VideoProjectManager } from './components/projects/VideoProjectManager';
 
 import { AuthModal } from './components/modals/AuthModal';
 import { SettingsModal } from './components/modals/SettingsModal';
@@ -31,6 +32,7 @@ import { UserGuideModal } from './components/modals/UserGuideModal';
 import { VideoTrimmerModal } from './components/trimmer/VideoTrimmerModal';
 import { CommercialOverlayModal } from './components/overlay/CommercialOverlayModal';
 import { StudioCustomizerModal } from './components/customizer/StudioCustomizerModal';
+import { QuickThemeFloatingWidget } from './components/customizer/QuickThemeFloatingWidget';
 import { SoftwareUpdateModal } from './components/modals/SoftwareUpdateModal';
 import { KhmerOfflineStudioPage } from './components/offline/KhmerOfflineStudioPage';
 
@@ -80,6 +82,7 @@ export const App: React.FC = () => {
   // User & Auth
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Config & Status
   const [config, setConfig] = useState<StudioConfig | null>(null);
@@ -131,32 +134,90 @@ export const App: React.FC = () => {
       if (saved) {
         const parsed = JSON.parse(saved);
         return {
-          wallpaperUrl: parsed.wallpaperUrl !== undefined ? parsed.wallpaperUrl : DEFAULT_ANIME_WALLPAPER,
-          wallpaperOpacity: parsed.wallpaperOpacity || 75,
+          wallpaperUrl: parsed.wallpaperUrl || DEFAULT_ANIME_WALLPAPER,
+          wallpaperOpacity: parsed.wallpaperOpacity !== undefined ? parsed.wallpaperOpacity : 85,
           wallpaperBlur: parsed.wallpaperBlur || 0,
-          accentColor: parsed.accentColor || 'cyan',
+          backgroundColor: parsed.backgroundColor || '#0b0f19',
+          bgMode: parsed.bgMode || 'color',
+          accentColor: parsed.accentColor || 'sky',
           stickers: parsed.stickers || [],
-          glassColor: parsed.glassColor || 'cyan',
-          glassOpacity: parsed.glassOpacity !== undefined ? parsed.glassOpacity : 70,
+          glassColor: parsed.glassColor || 'cyber',
+          glassOpacity: parsed.glassOpacity !== undefined ? parsed.glassOpacity : 85,
           glassBlur: parsed.glassBlur !== undefined ? parsed.glassBlur : 12,
-          glassBorderGlow: parsed.glassBorderGlow || 'vibrant',
-          backgroundPreset: parsed.backgroundPreset || 'anime_sunset',
+          glassBorderGlow: parsed.glassBorderGlow || 'subtle',
+          backgroundPreset: parsed.backgroundPreset || 'default_dark',
+          themeMode: parsed.themeMode || 'dark',
         };
       }
     } catch {}
     return {
       wallpaperUrl: DEFAULT_ANIME_WALLPAPER,
-      wallpaperOpacity: 75,
+      wallpaperOpacity: 85,
       wallpaperBlur: 0,
-      accentColor: 'cyan',
+      backgroundColor: '#0b0f19',
+      bgMode: 'color',
+      accentColor: 'sky',
       stickers: [],
-      glassColor: 'cyan',
-      glassOpacity: 70,
+      glassColor: 'cyber',
+      glassOpacity: 85,
       glassBlur: 12,
-      glassBorderGlow: 'vibrant',
-      backgroundPreset: 'anime_sunset',
+      glassBorderGlow: 'subtle',
+      backgroundPreset: 'default_dark',
+      themeMode: 'dark',
     };
   });
+
+  // 1-Click Night / Light Mode State (Defaults to Pro Studio Dark for zero eye-strain & sharp text)
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    try {
+      const savedTheme = localStorage.getItem('animestudio_theme_mode');
+      if (savedTheme) return savedTheme === 'dark';
+      const customTheme = localStorage.getItem('animestudio_custom_theme');
+      if (customTheme) {
+        const parsed = JSON.parse(customTheme);
+        return parsed.themeMode === 'dark' || parsed.backgroundPreset === 'default_dark';
+      }
+    } catch {}
+    return true; // Default to Pro Studio Dark
+  });
+
+  // Sync document.documentElement with dark / light class
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
+  const handleToggleDarkMode = (target?: boolean) => {
+    const next = target !== undefined ? target : !isDarkMode;
+    setIsDarkMode(next);
+    localStorage.setItem('animestudio_theme_mode', next ? 'dark' : 'light');
+    if (next) {
+      document.documentElement.classList.add('dark');
+      document.documentElement.classList.remove('light');
+      setCustomUITheme((prev) => ({
+        ...prev,
+        themeMode: 'dark',
+        backgroundColor: prev.bgMode === 'wallpaper' ? prev.backgroundColor : '#0b0f19',
+        backgroundPreset: 'default_dark',
+      }));
+      showToast('🌙 បានប្តូរទៅ Night Mode (ពណ៌ងងឹតត្រជាក់ភ្នែក)', 'info');
+    } else {
+      document.documentElement.classList.add('light');
+      document.documentElement.classList.remove('dark');
+      setCustomUITheme((prev) => ({
+        ...prev,
+        themeMode: 'light',
+        backgroundColor: prev.bgMode === 'wallpaper' ? prev.backgroundColor : '#f8fafc',
+        backgroundPreset: 'pearl_snow',
+      }));
+      showToast('🥛 បានប្តូរទៅ Light Mode (ពណ៌សគុជខ្យង ស្រទន់ភ្នែក)', 'info');
+    }
+  };
 
   // Media & Dubbing
   const [uploadedFile, setUploadedFile] = useState<ProjectFile | null>(null);
@@ -200,7 +261,7 @@ export const App: React.FC = () => {
     colorTint: 'none',
     watermark: {
       enabled: true,
-      text: '© សម្រាយរឿង HD - អាទិទេព DABBER PRO',
+      text: '© សម្រាយរឿង HD - ស្ដេចអាទិទេព PRO',
       position: 'top-right',
       opacity: 85,
       fontSize: 13,
@@ -1038,11 +1099,14 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className="flex flex-col h-screen w-screen overflow-hidden bg-[#040608] text-slate-100 font-khmer studio-enter relative"
+      className={`flex flex-col h-screen w-screen overflow-hidden ${isDarkMode ? 'text-slate-100 bg-[#0b0f19]' : 'text-slate-900 bg-[#f8fafc]'} font-khmer studio-enter relative transition-colors duration-300`}
       style={{
-        ...(customUITheme.wallpaperUrl
+        background: customUITheme.bgMode === 'wallpaper' && customUITheme.wallpaperUrl
+          ? undefined
+          : (customUITheme.backgroundColor || (isDarkMode ? '#0b0f19' : '#f8fafc')),
+        ...(customUITheme.bgMode === 'wallpaper' && customUITheme.wallpaperUrl
           ? {
-              backgroundImage: `linear-gradient(rgba(8,12,20,${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100) * 0.35).toFixed(2)}), rgba(8,12,20,${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100) * 0.35).toFixed(2)})), url("${customUITheme.wallpaperUrl}")`,
+              backgroundImage: `linear-gradient(rgba(${isDarkMode ? '11,15,25' : '248,250,252'},${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100)).toFixed(2)}), rgba(${isDarkMode ? '11,15,25' : '248,250,252'},${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100)).toFixed(2)})), url("${customUITheme.wallpaperUrl}")`,
               backgroundSize: 'cover',
               backgroundPosition: 'center',
               backgroundRepeat: 'no-repeat',
@@ -1121,6 +1185,10 @@ export const App: React.FC = () => {
         hasUpdateAvailable={Boolean(versionInfo?.has_update && versionInfo?.current_version !== versionInfo?.latest_version)}
         latestVersion={versionInfo?.latest_version || 'V2.1PRO'}
         currentVersion={versionInfo?.current_version || 'V2.1PRO'}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+        bgMode={customUITheme.bgMode || 'color'}
+        onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
       />
 
       {/* Main Workspace Layout */}
@@ -1155,6 +1223,9 @@ export const App: React.FC = () => {
           onOpenShelf={() => setIsShelfOpen(true)}
           onOpenGroups={() => setIsGroupManagerOpen(true)}
           onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
+          onOpenCustomizer={() => setIsCustomizerOpen(true)}
+          isMobileOpen={isMobileMenuOpen}
+          onCloseMobile={() => setIsMobileMenuOpen(false)}
         />
 
         {/* Dynamic Studio Views */}
@@ -1551,6 +1622,16 @@ export const App: React.FC = () => {
           )}
 
           {activeTab === 'tab-tuner' && <VoiceTunerLab onShowToast={showToast} />}
+
+          {activeTab === 'tab-projects' && (
+            <VideoProjectManager
+              onShowToast={showToast}
+              onLoadProject={(project) => {
+                showToast(`📂 បានបើកគម្រោង "${project.name}"`, 'success');
+                setActiveTab('tab-dubbing');
+              }}
+            />
+          )}
         </main>
       </div>
 
@@ -1768,6 +1849,16 @@ export const App: React.FC = () => {
         }}
         onShowToast={showToast}
         isAdmin={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
+      />
+
+      {/* Floating Theme & Wallpaper Quick-Access Dock */}
+      <QuickThemeFloatingWidget
+        theme={customUITheme}
+        isDarkMode={isDarkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+        onChangeTheme={setCustomUITheme}
+        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+        onShowToast={showToast}
       />
 
       {/* Toast Notifications */}

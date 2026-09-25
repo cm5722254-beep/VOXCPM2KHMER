@@ -1,27 +1,22 @@
 import React from 'react';
 import {
-  LayoutDashboard,
   FolderKanban,
+  FolderOpen,
   Film,
   Users,
   Mic2,
-  Languages,
   Subtitles,
   SlidersHorizontal,
-  Image,
   Share2,
-  History,
-  Link2,
-  Cpu,
   HardDrive,
   Settings,
   PanelLeftClose,
   PanelLeftOpen,
   ChevronRight,
   Sparkles,
-  Smartphone,
-  Zap,
   Crown,
+  X,
+  Palette,
 } from 'lucide-react';
 import { TabId, User } from '../../types';
 import { getSubscriptionInfo } from '../../utils/subscription';
@@ -34,6 +29,7 @@ interface SidebarProps {
   onNewProject: () => void;
   onOpenExport: () => void;
   onOpenSettings: () => void;
+  onOpenCustomizer?: () => void;
   onOpenSystemStatus: () => void;
   isSystemOnline?: boolean;
   user?: User | null;
@@ -41,6 +37,8 @@ interface SidebarProps {
   onOpenShelf?: () => void;
   onOpenGroups?: () => void;
   onOpenHardwareTurbo?: () => void;
+  isMobileOpen?: boolean;
+  onCloseMobile?: () => void;
 }
 
 interface NavItemProps {
@@ -50,11 +48,21 @@ interface NavItemProps {
   onClick: () => void;
   isCollapsed: boolean;
   badge?: string;
-  badgeVariant?: 'sky' | 'indigo' | 'emerald' | 'amber';
+  badgeVariant?: 'sky' | 'indigo' | 'emerald' | 'amber' | 'violet' | 'rose';
   title?: string;
+  iconBg?: string;
 }
 
-const SidebarNavItem: React.FC<NavItemProps> = ({
+const BV: Record<string, string> = {
+  sky: 'bg-sky-100 text-sky-800 border border-sky-300',
+  indigo: 'bg-indigo-100 text-indigo-800 border border-indigo-300',
+  emerald: 'bg-emerald-100 text-emerald-800 border border-emerald-300',
+  amber: 'bg-amber-100 text-amber-800 border border-amber-300',
+  violet: 'bg-purple-100 text-purple-800 border border-purple-300',
+  rose: 'bg-rose-100 text-rose-800 border border-rose-300',
+};
+
+const NavItem: React.FC<NavItemProps> = ({
   icon,
   label,
   active,
@@ -63,17 +71,25 @@ const SidebarNavItem: React.FC<NavItemProps> = ({
   badge,
   badgeVariant = 'sky',
   title,
+  iconBg,
 }) => (
   <button
     onClick={onClick}
     title={isCollapsed ? title || label : undefined}
-    className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg text-xs font-medium transition-all group relative ${
+    className={`w-full flex items-center gap-2.5 px-2 py-[7px] rounded-xl text-[12px] font-medium transition-all duration-200 group relative select-none ${
       active
-        ? 'bg-gradient-to-r from-cyan-500/20 via-sky-500/10 to-transparent text-cyan-300 font-bold border-l-2 border-cyan-400 shadow-[inset_0_0_15px_rgba(0,240,255,0.06)] rounded-l-none'
-        : 'text-slate-400 hover:text-slate-100 hover:bg-white/[0.04]'
+        ? 'bg-sky-50 dark:bg-sky-950/60 text-sky-900 dark:text-sky-300 font-bold border border-sky-200/90 dark:border-sky-800 shadow-xs'
+        : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100/80 dark:hover:bg-slate-800/80 border border-transparent'
     } ${isCollapsed ? 'justify-center px-0' : ''}`}
   >
-    <span className={`w-4 h-4 shrink-0 transition-all ${active ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(0,240,255,0.5)]' : 'text-slate-400 group-hover:text-slate-200'}`}>
+    {active && !isCollapsed && (
+      <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-sky-600 shadow-sm" />
+    )}
+    <span
+      className={`w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all ${
+        active ? 'shadow-xs scale-105' : 'group-hover:scale-105'
+      } ${iconBg || 'bg-slate-100 dark:bg-slate-800'}`}
+    >
       {icon}
     </span>
     {!isCollapsed && (
@@ -81,12 +97,8 @@ const SidebarNavItem: React.FC<NavItemProps> = ({
         <span className="flex-1 text-left truncate tracking-wide">{label}</span>
         {badge && (
           <span
-            className={`text-[9px] font-bold px-1.5 py-0.2 rounded-full font-mono ${
-              badgeVariant === 'emerald'
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-[0_0_8px_rgba(0,245,155,0.2)]'
-                : badgeVariant === 'amber'
-                ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40'
-                : 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-[0_0_8px_rgba(0,240,255,0.2)]'
+            className={`text-[9.5px] font-black px-1.5 py-[1px] rounded-full font-mono leading-none ${
+              BV[badgeVariant] || BV.sky
             }`}
           >
             {badge}
@@ -97,6 +109,318 @@ const SidebarNavItem: React.FC<NavItemProps> = ({
   </button>
 );
 
+const Content: React.FC<{
+  isCollapsed: boolean;
+  activeTab: TabId;
+  onSelectTab: (t: TabId) => void;
+  shelfCount: number;
+  onOpenShelf?: () => void;
+  onOpenGroups?: () => void;
+  onOpenExport: () => void;
+  onOpenSettings: () => void;
+  onOpenCustomizer?: () => void;
+  onOpenSystemStatus: () => void;
+  isSystemOnline: boolean;
+  user?: User | null;
+  onToggleCollapse: () => void;
+  onCloseMobile?: () => void;
+}> = ({
+  isCollapsed,
+  activeTab,
+  onSelectTab,
+  shelfCount,
+  onOpenShelf,
+  onOpenGroups,
+  onOpenExport,
+  onOpenSettings,
+  onOpenCustomizer,
+  onOpenSystemStatus,
+  isSystemOnline,
+  user,
+  onToggleCollapse,
+  onCloseMobile,
+}) => {
+  const hc = (fn: () => void) => {
+    fn();
+    onCloseMobile?.();
+  };
+  const subInfo = user ? getSubscriptionInfo(user) : null;
+  const isAdmin = user?.role === 'admin';
+
+  return (
+    <>
+      {!isCollapsed ? (
+        <div className="px-3 pt-3.5 pb-2 flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 shadow-xs flex-shrink-0 bg-slate-50 dark:bg-slate-800">
+            <img
+              src="/app_logo.png"
+              alt="Logo"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-[12px] font-black text-slate-900 dark:text-slate-100 tracking-tight leading-none truncate font-khmer">
+              ស្ដេចអាទិទេព PRO
+            </p>
+            <p className="text-[9.5px] text-slate-500 dark:text-slate-400 leading-none mt-1">
+              AI Dubbing Studio
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="pt-3 pb-2 flex justify-center">
+          <div className="w-7 h-7 rounded-xl overflow-hidden ring-1 ring-slate-200 dark:ring-slate-700 shadow-xs bg-slate-50 dark:bg-slate-800">
+            <img
+              src="/app_logo.png"
+              alt="Logo"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                (e.target as HTMLElement).style.display = 'none';
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="mx-2.5 h-px bg-slate-200 dark:bg-slate-800 mb-1.5" />
+
+      <div className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-1 flex flex-col gap-0.5 scrollbar-thin">
+        <NavItem
+          icon={<FolderKanban className="w-3.5 h-3.5 text-indigo-600" />}
+          label="គម្រោង (Projects)"
+          active={activeTab === 'tab-dashboard' || activeTab === 'tab-groups'}
+          onClick={() => hc(() => (onOpenGroups ? onOpenGroups() : onSelectTab('tab-dashboard')))}
+          isCollapsed={isCollapsed}
+          iconBg="bg-indigo-50"
+          title="Project Groups"
+        />
+        <NavItem
+          icon={<HardDrive className="w-3.5 h-3.5 text-sky-600" />}
+          label="មេឌៀ (Media)"
+          active={activeTab === 'tab-shelf'}
+          onClick={() => hc(() => (onOpenShelf ? onOpenShelf() : onSelectTab('tab-shelf')))}
+          isCollapsed={isCollapsed}
+          badge={`${shelfCount}/10`}
+          badgeVariant={shelfCount >= 10 ? 'amber' : 'emerald'}
+          iconBg="bg-sky-50"
+          title="Media Shelf"
+        />
+        <NavItem
+          icon={<Film className="w-3.5 h-3.5 text-blue-600" />}
+          label="វីដេអូ (Studio)"
+          active={activeTab === 'tab-dubbing' || activeTab === 'tab-workflow'}
+          onClick={() => hc(() => onSelectTab('tab-dubbing'))}
+          isCollapsed={isCollapsed}
+          badge="PRO"
+          badgeVariant="sky"
+          iconBg="bg-blue-50"
+          title="Video Dubbing Studio"
+        />
+        <NavItem
+          icon={<Users className="w-3.5 h-3.5 text-purple-600" />}
+          label="ក្លូនសំឡេង"
+          active={activeTab === 'tab-character'}
+          onClick={() => hc(() => onSelectTab('tab-character'))}
+          isCollapsed={isCollapsed}
+          badge="VIP"
+          badgeVariant="violet"
+          iconBg="bg-purple-50"
+          title="Voice Clone"
+        />
+        <NavItem
+          icon={<Mic2 className="w-3.5 h-3.5 text-emerald-600" />}
+          label="AI TTS ខ្មែរ"
+          active={activeTab === 'tab-offline' || activeTab === 'tab-manual'}
+          onClick={() => hc(() => onSelectTab('tab-offline'))}
+          isCollapsed={isCollapsed}
+          badge="AUTO"
+          badgeVariant="emerald"
+          iconBg="bg-emerald-50"
+          title="Khmer TTS"
+        />
+        <NavItem
+          icon={<Sparkles className="w-3.5 h-3.5 text-amber-600" />}
+          label="ឧបករណ៍ AI"
+          active={activeTab === 'tab-translator' || activeTab === 'tab-tuner'}
+          onClick={() => hc(() => onSelectTab('tab-translator'))}
+          isCollapsed={isCollapsed}
+          iconBg="bg-amber-50"
+          title="AI Tools"
+        />
+        <NavItem
+          icon={<Subtitles className="w-3.5 h-3.5 text-teal-600" />}
+          label="ចំណងជើងរង"
+          active={activeTab === 'tab-subtitles'}
+          onClick={() => hc(() => onSelectTab('tab-subtitles'))}
+          isCollapsed={isCollapsed}
+          iconBg="bg-teal-50"
+          title="Subtitles"
+        />
+        <NavItem
+          icon={<SlidersHorizontal className="w-3.5 h-3.5 text-pink-600" />}
+          label="បែបផែន (Effects)"
+          active={activeTab === 'tab-mixer' || activeTab === 'tab-thumbnail'}
+          onClick={() => hc(() => onSelectTab('tab-mixer'))}
+          isCollapsed={isCollapsed}
+          iconBg="bg-pink-50"
+          title="3D Effects"
+        />
+        <NavItem
+          icon={<FolderOpen className="w-3.5 h-3.5 text-violet-600" />}
+          label="គម្រោងវីដេអូ"
+          active={activeTab === 'tab-projects'}
+          onClick={() => hc(() => onSelectTab('tab-projects'))}
+          isCollapsed={isCollapsed}
+          badge="NEW"
+          badgeVariant="indigo"
+          iconBg="bg-violet-50"
+          title="Video Projects"
+        />
+
+        <div className="my-1.5 mx-1 h-px bg-slate-200" />
+
+        {onOpenCustomizer && (
+          <NavItem
+            icon={<Palette className="w-3.5 h-3.5 text-purple-600" />}
+            label="ពណ៌ & Wallpaper"
+            onClick={() => hc(onOpenCustomizer)}
+            isCollapsed={isCollapsed}
+            badge="PRO"
+            badgeVariant="violet"
+            iconBg="bg-purple-50"
+            title="ប្ដូរ Wallpaper & ពណ៌ផ្ទៃខាងក្រោយពណ៌សស្អាត"
+          />
+        )}
+
+        <NavItem
+          icon={<Share2 className="w-3.5 h-3.5 text-blue-600" />}
+          label="នាំចេញ (Export)"
+          onClick={() => hc(onOpenExport)}
+          isCollapsed={isCollapsed}
+          iconBg="bg-blue-50"
+          title="Export"
+        />
+        <NavItem
+          icon={<Settings className="w-3.5 h-3.5 text-slate-600" />}
+          label="ការកំណត់"
+          onClick={() => hc(onOpenSettings)}
+          isCollapsed={isCollapsed}
+          iconBg="bg-slate-100"
+          title="Settings"
+        />
+      </div>
+
+      <div className="p-2 flex flex-col gap-1.5 border-t border-slate-200">
+        {!isCollapsed && user && subInfo && (
+          <button
+            onClick={onOpenSettings}
+            className={`w-full p-2.5 rounded-xl border transition-all text-left group ${
+              isAdmin
+                ? 'bg-amber-50 border-amber-200 hover:border-amber-300'
+                : 'bg-slate-50 border-slate-200 hover:border-sky-300'
+            }`}
+          >
+            <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center gap-1.5 text-[9.5px] text-slate-500 font-bold uppercase tracking-widest">
+                {isAdmin ? (
+                  <Crown className="w-3 h-3 text-amber-600" />
+                ) : (
+                  <Sparkles className="w-3 h-3 text-sky-600" />
+                )}
+                <span>MEMBERSHIP</span>
+              </div>
+              <span
+                className={`text-[9px] px-1.5 font-black font-mono rounded ${
+                  isAdmin
+                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                    : 'bg-sky-100 text-sky-800 border border-sky-300'
+                }`}
+              >
+                {subInfo.badge}
+              </span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-slate-900 truncate">
+                {subInfo.title}
+              </span>
+              <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-slate-800 group-hover:translate-x-0.5 transition-all flex-shrink-0" />
+            </div>
+          </button>
+        )}
+
+        {!isCollapsed ? (
+          <a
+            href="https://t.me/BongCheatz_IT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-2 px-2.5 py-2 rounded-xl bg-sky-50 border border-sky-200 hover:border-sky-300 text-sky-800 hover:text-sky-950 transition-all group shadow-2xs"
+          >
+            <span className="text-sm">✈️</span>
+            <div className="flex flex-col leading-tight min-w-0">
+              <span className="text-[10px] font-black text-sky-800">
+                ទាក់ទង ADMIN
+              </span>
+              <span className="text-[9px] text-slate-500 font-mono">
+                @BongCheatz_IT
+              </span>
+            </div>
+            <ChevronRight className="w-3 h-3 text-sky-500 group-hover:translate-x-0.5 transition-transform ml-auto" />
+          </a>
+        ) : (
+          <a
+            href="https://t.me/BongCheatz_IT"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center p-2 rounded-xl hover:bg-sky-50 text-sky-700 transition-colors"
+            title="@BongCheatz_IT"
+          >
+            ✈️
+          </a>
+        )}
+
+        <button
+          onClick={onOpenSystemStatus}
+          className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-slate-100 border border-transparent hover:border-slate-200 transition-all text-left group"
+        >
+          <span
+            className={`w-2 h-2 rounded-full flex-shrink-0 ${
+              isSystemOnline ? 'bg-emerald-500' : 'bg-amber-500'
+            }`}
+          />
+          {!isCollapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-[10.5px] font-semibold text-slate-800 leading-none">
+                System Status
+              </p>
+              <p className="text-[9px] text-slate-500 leading-none mt-0.5">
+                {isSystemOnline ? 'All Online' : 'Check Services'}
+              </p>
+            </div>
+          )}
+          {!isCollapsed && (
+            <ChevronRight className="w-3 h-3 text-slate-400 group-hover:text-slate-700 transition-colors flex-shrink-0" />
+          )}
+        </button>
+
+        <button
+          onClick={onToggleCollapse}
+          className="w-full flex items-center justify-center py-1.5 text-slate-500 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-all"
+          title={isCollapsed ? 'Expand' : 'Collapse'}
+        >
+          {isCollapsed ? (
+            <PanelLeftOpen className="w-4 h-4" />
+          ) : (
+            <PanelLeftClose className="w-4 h-4" />
+          )}
+        </button>
+      </div>
+    </>
+  );
+};
+
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
   onSelectTab,
@@ -105,311 +429,84 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onNewProject,
   onOpenExport,
   onOpenSettings,
+  onOpenCustomizer,
   onOpenSystemStatus,
   isSystemOnline = true,
   user,
   shelfCount = 0,
   onOpenShelf,
   onOpenGroups,
-  onOpenHardwareTurbo,
-}) => {
-  return (
+  isMobileOpen = false,
+  onCloseMobile,
+}) => (
+  <>
     <aside
-      className={`bg-[#080a0f]/85 backdrop-blur-xl border-r border-white/[0.08] flex flex-col justify-between select-none transition-all duration-200 z-20 flex-shrink-0 ${
-        isCollapsed ? 'w-[52px]' : 'w-[210px]'
+      className={`hidden md:flex bg-white/95 dark:bg-[#0f172a]/95 backdrop-blur-xl border-r border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-slate-100 flex-col select-none transition-colors duration-200 z-20 flex-shrink-0 shadow-xs ${
+        isCollapsed ? 'w-[54px]' : 'w-[200px]'
       }`}
     >
-      {/* ── Nav Sections ── */}
-      <div className="py-2.5 px-2 flex-1 overflow-y-auto overflow-x-hidden flex flex-col gap-3 font-khmer">
-        {/* WORKSPACE */}
-        <div className="flex flex-col gap-0.5">
-          {!isCollapsed && (
-            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
-              កន្លែងធ្វើការ
-            </div>
-          )}
-
-          <SidebarNavItem
-            icon={<LayoutDashboard className="w-4 h-4" />}
-            label="ផ្ទាំងគ្រប់គ្រង"
-            active={activeTab === 'tab-dashboard'}
-            onClick={() => onSelectTab('tab-dashboard')}
-            isCollapsed={isCollapsed}
-            title="ផ្ទាំងគ្រប់គ្រងគម្រោង"
-          />
-
-          <SidebarNavItem
-            icon={<Film className="w-4 h-4 text-cyan-400" />}
-            label="ស្ទូឌីយោបញ្ចូលសំឡេង"
-            active={activeTab === 'tab-dubbing' || activeTab === 'tab-workflow'}
-            onClick={() => onSelectTab('tab-dubbing')}
-            isCollapsed={isCollapsed}
-            badge="PRO"
-            badgeVariant="sky"
-            title="ស្ទូឌីយោបញ្ចូលសំឡេង AI"
-          />
-
-          <SidebarNavItem
-            icon={<Zap className="w-4 h-4 text-emerald-400" />}
-            label="Khmer Offline (១-២០ ភាគ)"
-            active={activeTab === 'tab-offline'}
-            onClick={() => onSelectTab('tab-offline')}
-            isCollapsed={isCollapsed}
-            badge="1-20"
-            badgeVariant="emerald"
-            title="ស្ទូឌីយោ Khmer Offline ធ្វើម្ដង ១ ដល់ ២០ ភាគ ឬរឿងពេញ"
-          />
-
-          <SidebarNavItem
-            icon={<HardDrive className="w-4 h-4 text-emerald-400" />}
-            label="ឃ្លាំងវីដេអូ"
-            active={activeTab === 'tab-shelf'}
-            onClick={() => {
-              if (onOpenShelf) onOpenShelf();
-              else onSelectTab('tab-shelf');
-            }}
-            isCollapsed={isCollapsed}
-            badge={`${shelfCount}/10`}
-            badgeVariant={shelfCount >= 10 ? 'amber' : 'emerald'}
-            title="ឃ្លាំងផ្ទុកវីដេអូសម្រាប់បញ្ចូលសំឡេង (អតិបរមា ១០ វីដេអូ)"
-          />
-
-          <SidebarNavItem
-            icon={<FolderKanban className="w-4 h-4 text-indigo-400" />}
-            label="ក្រុមរឿង (Series)"
-            active={activeTab === 'tab-groups'}
-            onClick={() => {
-              if (onOpenGroups) onOpenGroups();
-              else onSelectTab('tab-groups');
-            }}
-            isCollapsed={isCollapsed}
-            title="បែងចែកក្រុមរឿងកុំឱ្យច្រឡំគ្នា"
-          />
-        </div>
-
-        {/* PRODUCTION */}
-        <div className="flex flex-col gap-0.5">
-          {!isCollapsed && (
-            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
-              ផលិតកម្ម
-            </div>
-          )}
-
-          <SidebarNavItem
-            icon={<Users className="w-4 h-4" />}
-            label="សំឡេងតួអង្គ AI"
-            active={activeTab === 'tab-character'}
-            onClick={() => onSelectTab('tab-character')}
-            isCollapsed={isCollapsed}
-            title="តារាងសំឡេងតួអង្គ"
-          />
-
-          <SidebarNavItem
-            icon={<Languages className="w-4 h-4" />}
-            label="បកប្រែអត្ថបទ"
-            active={activeTab === 'tab-translator'}
-            onClick={() => onSelectTab('tab-translator')}
-            isCollapsed={isCollapsed}
-            title="បកប្រែអត្ថបទ AI"
-          />
-
-          <SidebarNavItem
-            icon={<Subtitles className="w-4 h-4" />}
-            label="អក្សររត់ (Subtitles)"
-            active={activeTab === 'tab-subtitles'}
-            onClick={() => onSelectTab('tab-subtitles')}
-            isCollapsed={isCollapsed}
-            title="កែសម្រួលអក្សររត់"
-          />
-
-          <SidebarNavItem
-            icon={<SlidersHorizontal className="w-4 h-4" />}
-            label="កម្រិតសំឡេង Mixer"
-            active={activeTab === 'tab-mixer'}
-            onClick={() => onSelectTab('tab-mixer')}
-            isCollapsed={isCollapsed}
-            title="ផ្ទាំងគ្រប់គ្រងសំឡេង"
-          />
-
-          <SidebarNavItem
-            icon={<Image className="w-4 h-4" />}
-            label="រូបភាពតំណាង (Cover)"
-            active={activeTab === 'tab-thumbnail'}
-            onClick={() => onSelectTab('tab-thumbnail')}
-            isCollapsed={isCollapsed}
-            title="បង្កើតរូបភាពតំណាង AI"
-          />
-        </div>
-
-        {/* DELIVERY */}
-        <div className="flex flex-col gap-0.5">
-          {!isCollapsed && (
-            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
-              នាំចេញ
-            </div>
-          )}
-
-          <SidebarNavItem
-            icon={<Share2 className="w-4 h-4 text-cyan-400" />}
-            label="នាំចេញវីដេអូ"
-            onClick={onOpenExport}
-            isCollapsed={isCollapsed}
-            title="នាំចេញវីដេអូសម្រេច"
-          />
-        </div>
-
-        {/* SYSTEM */}
-        <div className="flex flex-col gap-0.5">
-          {!isCollapsed && (
-            <div className="text-[10px] font-bold tracking-wider text-slate-400 px-2.5 py-1">
-              ប្រព័ន្ធ & ល្បឿន
-            </div>
-          )}
-
-          <SidebarNavItem
-            icon={<Zap className="w-4 h-4 text-amber-400" />}
-            label="កម្លាំង Turbo (Hardware)"
-            onClick={() => {
-              if (onOpenHardwareTurbo) onOpenHardwareTurbo();
-              else onOpenSettings();
-            }}
-            isCollapsed={isCollapsed}
-            badge="MAX"
-            badgeVariant="amber"
-            title="កម្លាំងបង្កើនល្បឿនតាម Hardware កុំព្យូទ័រ (CPU/GPU Turbo)"
-          />
-
-          <SidebarNavItem
-            icon={<Settings className="w-4 h-4" />}
-            label="ការកំណត់ស្ទូឌីយោ"
-            onClick={onOpenSettings}
-            isCollapsed={isCollapsed}
-            title="ការកំណត់ស្ទូឌីយោ AI & API Keys"
-          />
-        </div>
-      </div>
-
-      {/* ── Sidebar Footer ── */}
-      <div className="p-2 border-t border-white/[0.08] flex flex-col gap-2">
-        {/* User Plan Info (if expanded) */}
-        {!isCollapsed && user && (() => {
-          const subInfo = getSubscriptionInfo(user);
-          const isAdmin = user.role === 'admin';
-          return (
-            <div
-              onClick={onOpenSettings}
-              className={`p-2.5 rounded-xl border cursor-pointer transition-all relative overflow-hidden group ${
-                isAdmin
-                  ? 'bg-gradient-to-r from-amber-500/10 via-yellow-500/5 to-amber-500/10 border-amber-500/30 hover:border-amber-400/50 hover:shadow-[0_0_15px_rgba(245,158,11,0.15)]'
-                  : 'bg-white/[0.03] border-white/[0.08] hover:border-sky-500/40 hover:shadow-[0_0_15px_rgba(56,189,248,0.1)]'
-              }`}
-              title={`${subInfo.title} | ${subInfo.expiryText}`}
-            >
-              <div className="flex items-center justify-between text-[10px] mb-1">
-                <div className="flex items-center gap-1.5 text-slate-400 font-bold uppercase tracking-wider">
-                  {isAdmin ? <Crown className="w-3 h-3 text-amber-400" /> : <Sparkles className="w-3 h-3 text-sky-400" />}
-                  <span>MEMBERSHIP</span>
-                </div>
-                <span
-                  className={`text-[9.5px] px-1.5 py-0.2 rounded font-black font-mono tracking-wider ${
-                    isAdmin
-                      ? 'bg-amber-400/20 text-amber-300 border border-amber-400/30'
-                      : 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-                  }`}
-                >
-                  {subInfo.badge}
-                </span>
-              </div>
-              <div className="text-xs font-black text-white truncate flex items-center justify-between">
-                <span>{subInfo.title}</span>
-                <ChevronRight className="w-3 h-3 text-slate-500 group-hover:text-white group-hover:translate-x-0.5 transition-all" />
-              </div>
-            </div>
-          );
-        })()}
-
-        {/* Telegram Admin Contact */}
-        {!isCollapsed ? (
-          <a
-            href="https://t.me/BongCheatz_IT"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full p-2 rounded-xl bg-gradient-to-r from-sky-500/15 via-blue-600/15 to-indigo-600/15 border border-sky-400/30 hover:border-sky-400 text-sky-200 hover:text-white flex items-center justify-between transition-all group shadow-sm"
-          >
+      <Content
+        isCollapsed={isCollapsed}
+        activeTab={activeTab}
+        onSelectTab={onSelectTab}
+        shelfCount={shelfCount}
+        onOpenShelf={onOpenShelf}
+        onOpenGroups={onOpenGroups}
+        onOpenExport={onOpenExport}
+        onOpenSettings={onOpenSettings}
+        onOpenCustomizer={onOpenCustomizer}
+        onOpenSystemStatus={onOpenSystemStatus}
+        isSystemOnline={isSystemOnline}
+        user={user}
+        onToggleCollapse={onToggleCollapse}
+      />
+    </aside>
+    {isMobileOpen && (
+      <div className="fixed inset-0 z-50 md:hidden flex animate-in fade-in duration-200">
+        <div
+          className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs"
+          onClick={onCloseMobile}
+        />
+        <aside className="relative w-64 max-w-[85vw] bg-white dark:bg-[#0f172a] text-slate-900 dark:text-slate-100 border-r border-slate-200 dark:border-slate-800 h-full flex flex-col z-10 shadow-2xl">
+          <div className="px-3 py-3 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between bg-slate-50 dark:bg-slate-900 flex-shrink-0">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-sky-500/25 flex items-center justify-center text-xs group-hover:scale-110 transition-transform">
-                ✈️
-              </div>
-              <div className="flex flex-col leading-tight">
-                <span className="text-[10px] font-black text-sky-300">ទាក់ទង ADMIN</span>
-                <span className="text-[9px] text-slate-400 font-mono">@BongCheatz_IT</span>
-              </div>
-            </div>
-            <ChevronRight className="w-3.5 h-3.5 text-sky-400 group-hover:translate-x-0.5 transition-transform" />
-          </a>
-        ) : (
-          <a
-            href="https://t.me/BongCheatz_IT"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-sky-500/15 text-sky-400 transition-colors"
-            title="ទាក់ទង ADMIN Telegram: @BongCheatz_IT"
-          >
-            ✈️
-          </a>
-        )}
-
-        {/* Compact System Status Button */}
-        {!isCollapsed ? (
-          <button
-            onClick={onOpenSystemStatus}
-            className="w-full p-2 rounded-lg bg-white/[0.02] hover:bg-white/[0.05] border border-white/[0.06] hover:border-sky-500/30 flex items-center justify-between text-left transition-all"
-            title="Click to view full System Status"
-          >
-            <div className="flex items-center gap-2">
-              <span
-                className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                  isSystemOnline ? 'bg-emerald-400' : 'bg-amber-400'
-                }`}
-                style={{
-                  boxShadow: isSystemOnline ? '0 0 8px #34d399' : '0 0 8px #fbbf24',
+              <img
+                src="/app_logo.png"
+                className="w-6 h-6 rounded-lg"
+                alt="Logo"
+                onError={(e) => {
+                  (e.target as HTMLElement).style.display = 'none';
                 }}
               />
-              <div className="flex flex-col leading-tight">
-                <span className="text-[11px] font-semibold text-slate-200">System Status</span>
-                <span className="text-[9px] text-slate-400">
-                  {isSystemOnline ? 'All Systems Online' : 'Check Services'}
-                </span>
-              </div>
+              <span className="font-black text-xs text-slate-900 dark:text-slate-100 font-khmer">
+                ស្ដេចអាទិទេព PRO
+              </span>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-          </button>
-        ) : (
-          <button
-            onClick={onOpenSystemStatus}
-            className="w-full flex items-center justify-center p-2 rounded-lg hover:bg-white/[0.06] transition-colors"
-            title="System Status"
-          >
-            <span
-              className={`w-2.5 h-2.5 rounded-full ${
-                isSystemOnline ? 'bg-emerald-400' : 'bg-amber-400'
-              }`}
-              style={{
-                boxShadow: isSystemOnline ? '0 0 8px #34d399' : '0 0 8px #fbbf24',
-              }}
-            />
-          </button>
-        )}
-
-        {/* Collapse / Expand Toggle */}
-        <button
-          onClick={onToggleCollapse}
-          className="w-full flex items-center justify-center py-1.5 text-slate-400 hover:text-slate-200 rounded-md hover:bg-white/[0.04] transition-all"
-          title={isCollapsed ? 'Expand Sidebar' : 'Collapse Sidebar'}
-        >
-          {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
-        </button>
+            <button
+              onClick={onCloseMobile}
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+          <Content
+            isCollapsed={false}
+            activeTab={activeTab}
+            onSelectTab={onSelectTab}
+            shelfCount={shelfCount}
+            onOpenShelf={onOpenShelf}
+            onOpenGroups={onOpenGroups}
+            onOpenExport={onOpenExport}
+            onOpenSettings={onOpenSettings}
+            onOpenCustomizer={onOpenCustomizer}
+            onOpenSystemStatus={onOpenSystemStatus}
+            isSystemOnline={isSystemOnline}
+            user={user}
+            onToggleCollapse={onToggleCollapse}
+            onCloseMobile={onCloseMobile}
+          />
+        </aside>
       </div>
-    </aside>
-  );
-};
+    )}
+  </>
+);
