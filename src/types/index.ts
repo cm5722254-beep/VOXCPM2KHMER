@@ -103,14 +103,17 @@ export interface WatermarkConfig {
   enabled: boolean;
   text: string;
   type?: 'text' | 'logo';
-  position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center';
+  position: 'top-right' | 'top-left' | 'bottom-right' | 'bottom-left' | 'center' | 'free';
+  posX?: number; // 0 to 100 percentage (free drag & drop)
+  posY?: number; // 0 to 100 percentage (free drag & drop)
   opacity: number; // 10 to 100
-  fontSize: number; // 10 to 36
+  fontSize: number; // 10 to 72
   fontFamily: string; // 'Outfit' | 'Kantumruy Pro' | 'Koulen' | 'Moul'
   textColor: string;
   showBadge: boolean;
   logoUrl?: string;
   scale?: number;
+  rotationAngle?: number;
 }
 
 export interface VideoStyleTextConfig {

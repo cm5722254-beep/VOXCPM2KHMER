@@ -70,7 +70,12 @@ export function generateVideoOverlayImage(options: GenerateOverlayOptions): stri
     let wmY = padding + fontSize;
     ctx.textAlign = 'right';
 
-    if (wm.position === 'top-left') {
+    const isFree = wm.position === 'free' || (wm.posX !== undefined && wm.posY !== undefined);
+    if (isFree) {
+      wmX = (width * (wm.posX ?? 85)) / 100;
+      wmY = (height * (wm.posY ?? 8)) / 100;
+      ctx.textAlign = 'center';
+    } else if (wm.position === 'top-left') {
       wmX = padding;
       ctx.textAlign = 'left';
     } else if (wm.position === 'bottom-right') {
@@ -83,6 +88,36 @@ export function generateVideoOverlayImage(options: GenerateOverlayOptions): stri
       wmX = width / 2;
       wmY = height / 2;
       ctx.textAlign = 'center';
+    }
+
+    if (wm.showBadge) {
+      ctx.save();
+      const textMetrics = ctx.measureText(wm.text);
+      const textWidth = textMetrics.width;
+      const padX = Math.round(14 * scale);
+      const padY = Math.round(7 * scale);
+      const badgeW = textWidth + padX * 2;
+      const badgeH = fontSize + padY * 2;
+
+      let boxX = wmX - padX;
+      if (ctx.textAlign === 'center') boxX = wmX - badgeW / 2;
+      else if (ctx.textAlign === 'right') boxX = wmX - badgeW + padX;
+
+      const boxY = wmY - fontSize;
+
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.72)';
+      ctx.beginPath();
+      const bRad = Math.round(badgeH / 2);
+      if (typeof (ctx as any).roundRect === 'function') {
+        (ctx as any).roundRect(boxX, boxY, badgeW, badgeH, bRad);
+      } else {
+        ctx.rect(boxX, boxY, badgeW, badgeH);
+      }
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.28)';
+      ctx.lineWidth = Math.max(1, Math.round(1.5 * scale));
+      ctx.stroke();
+      ctx.restore();
     }
 
     ctx.fillText(wm.text, wmX, wmY);

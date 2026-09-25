@@ -142,7 +142,16 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
   const dragStartPos = useRef({ x: 0, y: 0, startPosX: 10, startPosY: 82 });
   const resizeStartPos = useRef({ x: 0, y: 0, startFontSize: 28 });
 
-  // Sync inline edit state when styleText changes
+  // Interactive Watermark Dragging, Scaling, and Editing State
+  const [isDraggingWatermark, setIsDraggingWatermark] = useState(false);
+  const [isResizingWatermark, setIsResizingWatermark] = useState(false);
+  const [isEditingWatermarkInline, setIsEditingWatermarkInline] = useState(false);
+  const [inlineWatermarkText, setInlineWatermarkText] = useState('');
+
+  const dragStartWmPos = useRef({ x: 0, y: 0, startPosX: 85, startPosY: 8 });
+  const resizeStartWmPos = useRef({ x: 0, y: 0, startFontSize: 14 });
+
+  // Sync inline edit state when styleText or watermark changes
   useEffect(() => {
     if (videoEffects?.styleText) {
       setInlineTitle(videoEffects.styleText.title || '');
@@ -150,6 +159,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       setInlineBadge(videoEffects.styleText.badge || '');
     }
   }, [videoEffects?.styleText?.title, videoEffects?.styleText?.subtitle, videoEffects?.styleText?.badge]);
+
+  useEffect(() => {
+    if (videoEffects?.watermark?.text) {
+      setInlineWatermarkText(videoEffects.watermark.text);
+    }
+  }, [videoEffects?.watermark?.text]);
 
   // Force video element to load new source immediately when src changes
   useEffect(() => {
@@ -161,16 +176,45 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
     }
   }, [src]);
 
-  // Global mousemove and mouseup listener for drag & resize
+  // Global mousemove and mouseup listener for drag & resize (both 3D Title and Watermark)
   useEffect(() => {
-    if (!isDraggingTitle && !isResizingTitle) return;
+    if (!isDraggingTitle && !isResizingTitle && !isDraggingWatermark && !isResizingWatermark) return;
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!frameRef.current || !videoEffects?.styleText || !onChangeEffects) return;
+      if (!frameRef.current || !onChangeEffects || !videoEffects) return;
       const rect = frameRef.current.getBoundingClientRect();
-      const st = videoEffects.styleText;
 
-      if (isDraggingTitle) {
+      if (isDraggingWatermark && videoEffects.watermark) {
+        const dx = e.clientX - dragStartWmPos.current.x;
+        const dy = e.clientY - dragStartWmPos.current.y;
+        const dxPercent = (dx / rect.width) * 100;
+        const dyPercent = (dy / rect.height) * 100;
+
+        const newX = Math.max(2, Math.min(98, Math.round(dragStartWmPos.current.startPosX + dxPercent)));
+        const newY = Math.max(2, Math.min(98, Math.round(dragStartWmPos.current.startPosY + dyPercent)));
+
+        onChangeEffects({
+          ...videoEffects,
+          watermark: {
+            ...videoEffects.watermark,
+            position: 'free',
+            posX: newX,
+            posY: newY,
+          },
+        });
+      } else if (isResizingWatermark && videoEffects.watermark) {
+        const dx = e.clientX - resizeStartWmPos.current.x;
+        const deltaSize = Math.round(dx * 0.2);
+        const newSize = Math.max(10, Math.min(72, resizeStartWmPos.current.startFontSize + deltaSize));
+
+        onChangeEffects({
+          ...videoEffects,
+          watermark: {
+            ...videoEffects.watermark,
+            fontSize: newSize,
+          },
+        });
+      } else if (isDraggingTitle && videoEffects.styleText) {
         const dx = e.clientX - dragStartPos.current.x;
         const dy = e.clientY - dragStartPos.current.y;
         const dxPercent = (dx / rect.width) * 100;
@@ -182,13 +226,13 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
         onChangeEffects({
           ...videoEffects,
           styleText: {
-            ...st,
+            ...videoEffects.styleText,
             position: 'free',
             posX: newX,
             posY: newY,
           },
         });
-      } else if (isResizingTitle) {
+      } else if (isResizingTitle && videoEffects.styleText) {
         const dx = e.clientX - resizeStartPos.current.x;
         const deltaSize = Math.round(dx * 0.25);
         const newSize = Math.max(14, Math.min(96, resizeStartPos.current.startFontSize + deltaSize));
@@ -196,7 +240,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
         onChangeEffects({
           ...videoEffects,
           styleText: {
-            ...st,
+            ...videoEffects.styleText,
             fontSize: newSize,
           },
         });
@@ -206,6 +250,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
     const handleMouseUp = () => {
       setIsDraggingTitle(false);
       setIsResizingTitle(false);
+      setIsDraggingWatermark(false);
+      setIsResizingWatermark(false);
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -214,7 +260,75 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDraggingTitle, isResizingTitle, videoEffects, onChangeEffects]);
+  }, [isDraggingTitle, isResizingTitle, isDraggingWatermark, isResizingWatermark, videoEffects, onChangeEffects]);
+
+  // Watermark handlers
+  const handleScaleWmDelta = (delta: number) => {
+    if (!videoEffects?.watermark || !onChangeEffects) return;
+    const wm = videoEffects.watermark;
+    const nextSize = Math.max(10, Math.min(72, (wm.fontSize || 14) + delta));
+    onChangeEffects({
+      ...videoEffects,
+      watermark: { ...wm, fontSize: nextSize },
+    });
+    onShowToast?.(`ទំហំ Watermark: ${nextSize}px`, 'info');
+  };
+
+  const handleToggleWmBadge = () => {
+    if (!videoEffects?.watermark || !onChangeEffects) return;
+    const wm = videoEffects.watermark;
+    onChangeEffects({
+      ...videoEffects,
+      watermark: { ...wm, showBadge: !wm.showBadge },
+    });
+    onShowToast?.(wm.showBadge ? 'ទម្រង់អក្សរសុទ្ធ (Clean Text)' : 'ទម្រង់ Badge ការពារ (Shield Badge)', 'info');
+  };
+
+  const handleSaveInlineWmEdit = () => {
+    if (!videoEffects?.watermark || !onChangeEffects) return;
+    onChangeEffects({
+      ...videoEffects,
+      watermark: {
+        ...videoEffects.watermark,
+        text: inlineWatermarkText,
+      },
+    });
+    setIsEditingWatermarkInline(false);
+    onShowToast?.('🎉 បានរក្សាទុកអក្សរ Watermark', 'success');
+  };
+
+  const handleMouseDownWatermark = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const wm = videoEffects?.watermark;
+    if (!wm) return;
+    setIsDraggingWatermark(true);
+
+    let defaultX = 85;
+    let defaultY = 8;
+    if (wm.position === 'top-left') { defaultX = 12; defaultY = 8; }
+    else if (wm.position === 'bottom-left') { defaultX = 12; defaultY = 90; }
+    else if (wm.position === 'bottom-right') { defaultX = 85; defaultY = 90; }
+    else if (wm.position === 'center') { defaultX = 50; defaultY = 50; }
+
+    dragStartWmPos.current = {
+      x: e.clientX,
+      y: e.clientY,
+      startPosX: wm.posX ?? defaultX,
+      startPosY: wm.posY ?? defaultY,
+    };
+  };
+
+  const handleMouseDownWmResize = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const wm = videoEffects?.watermark;
+    if (!wm) return;
+    setIsResizingWatermark(true);
+    resizeStartWmPos.current = {
+      x: e.clientX,
+      y: e.clientY,
+      startFontSize: wm.fontSize || 14,
+    };
+  };
 
   const handleScaleDelta = (delta: number) => {
     if (!videoEffects?.styleText || !onChangeEffects) return;
@@ -708,52 +822,157 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           <div className="absolute inset-0 pointer-events-none z-10 bg-amber-400/10 mix-blend-screen backdrop-blur-[0.5px]" />
         )}
 
-        {/* 6. Watermark & Copyright Protection Overlay */}
-        {videoEffects?.watermark?.enabled && videoEffects.watermark.text && (
-          <div
-            className={`absolute z-20 pointer-events-none flex items-center gap-1.5 select-none transition-all ${
-              videoEffects.watermark.position === 'top-left'
-                ? 'top-4 left-4'
-                : videoEffects.watermark.position === 'top-right'
-                ? 'top-14 right-4'
-                : videoEffects.watermark.position === 'bottom-left'
-                ? 'bottom-10 left-4'
-                : videoEffects.watermark.position === 'bottom-right'
-                ? 'bottom-10 right-4'
-                : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
-            }`}
-            style={{ opacity: (videoEffects.watermark.opacity || 85) / 100 }}
-          >
-            {videoEffects.watermark.showBadge ? (
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 shadow-lg text-white">
-                <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                <span
-                  className="font-semibold tracking-wide"
-                  style={{
-                    fontSize: `${videoEffects.watermark.fontSize || 13}px`,
-                    fontFamily: videoEffects.watermark.fontFamily || 'Outfit',
-                    color: videoEffects.watermark.textColor || '#ffffff',
-                    textShadow: '0 1px 3px rgba(0,0,0,0.8)',
-                  }}
-                >
-                  {videoEffects.watermark.text}
-                </span>
-              </div>
-            ) : (
-              <span
-                className="font-semibold tracking-wide drop-shadow-md"
-                style={{
-                  fontSize: `${videoEffects.watermark.fontSize || 13}px`,
-                  fontFamily: videoEffects.watermark.fontFamily || 'Outfit',
-                  color: videoEffects.watermark.textColor || '#ffffff',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.9)',
-                }}
+        {/* 6. Watermark & Copyright Protection Overlay (Interactive Free Drag & Drop) */}
+        {videoEffects?.watermark?.enabled && videoEffects.watermark.text && (() => {
+          const wm = videoEffects.watermark;
+          const isFree = wm.position === 'free' || (wm.posX !== undefined && wm.posY !== undefined);
+
+          let positionStyle: React.CSSProperties = {};
+          if (isFree) {
+            positionStyle = {
+              left: `${wm.posX ?? 85}%`,
+              top: `${wm.posY ?? 8}%`,
+              transform: 'translate(-50%, -50%)',
+            };
+          } else if (wm.position === 'top-left') {
+            positionStyle = { top: '1rem', left: '1rem' };
+          } else if (wm.position === 'top-right') {
+            positionStyle = { top: '3.5rem', right: '1rem' };
+          } else if (wm.position === 'bottom-left') {
+            positionStyle = { bottom: '2.5rem', left: '1rem' };
+          } else if (wm.position === 'bottom-right') {
+            positionStyle = { bottom: '2.5rem', right: '1rem' };
+          } else {
+            positionStyle = { top: '50%', left: '50%', transform: 'translate(-50%, -50%)' };
+          }
+
+          return (
+            <div
+              className="absolute z-20 select-none group/wm pointer-events-auto"
+              style={positionStyle}
+            >
+              <div
+                onMouseDown={handleMouseDownWatermark}
+                onDoubleClick={() => setIsEditingWatermarkInline(true)}
+                className="relative transition-all cursor-grab active:cursor-grabbing p-1 rounded-xl group-hover/wm:ring-2 group-hover/wm:ring-amber-400/80 group-hover/wm:bg-black/40 group-hover/wm:backdrop-blur-xs flex items-center gap-1.5"
+                style={{ opacity: (wm.opacity || 85) / 100 }}
+                title="ចុចទាញអក្សរ Watermark ទៅទីតាំងណាក៏បានដោយសេរី • Double-click ដើម្បីកែអក្សរ"
               >
-                {videoEffects.watermark.text}
-              </span>
-            )}
-          </div>
-        )}
+                {/* Floating Quick Action Toolbar for Watermark */}
+                <div
+                  onMouseDown={(e) => e.stopPropagation()}
+                  className="absolute -top-10 left-1/2 -translate-x-1/2 flex items-center gap-1 p-1 rounded-xl bg-black/90 backdrop-blur-md border border-white/20 shadow-2xl opacity-0 group-hover/wm:opacity-100 transition-opacity z-30 pointer-events-auto shrink-0"
+                >
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingWatermarkInline(true)}
+                    className="px-2 py-0.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-[10px] font-bold flex items-center gap-1 transition-colors"
+                    title="កែសម្រួលអក្សរ Watermark"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>កែអក្សរ</span>
+                  </button>
+                  <div className="h-3 w-[1px] bg-white/20" />
+                  <button
+                    type="button"
+                    onClick={() => handleScaleWmDelta(2)}
+                    className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                    title="ពង្រីក (Scale Up +2px)"
+                  >
+                    <Plus className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleScaleWmDelta(-2)}
+                    className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                    title="បង្រួម (Scale Down -2px)"
+                  >
+                    <Minus className="w-3 h-3" />
+                  </button>
+                  <div className="h-3 w-[1px] bg-white/20" />
+                  <button
+                    type="button"
+                    onClick={handleToggleWmBadge}
+                    className={`px-2 py-0.5 rounded-lg text-[9.5px] font-bold transition-colors ${wm.showBadge ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40' : 'bg-white/10 text-slate-300'}`}
+                    title="បិទ/បើក Badge ការពារ"
+                  >
+                    {wm.showBadge ? 'Badge' : 'Text'}
+                  </button>
+                </div>
+
+                {/* Resize Handle (Bottom-Right corner) */}
+                <div
+                  onMouseDown={handleMouseDownWmResize}
+                  className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg flex items-center justify-center cursor-nwse-resize hover:scale-125 transition-transform z-30 opacity-0 group-hover/wm:opacity-100"
+                  title="ទាញពង្រីក-បង្រួមទំហំ Watermark"
+                >
+                  <Move className="w-2.5 h-2.5 rotate-45" />
+                </div>
+
+                {/* Inline Editing Modal/Input */}
+                {isEditingWatermarkInline ? (
+                  <div
+                    onMouseDown={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1.5 p-1 bg-black/90 rounded-lg border border-amber-400 shadow-2xl z-40"
+                  >
+                    <input
+                      type="text"
+                      value={inlineWatermarkText}
+                      onChange={(e) => setInlineWatermarkText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleSaveInlineWmEdit();
+                        if (e.key === 'Escape') setIsEditingWatermarkInline(false);
+                      }}
+                      autoFocus
+                      className="px-2 py-0.5 text-xs bg-slate-900 border border-white/20 rounded text-white focus:outline-none focus:border-amber-400 w-44"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleSaveInlineWmEdit}
+                      className="p-1 rounded bg-amber-500 text-black hover:bg-amber-400"
+                    >
+                      <Check className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setIsEditingWatermarkInline(false)}
+                      className="p-1 rounded bg-white/10 text-white hover:bg-white/20"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : wm.showBadge ? (
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/65 backdrop-blur-md border border-white/20 shadow-lg text-white">
+                    <ShieldCheck className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                    <span
+                      className="font-semibold tracking-wide"
+                      style={{
+                        fontSize: `${wm.fontSize || 13}px`,
+                        fontFamily: wm.fontFamily || 'Outfit',
+                        color: wm.textColor || '#ffffff',
+                        textShadow: '0 1px 3px rgba(0,0,0,0.8)',
+                      }}
+                    >
+                      {wm.text}
+                    </span>
+                  </div>
+                ) : (
+                  <span
+                    className="font-semibold tracking-wide drop-shadow-md"
+                    style={{
+                      fontSize: `${wm.fontSize || 13}px`,
+                      fontFamily: wm.fontFamily || 'Outfit',
+                      color: wm.textColor || '#ffffff',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.9)',
+                    }}
+                  >
+                    {wm.text}
+                  </span>
+                )}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* 7. Styled 3D Video Title / Theatrical Banner (Interactive Drag, Scale, Edit) */}
         {videoEffects?.styleText?.enabled && videoEffects.styleText.title && (() => {

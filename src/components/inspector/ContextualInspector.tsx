@@ -878,9 +878,14 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
 
                       {/* Position Grid */}
                       <div>
-                        <label className="text-[10px] text-slate-600 dark:text-slate-400 block mb-1">ទីតាំង (Position)</label>
-                        <div className="grid grid-cols-2 gap-1 text-[10.5px]">
+                        <div className="flex items-center justify-between mb-1">
+                          <label className="text-[10px] text-slate-600 dark:text-slate-400">ទីតាំង (Position)</label>
+                          <span className="text-[9.5px] text-sky-600 dark:text-cyan-400 font-semibold">📍 អាចទាញ Mouse បាន</span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-1 text-[10px]">
                           {[
+                            { id: 'free', label: '📍 ទាញសេរី (Drag Free)' },
+                            { id: 'center', label: '🎯 កណ្ដាល (Center)' },
                             { id: 'top-left', label: 'លើ ឆ្វេង (Top-L)' },
                             { id: 'top-right', label: 'លើ ស្តាំ (Top-R)' },
                             { id: 'bottom-left', label: 'ក្រោម ឆ្វេង (Bot-L)' },
@@ -893,11 +898,16 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                                 const wm = videoEffects.watermark!;
                                 onChangeEffects({
                                   ...videoEffects,
-                                  watermark: { ...wm, position: pos.id as any }
+                                  watermark: {
+                                    ...wm,
+                                    position: pos.id as any,
+                                    posX: pos.id === 'free' ? (wm.posX ?? 85) : undefined,
+                                    posY: pos.id === 'free' ? (wm.posY ?? 8) : undefined,
+                                  }
                                 });
                               }}
                               className={`py-1 px-1.5 rounded border text-center transition-all ${
-                                videoEffects.watermark?.position === pos.id
+                                (videoEffects.watermark?.position === pos.id || (pos.id === 'free' && (videoEffects.watermark?.posX !== undefined || videoEffects.watermark?.position === 'free')))
                                   ? 'bg-sky-100 dark:bg-cyan-500/20 border-sky-400 dark:border-cyan-400 text-sky-800 dark:text-cyan-300 font-bold'
                                   : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                               }`}
@@ -906,6 +916,57 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                             </button>
                           ))}
                         </div>
+
+                        {/* Free Drag Coordinates Sliders */}
+                        {(videoEffects.watermark?.position === 'free' || videoEffects.watermark?.posX !== undefined) && (
+                          <div className="mt-2 p-2 rounded-lg bg-sky-50/70 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-800/60 flex flex-col gap-1.5">
+                            <p className="text-[10px] text-sky-700 dark:text-sky-300 font-medium">
+                              ✨ <strong>ទាញដោយសេរី:</strong> ចុច Mouse លើ Watermark ក្នុង Video Preview ដើម្បីអូសទាញគ្រប់ទីតាំង!
+                            </p>
+                            <div className="grid grid-cols-2 gap-2 text-[10px]">
+                              <div>
+                                <div className="flex justify-between mb-0.5 text-slate-600 dark:text-slate-400">
+                                  <span>ផ្ដេក X</span>
+                                  <span className="font-mono text-sky-600 dark:text-cyan-400 font-bold">{videoEffects.watermark.posX ?? 85}%</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="2"
+                                  max="98"
+                                  value={videoEffects.watermark.posX ?? 85}
+                                  onChange={(e) => {
+                                    const wm = videoEffects.watermark!;
+                                    onChangeEffects({
+                                      ...videoEffects,
+                                      watermark: { ...wm, position: 'free', posX: parseInt(e.target.value) }
+                                    });
+                                  }}
+                                  className="w-full accent-sky-600 dark:accent-cyan-400 cursor-pointer"
+                                />
+                              </div>
+                              <div>
+                                <div className="flex justify-between mb-0.5 text-slate-600 dark:text-slate-400">
+                                  <span>បញ្ឈរ Y</span>
+                                  <span className="font-mono text-sky-600 dark:text-cyan-400 font-bold">{videoEffects.watermark.posY ?? 8}%</span>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="2"
+                                  max="98"
+                                  value={videoEffects.watermark.posY ?? 8}
+                                  onChange={(e) => {
+                                    const wm = videoEffects.watermark!;
+                                    onChangeEffects({
+                                      ...videoEffects,
+                                      watermark: { ...wm, position: 'free', posY: parseInt(e.target.value) }
+                                    });
+                                  }}
+                                  className="w-full accent-sky-600 dark:accent-cyan-400 cursor-pointer"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
 
                       {/* Opacity slider */}
