@@ -1603,3 +1603,187 @@ export const EFFECT_3D_PRESETS: Effect3DItem[] = [
     motionClass: 'animate-3d-pendulum'
   }
 ];
+
+// -------------------------------------------------------------
+// 5. Watermark Style & Effect Presets (ម៉ូដ Watermark អាចផ្លាស់ប្តូរបាន)
+// -------------------------------------------------------------
+export interface WatermarkStylePreset {
+  id: string;
+  label: string;
+  category: 'Classic & Luxury' | 'Cyber & Neon' | 'Cinematic & Studio' | 'Modern Minimal';
+  description: string;
+  badgeBg: string;
+  badgeBorder: string;
+  badgeShadow: string;
+  textColor: string;
+  textGradient?: string;
+  textShadow?: string;
+  iconType: 'shield' | 'star' | 'flame' | 'sparkle' | 'camera' | 'tv' | 'crown' | 'zap' | 'none';
+  iconColor: string;
+  fontFamily: string;
+}
+
+export const WATERMARK_STYLE_PRESETS: WatermarkStylePreset[] = [
+  {
+    id: 'theatrical_gold',
+    label: '🏆 Theatrical Gold Luxury',
+    category: 'Classic & Luxury',
+    description: 'ម៉ូដមាសប្រណិតបែបភាពយន្តរាជវាំង Gold Shield Badge',
+    badgeBg: 'linear-gradient(135deg, rgba(20, 16, 5, 0.9), rgba(50, 35, 10, 0.85))',
+    badgeBorder: '1px solid rgba(245, 158, 11, 0.6)',
+    badgeShadow: '0 4px 20px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(254, 240, 138, 0.4)',
+    textColor: '#fef08a',
+    textGradient: 'linear-gradient(180deg, #ffffff 0%, #fde047 50%, #d97706 100%)',
+    textShadow: '0 2px 8px rgba(0, 0, 0, 0.9), 0 0 12px rgba(245, 158, 11, 0.6)',
+    iconType: 'shield',
+    iconColor: '#f59e0b',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'cyber_neon',
+    label: '⚡ Cyberpunk Neon Glow',
+    category: 'Cyber & Neon',
+    description: 'ម៉ូដអគ្គិសនីពន្លឺ Neon បែប Cyberpunk Cyan & Emerald',
+    badgeBg: 'linear-gradient(135deg, rgba(5, 15, 25, 0.92), rgba(6, 78, 59, 0.85))',
+    badgeBorder: '1px solid rgba(56, 189, 248, 0.7)',
+    badgeShadow: '0 0 25px rgba(56, 189, 248, 0.4), inset 0 0 10px rgba(52, 211, 153, 0.25)',
+    textColor: '#a7f3d0',
+    textGradient: 'linear-gradient(90deg, #38bdf8, #34d399)',
+    textShadow: '0 0 10px rgba(56, 189, 248, 0.9), 0 0 20px rgba(52, 211, 153, 0.6)',
+    iconType: 'zap',
+    iconColor: '#38bdf8',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'glass_pill',
+    label: '🪟 Frosted Glass Blur',
+    category: 'Modern Minimal',
+    description: 'ម៉ូដកញ្ចក់ព្រិលទំនើប ស្រទន់ភ្នែក Apple Glassmorphism',
+    badgeBg: 'rgba(255, 255, 255, 0.12)',
+    badgeBorder: '1px solid rgba(255, 255, 255, 0.25)',
+    badgeShadow: '0 8px 32px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.3)',
+    textColor: '#ffffff',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.8)',
+    iconType: 'sparkle',
+    iconColor: '#ffffff',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'anime_channel',
+    label: '🌟 Donghua Studio Official',
+    category: 'Cinematic & Studio',
+    description: 'ផ្លាកសញ្ញាឆានែលគំនូរជីវចល Donghua Official Channel',
+    badgeBg: 'linear-gradient(135deg, rgba(30, 27, 75, 0.92), rgba(88, 28, 135, 0.88))',
+    badgeBorder: '1px solid rgba(168, 85, 247, 0.6)',
+    badgeShadow: '0 4px 20px rgba(168, 85, 247, 0.35)',
+    textColor: '#f3e8ff',
+    textGradient: 'linear-gradient(90deg, #f3e8ff, #d8b4fe, #f472b6)',
+    textShadow: '0 2px 8px rgba(0, 0, 0, 0.9), 0 0 10px rgba(168, 85, 247, 0.7)',
+    iconType: 'star',
+    iconColor: '#c084fc',
+    fontFamily: 'Kantumruy Pro',
+  },
+  {
+    id: 'fire_blaze',
+    label: '🔥 Crimson Ember Blaze',
+    category: 'Cyber & Neon',
+    description: 'ម៉ូដអណ្តាតភ្លើងក្រហមទាក់ទាញ Crimson Fire Energy',
+    badgeBg: 'linear-gradient(135deg, rgba(40, 10, 10, 0.92), rgba(127, 29, 29, 0.85))',
+    badgeBorder: '1px solid rgba(248, 113, 113, 0.65)',
+    badgeShadow: '0 0 20px rgba(239, 68, 68, 0.4), inset 0 1px 1px rgba(254, 202, 202, 0.3)',
+    textColor: '#fee2e2',
+    textGradient: 'linear-gradient(90deg, #fecaca, #f87171, #fbbf24)',
+    textShadow: '0 0 10px rgba(239, 68, 68, 0.8), 0 2px 4px rgba(0, 0, 0, 0.9)',
+    iconType: 'flame',
+    iconColor: '#f87171',
+    fontFamily: 'Koulen',
+  },
+  {
+    id: 'royal_crown',
+    label: '👑 Imperial Royal Crown',
+    category: 'Classic & Luxury',
+    description: 'ម៉ូដម្កុដរាជវាំង ពណ៌ស្វាយ-មាសប្រណិត Imperial Luxury',
+    badgeBg: 'linear-gradient(135deg, rgba(25, 10, 45, 0.94), rgba(65, 15, 75, 0.9))',
+    badgeBorder: '1px solid rgba(217, 119, 6, 0.65)',
+    badgeShadow: '0 6px 25px rgba(217, 119, 6, 0.3), inset 0 1px 2px rgba(253, 230, 138, 0.4)',
+    textColor: '#fef08a',
+    textGradient: 'linear-gradient(180deg, #ffffff, #fef08a, #d97706)',
+    textShadow: '0 2px 6px rgba(0, 0, 0, 0.95)',
+    iconType: 'crown',
+    iconColor: '#fbbf24',
+    fontFamily: 'Bayon',
+  },
+  {
+    id: 'hologram_blue',
+    label: '🌌 Sci-Fi Hologram Scanner',
+    category: 'Cyber & Neon',
+    description: 'ម៉ូដហូឡូក្រាមបច្ចេកវិទ្យាអនាគត Holographic Blue',
+    badgeBg: 'linear-gradient(135deg, rgba(8, 20, 45, 0.9), rgba(15, 30, 60, 0.8))',
+    badgeBorder: '1px dashed rgba(56, 189, 248, 0.75)',
+    badgeShadow: '0 0 20px rgba(56, 189, 248, 0.4), inset 0 0 15px rgba(56, 189, 248, 0.15)',
+    textColor: '#7dd3fc',
+    textShadow: '0 0 8px rgba(56, 189, 248, 0.9), 0 0 15px rgba(14, 165, 233, 0.6)',
+    iconType: 'tv',
+    iconColor: '#38bdf8',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'silver_chrome',
+    label: '🥄 Chrome Metallic Sheen',
+    category: 'Classic & Luxury',
+    description: 'ម៉ូដលោហៈធាតុភ្លឺផ្លេក Chrome Platinum Metal Plate',
+    badgeBg: 'linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(51, 65, 85, 0.85))',
+    badgeBorder: '1px solid rgba(203, 213, 225, 0.5)',
+    badgeShadow: '0 4px 15px rgba(0, 0, 0, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.5)',
+    textColor: '#f8fafc',
+    textGradient: 'linear-gradient(180deg, #ffffff, #cbd5e1, #94a3b8)',
+    textShadow: '0 2px 4px rgba(0, 0, 0, 0.8)',
+    iconType: 'shield',
+    iconColor: '#e2e8f0',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'minimal_clean',
+    label: '🤍 Minimal Cinema Clean',
+    category: 'Modern Minimal',
+    description: 'ម៉ូដអក្សរសាមញ្ញច្បាស់ស្អាត គ្មានប្រអប់ Minimal Watermark',
+    badgeBg: 'transparent',
+    badgeBorder: 'none',
+    badgeShadow: 'none',
+    textColor: '#ffffff',
+    textShadow: '0 1px 4px rgba(0, 0, 0, 0.95), 0 2px 8px rgba(0, 0, 0, 0.7)',
+    iconType: 'none',
+    iconColor: '#ffffff',
+    fontFamily: 'Kantumruy Pro',
+  },
+  {
+    id: 'dark_stealth',
+    label: '🖤 Stealth Carbon Matte',
+    category: 'Modern Minimal',
+    description: 'ម៉ូដបន្ទះខ្មៅស្ងប់ស្ងាត់ Stealth Obsidian Matte Plate',
+    badgeBg: 'rgba(5, 5, 8, 0.85)',
+    badgeBorder: '1px solid rgba(255, 255, 255, 0.12)',
+    badgeShadow: '0 6px 20px rgba(0, 0, 0, 0.7)',
+    textColor: '#e2e8f0',
+    textShadow: '0 1px 3px rgba(0, 0, 0, 0.9)',
+    iconType: 'camera',
+    iconColor: '#94a3b8',
+    fontFamily: 'Outfit',
+  },
+  {
+    id: 'rainbow_pop',
+    label: '🌈 Rainbow Spectrum Pop',
+    category: 'Cyber & Neon',
+    description: 'ម៉ូដឥន្ទធនូចម្រុះពណ៌ភ្លឺរលោង Multi-Color Gradient',
+    badgeBg: 'rgba(10, 10, 20, 0.88)',
+    badgeBorder: '1px solid rgba(244, 114, 182, 0.5)',
+    badgeShadow: '0 0 20px rgba(168, 85, 247, 0.35)',
+    textColor: '#ffffff',
+    textGradient: 'linear-gradient(90deg, #f43f5e, #fbbf24, #10b981, #06b6d4, #8b5cf6)',
+    textShadow: '0 2px 6px rgba(0, 0, 0, 0.9)',
+    iconType: 'sparkle',
+    iconColor: '#f472b6',
+    fontFamily: 'Koulen',
+  },
+];
+

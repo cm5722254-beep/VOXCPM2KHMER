@@ -1,0 +1,47 @@
+.posterforge-studio {
+  --pf-panel: #101725;
+  --pf-panel-raised: #151f30;
+  --pf-border: #2a3a50;
+  --pf-text: #edf4ff;
+  --pf-muted: #a8b8cc;
+  color: var(--pf-text);
+}
+
+.posterforge-studio input[type="text"],
+.posterforge-studio input[type="number"],
+.posterforge-studio input[type="email"],
+.posterforge-studio input[type="password"],
+.posterforge-studio textarea,
+.posterforge-studio select {
+  background-color: var(--pf-panel-raised) !important;
+  border-color: var(--pf-border) !important;
+  color: var(--pf-text) !important;
+  border-radius: 0.7rem;
+}
+
+.posterforge-studio input::placeholder,
+.posterforge-studio textarea::placeholder {
+  color: #91a1b6 !important;
+  opacity: 1;
+}
+
+.posterforge-studio .text-zinc-400 { color: #b5c3d6 !important; }
+.posterforge-studio .text-zinc-500 { color: #9baac0 !important; }
+.posterforge-studio .text-zinc-600 { color: #7f8da3 !important; }
+
+.posterforge-preview-area {
+  background-color: #090e18;
+  background-image:
+    radial-gradient(ellipse at 50% 42%, rgba(30, 64, 105, 0.2), transparent 58%),
+    linear-gradient(rgba(121, 151, 190, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(121, 151, 190, 0.035) 1px, transparent 1px);
+  background-size: auto, 28px 28px, 28px 28px;
+}
+
+.posterforge-studio button:focus-visible,
+.posterforge-studio input:focus-visible,
+.posterforge-studio textarea:focus-visible,
+.posterforge-studio select:focus-visible {
+  outline: 2px solid #38bdf8;
+  outline-offset: 2px;
+}

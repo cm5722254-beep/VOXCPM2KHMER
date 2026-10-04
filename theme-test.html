@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="km" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme Toggle Test - VOXCPM2KHMER</title>
+  
+  <!-- CSS Files -->
+  <link rel="stylesheet" href="/css/modern-ui-system.css">
+  <link rel="stylesheet" href="/css/light-theme.css">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Kantumruy Pro', sans-serif;
+      min-height: 100vh;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .dark {
+      --bg: #0b0f19;
+      --text: #f8fafc;
+      --panel: #111827;
+      --border: rgba(255, 255, 255, 0.1);
+    }
+
+    .light {
+      --bg: #f8fafc;
+      --text: #0f172a;
+      --panel: #ffffff;
+      --border: rgba(0, 0, 0, 0.1);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin-bottom: 30px;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: 700;
+    }
+
+    .theme-toggle-simple {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 16px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+
+    .theme-toggle-simple:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .demo-section {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 30px;
+      margin-bottom: 20px;
+    }
+
+    .demo-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .demo-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .demo-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(56, 189, 248, 0.15);
+    }
+
+    .btn-primary {
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #0ea5e9, #3b82f6);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(14, 165, 233, 0.4);
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-success {
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .icon {
+      width: 20px;
+      height: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header with Theme Toggle -->
+    <div class="header">
+      <h1 class="title">🎨 Theme Toggle Test</h1>
+      <button class="theme-toggle-simple" id="themeToggleBtn">
+        <span id="themeIcon">🌙</span>
+        <span id="themeLabel">Dark Mode</span>
+      </button>
+    </div>
+
+    <!-- Current Theme Status -->
+    <div class="demo-section">
+      <h2 class="demo-title">ស្ថានភាព Theme បច្ចុប្បន្ន</h2>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <div class="status-indicator status-success">
+          <span>✓</span>
+          <span id="currentTheme">Dark Mode Active</span>
+        </div>
+        <div style="font-size: 14px; color: var(--text);">
+          HTML Class: <code id="htmlClass" style="padding: 4px 8px; background: var(--panel); border: 1px solid var(--border); border-radius: 4px;">dark</code>
+        </div>
+      </div>
+    </div>
+
+    <!-- Demo Components -->
+    <div class="demo-section">
+      <h2 class="demo-title">Demo Components</h2>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <h3 style="margin-bottom: 10px;">Card 1</h3>
+          <p style="font-size: 14px; opacity: 0.8;">This card changes color based on theme</p>
+          <button class="btn-primary" style="margin-top: 15px;">Action Button</button>
+        </div>
+        <div class="demo-card">
+          <h3 style="margin-bottom: 10px;">Card 2</h3>
+          <p style="font-size: 14px; opacity: 0.8;">Background and text adapt automatically</p>
+          <button class="btn-primary" style="margin-top: 15px;">Another Button</button>
+        </div>
+        <div class="demo-card">
+          <h3 style="margin-bottom: 10px;">Card 3</h3>
+          <p style="font-size: 14px; opacity: 0.8;">All borders and shadows update too</p>
+          <button class="btn-primary" style="margin-top: 15px;">Click Me</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Color Swatches -->
+    <div class="demo-section">
+      <h2 class="demo-title">ពណ៌ Theme</h2>
+      <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div style="text-align: center;">
+          <div style="width: 80px; height: 80px; background: var(--bg); border: 2px solid var(--border); border-radius: 12px; margin-bottom: 8px;"></div>
+          <div style="font-size: 12px;">Background</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 80px; height: 80px; background: var(--panel); border: 2px solid var(--border); border-radius: 12px; margin-bottom: 8px;"></div>
+          <div style="font-size: 12px;">Panel</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 80px; height: 80px; background: var(--text); border: 2px solid var(--border); border-radius: 12px; margin-bottom: 8px;"></div>
+          <div style="font-size: 12px;">Text</div>
+        </div>
+        <div style="text-align: center;">
+          <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #0ea5e9, #3b82f6); border: 2px solid var(--border); border-radius: 12px; margin-bottom: 8px;"></div>
+          <div style="font-size: 12px;">Accent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="demo-section">
+      <h2 class="demo-title">📝 របៀបធ្វើតេស្ត</h2>
+      <ol style="line-height: 2; font-size: 14px;">
+        <li>ចុចលើប៊ូតុង Theme Toggle ខាងលើ</li>
+        <li>មើលការផ្លាស់ប្តូរពណ៌ទូទាំង page</li>
+        <li>ពណ៌ background, text, cards គួរប្តូរភ្លាមៗ</li>
+        <li>ពិនិត្យ HTML class ប្តូរពី "dark" ទៅ "light"</li>
+        <li>សាកល្បង refresh page - theme គួររក្សាក្នុង localStorage</li>
+      </ol>
+    </div>
+  </div>
+
+  <script>
+    // Theme Toggle Logic
+    const html = document.documentElement;
+    const themeBtn = document.getElementById('themeToggleBtn');
+    const themeIcon = document.getElementById('themeIcon');
+    const themeLabel = document.getElementById('themeLabel');
+    const currentThemeText = document.getElementById('currentTheme');
+    const htmlClassText = document.getElementById('htmlClass');
+
+    // Load saved theme
+    const savedTheme = localStorage.getItem('theme_mode') || 'dark';
+    applyTheme(savedTheme);
+
+    // Toggle button click
+    themeBtn.addEventListener('click', () => {
+      const currentTheme = html.classList.contains('dark') ? 'dark' : 'light';
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+      localStorage.setItem('theme_mode', newTheme);
+    });
+
+    function applyTheme(theme) {
+      if (theme === 'dark') {
+        html.classList.add('dark');
+        html.classList.remove('light');
+        themeIcon.textContent = '🌙';
+        themeLabel.textContent = 'Dark Mode';
+        currentThemeText.textContent = 'Dark Mode Active';
+        htmlClassText.textContent = 'dark';
+      } else {
+        html.classList.add('light');
+        html.classList.remove('dark');
+        themeIcon.textContent = '☀️';
+        themeLabel.textContent = 'Light Mode';
+        currentThemeText.textContent = 'Light Mode Active';
+        htmlClassText.textContent = 'light';
+      }
+    }
+
+    // Update display every 100ms (for debugging)
+    setInterval(() => {
+      const currentClass = html.classList.contains('dark') ? 'dark' : 'light';
+      htmlClassText.textContent = currentClass;
+    }, 100);
+  </script>
+</body>
+</html>

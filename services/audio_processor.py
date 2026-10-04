@@ -23,6 +23,8 @@ else:
 BASE_DIR = APP_DIR
 
 EXTRA_PATHS = [
+    os.path.join(APP_DIR, '.venv', 'Scripts'),
+    os.path.join(APP_DIR, '.venv', 'bin'),
     os.path.join(BUNDLE_DIR, 'bin'),
     os.path.join(APP_DIR, 'bin'),
     '/opt/homebrew/bin',      # Apple Silicon Mac (M1/M2/M3/M4) Homebrew
@@ -35,28 +37,56 @@ for p in EXTRA_PATHS:
 
 
 def run_command(cmd: str):
-    """Run shell command synchronously using subprocess."""
-    process = subprocess.run(cmd, shell=True, capture_output=True, text=True)
+    """Run shell command synchronously using subprocess with full UTF-8 support."""
+    env = os.environ.copy()
+    env['PYTHONIOENCODING'] = 'utf-8'
+    env['PYTHONUTF8'] = '1'
+    process = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace', env=env)
     if process.returncode != 0:
         raise RuntimeError(f"Command failed: {cmd}\nError: {process.stderr}")
     return process.stdout.strip()
 
 def get_media_duration(file_path: str) -> float:
-    """Get media file duration in seconds using ffprobe."""
+    """Get media file duration in seconds using ffprobe or ffmpeg."""
+    if not os.path.exists(file_path):
+        return 0.0
     try:
         cmd = f'ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "{file_path}"'
         out = run_command(cmd)
         duration = float(out)
-        return 0.0 if math.isnan(duration) else duration
+        if not math.isnan(duration) and duration > 0:
+            return duration
     except Exception:
-        return 0.0
+        pass
+
+    # High-reliability fallback: parse Duration from ffmpeg -i
+    try:
+        import re
+        proc = subprocess.run(f'ffmpeg -i "{file_path}"', shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        raw = (proc.stderr or '') + (proc.stdout or '')
+        m = re.search(r'Duration:\s*(\d+):(\d+):([\d.]+)', raw)
+        if m:
+            h, mins, s = float(m.group(1)), float(m.group(2)), float(m.group(3))
+            return round(h * 3600 + mins * 60 + s, 2)
+    except Exception:
+        pass
+    return 0.0
 
 def has_audio_stream(file_path: str) -> bool:
     """Check if the media file has at least one audio stream."""
+    if not os.path.exists(file_path):
+        return False
     try:
         cmd = f'ffprobe -v error -select_streams a -show_entries stream=codec_type -of default=noprint_wrappers=1:nokey=1 "{file_path}"'
         out = run_command(cmd)
-        return "audio" in out.lower()
+        if "audio" in out.lower():
+            return True
+    except Exception:
+        pass
+    try:
+        proc = subprocess.run(f'ffmpeg -i "{file_path}"', shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        raw = (proc.stderr or '') + (proc.stdout or '')
+        return "Audio:" in raw or "audio" in raw.lower()
     except Exception:
         return False
 
@@ -75,9 +105,55 @@ def extract_audio(video_path: str, output_audio_path: str):
     run_command(cmd)
     return output_audio_path
 
+def mix_clean_bgm_with_khmer(clean_bgm_path: str, khmer_vocal_path: str, output_path: str, vocal_gain: float = 2.2, bgm_gain: float = 0.92):
+    """
+    Cinema-quality mixer for when BGM is already a CLEAN AI-separated stem (e.g. Demucs no_vocals.wav).
+    NO vocal suppression is applied — the BGM is already pristine.
+
+    Pipeline:
+      1. Khmer vocals: padded to full duration, boosted, hard-limited at 0.95
+      2. BGM (clean stem): subtle shelf EQ enhancement, NO vocal notch filters
+      3. Sidechain compression: BGM ducks smoothly under Khmer speech
+      4. Final mix: amix with normalize=0, then loudnorm to -16 LUFS cinema standard
+    """
+    total_duration = get_media_duration(clean_bgm_path)
+    pad_dur = max(1, math.ceil(total_duration))
+
+    # Primary: clean BGM mixed with Khmer dub at cinema loudness
+    # No mlev/slev stereotools (BGM is already clean), no vocal notch EQ
+    cinema_filter = (
+        f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
+        f"[1:a]volume={bgm_gain}[bgm_full];"
+        f"[bgm_full][khmer_vox]sidechaincompress=threshold=0.004:ratio=16:attack=8:release=400[ducked_bgm];"
+        f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0,"
+        f"loudnorm=I=-16:TP=-1.5:LRA=11"
+    )
+
+    cmd = f'ffmpeg -nostdin -y -i "{khmer_vocal_path}" -i "{clean_bgm_path}" -filter_complex "{cinema_filter}" -c:a libmp3lame -b:a 320k "{output_path}"'
+    try:
+        run_command(cmd)
+        print(f"[Cinema Mix] Studio-quality BGM+Khmer mix complete: {output_path}")
+        return output_path
+    except Exception as e:
+        print(f"[Cinema Mix] Primary mix failed ({e}), using fallback...")
+        # Fallback: simple mix without loudnorm (older FFmpeg builds)
+        fallback_filter = (
+            f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
+            f"[1:a]volume={bgm_gain}[bgm_full];"
+            f"[bgm_full][khmer_vox]sidechaincompress=threshold=0.004:ratio=16:attack=8:release=400[ducked_bgm];"
+            f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"
+        )
+        fallback_cmd = f'ffmpeg -nostdin -y -i "{khmer_vocal_path}" -i "{clean_bgm_path}" -filter_complex "{fallback_filter}" -c:a libmp3lame -b:a 320k "{output_path}"'
+        run_command(fallback_cmd)
+        return output_path
+
+
 def mix_vocals_with_original(original_audio_path: str, dubbed_audio_path: str, output_path: str, vocal_gain: float = 2.2, bgm_gain: float = 0.85):
     """
-    Mix new dubbed vocals with the original audio:
+    Mix new dubbed vocals with raw original audio (which still contains foreign speech).
+    Use this ONLY when the BGM source is NOT pre-separated (i.e. raw audio track).
+    For pre-separated clean BGM stems, use mix_clean_bgm_with_khmer() instead.
+
     - Cancels center-channel original foreign speech (vocal suppression via stereotools mlev=0.015625 + dual notch filter)
     - Prevents side-channel vocal reverb leak (slev=0.70 instead of boosting)
     - Ultra-sensitive deep ducking during Khmer speech (threshold=0.003, ratio=20, attack=5ms, release=350ms)
@@ -87,12 +163,14 @@ def mix_vocals_with_original(original_audio_path: str, dubbed_audio_path: str, o
     total_duration = get_media_duration(original_audio_path)
     pad_dur = max(1, math.ceil(total_duration))
 
-    # Clean isolated BGM filter: pure bass + clean sides with vocal notches
+    # Aggressive vocal suppression for raw audio: center-channel cancellation + vocal frequency notches
     advanced_bgm_filter = (
         f"[0:a]apad=whole_dur={pad_dur},volume={vocal_gain},alimiter=limit=0.95[khmer_vox];"
         f"[1:a]asplit=2[low_b][mid_high];"
         f"[low_b]lowpass=f=220,volume={bgm_gain}[bass];"
-        f"[mid_high]stereotools=mlev=0.015625:slev=0.70,highpass=f=220,equalizer=f=1000:width_type=o:w=2.5:g=-24,equalizer=f=2500:width_type=o:w=2.0:g=-20,volume={bgm_gain}[bgm_sides];"
+        f"[mid_high]stereotools=mlev=0.015625:slev=0.70,highpass=f=220,"
+        f"equalizer=f=1000:width_type=o:w=2.5:g=-24,equalizer=f=2500:width_type=o:w=2.0:g=-20,"
+        f"volume={bgm_gain}[bgm_sides];"
         f"[bass][bgm_sides]amix=inputs=2:dropout_transition=0[clean_bgm];"
         f"[clean_bgm][khmer_vox]sidechaincompress=threshold=0.003:ratio=20:attack=5:release=350[ducked_bgm];"
         f"[khmer_vox][ducked_bgm]amix=inputs=2:duration=longest:dropout_transition=0:normalize=0"

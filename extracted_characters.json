@@ -1,569 +1,128 @@
 [
   {
-    "id": "voxcpm:kxev_char_01_male.mp3",
-    "filename": "kxev_char_01_male.mp3",
-    "label": "👑 អ្នកប្រុសធំ ផេ (តួឯកប្រុស - បងធំមានអំណាច/ម៉ឺងម៉ាត់)",
+    "id": "voxcpm:custom_voice_1791124300845.mp3",
+    "filename": "custom_voice_1791124300845.mp3",
+    "label": "តួប្រុស",
     "role_key": "male_lead",
     "gender": "male",
     "is_curated": true,
-    "words": "ប្អូនស្រី គ្រប់កន្លះម៉ោងហើយ បងអាចនិយាយជាមួយឯងបានហើយឬនៅ? ជាដំបូង បងសុំទោសឯងម្តងទៀត ដែលព្រឹកមិញបងមិនបានជឿលើពាក្យរបស់ឯងភ្លាមៗ"
-  },
-  {
-    "id": "voxcpm:kxev_char_02_female.mp3",
-    "filename": "kxev_char_02_female.mp3",
-    "label": "🌸 ប្អូនស្រី ស៊ាវអ៊ី (តួឯកស្រី - ឆ្លាតវៃ/ស្រស់ស្រាយ)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ហ៊ឹម... បាន! អនុញ្ញាត! ខ្ញុំអត់ខឹងផង! អីយ៉ា... តាមពិត ខ្ញុំគ្រាន់តែចង់លេងសើចនឹងបងធំប៉ុណ្ណោះ!"
-  },
-  {
-    "id": "voxcpm:kxev_char_03_male.mp3",
-    "filename": "kxev_char_03_male.mp3",
-    "label": "🕶️ កូនចៅជំនិត (តួប្រុសកំប្លែង/ស្មោះត្រង់)",
-    "role_key": "henchman",
-    "gender": "male",
-    "is_curated": true,
-    "words": "នែ៎! ហ៊ានប្រើសំឡេងឡូយអញ្ចឹងជាមួយបងធំផងហ្អេ? បងជាមោទនភាពមួយជីវិតរបស់ខ្ញុំ អ្នកប្រុសធំផេ មានអំណាច ម៉េចបានជាបងសុខចិត្តឱនក្បាលដាក់នាង?"
-  },
-  {
-    "id": "voxcpm:kxev_char_04_male.mp3",
-    "filename": "kxev_char_04_male.mp3",
-    "label": "💼 លោកប្រធានក្រុមហ៊ុន (តួប្រុសវ័យកណ្តាល - ម៉ត់ចត់/មានគុណធម៌)",
-    "role_key": "president",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ឯងមើលចុះ ប្អូនស្រីពិតជាល្អណាស់ យល់ពីហេតុផល ហើយមានចិត្តមេត្តាទៀតផង"
-  },
-  {
-    "id": "voxcpm:kxev_char_05_female.mp3",
-    "filename": "kxev_char_05_female.mp3",
-    "label": "🌸 នារីវ័យក្មេង (តួស្រី - ម៉ឺងម៉ាត់/ប្រកាន់ជំហរ)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "នេះជាការអប់រំគ្រួសារប្រធានក្រុមហ៊ុនទេ? មនុស្សយើងរស់នៅត្រូវមានសេចក្តីថ្លៃថ្នូរ មិនអាចយកលុយមកវាស់វែងគ្រប់រឿងទេ"
-  },
-  {
-    "id": "voxcpm:kxev_char_06_male.mp3",
-    "filename": "kxev_char_06_male.mp3",
-    "label": "🏎️ អ្នកប្រុសតូច (តួប្រុសក្មេង - ពូកែឌឺដង/រស់រវើក)",
-    "role_key": "young_master",
-    "gender": "male",
-    "is_curated": true,
-    "words": "រាល់យប់តែងតែបិទទូរស័ព្ទ ឥឡូវនេះដើម្បីនាង សូម្បីតែឡាន Rolls-Royce ក៏បងហ៊ានលះបង់ដែរហ្អេ?"
-  },
-  {
-    "id": "voxcpm:kxev_char_07_male.mp3",
-    "filename": "kxev_char_07_male.mp3",
-    "label": "អ្នកប្រុសធំ (តួប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "បងគិតសារឡើងវិញទៅមើល តើវាសមហេតុផលដែរឬអត់ហ្នឹង"
-  },
-  {
-    "id": "voxcpm:kxev_char_08_male.mp3",
-    "filename": "kxev_char_08_male.mp3",
-    "label": "កូនចៅជំនិត (តួប្រុសកំប្លែង)",
-    "role_key": "servant",
-    "gender": "male",
-    "is_curated": true,
-    "words": "បងធំ បងត្រូវគេបោកឡើងឈប់ជឿវិទ្យាសាស្ត្រហើយមែនទេ"
-  },
-  {
-    "id": "voxcpm:kxev_char_09_male.mp3",
-    "filename": "kxev_char_09_male.mp3",
-    "label": "អ្នកប្រុសធំ (បងធំ)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "បងធំរបស់ឯងទៅ បាទនៅមានអាទី៦ទៀត ថ្ងៃក្រោយនៅសាលាត្រូវមើលថែប្អូនឲ្យបានល្អ"
-  },
-  {
-    "id": "voxcpm:kxev_char_10_male.mp3",
-    "filename": "kxev_char_10_male.mp3",
-    "label": "អ្នកប្រុសទី២ (តួប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "កុំអឺើពេកបានទេ បើកុំតែប៉ាឲ្យនាំបងធំមក ខ្ញុំមិនមកទេ"
-  },
-  {
-    "id": "voxcpm:kxev_char_11_female.mp3",
-    "filename": "kxev_char_11_female.mp3",
-    "label": "តួឯកស្រី",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "សរសេរសំបុត្រនេះរៀបម៉េចអញ្ចឹង ដូចឆ្កែក្កេរអញ្ចឹង មិនមែនបងធ្វើផ្ទាល់ដៃទេដឹង"
-  },
-  {
-    "id": "voxcpm:kxev_char_12_female.mp3",
-    "filename": "kxev_char_12_female.mp3",
-    "label": "ប្អូនស្រី/តួឯកស្រី (ឈីងឈីង)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "បានហើយ សៀវយ៉ាន ខ្ញុំមិនចូលចិត្តដណ្ដើមគេទេ បងស្រីចូលចិត្តទុកឲ្យនាងចុះ"
-  },
-  {
-    "id": "voxcpm:kxev_char_13_male.mp3",
-    "filename": "kxev_char_13_male.mp3",
-    "label": "អ្នកប្រុស (តួប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ឈីងឈីង បន្តិចទៀតនេះទៅស្ដាប់ថ្នាក់ក្រុមណា ទៅជាមួយខ្ញុំដែរទេ"
-  },
-  {
-    "id": "voxcpm:kxev_char_14_male.mp3",
-    "filename": "kxev_char_14_male.mp3",
-    "label": "តួប្រុសអាក្រក់",
-    "role_key": "villain_male",
-    "gender": "male",
-    "is_curated": true,
-    "words": "អីយ៉ា មកហាត់នៅធ្វើអីទីនេះទៀត"
-  },
-  {
-    "id": "voxcpm:kxev_char_15_male.mp3",
-    "filename": "kxev_char_15_male.mp3",
-    "label": "តួប្រុស/សិស្សប្រុស",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "បាទហើយៗ ពួកយើងដល់ពេលត្រូវទៅហើយ ប្រឹងឡើងៗ"
-  },
-  {
-    "id": "voxcpm:kxev_char_16_female.mp3",
-    "filename": "kxev_char_16_female.mp3",
-    "label": "តួឯកស្រី (សាន់លូ)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ហៃយ៉ា ម៉េចក៏មនុស្សច្រើនម្ល៉េះ ចង់បើកការប្រកួតតន្ត្រី"
-  },
-  {
-    "id": "voxcpm:kxev_char_17_male.mp3",
-    "filename": "kxev_char_17_male.mp3",
-    "label": "កូនចៅជំនិត (តួប្រុសកំប្លែង)",
-    "role_key": "servant",
-    "gender": "male",
-    "is_curated": true,
-    "words": "អាទៀតហើយអាហាង ចប់ហើយៗ ថ្ងៃនេះយើងប្រាកដជាធ្វើឲ្យគេវាយឌីហើយ"
-  },
-  {
-    "id": "voxcpm:kxev_char_18_female.mp3",
-    "filename": "kxev_char_18_female.mp3",
-    "label": "ប្អូនស្រី (តួឯកស្រី)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ប្រឹងឡើងៗ ការប្រកួតផ្ទាល់ៗទៀតផង បើយើងចេញទៅប្រាកដជាបាក់មុខជាមិនខាន"
-  },
-  {
-    "id": "voxcpm:kxev_char_19_male.mp3",
-    "filename": "kxev_char_19_male.mp3",
-    "label": "អ្នកប្រុសធំផេ (តួឯកប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "នាងតាំងចិត្តមកមើលខ្ញុំប្រកួត ដើម្បីបំបាក់ទឹកចិត្តខ្ញុំមែនទេ?"
-  },
-  {
-    "id": "voxcpm:kxev_char_20_male.mp3",
-    "filename": "kxev_char_20_male.mp3",
-    "label": "កូនចៅជំនិត (តួប្រុសកំប្លែង)",
-    "role_key": "servant",
-    "gender": "male",
-    "is_curated": true,
-    "words": "អាហាងអា ហេតុម៉េចបានជាមិនចុចផ្លាស់ទៅ ខ្ញុំចុចលើកដំបូងហើយ តែវាមិនផ្លាស់ចេញសោះ"
-  },
-  {
-    "id": "voxcpm:kxev_char_21_male.mp3",
-    "filename": "kxev_char_21_male.mp3",
-    "label": "តួប្រុសអាក្រក់ (គូប្រជែង)",
-    "role_key": "villain_male",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ភេហាង ជាក្រុមសេះខ្មៅល្បីខាងលេងស្ទាត់ជំនាញខ្លាំងណាស់ ពិតមែនទេ លើកនេះសូម្បីតែផ្លាស់ក៏ចុចមិនចេញដែរ"
-  },
-  {
-    "id": "voxcpm:kxev_char_22_male.mp3",
-    "filename": "kxev_char_22_male.mp3",
-    "label": "អ្នកប្រុសធំ (តួប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "គ្រាន់តែប៉ុណ្ណឹងសោះ ថាជាប្រុសស្អាតមានទេពកោសល្យស្អីទៅ ខ្ញុំឡើងទៅលេងក៏បានដែរ បើនៅតែអញ្ចឹងទៀត ក្រុមសេះខ្មៅប្រាកដជាគ្មានវាសនាយកពានជើងឯកបាននោះទេ"
-  },
-  {
-    "id": "voxcpm:cfr_char_01_president_gu_male.mp3",
-    "filename": "cfr_char_01_president_gu_male.mp3",
-    "label": "👑 លោកប្រធាន គូ (តួឯកប្រុស - ម៉ឺងម៉ាត់/មានអំណាច)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ចាប់ពីពេលនេះតទៅ ប្រាក់ខែឯងគឺឡើងពី២ម៉ឺនទៅ៣ម៉ឺនយ័ន ថ្ងៃក្រោយឯងមិនចាំបាច់បារម្ភរឿងចិញ្ចឹមកូនទេ"
-  },
-  {
-    "id": "voxcpm:cfr_char_02_sothea_female_lead.mp3",
-    "filename": "cfr_char_02_sothea_female_lead.mp3",
-    "label": "🌸 សូធា (តួឯកស្រី - ជឿជាក់/រស់រវើក)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ឯងទុកចិត្តចុះ អ្នកកំដរខាងស្រីអាជីព នេះគឺការងាររបស់ខ្ញុំ ទទួលលុយឯងប្រាំពាន់យ័នហើយ ថ្ងៃនេះដាច់ខាតមិនឱ្យឯងប៉ះស្រាមួយដំណក់ទេ"
-  },
-  {
-    "id": "voxcpm:cfr_char_03_sothea_emotional_female.mp3",
-    "filename": "cfr_char_03_sothea_emotional_female.mp3",
-    "label": "🌸 សូធា (តួឯកស្រី - ទន់ភ្លន់/រំជួលចិត្ត)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "អរគុណលោកប្រធានគូ ខ្ញុំរំភើបចិត្តណាស់ ស៊ាវប៉ាប្រហែលជាចេញមកពីសាលាហើយ ខ្ញុំត្រូវប្រញាប់ទៅប្រាប់ដំណឹងល្អនេះដល់គេសិន"
-  },
-  {
-    "id": "voxcpm:cfr_char_04_father_middleage_male.mp3",
-    "filename": "cfr_char_04_father_middleage_male.mp3",
-    "label": "👨‍👧 ឪពុកពោះម៉ាយ (តួប្រុសវ័យកណ្តាល - ទទូច/ស្រលាញ់កូន)",
-    "role_key": "father",
-    "gender": "male",
-    "is_curated": true,
-    "words": "បែបហ្នឹងមិនបានទេ ខ្ញុំជាឪពុកពោះម៉ាយ ខ្ញុំនិងកូនប្រុសគឺត្រូវតែនៅជាមួយគ្នា"
-  },
-  {
-    "id": "voxcpm:cfr_char_05_little_girl_child_female.mp3",
-    "filename": "cfr_char_05_little_girl_child_female.mp3",
-    "label": "👧 កូនស្រីតូច (តួកុមារី - រំភើប/ស្រស់ស្រាយ)",
-    "role_key": "child",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ល្អណាស់ប៉ាប៉ា យប់នេះពួកយើងបាននៅទីនេះហើយ"
-  },
-  {
-    "id": "voxcpm:cfr_char_06_fierce_wife_female.mp3",
-    "filename": "cfr_char_06_fierce_wife_female.mp3",
-    "label": "🔥 ភរិយាខឹងសម្បារ (តួស្រីកាច - ស្រែកខ្លាំង/កំហឹង)",
-    "role_key": "fierce_female",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ឯងចេញទៅ! ឯងចេញទៅភ្លាមទៅ! រវាងពួកយើងនិងស្រីខាងក្រៅនោះ ឯងរើសបានតែមួយទេ! បើឯងយកនាង មិនបាច់ត្រឡប់មកវិញទេ!"
-  },
-  {
-    "id": "voxcpm:cfr_char_07_hotel_staff_male.mp3",
-    "filename": "cfr_char_07_hotel_staff_male.mp3",
-    "label": "💼 បុគ្គលិកសណ្ឋាគារ (តួប្រុស - ម៉ត់ចត់/គួរសម)",
-    "role_key": "staff",
-    "gender": "male",
-    "is_curated": true,
-    "words": "អត់មិនបានទេ កន្លែងស្នាក់នៅនេះគឺសម្រាប់តែម្នាក់ឯងប៉ុណ្ណោះ មិនអាចនាំកូនចូលមកទេ"
-  },
-  {
-    "id": "voxcpm:cfr_char_08_mediator_polite_male.mp3",
-    "filename": "cfr_char_08_mediator_polite_male.mp3",
-    "label": "🤝 បុរសសម្របសម្រួល (តួប្រុស - សុភាព/ស្រទន់)",
-    "role_key": "mediator",
-    "gender": "male",
-    "is_curated": true,
-    "words": "អូ សុំទោសអ្នកទាំងពីរ ត្រឡប់ទៅវិញសិនទៅណា"
-  },
-  {
-    "id": "voxcpm:cfr_char_09_bride_young_female.mp3",
-    "filename": "cfr_char_09_bride_young_female.mp3",
-    "label": "👰 កូនក្រមុំ (តួស្រីក្មេង - ស្រទន់/ឌឺដង)",
-    "role_key": "bride",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ពូកែណាស់ឯងថ្ងៃនេះ កម្ទេចសាច់ញាតិខ្ញុំអស់ជាច្រើននាក់"
-  },
-  {
-    "id": "voxcpm:cfr_char_10_wedding_guest_uncle_male.mp3",
-    "filename": "cfr_char_10_wedding_guest_uncle_male.mp3",
-    "label": "🥂 ភ្ញៀវកិត្តិយសចាស់ទុំ (តួអ៊ំប្រុស - រីករាយ/រួសរាយ)",
-    "role_key": "old_uncle",
-    "gender": "male",
-    "is_curated": true,
-    "words": "មកហើយៗៗ ថ្ងៃនេះជាថ្ងៃអាពាហ៍ពិពាហ៍ក្មួយទាំងពីរ បាទ ហើយមួយនេះ ស្រាសំពះផ្ទឹមពីរកែវនេះ ពួកឯងត្រូវតែផឹកណា៎"
-  },
-  {
-    "id": "voxcpm:cfr_char_11_elder_storyteller_male.mp3",
-    "filename": "cfr_char_11_elder_storyteller_male.mp3",
-    "label": "👴 តាចាស់ទុំរៀបរាប់ (ព្រឹទ្ធាចារ្យ/តា - សំឡេងចាស់ទុំ)",
-    "role_key": "elder",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ឯងភ្លេចហើយ ៥ឆ្នាំមុន អាស៊ុនទៅចូលរួមមង្គលការគេ ផឹកស្រវឹងខ្លាំង គឺឯងជាអ្នកចាត់មនុស្សទៅយកគេមកវិញ"
-  },
-  {
-    "id": "voxcpm:cfr_char_12_school_teacher_host_female.mp3",
-    "filename": "cfr_char_12_school_teacher_host_female.mp3",
-    "label": "👩‍🏫 ពិធីការិនីសាលារៀន (តួស្រី - គួរសម/ពន្យល់ម៉ត់ចត់)",
-    "role_key": "teacher",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ជាន់ទីមួយនៃអាគារសកម្មភាពនេះ ពួកយើងធ្វើជាបន្ទប់អានសៀវភៅ ដើម្បីឲ្យក្មេងៗអាចក្រេបជញ្ជក់ចំណេះដឹងថ្នាក់បឋមសិក្សាបាន"
-  },
-  {
-    "id": "voxcpm:char_male_casual.mp3",
-    "filename": "char_male_casual.mp3",
-    "label": "🎙️ តួប្រុស (សំឡេងធម្មជាតិ)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ជេការបើកទូរស័ព្ទ កុំឱ្យកូនកំពុងតែបើកប្រាស់ខ្ញុំ"
-  },
-  {
-    "id": "voxcpm:char_female_calm.mp3",
-    "filename": "char_female_calm.mp3",
-    "label": "🌸 តួស្រី (សំឡេងស្រទន់ស្ងប់)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ថ្នាក់ក្នុងចាក់ដីនេះ ជាប្តីរបស់ប្រតិចាចៅអ៊ី"
-  },
-  {
-    "id": "voxcpm:char_female_lead_palace.mp3",
-    "filename": "char_female_lead_palace.mp3",
-    "label": "🌸 តួឯកស្រី (ដំណាក់រាជវាំង - សុភាពរាបសារ)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "បានទទួលកាលវិធីបានរំផ្សាយហើយ ខ្ញុំក៏បានជម្រាបអ្នកផ្សេងមិនឲ្យចូលដំណាក់នាងបើគ្មានការអនុញ្ញាត"
-  },
-  {
-    "id": "voxcpm:char_male_tactics.mp3",
-    "filename": "char_male_tactics.mp3",
-    "label": "👑 តួឯកប្រុស (យុទ្ធសាស្ត្រច្បាស់លាស់)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "យកបាញ់យុទ្ធសាស្ត្រទើបបងចេញប្រាំបួននឹងរូបការងារក្រីដោចៃដន្យ ដើមឡើយចង់ប្រកួតវាឱ្យប្រាកដជាក់"
-  },
-  {
-    "id": "voxcpm:char_male_lead_star7.mp3",
-    "filename": "char_male_lead_star7.mp3",
-    "label": "👑 តួប្រុស (ក្បួនផ្កាយ៧ - ម៉ឺងម៉ាត់)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ត្រូវតែចងចាំក្បួនផ្កាយ ៧ ដែលយើងបង្រៀនដល់ឯង ឧស្សាហ៍សង្កេតមើលផ្កាយ ដើម្បីយល់អត្ថន័យនៅពីក្រោយរឿងនេះ"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_2_male.mp3",
-    "filename": "hang_phleung_char_2_male.mp3",
-    "label": "👑 តួឯកប្រុស (វីរនារីហង្សភ្លើង)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ដោយសារតែមានគ្រូអាថ៌កំបាំង មូ ជីងឆឹង យុទ្ធសិល្ប៍រីកចម្រើនយ៉ាងលឿន ក្លាយទៅជានារីខ្លាំងពូកែ ដែលល្បីល្បាញពេញយានទូ"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_6_female.mp3",
-    "filename": "hang_phleung_char_6_female.mp3",
-    "label": "🌸 តួឯកស្រី (វីរនារីហង្សភ្លើង)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "អយ្យ៉ា នោះគឺព្រោះតែទៅពិនិត្យជំងឺនៅផ្ទះមីងលី មីងលីជាអ្នកប្រាប់ខ្ញុំ គាត់ធ្វើការនៅផ្ទះរបស់ម្ចាស់ក្រុង រអ៊ូរទាំប្រាប់ខ្ញុំរហូត"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_3_female.mp3",
-    "filename": "hang_phleung_char_3_female.mp3",
-    "label": "🌸 តួអង្គនារី (ហ្វុងអ៊ូ)",
-    "role_key": "hang_phleung_3",
-    "gender": "female",
-    "is_curated": true,
-    "words": "នែ៎ ក្រែងលោកជាគ្រូរបស់ខ្ញុំទេ? លោកនិយាយឲ្យច្បាស់សិនមក ម៉េចក៏ខ្ញុំក្លាយទៅជាហ្វុងអ៊ូអញ្ចឹង?"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_7_male.mp3",
-    "filename": "hang_phleung_char_7_male.mp3",
-    "label": "👑 ព្រះអាទិទេព ស៊ីងជឺ (តួឯកប្រុស)",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ទោះបីជាមេឃដួលរលំ ក៏យើងមិនឱ្យនាងរងរបួសឡើយ!"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_1_male.mp3",
-    "filename": "hang_phleung_char_1_male.mp3",
-    "label": "👴 តួអ៊ំចាស់",
-    "role_key": "hang_phleung_1",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ចៃដន្យ នោះក៏ព្រោះតែបែបនេះហើយ ក៏បានឃើញជិនជូវ ក្លាយទៅជាព្រលឹងមួយសន្ធិតនៅក្នុងចិញ្ចៀននោះ គឺក្រោយពេលដែលឆ្លងកាត់គ្រោះបរាជ័យហើយ"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_8_male.mp3",
-    "filename": "hang_phleung_char_8_male.mp3",
-    "label": "🛡️ មេទ័ពវិញ្ញាណ (តួប្រុស)",
-    "role_key": "general",
-    "gender": "male",
-    "is_curated": true,
-    "words": "ទាហានទាំងអស់ស្តាប់បញ្ជា ការពារបន្ទាយឱ្យរឹងមាំ!"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_4_male.mp3",
-    "filename": "hang_phleung_char_4_male.mp3",
-    "label": "🎙️ អ្នករៀបរាប់សាច់រឿង",
-    "role_key": "hang_phleung_4",
-    "gender": "male",
-    "is_curated": true,
-    "words": "នៅពេលដែលមនុស្សទាំងអស់រកហ្វុងអ៊ូឃើញវិញ នារីខ្លាំងពូកែកាលពីមុនម្នាក់នេះ មិនត្រឹម"
-  },
-  {
-    "id": "voxcpm:hang_phleung_char_5_female.mp3",
-    "filename": "hang_phleung_char_5_female.mp3",
-    "label": "👧 ភីលៀង",
-    "role_key": "hang_phleung_5",
-    "gender": "female",
-    "is_curated": true,
-    "words": "អ្នកនាង ក្រែងនោះជាបង្អែមគ្រាប់ផ្លែប៉េសដែលអ្នកនាងឱ្យខ្ញុំហេ? អញ្ចឹងក៏អាចលក់បាន១០ដំឡឹងដែរ?"
-  },
-  {
-    "id": "voxcpm:vp_character_20_female.mp3",
-    "filename": "vp_character_20_female.mp3",
-    "label": "👑 តួឯកប្រុស",
-    "role_key": "male_lead",
-    "gender": "male",
-    "is_curated": true,
-    "words": "លោក ពិត ជា មិន ស្គាល់ យើង មែន ពេល ចូល គាល់ ព្រះ អង្គ ក្នុង វាំង ការ ដុក ឈប់ ធ្លាប់ បាន ឃើញ ព្រះ រាជបុត្រ សៀវយ៉ាវ ពិត មែន តែ កាល នោះ ពួក គេ បាំង ដោយ វាំងនន ទើប ខ្ញុំ ចាំ មុខ ទ្រង់ មិន បាន តែ បុរស ម្នាក់ នេះ ហាក់ ដូចជា មាន"
+    "words": "សំឡេងគំរូថ្មី"
   },
   {
     "id": "voxcpm:vp_character_1_female.mp3",
     "filename": "vp_character_1_female.mp3",
-    "label": "🌸 តួឯកស្រី",
+    "label": "🌸 សំឡេងតួឯកស្រី",
     "role_key": "female_lead",
     "gender": "female",
     "is_curated": true,
-    "words": "ខ្ញុំ សុំ ខ្ចី សិទ្ធិ របស់ លោក ជីសិន"
+    "words": "សំឡេងខ្មែរតួឯកស្រី ពិរោះស្រទន់ សុភាពរាបសារ"
   },
   {
     "id": "voxcpm:vp_character_2_male.mp3",
     "filename": "vp_character_2_male.mp3",
-    "label": "🍵 អ្នកបម្រើតួឯកស្រី",
-    "role_key": "servant_female",
+    "label": "👑 សំឡេងតួឯកប្រុស",
+    "role_key": "male_lead",
     "gender": "male",
     "is_curated": true,
-    "words": "អុះ ត្រូវ ហើយ ខ្ញុំ បាល់ ផ្សព្វផ្សាយ ដំណឹង ជូន អ្នកនាង ហើយ"
+    "words": "សំឡេងខ្មែរតួឯកប្រុស អង់អាច ម៉ឺងម៉ាត់ មានអំណាច"
   },
   {
     "id": "voxcpm:vp_character_6_female.mp3",
     "filename": "vp_character_6_female.mp3",
-    "label": "⚡ តួស្រីកាច",
-    "role_key": "fierce_female",
+    "label": "🌺 សំឡេងតួស្រីឆ្នាស់",
+    "role_key": "villain",
     "gender": "female",
     "is_curated": true,
-    "words": "មិនប្រញាប់ជួយខ្ញុំមកលឿនឡើងមក? ល្អណាស់ ចាំជាគូស្នេហ៍ថោកទាបមែន ហ៊ានញ៉ែនាំគ្នាមកគេផងហេ?"
+    "words": "សំឡេងខ្មែរតួស្រី ទន់ភ្លន់រម្យទម"
   },
   {
     "id": "voxcpm:vp_character_7_male.mp3",
     "filename": "vp_character_7_male.mp3",
-    "label": "⚔️ តួប្រុសកាច",
-    "role_key": "fierce_male",
+    "label": "⚔️ សំឡេងតួប្រុសអំណាច",
+    "role_key": "villain",
     "gender": "male",
     "is_curated": true,
-    "words": "ស្រីថោកទាបឯងនេះ លួចមានប្រុសថ្មីនៅក្រោយខ្នងយើង បិទមាត់ឆ្កែរបស់លោកទៅ កុំយកលេសស្មោកគ្រោកខ្លួនឯងមកលក់មុខ!"
+    "words": "សំឡេងខ្មែរតួប្រុស មេបញ្ជាការ/អ្នកចម្បាំង"
   },
   {
     "id": "voxcpm:vp_character_9_male.mp3",
     "filename": "vp_character_9_male.mp3",
-    "label": "🌾 អ្នកភូមិ",
-    "role_key": "villager",
+    "label": "⚡ សំឡេងអ្នកភូមិ",
+    "role_key": "other",
     "gender": "male",
     "is_curated": true,
-    "words": "ថុច ទីប នេះ ទៅ ថុច ចេញ ថុច ចេញ ថុច ចេញ"
+    "words": "សំឡេងខ្មែរតួប្រុស ស្វាហាប់រស់រវើក"
   },
   {
     "id": "voxcpm:vp_character_10_male.mp3",
     "filename": "vp_character_10_male.mp3",
-    "label": "🛡️ មេទ័ព",
+    "label": "🏎️ សំឡេងមេទ័ព",
     "role_key": "general",
     "gender": "male",
     "is_curated": true,
-    "words": "ទូលបង្គំ មក យឺតយាវ សូម ព្រះ រាជបុត្រ ព្រះ រាជទាន ទោស ក្រោក ឡើង"
+    "words": "សំឡេងខ្មែរតួប្រុសវ័យក្មេង ពូកែឌឺដង"
   },
   {
     "id": "voxcpm:vp_character_12_male.mp3",
     "filename": "vp_character_12_male.mp3",
-    "label": "👥 មហាជន",
-    "role_key": "crowd",
+    "label": "💼 សំឡេងតួប្រុសចាស់ទុំ/ព្រឹទ្ធាចារ្យ",
+    "role_key": "elder",
     "gender": "male",
     "is_curated": true,
-    "words": "សមជាអ្នកប្រាជ្ញណាស់ ពិតជាប្រាជ្ញណាស់ ពិតមែន"
+    "words": "សំឡេងខ្មែរព្រឹទ្ធាចារ្យ ចាស់ទុំមានគុណធម៌"
   },
   {
     "id": "voxcpm:vp_character_14_female.mp3",
     "filename": "vp_character_14_female.mp3",
-    "label": "🐍 តួកាច",
-    "role_key": "villain_female",
+    "label": "✨ សំឡេងតួស្រីវ័យក្មេង",
+    "role_key": "villain",
     "gender": "female",
     "is_curated": true,
-    "words": "នាងបោកប្រាស់មែនហើយ ច្បាស់ជាមានគេតាំងទុកឲ្យយូរហើយ"
+    "words": "សំឡេងខ្មែរនារីវ័យក្មេង ស្រស់ស្រាយ"
   },
   {
     "id": "voxcpm:vp_character_16_male.mp3",
     "filename": "vp_character_16_male.mp3",
-    "label": "👴 តួអ៊ំចាស់",
-    "role_key": "old_uncle",
+    "label": "🛡️ សំឡេងតាចាស់/ម៉ត់ចត់",
+    "role_key": "elder",
     "gender": "male",
     "is_curated": true,
-    "words": "កាត ទៅ ក្រែងលោ គេ រត់ បាត់"
+    "words": "សំឡេងខ្មែរតួប្រុស ស្មោះត្រង់ម៉ត់ចត់"
   },
   {
     "id": "voxcpm:vp_character_17_male.mp3",
     "filename": "vp_character_17_male.mp3",
-    "label": "📜 តួចាហ្វាយខេត្ត",
-    "role_key": "governor",
+    "label": "🎭 សំឡេងតួប្រុសកំប្លែង/កូនចៅជំនិត",
+    "role_key": "comic",
     "gender": "male",
     "is_curated": true,
-    "words": "ទី នេះ ត្រូវ គង ជាប់ ព័ទ្ធ ជាប់ អស់ ហើយ ពួក ចោរ ព្រៃ ថោកទាប ឯង ឃើញ ចាវ៉ាយ ខេត្ត ហើយ ធាក់ ដំលូត ទៅ គង់ ទៀត អ្ហេ ទម្លាក់ អាវុធ ចុះ ឲ្យ អស់ ភ្លាម ទៅ ទើប ឯង យើង ទុក សាកសព ពេញ ឱ្យ"
+    "words": "សំឡេងខ្មែរតួកំប្លែង កូនចៅជំនិត"
   },
   {
     "id": "voxcpm:vp_character_19_male.mp3",
     "filename": "vp_character_19_male.mp3",
-    "label": "📿 ព្រឹទ្ធាចារ្យ",
-    "role_key": "elder",
+    "label": "📜 សំឡេងអ្នកនិទានរឿង",
+    "role_key": "narrator",
     "gender": "male",
     "is_curated": true,
-    "words": "នេះ យើង ស្តាប់ ច្រឡំ មែន ទេ មុន នេះ នាង និយាយ ថា ម៉េច ? ទីនេះ មាន កន្លែង នាង ត្រូវ និយាយ ពី អំកាល យ៉ាន់ហ្វាន"
+    "words": "សំឡេងខ្មែរអ្នកនិទានរឿង ធ្ងន់ច្បាស់មានទឹកដម"
+  },
+  {
+    "id": "voxcpm:vp_character_20_female.mp3",
+    "filename": "vp_character_20_female.mp3",
+    "label": "🔥 សំឡេងតួប្រុស/កាច",
+    "role_key": "villain_female",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងខ្មែរតួស្រីកាច មានអំណាច"
   },
   {
     "id": "voxcpm:vp_character_21_female.mp3",
     "filename": "vp_character_21_female.mp3",
-    "label": "👵 យាយចាស់",
-    "role_key": "old_woman",
-    "gender": "female",
-    "is_curated": true,
-    "words": "ត្រូវហើយ តើលោកជាអ្នកណា?"
-  },
-  {
-    "id": "voxcpm:custom_voice_20260912_female.mp3",
-    "filename": "custom_voice_20260912_female.mp3",
-    "label": "🌸 តួស្រី សំឡេងផ្ទាល់ខ្លួន (20260912 - ឈុតទី ១)",
+    "label": "🎀 សំឡេងតួស្រីចាស់",
     "role_key": "female_lead",
     "gender": "female",
     "is_curated": true,
-    "words": "សំឡេងគំរូដើមស្រង់ចេញពី 20260912_045310.aac សម្រាប់ Clone និង Dubbing"
-  },
-  {
-    "id": "voxcpm:custom_voice_20260912_female_2.mp3",
-    "filename": "custom_voice_20260912_female_2.mp3",
-    "label": "🌸 តួស្រី សំឡេងផ្ទាល់ខ្លួន (20260912 - ឈុតទី ២)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "សំឡេងគំរូដើមស្រង់ចេញពី 20260912_045310.aac (Alternate Scene)"
-  },
-  {
-    "id": "voxcpm:custom_voice_20260912_full.mp3",
-    "filename": "custom_voice_20260912_full.mp3",
-    "label": "🎙️ សំឡេងដើមពេញលេញ (20260912_045310 Full)",
-    "role_key": "female_lead",
-    "gender": "female",
-    "is_curated": true,
-    "words": "សំឡេងគំរូដើមពេញលេញ 3 នាទី"
+    "words": "សំឡេងខ្មែរតួស្រី រស់រវើកមានមន្តស្នេហ៍"
   }
 ]

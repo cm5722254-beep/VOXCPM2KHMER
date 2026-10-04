@@ -40,14 +40,25 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   segments,
   onShowToast,
 }) => {
-  // ── Step 1: Quality Selection ──
-  const [quality, setQuality] = useState<'720p' | '1080p' | '2k' | '4k'>('1080p');
+  // ── Format & Resolution Settings ──
+  const [format, setFormat] = useState<'mp4' | 'mov' | 'mkv'>('mp4');
+  const [resolution, setResolution] = useState<'720p' | '1080p' | '1440p' | '4k'>('1080p');
+  const [fps, setFps] = useState<'24' | '30' | '60'>('60');
+  const [codec, setCodec] = useState<'H.264' | 'H.265' | 'AV1'>('H.264');
+  const [audioCodec, setAudioCodec] = useState<'AAC' | 'WAV'>('AAC');
 
-  // ── Step 2: Drive Selection ──
+  // ── Export Checkbox Options ──
+  const [includeSubtitles, setIncludeSubtitles] = useState(true);
+  const [exportDubbedAudio, setExportDubbedAudio] = useState(true);
+  const [exportOriginalAudio, setExportOriginalAudio] = useState(false);
+  const [exportAudioStems, setExportAudioStems] = useState(false);
+  const [saveProjectState, setSaveProjectState] = useState(true);
+
+  // ── Drive Selection ──
   const [selectedDrive, setSelectedDrive] = useState<'C:' | 'D:' | 'E:' | 'custom'>('D:');
   const [customPath, setCustomPath] = useState('D:\\AnimeDub_Outputs');
 
-  // Rendering States
+  // ── Rendering States ──
   const [isRendering, setIsRendering] = useState(false);
   const [renderProgress, setRenderProgress] = useState(0);
   const [renderStepText, setRenderStepText] = useState('');
@@ -86,16 +97,16 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
         let targetW = srcW;
         let targetH = srcH;
-        if (quality === '1080p') {
+        if (resolution === '1080p') {
           targetW = isPortrait ? 1080 : 1920;
           targetH = isPortrait ? 1920 : 1080;
-        } else if (quality === '720p') {
+        } else if (resolution === '720p') {
           targetW = isPortrait ? 720 : 1280;
           targetH = isPortrait ? 1280 : 720;
-        } else if (quality === '2k') {
+        } else if (resolution === '1440p') {
           targetW = isPortrait ? 1440 : 2560;
           targetH = isPortrait ? 2560 : 1440;
-        } else if (quality === '4k') {
+        } else if (resolution === '4k') {
           targetW = isPortrait ? 2160 : 3840;
           targetH = isPortrait ? 3840 : 2160;
         }
@@ -115,20 +126,23 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 
       await new Promise((r) => setTimeout(r, 400));
       setRenderProgress(70);
-      setRenderStepText('FFmpeg Hardware Encode កំពុងដំណើរការ...');
+      setRenderStepText(`FFmpeg ${codec} Hardware Encode (${fps} FPS, ${audioCodec})...`);
 
-      // 2. Call backend server to execute FFmpeg permanently
+      // 2. Call backend to execute FFmpeg
       const destination = selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`;
-      const targetFilename = filename || (outputVideoUrl ? outputVideoUrl.split('/').pop()?.split('?')[0] : undefined) || 'project_video.mp4';
+      const targetFilename =
+        filename ||
+        (outputVideoUrl ? outputVideoUrl.split('/').pop()?.split('?')[0] : undefined) ||
+        'project_video.mp4';
       const response = await api.renderExportVideo({
         filename: targetFilename,
         inputVideo: outputVideoUrl || undefined,
         titleOverlayBase64,
-        burnSubtitles: Boolean(segments && segments.length > 0),
+        burnSubtitles: includeSubtitles && Boolean(segments && segments.length > 0),
         subtitles: segments,
-        resolution: quality === '2k' ? '1080p' : (quality as any),
-        format: 'mp4',
-        bitrate: quality === '4k' ? 'ultra' : 'high',
+        resolution: resolution === '1440p' ? '1080p' : (resolution as any),
+        format: format,
+        bitrate: resolution === '4k' ? 'ultra' : 'high',
         outputDir: destination,
       });
 
@@ -136,9 +150,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         setRenderProgress(100);
         setRenderStepText('🎉 Render វីដេអូបានជោគជ័យ 100%!');
         setRenderedDownloadUrl(response.outputVideo);
-        setRenderedFilename(response.filename || `dubbed_${activeProjectTitle}.mp4`);
-
-        const destination = selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`;
+        setRenderedFilename(response.filename || `dubbed_${activeProjectTitle}.${format}`);
         onShowToast(`🎉 Export ជោគជ័យ 100%! រក្សាទុកក្នុង: ${destination}`, 'success');
       } else {
         throw new Error('Server មិនបានបញ្ជូនឯកសារវីដេអូមកវិញឡើយ');
@@ -162,32 +174,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2500);
   };
 
-  const QUALITIES = [
-    {
-      id: '720p',
-      name: '720p HD',
-      desc: 'លឿនបំផុត (Fast Export)',
-      badge: 'លឿន',
-    },
-    {
-      id: '1080p',
-      name: '1080p FULL HD',
-      desc: 'ស្ដង់ដារច្បាស់ត្រជាក់ភ្នែក (ណែនាំ)',
-      badge: 'ល្អបំផុត',
-      recommended: true,
-    },
-    {
-      id: '2k',
-      name: '2K QUAD HD',
-      desc: 'ច្បាស់ខ្លាំងសម្រាប់ Monitor ធំ',
-      badge: 'ច្បាស់',
-    },
-    {
-      id: '4k',
-      name: '4K ULTRA HD',
-      desc: 'កម្រិតភាពយន្ត Cinema កំពូល',
-      badge: 'PRO',
-    },
+  const RESOLUTIONS = [
+    { id: '720p', name: '720p HD', desc: 'លឿនរហ័ស (Fast Export)' },
+    { id: '1080p', name: '1080p Full HD', desc: 'ស្ដង់ដារភាពយន្ត (ណែនាំ)', recommended: true },
+    { id: '1440p', name: '1440p 2K', desc: 'កម្រិតខ្ពស់' },
+    { id: '4k', name: '4K Ultra HD', desc: 'Cinema Master' },
   ];
 
   const DRIVES = [
@@ -198,108 +189,243 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5 select-none font-khmer animate-in fade-in duration-200">
-      <div className="bg-[#0b0f19] border border-cyan-500/30 rounded-2xl w-full max-w-2xl overflow-hidden shadow-[0_0_50px_rgba(6,182,212,0.2)] flex flex-col max-h-[92vh]">
-        {/* ── Modal Header ── */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070a13]">
+    /* ── Backdrop: bg-black/70 backdrop-blur-md with vignette ── */
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 select-none font-khmer animate-in fade-in duration-200"
+      style={{
+        background: 'radial-gradient(ellipse at center, rgba(0,0,0,0.70) 60%, rgba(0,0,0,0.92) 100%)',
+        backdropFilter: 'blur(12px)',
+      }}
+    >
+      {/* ── Modal Container ── */}
+      <div className="w-full max-w-3xl rounded-2xl bg-[#141417] border border-white/[0.10] shadow-2xl flex flex-col max-h-[94vh] overflow-hidden">
+
+        {/* ── Header ── */}
+        <div className="shrink-0 px-5 py-4 flex items-center justify-between relative">
+          {/* Gradient border-bottom */}
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-emerald-500/40 to-transparent" />
+
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30">
-              <Download className="w-4 h-4 stroke-[2.5]" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600/20 to-teal-600/20 border border-emerald-500/30 flex items-center justify-center shadow-sm">
+              <Download className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-wide">
-                  EXPORT វីដេអូ MASTER
+              <div className="flex items-center gap-2 flex-wrap">
+                <h3 className="text-sm font-bold text-white leading-tight">
+                  នាំចេញគម្រោង
                 </h3>
-                <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
-                  FAST EXPORT
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-mono">
+                  {format.toUpperCase()} • {resolution.toUpperCase()} • {fps}FPS
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
-                ជ្រើសរើស Quality ➔ ជ្រើសរើស Drive ➔ ចុច SUBMIT ជាការស្រេច!
+              <p className="text-[11px] text-zinc-500 mt-0.5">
+                កំណត់ប៉ារ៉ាម៉ែត្រ ➔ ជ្រើស Drive ➔ ចាប់ផ្តើមនាំចេញ
               </p>
             </div>
           </div>
 
+          {/* Close button with hover ring */}
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.08] ring-0 hover:ring-1 hover:ring-white/20 transition-all"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* ── Modal Body: 2 Clean Steps ── */}
-        <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-5 text-xs">
+        {/* ── Modal Body ── */}
+        <div className="flex-1 overflow-y-auto p-5 flex flex-col gap-4 text-xs custom-scrollbar">
+
           {/* Active Video Name */}
-          <div className="p-3 rounded-xl bg-cyan-500/[0.06] border border-cyan-500/20 flex items-center gap-3">
-            <Film className="w-5 h-5 text-cyan-400 shrink-0" />
+          <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 flex items-center gap-3 hover:border-white/[0.14] transition-colors">
+            <Film className="w-5 h-5 text-emerald-400 shrink-0" />
             <div className="min-w-0 flex-1">
-              <div className="font-bold text-white truncate text-xs">
-                {activeProjectTitle || 'Anime_Master_Project.mp4'}
+              <div className="font-bold text-white truncate text-xs font-mono">
+                {activeProjectTitle || 'Khmer_Dub_Master_Project.mp4'}
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">
-                វីដេអូបញ្ចូលសំឡេងខ្មែរ + ភ្លេង BGM + Subtitle 3D
+              <div className="text-[10px] text-zinc-500 mt-0.5">
+                វីដេអូ AI + ភ្លេង BGM + Subtitle + Audio Stems
               </div>
             </div>
           </div>
 
-          {/* ── STEP 1: ជ្រើសរើស QUALITY ── */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
-                  1
-                </span>
-                <span>ជ្រើសរើសកម្រិតរូបភាព (QUALITY):</span>
-              </span>
-              <span className="text-[10px] text-cyan-300 font-bold uppercase font-mono">
-                {quality.toUpperCase()}
-              </span>
-            </label>
+          {/* ── Format, Codec, FPS / Audio Codec Row ── */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Format: MP4, MOV, MKV */}
+            <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-3 space-y-2 hover:border-white/[0.14] transition-colors">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">Format</label>
+              <div className="flex gap-1.5">
+                {(['mp4', 'mov', 'mkv'] as const).map((fmt) => (
+                  <button
+                    key={fmt}
+                    type="button"
+                    onClick={() => setFormat(fmt)}
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold font-mono uppercase border transition-all active:scale-95 ${
+                      format === fmt
+                        ? 'bg-gradient-to-r from-emerald-600/30 to-teal-600/30 border-emerald-500/50 text-emerald-300'
+                        : 'bg-[#0f1013] border-white/[0.08] text-zinc-500 hover:text-white hover:border-white/20'
+                    }`}
+                  >
+                    {fmt}
+                  </button>
+                ))}
+              </div>
+            </div>
 
+            {/* Codec: H.264, H.265, AV1 */}
+            <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-3 space-y-2 hover:border-white/[0.14] transition-colors">
+              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">Codec</label>
+              <div className="flex gap-1.5">
+                {(['H.264', 'H.265', 'AV1'] as const).map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCodec(c)}
+                    className={`flex-1 py-2 rounded-xl text-xs font-bold font-mono border transition-all active:scale-95 ${
+                      codec === c
+                        ? 'bg-gradient-to-r from-emerald-600/30 to-teal-600/30 border-emerald-500/50 text-emerald-300'
+                        : 'bg-[#0f1013] border-white/[0.08] text-zinc-500 hover:text-white hover:border-white/20'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* FPS & Audio Codec — pill tab style */}
+            <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-3 space-y-2 hover:border-white/[0.14] transition-colors">
+              <div className="flex items-center justify-between">
+                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">FPS / Audio</label>
+                <span className="text-[10px] text-emerald-400 font-mono">{fps}fps • {audioCodec}</span>
+              </div>
+              <div className="grid grid-cols-2 gap-2">
+                {/* FPS pill tabs */}
+                <div className="flex p-0.5 rounded-lg bg-[#0f1013] border border-white/[0.08]">
+                  {(['24', '30', '60'] as const).map((f) => (
+                    <button
+                      key={f}
+                      type="button"
+                      onClick={() => setFps(f)}
+                      className={`flex-1 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${
+                        fps === f
+                          ? 'bg-white/10 text-white'
+                          : 'text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {f}
+                    </button>
+                  ))}
+                </div>
+                {/* Audio pill tabs */}
+                <div className="flex p-0.5 rounded-lg bg-[#0f1013] border border-white/[0.08]">
+                  {(['AAC', 'WAV'] as const).map((a) => (
+                    <button
+                      key={a}
+                      type="button"
+                      onClick={() => setAudioCodec(a)}
+                      className={`flex-1 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${
+                        audioCodec === a
+                          ? 'bg-white/10 text-white'
+                          : 'text-zinc-500 hover:text-zinc-300'
+                      }`}
+                    >
+                      {a}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Resolution Cards ── */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>Resolution (កម្រិតរូបភាព)</span>
+              <span className="text-[10px] text-emerald-300 font-mono">{resolution.toUpperCase()}</span>
+            </label>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {QUALITIES.map((q) => (
+              {RESOLUTIONS.map((q) => (
                 <button
                   key={q.id}
                   type="button"
-                  onClick={() => setQuality(q.id as any)}
-                  className={`p-3 rounded-xl border flex flex-col justify-between gap-1.5 text-left transition-all ${
-                    quality === q.id
-                      ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)]'
-                      : 'bg-[#080c14] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                  onClick={() => setResolution(q.id as any)}
+                  className={`p-3 rounded-xl border flex flex-col gap-1.5 text-left transition-all active:scale-[0.98] ${
+                    resolution === q.id
+                      ? 'bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border-emerald-500/50 text-white'
+                      : 'bg-[#1a1d23] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.18]'
                   }`}
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-bold font-mono text-xs">{q.name}</span>
-                    <span
-                      className={`text-[8px] font-bold px-1.5 py-0.2 rounded ${
-                        q.recommended
-                          ? 'bg-cyan-500/30 text-cyan-300'
-                          : 'bg-white/10 text-slate-400'
-                      }`}
-                    >
-                      {q.badge}
-                    </span>
+                    {q.recommended && (
+                      <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                        ណែនាំ
+                      </span>
+                    )}
                   </div>
-                  <span className="text-[10px] text-slate-400 leading-tight">
-                    {q.desc}
-                  </span>
+                  <span className="text-[10px] text-zinc-500 leading-tight">{q.desc}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* ── STEP 2: ជ្រើសរើស DRIVE COMPUTER ── */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-bold text-slate-200 flex items-center justify-between">
-              <span className="flex items-center gap-1.5">
-                <span className="w-5 h-5 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px]">
-                  2
+          {/* ── Export Options (Checkboxes) ── */}
+          <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 space-y-3 hover:border-white/[0.14] transition-colors">
+            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">
+              ជម្រើសនាំចេញ (Export Options)
+            </label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {[
+                { state: includeSubtitles, setter: setIncludeSubtitles, label: 'បញ្ចូលចំណងជើងរង (Burn Subtitles)' },
+                { state: exportDubbedAudio, setter: setExportDubbedAudio, label: 'នាំចេញសំឡេងឌាប់ (Dubbed Audio)' },
+                { state: exportOriginalAudio, setter: setExportOriginalAudio, label: 'នាំចេញសំឡេងដើម (Original Audio)' },
+                { state: exportAudioStems, setter: setExportAudioStems, label: 'នាំចេញ Audio Stems' },
+              ].map(({ state, setter, label }) => (
+                <label key={label} className="flex items-center gap-2.5 cursor-pointer group">
+                  <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                    state
+                      ? 'bg-emerald-600 border-emerald-500'
+                      : 'bg-[#0f1013] border-white/20 group-hover:border-white/40'
+                  }`}>
+                    <input
+                      type="checkbox"
+                      checked={state}
+                      onChange={(e) => setter(e.target.checked)}
+                      className="sr-only"
+                    />
+                    {state && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                  </div>
+                  <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors">{label}</span>
+                </label>
+              ))}
+              {/* Full width checkbox */}
+              <label className="flex items-center gap-2.5 cursor-pointer group sm:col-span-2">
+                <div className={`w-4 h-4 rounded border flex items-center justify-center shrink-0 transition-all ${
+                  saveProjectState
+                    ? 'bg-emerald-600 border-emerald-500'
+                    : 'bg-[#0f1013] border-white/20 group-hover:border-white/40'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={saveProjectState}
+                    onChange={(e) => setSaveProjectState(e.target.checked)}
+                    className="sr-only"
+                  />
+                  {saveProjectState && <Check className="w-2.5 h-2.5 text-white stroke-[3]" />}
+                </div>
+                <span className="text-zinc-400 group-hover:text-zinc-200 transition-colors">
+                  រក្សាទុក Project (Autosave Project State & Timeline)
                 </span>
-                <span>ជ្រើសរើសទីតាំង DRIVE COMPUTER:</span>
-              </span>
-              <span className="text-[10px] text-slate-400 font-mono">
+              </label>
+            </div>
+          </div>
+
+          {/* ── Drive Selection ── */}
+          <div className="space-y-2">
+            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+              <span>ទីតាំងរក្សាទុក (Storage Drive)</span>
+              <span className="text-[10px] text-zinc-500 font-mono">
                 {selectedDrive === 'custom' ? customPath : `${selectedDrive}\\AnimeDub_Outputs`}
               </span>
             </label>
@@ -315,113 +441,107 @@ export const ExportModal: React.FC<ExportModalProps> = ({
                       setCustomPath(`${d.id}\\AnimeDub_Outputs`);
                     }
                   }}
-                  className={`p-3 rounded-xl border flex items-center gap-2.5 text-left transition-all ${
+                  className={`p-3 rounded-xl border flex items-center gap-2 text-left transition-all active:scale-[0.98] ${
                     selectedDrive === d.id
-                      ? 'bg-cyan-500/20 border-cyan-400 text-white shadow-[0_0_15px_rgba(6,182,212,0.25)]'
-                      : 'bg-[#080c14] border-white/[0.08] text-slate-400 hover:text-slate-200 hover:bg-white/[0.03]'
+                      ? 'bg-gradient-to-br from-emerald-600/20 to-teal-600/20 border-emerald-500/50 text-white'
+                      : 'bg-[#1a1d23] border-white/[0.08] text-zinc-400 hover:text-zinc-200 hover:border-white/[0.18]'
                   }`}
                 >
                   <HardDrive
-                    className={`w-4 h-4 ${
-                      selectedDrive === d.id ? 'text-cyan-400' : 'text-slate-500'
-                    }`}
+                    className={`w-4 h-4 shrink-0 ${selectedDrive === d.id ? 'text-emerald-400' : 'text-zinc-600'}`}
                   />
-                  <div>
+                  <div className="min-w-0">
                     <div className="font-bold text-xs">{d.label}</div>
-                    <div className="text-[9px] text-slate-500 truncate max-w-[100px]">
-                      {d.path}
-                    </div>
+                    <div className="text-[9px] text-zinc-600 truncate max-w-[90px]">{d.path}</div>
                   </div>
                 </button>
               ))}
             </div>
 
-            {/* Custom Path Input if selected */}
+            {/* Custom Path Input */}
             {selectedDrive === 'custom' && (
-              <div className="mt-1 flex items-center gap-2">
-                <Folder className="w-4 h-4 text-cyan-400 shrink-0" />
+              <div className="flex items-center gap-2">
+                <Folder className="w-4 h-4 text-emerald-400 shrink-0" />
                 <input
                   type="text"
                   value={customPath}
                   onChange={(e) => setCustomPath(e.target.value)}
                   placeholder="ឧ. D:\Movies\AnimeDub"
-                  className="flex-1 bg-[#080c14] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-cyan-400 outline-none font-mono"
+                  className="flex-1 bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-xs text-white placeholder-zinc-600 outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition font-mono"
                 />
               </div>
             )}
           </div>
 
-          {/* ── STEP 3: BIG SUBMIT BUTTON ── */}
-          <div className="pt-2">
+          {/* ── Start Export Button ── */}
+          <div className="pt-1">
             <button
               type="button"
               onClick={handleStartRender}
               disabled={isRendering}
-              className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-sm tracking-wide shadow-xl shadow-cyan-500/30 flex items-center justify-center gap-3 transition-all active:scale-[0.99] disabled:opacity-50"
+              className="w-full py-3 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-sm tracking-wide shadow-lg flex items-center justify-center gap-3 transition-all active:scale-[0.99] disabled:opacity-50"
             >
               {isRendering ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  <span>កំពុង EXPORT វីដេអូ ({renderProgress}%)...</span>
+                  <span>កំពុងនាំចេញ ({renderProgress}%)...</span>
                 </>
               ) : (
                 <>
                   <Sparkles className="w-5 h-5" />
-                  <span>🚀 ចាប់ផ្ដើម EXPORT វីដេអូ (SUBMIT)</span>
+                  <span>🚀 ចាប់ផ្តើមនាំចេញ</span>
                   <ArrowRight className="w-5 h-5" />
                 </>
               )}
             </button>
           </div>
 
-          {/* Render Progress Bar & Download Output */}
+          {/* Render Progress Bar */}
           {isRendering && (
-            <div className="p-4 rounded-xl bg-black/40 border border-cyan-500/20 flex flex-col gap-2">
+            <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 space-y-2.5">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-300">{renderStepText}</span>
-                <span className="font-mono font-bold text-cyan-400">{renderProgress}%</span>
+                <span className="text-zinc-300">{renderStepText}</span>
+                <span className="font-mono font-bold text-emerald-400">{renderProgress}%</span>
               </div>
-              <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+              <div className="w-full bg-zinc-800 h-2 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-300"
+                  className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 rounded-full"
                   style={{ width: `${renderProgress}%` }}
                 />
               </div>
             </div>
           )}
 
-          {/* Render Completed Card with Download Link */}
+          {/* Render Completed Card */}
           {renderedDownloadUrl && !isRendering && (
-            <div className="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="rounded-xl bg-emerald-500/10 border border-emerald-500/30 p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <CheckCircle2 className="w-6 h-6 text-emerald-400 shrink-0" />
                 <div>
-                  <div className="font-bold text-white text-xs">
-                    Render បានសម្រេច 100%!
-                  </div>
-                  <div className="text-[11px] text-slate-400 mt-0.5 font-mono truncate max-w-[280px]">
+                  <div className="font-bold text-white text-xs">Render បានសម្រេច 100%!</div>
+                  <div className="text-[11px] text-zinc-400 mt-0.5 font-mono truncate max-w-[280px]">
                     {renderedFilename}
                   </div>
                 </div>
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 shrink-0">
                 <button
                   type="button"
                   onClick={handleCopyLink}
-                  className="px-3 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-xs text-slate-300 flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-xl bg-[#1e2127] border border-white/[0.08] hover:border-white/20 text-zinc-300 text-xs flex items-center gap-1.5 transition-all"
                 >
-                  <Copy className="w-3.5 h-3.5" />
+                  {copiedLink ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                   <span>{copiedLink ? 'បានចម្លង!' : 'ចម្លង Link'}</span>
                 </button>
 
                 <a
                   href={renderedDownloadUrl}
                   download={renderedFilename}
-                  className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20"
+                  className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-bold text-xs flex items-center gap-1.5 shadow-lg active:scale-95 transition-all"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>ទាញយក MP4</span>
+                  <span>ទាញយក</span>
                 </a>
               </div>
             </div>
@@ -429,11 +549,11 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         </div>
 
         {/* ── Modal Footer ── */}
-        <div className="p-3 px-6 border-t border-white/[0.08] bg-[#070a13] flex justify-end">
+        <div className="shrink-0 px-5 py-3 border-t border-white/[0.08] bg-[#0f1013]/80 flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs transition-colors"
+            className="px-4 py-2 rounded-xl bg-[#1e2127] border border-white/[0.08] hover:border-white/20 text-zinc-300 text-xs transition-all"
           >
             បិទ
           </button>

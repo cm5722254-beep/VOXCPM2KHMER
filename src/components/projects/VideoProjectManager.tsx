@@ -4,7 +4,8 @@ import {
   AlertCircle, Play, MoreVertical, X, Save, FolderKanban, TrendingUp,
   Star, StarOff, RefreshCw, SortAsc, SortDesc, Grid3X3, List, Tag,
   FileVideo, ChevronDown, ChevronUp, Minus, PlusCircle,
-  UploadCloud, Check, Loader2,
+  UploadCloud, Check, Loader2, LayoutGrid, AlignJustify,
+  Zap, Filter, BarChart3, Clock3, Video, Sparkles,
 } from "lucide-react";
 import { api } from "../../services/api";
 import { ProjectFile } from "../../types";
@@ -37,28 +38,60 @@ interface VideoProjectManagerProps {
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 const COLOR_OPTIONS: VideoProject["color"][] = ["cyan","purple","emerald","amber","rose","sky","indigo"];
-const CC: Record<VideoProject["color"], {bg:string;border:string;text:string;dot:string}> = {
-  cyan:    {bg:"bg-cyan-50/70",    border:"border-cyan-200",    text:"text-cyan-700",    dot:"bg-cyan-500"},
-  purple:  {bg:"bg-purple-50/70",  border:"border-purple-200",  text:"text-purple-700",  dot:"bg-purple-500"},
-  emerald: {bg:"bg-emerald-50/70", border:"border-emerald-200", text:"text-emerald-700", dot:"bg-emerald-500"},
-  amber:   {bg:"bg-amber-50/70",   border:"border-amber-200",   text:"text-amber-700",   dot:"bg-amber-500"},
-  rose:    {bg:"bg-rose-50/70",    border:"border-rose-200",    text:"text-rose-700",    dot:"bg-rose-500"},
-  sky:     {bg:"bg-sky-50/70",     border:"border-sky-200",     text:"text-sky-700",     dot:"bg-sky-500"},
-  indigo:  {bg:"bg-indigo-50/70",  border:"border-indigo-200",  text:"text-indigo-700",  dot:"bg-indigo-500"},
+
+const CC: Record<VideoProject["color"], {
+  bg: string; border: string; text: string; dot: string;
+  gradFrom: string; gradTo: string; glow: string; light: string; ring: string;
+}> = {
+  cyan:    { bg:"bg-cyan-50",    border:"border-cyan-200",    text:"text-cyan-700",    dot:"bg-cyan-500",    gradFrom:"#06b6d4", gradTo:"#0e7490", glow:"rgba(6,182,212,0.35)",   light:"bg-cyan-50",    ring:"ring-cyan-400"    },
+  purple:  { bg:"bg-purple-50",  border:"border-purple-200",  text:"text-purple-700",  dot:"bg-purple-500",  gradFrom:"#a855f7", gradTo:"#7c3aed", glow:"rgba(168,85,247,0.35)",  light:"bg-purple-50",  ring:"ring-purple-400"  },
+  emerald: { bg:"bg-emerald-50", border:"border-emerald-200", text:"text-emerald-700", dot:"bg-emerald-500", gradFrom:"#10b981", gradTo:"#059669", glow:"rgba(16,185,129,0.35)",  light:"bg-emerald-50", ring:"ring-emerald-400" },
+  amber:   { bg:"bg-amber-50",   border:"border-amber-200",   text:"text-amber-700",   dot:"bg-amber-500",   gradFrom:"#f59e0b", gradTo:"#d97706", glow:"rgba(245,158,11,0.35)",  light:"bg-amber-50",   ring:"ring-amber-400"   },
+  rose:    { bg:"bg-rose-50",    border:"border-rose-200",    text:"text-rose-700",    dot:"bg-rose-500",    gradFrom:"#f43f5e", gradTo:"#e11d48", glow:"rgba(244,63,94,0.35)",   light:"bg-rose-50",    ring:"ring-rose-400"    },
+  sky:     { bg:"bg-sky-50",     border:"border-sky-200",     text:"text-sky-700",     dot:"bg-sky-500",     gradFrom:"#0ea5e9", gradTo:"#0284c7", glow:"rgba(14,165,233,0.35)",  light:"bg-sky-50",     ring:"ring-sky-400"     },
+  indigo:  { bg:"bg-indigo-50",  border:"border-indigo-200",  text:"text-indigo-700",  dot:"bg-indigo-500",  gradFrom:"#6366f1", gradTo:"#4f46e5", glow:"rgba(99,102,241,0.35)", light:"bg-indigo-50",  ring:"ring-indigo-400"  },
 };
-const SC: Record<DubStatus, {kh:string;cls:string}> = {
-  pending:    {kh:"រង់ចាំ",         cls:"bg-slate-100 text-slate-700 border-slate-300"},
-  processing: {kh:"កំពុងដំណើរការ", cls:"bg-sky-50 text-sky-700 border-sky-300"},
-  done:       {kh:"រួចរាល់",         cls:"bg-emerald-50 text-emerald-700 border-emerald-300"},
-  failed:     {kh:"បរាជ័យ",          cls:"bg-rose-50 text-rose-700 border-rose-300"},
-  draft:      {kh:"ព្រាង",            cls:"bg-amber-50 text-amber-800 border-amber-300"},
+
+const SC: Record<DubStatus, {kh:string;cls:string;dot:string;icon:string}> = {
+  pending:    { kh:"រង់ចាំ",         cls:"bg-slate-100 text-slate-700 border-slate-300",            dot:"bg-slate-400",   icon:"⏳" },
+  processing: { kh:"កំពុងដំណើរការ", cls:"bg-sky-50 text-sky-700 border-sky-200",                  dot:"bg-sky-500",     icon:"🔄" },
+  done:       { kh:"រួចរាល់",         cls:"bg-emerald-50 text-emerald-700 border-emerald-200",      dot:"bg-emerald-500", icon:"✅" },
+  failed:     { kh:"បរាជ័យ",          cls:"bg-rose-50 text-rose-700 border-rose-200",               dot:"bg-rose-500",    icon:"❌" },
+  draft:      { kh:"ព្រាង",            cls:"bg-amber-50 text-amber-800 border-amber-200",            dot:"bg-amber-400",   icon:"📝" },
 };
+
+const PRIORITY_CFG: Record<ProjectPriority, {label:string;color:string;dot:string;bg:string}> = {
+  high:   { label:"ខ្ពស់",  color:"text-rose-600",   dot:"bg-rose-500",   bg:"bg-rose-50 border-rose-200 text-rose-700"   },
+  normal: { label:"មធ្យម", color:"text-amber-600",  dot:"bg-amber-400",  bg:"bg-amber-50 border-amber-200 text-amber-700" },
+  low:    { label:"ទាប",   color:"text-slate-500",  dot:"bg-slate-400",  bg:"bg-slate-100 border-slate-200 text-slate-600" },
+};
+
 const LS = "voxcpm_video_projects_v2";
 
 function fmt(b: number) {
   if (!b) return "0 B";
   const k = 1024, s = ["B","KB","MB","GB"], i = Math.floor(Math.log(b)/Math.log(k));
   return `${(b/Math.pow(k,i)).toFixed(1)} ${s[i]}`;
+}
+function fmtDur(sec?: number) {
+  if (!sec) return null;
+  const m = Math.floor(sec/60), s2 = Math.floor(sec%60);
+  return `${m}m ${s2}s`;
+}
+function fmtDate(iso: string) {
+  try {
+    const d = new Date(iso);
+    const now = new Date();
+    const diff = now.getTime() - d.getTime();
+    const mins = Math.floor(diff/60000);
+    if (mins < 1) return "ឥឡូវ";
+    if (mins < 60) return `${mins}m មុន`;
+    const hrs = Math.floor(mins/60);
+    if (hrs < 24) return `${hrs}h មុន`;
+    const days = Math.floor(hrs/24);
+    if (days < 7) return `${days}d មុន`;
+    return d.toLocaleDateString("km-KH", { month:"short", day:"numeric" });
+  } catch { return "—"; }
 }
 function load(): VideoProject[] {
   try { const r = localStorage.getItem(LS); if (r) return JSON.parse(r); } catch {}
@@ -70,15 +103,52 @@ function prog(vs: ProjectVideo[]) {
   return Math.round(vs.filter(v => v.dubStatus === "done").length / vs.length * 100);
 }
 
-// ─── Small Components ───────────────────────────────────────────────────────
-const Badge: React.FC<{s: DubStatus}> = ({s}) => (
-  <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${SC[s].cls}`}>{SC[s].kh}</span>
-);
-const Bar: React.FC<{v: number; c: VideoProject["color"]; h?: string}> = ({v, c, h="h-1.5"}) => (
-  <div className={`relative w-full ${h} bg-slate-100 border border-slate-200/80 rounded-full overflow-hidden`}>
-    <div className={`absolute inset-y-0 left-0 rounded-full transition-all duration-500 ${CC[c].dot}`} style={{width:`${Math.min(100,v)}%`}}/>
-  </div>
-);
+// ─── Animated Progress Bar ──────────────────────────────────────────────────
+const GradBar: React.FC<{v: number; c: VideoProject["color"]; h?: string; showLabel?: boolean}> = ({
+  v, c, h = "h-2", showLabel = false
+}) => {
+  const col = CC[c];
+  return (
+    <div className="flex items-center gap-2">
+      <div className={`relative flex-1 ${h} bg-slate-100 rounded-full overflow-hidden border border-slate-200/60`}>
+        <div
+          className="absolute inset-y-0 left-0 rounded-full transition-all duration-700 ease-out"
+          style={{
+            width: `${Math.min(100, v)}%`,
+            background: `linear-gradient(90deg, ${col.gradFrom}, ${col.gradTo})`,
+            boxShadow: v > 0 ? `0 0 8px ${col.glow}` : "none",
+          }}
+        />
+        {v > 0 && v < 100 && (
+          <div
+            className="absolute inset-y-0 rounded-full opacity-60"
+            style={{
+              width: `${Math.min(100, v)}%`,
+              background: "linear-gradient(90deg, transparent 60%, rgba(255,255,255,0.4) 100%)",
+              animation: "shimmer 2s infinite",
+            }}
+          />
+        )}
+      </div>
+      {showLabel && (
+        <span className={`text-[10px] font-black flex-shrink-0 ${col.text}`}>{v}%</span>
+      )}
+    </div>
+  );
+};
+
+// ─── Status Badge ───────────────────────────────────────────────────────────
+const Badge: React.FC<{s: DubStatus; size?: "sm"|"xs"}> = ({s, size = "xs"}) => {
+  const cfg = SC[s];
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full border font-bold
+      ${size === "xs" ? "px-2 py-0.5 text-[10px]" : "px-2.5 py-1 text-xs"}
+      ${cfg.cls}`}>
+      <span className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${cfg.dot}`}/>
+      {cfg.kh}
+    </span>
+  );
+};
 
 // ─── Video Picker Modal ─────────────────────────────────────────────────────
 const VideoPicker: React.FC<{
@@ -121,15 +191,23 @@ const VideoPicker: React.FC<{
   const filtered = files.filter(f => (f.originalName || f.filename || "").toLowerCase().includes(q.toLowerCase()));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in duration-200">
       <div className="w-full max-w-2xl bg-white border border-slate-200 rounded-2xl shadow-2xl flex flex-col max-h-[85vh] overflow-hidden">
         {/* header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-sky-100 border border-sky-200 flex items-center justify-center"><FileVideo className="w-4 h-4 text-sky-600"/></div>
-            <div><h3 className="text-sm font-black text-slate-900">ដាក់វីដេអូចូលគម្រោង</h3><p className="text-[10px] text-slate-500">Attach Video to Project</p></div>
+        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-100 flex-shrink-0"
+          style={{ background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)" }}>
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-white border border-sky-200 shadow-sm flex items-center justify-center">
+              <FileVideo className="w-4.5 h-4.5 text-sky-600"/>
+            </div>
+            <div>
+              <h3 className="text-sm font-black text-slate-900">ដាក់វីដេអូចូលគម្រោង</h3>
+              <p className="text-[10px] text-slate-500 font-medium">Attach Video to Project</p>
+            </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-900 transition-colors"><X className="w-4 h-4"/></button>
+          <button onClick={onClose} className="p-2 rounded-xl hover:bg-white/60 text-slate-500 hover:text-slate-900 transition-colors">
+            <X className="w-4 h-4"/>
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-5 space-y-4">
@@ -140,7 +218,7 @@ const VideoPicker: React.FC<{
             onDrop={e => { e.preventDefault(); setDrag(false); const f = e.dataTransfer.files[0]; if (f) doUpload(f); }}
             onClick={() => !up && ref.current?.click()}
             className={`flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-dashed cursor-pointer transition-all
-              ${drag ? "border-sky-500 bg-sky-50/60 scale-[1.01]" : "border-slate-300 hover:border-sky-400 bg-slate-50/60 hover:bg-sky-50/30"}
+              ${drag ? "border-sky-500 bg-sky-50 scale-[1.01]" : "border-slate-300 hover:border-sky-400 bg-slate-50/60 hover:bg-sky-50/30"}
               ${up ? "opacity-70 cursor-not-allowed" : ""}`}
           >
             <input ref={ref} type="file" accept="video/*,.mp4,.mkv,.avi,.mov,.webm,.flv" hidden
@@ -150,37 +228,34 @@ const VideoPicker: React.FC<{
                 <Loader2 className="w-8 h-8 text-sky-600 animate-spin"/>
                 <p className="text-sm text-slate-700 font-bold">កំពុង Upload... {pct}%</p>
                 <div className="w-full max-w-xs bg-slate-200 rounded-full h-2">
-                  <div className="h-2 bg-gradient-to-r from-sky-500 to-indigo-600 rounded-full transition-all" style={{width:`${pct}%`}}/>
+                  <div className="h-2 rounded-full transition-all" style={{width:`${pct}%`, background:"linear-gradient(90deg,#0ea5e9,#6366f1)"}}/>
                 </div>
               </div>
             ) : (
               <>
-                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center">
+                <div className="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center">
                   <UploadCloud className="w-6 h-6 text-sky-600"/>
                 </div>
                 <div className="text-center">
                   <p className="text-sm font-bold text-slate-800">🎬 ទាញ &amp; ទម្លាក់វីដេអូ</p>
-                  <p className="text-[11px] text-slate-500">ឬចុចដើម្បីជ្រើសរើស (MP4, MKV, AVI, MOV, WebM...)</p>
+                  <p className="text-[11px] text-slate-500 mt-0.5">ឬចុចដើម្បីជ្រើសរើស (MP4, MKV, AVI, MOV, WebM...)</p>
                 </div>
               </>
             )}
           </div>
 
-          {/* divider */}
           <div className="flex items-center gap-3">
             <div className="flex-1 h-px bg-slate-200"/>
             <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">ឬជ្រើសរើសពី Server</span>
             <div className="flex-1 h-px bg-slate-200"/>
           </div>
 
-          {/* search */}
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"/>
             <input value={q} onChange={e => setQ(e.target.value)} placeholder="ស្វែងរក File..."
               className="w-full pl-8 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"/>
           </div>
 
-          {/* list */}
           <div className="space-y-2">
             {loading ? (
               <div className="flex justify-center py-8"><Loader2 className="w-6 h-6 text-slate-400 animate-spin"/></div>
@@ -194,7 +269,7 @@ const VideoPicker: React.FC<{
                 <div key={file.filename}
                   className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl border transition-all
                     ${has ? "bg-emerald-50/50 border-emerald-200 opacity-60"
-                          : "bg-white border-slate-200 hover:border-sky-400 hover:bg-sky-50/40 cursor-pointer shadow-2xs"}`}
+                          : "bg-white border-slate-200 hover:border-sky-400 hover:bg-sky-50/40 cursor-pointer shadow-sm"}`}
                   onClick={() => {
                     if (!has) { onAdd(file); onClose(); toast(`✅ បានដាក់ "${file.originalName||file.filename}" ចូលគម្រោង!`, "success"); }
                   }}
@@ -215,9 +290,8 @@ const VideoPicker: React.FC<{
           </div>
         </div>
 
-        {/* footer */}
-        <div className="px-5 py-3 border-t border-slate-200 flex justify-between items-center flex-shrink-0 bg-slate-50">
-          <button onClick={loadFiles} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors">
+        <div className="px-5 py-3 border-t border-slate-100 flex justify-between items-center flex-shrink-0 bg-slate-50">
+          <button onClick={loadFiles} className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors font-medium">
             <RefreshCw className="w-3.5 h-3.5"/>ផ្ទុកឡើងវិញ
           </button>
           <button onClick={onClose} className="px-4 py-1.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-xl border border-slate-300 transition-all font-medium">បិទ</button>
@@ -227,50 +301,61 @@ const VideoPicker: React.FC<{
   );
 };
 
-// ─── Video Row ──────────────────────────────────────────────────────────────
+// ─── Video Row (Expanded List) ──────────────────────────────────────────────
 const VRow: React.FC<{
   v: ProjectVideo; c: VideoProject["color"];
   onDel: (id: string) => void;
   onPlay: (v: ProjectVideo) => void;
   onSt: (id: string, s: DubStatus) => void;
 }> = ({v, c, onDel, onPlay, onSt}) => (
-  <div className="flex items-center gap-3 px-3 py-2.5 bg-slate-50/80 hover:bg-white border border-slate-200/90 rounded-xl group transition-all shadow-2xs">
-    <div className="w-7 h-7 rounded-lg bg-sky-100 border border-sky-200 flex items-center justify-center flex-shrink-0">
-      <Film className="w-3.5 h-3.5 text-sky-600"/>
+  <div className="flex items-center gap-3 px-3 py-2.5 bg-white hover:bg-slate-50/80 border border-slate-200 rounded-xl group transition-all shadow-sm">
+    {/* Thumbnail placeholder */}
+    <div className="w-12 h-8 rounded-lg flex-shrink-0 overflow-hidden border border-slate-200 relative"
+      style={{ background: "linear-gradient(135deg, #1e293b 0%, #334155 100%)" }}>
+      <div className="absolute inset-0 flex items-center justify-center">
+        <Film className="w-4 h-4 text-slate-400"/>
+      </div>
+      <div className="absolute bottom-0.5 right-0.5 bg-black/60 text-white text-[8px] font-bold px-1 rounded-sm leading-tight">
+        {v.duration ? `${Math.floor(v.duration/60)}:${String(Math.floor(v.duration%60)).padStart(2,"0")}` : "—"}
+      </div>
     </div>
+
     <div className="flex-1 min-w-0">
       <p className="text-xs font-bold text-slate-800 truncate">{v.originalName || v.filename}</p>
-      <p className="text-[10px] text-slate-500">{fmt(v.size)}{v.duration ? ` · ${Math.floor(v.duration/60)}m${Math.floor(v.duration%60)}s` : ""}</p>
+      <p className="text-[10px] text-slate-500 mt-0.5">{fmt(v.size)}{v.duration ? ` · ${fmtDur(v.duration)}` : ""}</p>
       {v.dubProgress > 0 && (
-        <div className="mt-1 flex items-center gap-1.5">
-          <Bar v={v.dubProgress} c={c} h="h-1"/>
-          <span className={`text-[10px] font-bold ${CC[c].text} flex-shrink-0`}>{v.dubProgress}%</span>
+        <div className="mt-1.5">
+          <GradBar v={v.dubProgress} c={c} h="h-1" showLabel={false}/>
         </div>
       )}
     </div>
+
+    <Badge s={v.dubStatus}/>
+
     <select value={v.dubStatus} onClick={e => e.stopPropagation()}
       onChange={e => onSt(v.id, e.target.value as DubStatus)}
-      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] text-slate-700 focus:outline-none hidden sm:block">
+      className="bg-white border border-slate-200 rounded-lg px-2 py-1 text-[10px] text-slate-700 focus:outline-none hidden sm:block cursor-pointer hover:border-sky-400 transition-colors">
       <option value="draft">📝 ព្រាង</option>
       <option value="pending">⏳ រង់ចាំ</option>
       <option value="processing">🔄 កំពុង</option>
       <option value="done">✅ រួច</option>
       <option value="failed">❌ បរាជ័យ</option>
     </select>
+
     <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
       <button onClick={() => onPlay(v)} title="បើក Dubbing Studio"
-        className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
+        className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all">
         <Play className="w-3.5 h-3.5"/>
       </button>
       <button onClick={() => onDel(v.id)} title="ដកចេញពីគម្រោង"
-        className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-50 transition-all">
+        className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
         <Minus className="w-3.5 h-3.5"/>
       </button>
     </div>
   </div>
 );
 
-// ─── Project Card ───────────────────────────────────────────────────────────
+// ─── Project Card (Grid) ────────────────────────────────────────────────────
 const PCard: React.FC<{
   p: VideoProject;
   onEdit: (p: VideoProject) => void; onDel: (id: string) => void;
@@ -278,96 +363,250 @@ const PCard: React.FC<{
   onDetach: (pid: string, vid: string) => void;
   onLoad: (p: VideoProject, v: ProjectVideo) => void;
   onVSt: (pid: string, vid: string, s: DubStatus) => void;
-}> = ({p, onEdit, onDel, onFav, onAdd, onDetach, onLoad, onVSt}) => {
-  const c = CC[p.color];
+  viewMode: ViewMode;
+}> = ({p, onEdit, onDel, onFav, onAdd, onDetach, onLoad, onVSt, viewMode}) => {
+  const col = CC[p.color];
   const [exp, setExp] = useState(false);
-  const [menu, setMenu] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
-  return (
-    <div className={`rounded-2xl border ${c.border} bg-white overflow-hidden shadow-2xs hover:shadow-md transition-all duration-300`}>
-      <div className="p-4">
-        <div className="flex items-start justify-between gap-2 mb-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${c.dot}`} />
-            <h3 className="text-sm font-black text-slate-900 truncate">{p.name}</h3>
-            {p.isFavorite && <Star className="w-3 h-3 text-amber-500 fill-current flex-shrink-0"/>}
-          </div>
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <button onClick={() => onFav(p.id)} className={`p-1 rounded-lg transition-colors ${p.isFavorite ? "text-amber-500" : "text-slate-400 hover:text-amber-500"}`}>
-              {p.isFavorite ? <Star className="w-3.5 h-3.5 fill-current"/> : <StarOff className="w-3.5 h-3.5"/>}
-            </button>
-            <div className="relative">
-              <button onClick={() => setMenu(o => !o)} className="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
-                <MoreVertical className="w-3.5 h-3.5"/>
-              </button>
-              {menu && (
-                <div className="absolute right-0 top-6 z-20 w-36 bg-white border border-slate-200 rounded-xl shadow-xl overflow-hidden py-1">
-                  <button onClick={() => { onEdit(p); setMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"><Edit3 className="w-3.5 h-3.5 text-sky-600"/>កែប្រែ</button>
-                  <button onClick={() => { onAdd(p.id); setMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-slate-700 hover:bg-slate-50 hover:text-slate-900"><PlusCircle className="w-3.5 h-3.5 text-sky-600"/>ដាក់វីដេអូ</button>
-                  <div className="border-t border-slate-100 my-0.5"/>
-                  <button onClick={() => { onDel(p.id); setMenu(false); }} className="w-full flex items-center gap-2 px-3 py-2 text-xs text-rose-600 hover:bg-rose-50"><Trash2 className="w-3.5 h-3.5"/>លុប</button>
-                </div>
+  if (viewMode === "list") {
+    return (
+      <div
+        className="flex items-center gap-0 bg-white border border-slate-200 rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md group"
+        style={{ boxShadow: hovered ? `0 4px 20px ${col.glow}` : undefined }}
+        onMouseEnter={() => setHovered(true)}
+        onMouseLeave={() => setHovered(false)}
+      >
+        {/* Left color strip */}
+        <div className="w-1 self-stretch flex-shrink-0 rounded-l-xl"
+          style={{ background: `linear-gradient(180deg, ${col.gradFrom}, ${col.gradTo})` }}/>
+
+        {/* Main content */}
+        <div className="flex-1 flex items-center gap-4 px-4 py-3 min-w-0">
+          {/* Color dot + name */}
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <div className="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center text-white text-xs font-black"
+              style={{ background: `linear-gradient(135deg, ${col.gradFrom}, ${col.gradTo})` }}>
+              {p.name.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-black text-slate-900 truncate">{p.name}</span>
+                {p.isFavorite && <Star className="w-3 h-3 text-amber-500 fill-current flex-shrink-0"/>}
+              </div>
+              {p.series && (
+                <span className="text-[10px] text-slate-500 font-medium">📺 {p.series}{p.episode ? ` · ភាគ ${p.episode}` : ""}</span>
               )}
             </div>
           </div>
+
+          {/* Tags */}
+          <div className="hidden lg:flex items-center gap-1 flex-shrink-0">
+            {(p.tags||[]).slice(0,2).map(t => (
+              <span key={t} className="px-1.5 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-[9px] text-slate-600 font-medium">{t}</span>
+            ))}
+          </div>
+
+          {/* Progress */}
+          <div className="w-32 flex-shrink-0 hidden md:block">
+            <GradBar v={p.progress} c={p.color} h="h-1.5" showLabel={true}/>
+          </div>
+
+          {/* Stats */}
+          <div className="flex items-center gap-3 flex-shrink-0 text-[10px] text-slate-500">
+            <span className="flex items-center gap-1"><Film className="w-3 h-3"/>{p.videos.length}</span>
+            <span className="hidden sm:block text-slate-300">|</span>
+            <span className="hidden sm:block">{fmtDate(p.updatedAt)}</span>
+          </div>
+
+          {/* Status + Priority */}
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <Badge s={p.status}/>
+            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${PRIORITY_CFG[p.priority].dot}`} title={PRIORITY_CFG[p.priority].label}/>
+          </div>
         </div>
 
-        {p.description && <p className="text-[11px] text-slate-500 line-clamp-1 mb-2">{p.description}</p>}
-        {p.series && <span className="text-[10px] px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-slate-600 inline-block mb-2 font-medium">📺 {p.series}{p.episode ? ` · ភាគ ${p.episode}` : ""}</span>}
-
-        <div className="space-y-1 mb-3">
-          <div className="flex justify-between">
-            <span className="text-[10px] text-slate-500 font-medium">Dubbing Progress</span>
-            <span className={`text-[10px] font-black ${c.text}`}>{p.progress}%</span>
-          </div>
-          <Bar v={p.progress} c={p.color}/>
+        {/* Actions */}
+        <div className="flex items-center gap-1 px-3 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button onClick={() => onAdd(p.id)} title="ដាក់វីដេអូ"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition-all">
+            <PlusCircle className="w-3.5 h-3.5"/>
+          </button>
+          <button onClick={() => onEdit(p)} title="កែប្រែ"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-all">
+            <Edit3 className="w-3.5 h-3.5"/>
+          </button>
+          <button onClick={() => onFav(p.id)} title="Favorite"
+            className={`p-1.5 rounded-lg transition-all ${p.isFavorite ? "text-amber-500 hover:bg-amber-50" : "text-slate-400 hover:text-amber-500 hover:bg-amber-50"}`}>
+            {p.isFavorite ? <Star className="w-3.5 h-3.5 fill-current"/> : <Star className="w-3.5 h-3.5"/>}
+          </button>
+          <button onClick={() => onDel(p.id)} title="លុប"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-all">
+            <Trash2 className="w-3.5 h-3.5"/>
+          </button>
         </div>
+      </div>
+    );
+  }
 
-        <div className="flex items-center justify-between">
-          <Badge s={p.status}/>
-          <div className="flex items-center gap-1.5 text-[10px] text-slate-500">
-            <Film className="w-3 h-3 text-slate-400"/>
-            <span className="font-bold text-slate-800">{p.videos.length}</span>វីដេអូ
-          </div>
+  // Grid Card
+  return (
+    <div
+      className="bg-white border rounded-2xl overflow-hidden transition-all duration-300 flex flex-col"
+      style={{
+        borderColor: hovered ? col.gradFrom : "#e2e8f0",
+        boxShadow: hovered ? `0 12px 40px ${col.glow}, 0 4px 12px rgba(0,0,0,0.08)` : "0 1px 3px rgba(0,0,0,0.06)",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+      }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      {/* Gradient Header Strip */}
+      <div className="relative h-14 flex items-end px-4 pb-2 overflow-hidden flex-shrink-0"
+        style={{ background: `linear-gradient(135deg, ${col.gradFrom}dd, ${col.gradTo}ee)` }}>
+        {/* Decorative circles */}
+        <div className="absolute -top-4 -right-4 w-16 h-16 rounded-full opacity-20"
+          style={{ background: "rgba(255,255,255,0.4)" }}/>
+        <div className="absolute -top-2 -right-10 w-20 h-20 rounded-full opacity-10"
+          style={{ background: "rgba(255,255,255,0.6)" }}/>
+
+        <div className="flex items-center justify-between w-full relative z-10">
+          {/* Series/Episode badge */}
+          {p.series ? (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/20 backdrop-blur-sm rounded-full text-[9px] font-bold text-white">
+              📺 {p.series}{p.episode ? ` E${p.episode}` : ""}
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-black/15 backdrop-blur-sm rounded-full text-[9px] font-bold text-white/80">
+              <FolderKanban className="w-2.5 h-2.5"/>Project
+            </span>
+          )}
+
+          {/* Favorite star */}
+          <button onClick={() => onFav(p.id)}
+            className={`p-1 rounded-full transition-all hover:scale-110 ${p.isFavorite ? "text-amber-300" : "text-white/50 hover:text-amber-300"}`}>
+            <Star className={`w-4 h-4 ${p.isFavorite ? "fill-current" : ""}`}/>
+          </button>
         </div>
       </div>
 
-      {/* accordion */}
-      <div className="border-t border-slate-100 bg-slate-50/50">
-        <button onClick={() => setExp(e => !e)}
-          className="w-full flex items-center justify-between px-4 py-2 hover:bg-slate-100/60 transition-colors text-xs text-slate-600 hover:text-slate-900 font-medium">
-          <span className="flex items-center gap-1.5">
-            <FileVideo className="w-3.5 h-3.5 text-sky-600"/>
-            {exp ? "បិទបញ្ជីវីដេអូ" : `វីដេអូ (${p.videos.length})`}
-          </span>
-          {exp ? <ChevronUp className="w-3.5 h-3.5"/> : <ChevronDown className="w-3.5 h-3.5"/>}
-        </button>
+      {/* Card Body */}
+      <div className="p-4 flex-1 flex flex-col gap-3">
+        {/* Project name + description */}
+        <div>
+          <h3 className="text-base font-black text-slate-900 leading-tight mb-1">{p.name}</h3>
+          {p.description && (
+            <p className="text-[11px] text-slate-500 line-clamp-2 leading-relaxed">{p.description}</p>
+          )}
+        </div>
 
-        {exp && (
-          <div className="px-3 pb-3 space-y-2 animate-in slide-in-from-top-2 duration-200">
-            {/* add btn */}
-            <button onClick={() => onAdd(p.id)}
-              className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-sky-300 hover:border-sky-500 text-sky-600 text-xs font-bold bg-white hover:bg-sky-50/50 transition-all shadow-2xs">
-              <Plus className="w-3.5 h-3.5"/>ដាក់វីដេអូចូល
-            </button>
-
-            {p.videos.length === 0
-              ? <div className="text-center py-3 text-[11px] text-slate-400"><Film className="w-5 h-5 mx-auto mb-1 opacity-40 text-slate-400"/>មិនទាន់មីវីដេអូ</div>
-              : p.videos.map(v => (
-                  <VRow key={v.id} v={v} c={p.color}
-                    onDel={id => onDetach(p.id, id)}
-                    onPlay={vid => onLoad(p, vid)}
-                    onSt={(id, s) => onVSt(p.id, id, s)}/>
-                ))
-            }
+        {/* Tag chips */}
+        {(p.tags||[]).length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {(p.tags||[]).slice(0,3).map(t => (
+              <span key={t} className="inline-flex items-center gap-0.5 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-[9px] text-slate-600 font-medium">
+                <Tag className="w-2 h-2 text-slate-400"/>{t}
+              </span>
+            ))}
+            {(p.tags||[]).length > 3 && (
+              <span className="px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-[9px] text-slate-400 font-medium">+{(p.tags||[]).length - 3}</span>
+            )}
           </div>
         )}
+
+        {/* Progress bar */}
+        <div className="space-y-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] text-slate-500 font-semibold">Dubbing Progress</span>
+            <span className={`text-[11px] font-black ${col.text}`}>{p.progress}%</span>
+          </div>
+          <GradBar v={p.progress} c={p.color} h="h-2"/>
+        </div>
+
+        {/* Stats row */}
+        <div className="flex items-center gap-3 text-[10px] text-slate-500 pt-0.5">
+          <span className="flex items-center gap-1">
+            <Film className="w-3 h-3 text-slate-400"/>
+            <strong className="text-slate-700 font-bold">{p.videos.length}</strong> វីដេអូ
+          </span>
+          {p.totalDurationMin > 0 && (
+            <>
+              <span className="text-slate-200">|</span>
+              <span className="flex items-center gap-1">
+                <Clock3 className="w-3 h-3 text-slate-400"/>
+                <strong className="text-slate-700 font-bold">{p.totalDurationMin}m</strong>
+              </span>
+            </>
+          )}
+          <span className="text-slate-200">|</span>
+          <span className="flex items-center gap-1 ml-auto">
+            <Clock className="w-2.5 h-2.5"/>
+            {fmtDate(p.updatedAt)}
+          </span>
+        </div>
+
+        {/* Status + Priority row */}
+        <div className="flex items-center justify-between">
+          <Badge s={p.status} size="sm"/>
+          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[9px] font-bold ${PRIORITY_CFG[p.priority].bg}`}>
+            <span className={`w-1.5 h-1.5 rounded-full ${PRIORITY_CFG[p.priority].dot}`}/>
+            {PRIORITY_CFG[p.priority].label}
+          </span>
+        </div>
       </div>
+
+      {/* Bottom Action Row */}
+      <div className="px-4 py-2.5 border-t border-slate-100 flex items-center justify-between bg-slate-50/50 flex-shrink-0">
+        <div className="flex items-center gap-1">
+          <button onClick={() => onAdd(p.id)} title="ដាក់វីដេអូ"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-sky-600 hover:bg-sky-100 transition-all" >
+            <PlusCircle className="w-3.5 h-3.5"/>
+          </button>
+          <button onClick={() => onEdit(p)} title="កែប្រែ"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-indigo-600 hover:bg-indigo-100 transition-all">
+            <Edit3 className="w-3.5 h-3.5"/>
+          </button>
+          <button onClick={() => onDel(p.id)} title="លុប"
+            className="p-1.5 rounded-lg text-slate-500 hover:text-rose-600 hover:bg-rose-100 transition-all">
+            <Trash2 className="w-3.5 h-3.5"/>
+          </button>
+        </div>
+
+        {/* Toggle video list */}
+        <button onClick={() => setExp(e => !e)}
+          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all
+            ${exp ? `${col.text} ${col.bg} border ${col.border}` : "text-slate-500 hover:text-slate-700 hover:bg-slate-100"}`}>
+          <FileVideo className="w-3 h-3"/>
+          {exp ? "បិទ" : `${p.videos.length} វីដេអូ`}
+          {exp ? <ChevronUp className="w-3 h-3"/> : <ChevronDown className="w-3 h-3"/>}
+        </button>
+      </div>
+
+      {/* Video list accordion */}
+      {exp && (
+        <div className="border-t border-slate-100 bg-slate-50/80 px-3 pb-3 pt-2 space-y-2 animate-in slide-in-from-top-2 duration-200">
+          <button onClick={() => onAdd(p.id)}
+            className="w-full flex items-center justify-center gap-2 py-2 rounded-xl border border-dashed border-sky-300 hover:border-sky-500 text-sky-600 text-xs font-bold bg-white hover:bg-sky-50/50 transition-all">
+            <Plus className="w-3.5 h-3.5"/>ដាក់វីដេអូចូល
+          </button>
+          {p.videos.length === 0 ? (
+            <div className="flex flex-col items-center py-4 text-[11px] text-slate-400 gap-1">
+              <Film className="w-5 h-5 opacity-40"/>
+              <span>មិនទាន់មីវីដេអូ</span>
+            </div>
+          ) : p.videos.map(v => (
+            <VRow key={v.id} v={v} c={p.color}
+              onDel={id => onDetach(p.id, id)}
+              onPlay={vid => onLoad(p, vid)}
+              onSt={(id, s) => onVSt(p.id, id, s)}/>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-// ─── Project Form ───────────────────────────────────────────────────────────
+// ─── Create/Edit Slide-in Panel ─────────────────────────────────────────────
 const PForm: React.FC<{
   proj: Partial<VideoProject>|null;
   onSave: (p: VideoProject) => void;
@@ -379,6 +618,17 @@ const PForm: React.FC<{
     progress:0, totalDurationMin:0, tags:[], isFavorite:false, series:"", videos:[], ...proj,
   });
   const [ti, setTi] = useState("");
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t = requestAnimationFrame(() => setVisible(true));
+    return () => cancelAnimationFrame(t);
+  }, []);
+
+  const doClose = () => {
+    setVisible(false);
+    setTimeout(onClose, 300);
+  };
 
   const doSave = () => {
     if (!f.name?.trim()) return;
@@ -401,56 +651,110 @@ const PForm: React.FC<{
     setTi("");
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm animate-in fade-in duration-200 p-4">
-      <div className="w-full max-w-lg bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 bg-slate-50/80">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-sky-100 border border-sky-200 flex items-center justify-center"><FolderKanban className="w-4 h-4 text-sky-600"/></div>
-            <div>
-              <h3 className="text-sm font-black text-slate-900">{isNew ? "បង្កើតគម្រោងថ្មី" : "កែប្រែគម្រោង"}</h3>
-              <p className="text-[10px] text-slate-500">{isNew ? "Create New Project" : "Edit Project"}</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-slate-200/60 text-slate-500 hover:text-slate-900 transition-colors"><X className="w-4 h-4"/></button>
-        </div>
+  const selectedCol = CC[f.color || "cyan"];
 
-        <div className="p-5 space-y-4 max-h-[68vh] overflow-y-auto">
-          <div>
-            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ឈ្មោះគម្រោង *</label>
-            <input value={f.name||""} onChange={e => setF(x => ({...x, name: e.target.value}))} placeholder="ឈ្មោះស៊េរីរឿង..."
-              className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"/>
-          </div>
-          <div>
-            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ការពិពណ៌នា</label>
-            <textarea value={f.description||""} onChange={e => setF(x => ({...x, description: e.target.value}))} placeholder="ពណ៌នាអំពីគម្រោង..." rows={2}
-              className="w-full bg-white border border-slate-200 rounded-xl px-3.5 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all resize-none"/>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ពណ៌</label>
-              <div className="flex flex-wrap gap-1.5">
-                {COLOR_OPTIONS.map(c => (
-                  <button key={c} onClick={() => setF(x => ({...x, color: c}))}
-                    className={`w-6 h-6 rounded-full border-2 transition-all ${CC[c].dot} ${f.color===c ? "border-slate-800 scale-110 ring-2 ring-sky-300" : "border-transparent opacity-60 hover:opacity-100"}`}/>
-                ))}
+  return (
+    <div
+      className="fixed inset-0 z-50 flex justify-end"
+      style={{ background: visible ? "rgba(15,23,42,0.45)" : "transparent", backdropFilter: visible ? "blur(4px)" : "none", transition: "background 0.3s, backdrop-filter 0.3s" }}
+      onClick={e => { if (e.target === e.currentTarget) doClose(); }}
+    >
+      {/* Slide-in Panel */}
+      <div
+        className="w-full max-w-md bg-white flex flex-col h-full shadow-2xl"
+        style={{
+          transform: visible ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 0.3s cubic-bezier(0.32, 0.72, 0, 1)",
+        }}
+      >
+        {/* Gradient Header */}
+        <div className="flex-shrink-0 px-6 py-5 relative overflow-hidden"
+          style={{ background: `linear-gradient(135deg, ${selectedCol.gradFrom}cc, ${selectedCol.gradTo}ee)` }}>
+          <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full opacity-15"
+            style={{ background: "rgba(255,255,255,0.6)" }}/>
+          <div className="relative flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm border border-white/30 flex items-center justify-center">
+                <FolderKanban className="w-5 h-5 text-white"/>
+              </div>
+              <div>
+                <h3 className="text-base font-black text-white">{isNew ? "បង្កើតគម្រោងថ្មី" : "កែប្រែគម្រោង"}</h3>
+                <p className="text-[11px] text-white/70 font-medium">{isNew ? "Create New Project" : "Edit Project"}</p>
               </div>
             </div>
-            <div>
-              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">អាទិភាព</label>
-              <select value={f.priority} onChange={e => setF(x => ({...x, priority: e.target.value as ProjectPriority}))}
-                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:border-sky-500">
-                <option value="high">🔴 ខ្ពស់</option>
-                <option value="normal">🟡 មធ្យម</option>
-                <option value="low">⚪ ទាប</option>
-              </select>
+            <button onClick={doClose} className="p-2 rounded-xl bg-white/20 hover:bg-white/30 text-white transition-all">
+              <X className="w-4 h-4"/>
+            </button>
+          </div>
+        </div>
+
+        {/* Form Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          {/* Name */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ឈ្មោះគម្រោង *</label>
+            <input value={f.name||""} onChange={e => setF(x => ({...x, name: e.target.value}))}
+              placeholder="ឈ្មោះស៊េរីរឿង..."
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all font-medium"/>
+          </div>
+
+          {/* Description */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ការពិពណ៌នា</label>
+            <textarea value={f.description||""} onChange={e => setF(x => ({...x, description: e.target.value}))}
+              placeholder="ពណ៌នាអំពីគម្រោង..." rows={3}
+              className="w-full bg-white border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 transition-all resize-none"/>
+          </div>
+
+          {/* Color Picker — Swatches */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ពណ៌គម្រោង</label>
+            <div className="grid grid-cols-7 gap-2">
+              {COLOR_OPTIONS.map(c => {
+                const cc = CC[c];
+                const sel = f.color === c;
+                return (
+                  <button key={c} onClick={() => setF(x => ({...x, color: c}))}
+                    className="group flex flex-col items-center gap-1"
+                    title={c}>
+                    <div className={`w-9 h-9 rounded-xl transition-all duration-200 ${sel ? "scale-110 ring-2 ring-offset-2 shadow-lg" : "opacity-70 hover:opacity-100 hover:scale-105"}`}
+                      style={{
+                        background: `linear-gradient(135deg, ${cc.gradFrom}, ${cc.gradTo})`,
+                        boxShadow: sel ? `0 4px 12px ${cc.glow}` : undefined,
+                      }}>
+                      {sel && <Check className="w-full h-full p-2.5 text-white"/>}
+                    </div>
+                    <span className={`text-[9px] font-bold capitalize transition-colors ${sel ? "text-slate-800" : "text-slate-400"}`}>{c}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
+
+          {/* Priority — Radio */}
+          <div>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">អាទិភាព</label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["high","normal","low"] as ProjectPriority[]).map(pr => {
+                const pcfg = PRIORITY_CFG[pr];
+                const sel = f.priority === pr;
+                return (
+                  <button key={pr} onClick={() => setF(x => ({...x, priority: pr}))}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 transition-all ${sel ? `${pcfg.bg} border-current font-bold scale-[1.02]` : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`}>
+                    <div className={`w-2 h-2 rounded-full flex-shrink-0 ${pcfg.dot}`}/>
+                    <span className="text-xs font-bold">{pcfg.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Status + Series row */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ស្ថានភាព</label>
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ស្ថានភាព</label>
               <select value={f.status} onChange={e => setF(x => ({...x, status: e.target.value as DubStatus}))}
-                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-800 focus:outline-none focus:border-sky-500">
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-sky-500 transition-all cursor-pointer">
                 <option value="draft">📝 ព្រាង</option>
                 <option value="pending">⏳ រង់ចាំ</option>
                 <option value="processing">🔄 កំពុង</option>
@@ -459,44 +763,85 @@ const PForm: React.FC<{
               </select>
             </div>
             <div>
-              <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ស៊េរី</label>
-              <input value={f.series||""} onChange={e => setF(x => ({...x, series: e.target.value}))} placeholder="ឈ្មោះស៊េរីរឿង..."
-                className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500"/>
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ស៊េរី</label>
+              <input value={f.series||""} onChange={e => setF(x => ({...x, series: e.target.value}))}
+                placeholder="ឈ្មោះស៊េរី..."
+                className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"/>
             </div>
           </div>
+
+          {/* Episode */}
+          {f.series && (
+            <div>
+              <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ភាគ (Episode)</label>
+              <input type="number" min={1} value={f.episode||""} onChange={e => setF(x => ({...x, episode: parseInt(e.target.value)||undefined}))}
+                placeholder="1, 2, 3..."
+                className="w-32 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"/>
+            </div>
+          )}
+
+          {/* Tags Input */}
           <div>
-            <label className="text-[11px] font-bold text-slate-600 uppercase tracking-wider mb-1.5 block">ស្លាក (Tags)</label>
+            <label className="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2 block">ស្លាក (Tags)</label>
             <div className="flex gap-2">
-              <input value={ti} onChange={e => setTi(e.target.value)} onKeyDown={e => e.key==="Enter" && addTag()}
-                placeholder="Enter ដើម្បីបន្ថែម..."
-                className="flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500"/>
-              <button onClick={addTag} className="px-3 bg-sky-50 border border-sky-200 rounded-lg text-sky-700 hover:bg-sky-100 font-bold"><Plus className="w-3.5 h-3.5"/></button>
+              <input value={ti} onChange={e => setTi(e.target.value)}
+                onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addTag(); }}}
+                placeholder="វាយ Enter ដើម្បីបន្ថែម..."
+                className="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 transition-all"/>
+              <button onClick={addTag}
+                className="px-3 bg-sky-50 border border-sky-200 rounded-xl text-sky-700 hover:bg-sky-100 transition-all font-bold">
+                <Plus className="w-4 h-4"/>
+              </button>
             </div>
             {(f.tags||[]).length > 0 && (
               <div className="flex flex-wrap gap-1.5 mt-2">
                 {(f.tags||[]).map(t => (
-                  <span key={t} className="inline-flex items-center gap-1 px-2 py-0.5 bg-slate-100 border border-slate-200 rounded-full text-[10px] text-slate-700 font-medium">
-                    <Tag className="w-2.5 h-2.5 text-sky-600"/>{t}
-                    <button onClick={() => setF(x => ({...x, tags:(x.tags||[]).filter(s=>s!==t)}))} className="hover:text-rose-600 ml-0.5"><X className="w-2.5 h-2.5"/></button>
+                  <span key={t} className="inline-flex items-center gap-1 px-2.5 py-1 bg-slate-100 border border-slate-200 rounded-full text-[10px] text-slate-700 font-bold">
+                    <Tag className="w-2.5 h-2.5 text-sky-500"/>{t}
+                    <button onClick={() => setF(x => ({...x, tags:(x.tags||[]).filter(s=>s!==t)}))}
+                      className="hover:text-rose-600 ml-0.5 transition-colors">
+                      <X className="w-2.5 h-2.5"/>
+                    </button>
                   </span>
                 ))}
               </div>
             )}
           </div>
-          <label className="flex items-center gap-2.5 cursor-pointer">
-            <div className={`w-9 h-5 rounded-full border transition-all ${f.isFavorite ? "bg-amber-100 border-amber-300" : "bg-slate-100 border-slate-200"}`}>
-              <div className={`w-4 h-4 rounded-full mt-0.5 transition-all ${f.isFavorite ? "translate-x-4 bg-amber-500 shadow" : "translate-x-0.5 bg-slate-400"}`}/>
+
+          {/* Favorite toggle */}
+          <label className="flex items-center gap-3 cursor-pointer p-3 rounded-xl bg-amber-50/50 border border-amber-200/60 hover:bg-amber-50 transition-colors">
+            <div
+              onClick={() => setF(x => ({...x, isFavorite: !x.isFavorite}))}
+              className={`relative w-10 h-5.5 rounded-full border transition-all cursor-pointer flex-shrink-0
+                ${f.isFavorite ? "bg-amber-400 border-amber-500" : "bg-slate-200 border-slate-300"}`}
+              style={{ height: "22px", width: "42px" }}>
+              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white shadow-sm transition-all ${f.isFavorite ? "translate-x-5" : "translate-x-0.5"}`}/>
             </div>
-            <input type="checkbox" hidden checked={f.isFavorite||false} onChange={e => setF(x => ({...x, isFavorite: e.target.checked}))}/>
-            <span className="text-xs text-slate-600 font-semibold">⭐ ដាក់ស្រឡាញ់ (Favorite)</span>
+            <input type="checkbox" hidden checked={f.isFavorite||false}
+              onChange={e => setF(x => ({...x, isFavorite: e.target.checked}))}/>
+            <div>
+              <span className="text-xs text-slate-700 font-bold">⭐ ដាក់ស្រឡាញ់ (Favorite)</span>
+              <p className="text-[10px] text-slate-500">គម្រោងពិសេសតែងនឹងនៅខាងដើម</p>
+            </div>
           </label>
         </div>
 
-        <div className="px-5 py-3.5 border-t border-slate-200 flex gap-2.5 justify-end bg-slate-50">
-          <button onClick={onClose} className="px-4 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-xl border border-slate-200 transition-all font-medium">បោះបង់</button>
+        {/* Footer */}
+        <div className="flex-shrink-0 px-6 py-4 border-t border-slate-100 flex gap-3 bg-slate-50">
+          <button onClick={doClose}
+            className="flex-1 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-200/60 rounded-xl border border-slate-200 transition-all font-semibold">
+            បោះបង់
+          </button>
           <button onClick={doSave} disabled={!f.name?.trim()}
-            className="px-5 py-2 text-sm font-bold bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 disabled:opacity-40 disabled:cursor-not-allowed rounded-xl text-white flex items-center gap-2 transition-all shadow-md shadow-sky-500/20">
-            <Save className="w-3.5 h-3.5"/>{isNew ? "បង្កើត" : "រក្សាទុក"}
+            className="flex-1 py-2.5 text-sm font-black text-white rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{
+              background: !f.name?.trim()
+                ? "#94a3b8"
+                : `linear-gradient(135deg, ${selectedCol.gradFrom}, ${selectedCol.gradTo})`,
+              boxShadow: f.name?.trim() ? `0 4px 16px ${selectedCol.glow}` : undefined,
+            }}>
+            <Save className="w-4 h-4"/>
+            {isNew ? "បង្កើតគម្រោង" : "រក្សាទុក"}
           </button>
         </div>
       </div>
@@ -504,11 +849,124 @@ const PForm: React.FC<{
   );
 };
 
+// ─── Empty State ────────────────────────────────────────────────────────────
+const EmptyState: React.FC<{
+  hasFilter: boolean;
+  onNew: () => void;
+}> = ({hasFilter, onNew}) => (
+  <div className="flex flex-col items-center justify-center h-full gap-6 py-20 select-none">
+    {/* Drag-drop hint zone */}
+    <div className="relative flex flex-col items-center justify-center w-64 h-44 rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 transition-all hover:border-sky-400 hover:bg-sky-50/30"
+      style={{ animation: "pulse 3s ease-in-out infinite" }}>
+      {/* Decorative grid */}
+      <div className="absolute inset-0 opacity-5"
+        style={{ backgroundImage: "radial-gradient(circle, #64748b 1px, transparent 1px)", backgroundSize: "20px 20px", borderRadius: "14px" }}/>
+      <div className="relative flex flex-col items-center gap-3">
+        <div className="w-16 h-16 rounded-2xl bg-white border border-slate-200 shadow-md flex items-center justify-center"
+          style={{ boxShadow: "0 8px 24px rgba(0,0,0,0.08)" }}>
+          <FolderOpen className="w-8 h-8 text-slate-400"/>
+        </div>
+        <div className="text-center">
+          <p className="text-sm font-black text-slate-700">No Projects Yet</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">
+            {hasFilter ? "រកមិនឃើញ — ពិនិត្យ Filter ម្តងទៀត" : "ចាប់ផ្តើមដំបូង!"}
+          </p>
+        </div>
+      </div>
+      <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 text-[10px] text-slate-400 font-medium bg-white px-3 py-0.5 rounded-full border border-slate-200">
+        ⬆ ទម្លាក់ File ដើម្បី Upload
+      </div>
+    </div>
+
+    {!hasFilter && (
+      <div className="flex flex-col items-center gap-3">
+        <p className="text-slate-500 text-sm text-center max-w-xs leading-relaxed">
+          រៀបចំ និងតាមដានគម្រោង Dubbing របស់អ្នក<br/>
+          ក្នុងទម្រង់ប្រហែលជាស្រស់ស្អាត!
+        </p>
+        <button onClick={onNew}
+          className="flex items-center gap-2.5 px-6 py-3 rounded-2xl text-sm font-black text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+          style={{
+            background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+            boxShadow: "0 8px 24px rgba(99,102,241,0.35)",
+            animation: "bounce 2s ease-in-out infinite",
+          }}>
+          <Sparkles className="w-4 h-4"/>
+          បង្កើតគម្រោងដំបូង
+        </button>
+      </div>
+    )}
+
+    <style>{`
+      @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-4px); }
+      }
+      @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.85; }
+      }
+    `}</style>
+  </div>
+);
+
+// ─── Statistics Summary Row ─────────────────────────────────────────────────
+const StatsSummary: React.FC<{
+  totalProjects: number;
+  totalVideos: number;
+  completedPct: number;
+  totalDurationHrs: number;
+}> = ({totalProjects, totalVideos, completedPct, totalDurationHrs}) => {
+  const stats = [
+    { icon: <FolderKanban className="w-4 h-4"/>, label: "Projects", value: totalProjects, color: "from-sky-500 to-indigo-600", bg: "bg-sky-50", text: "text-sky-700", border: "border-sky-200" },
+    { icon: <Film className="w-4 h-4"/>,        label: "Videos",   value: totalVideos,   color: "from-purple-500 to-pink-600",  bg: "bg-purple-50", text: "text-purple-700", border: "border-purple-200" },
+    { icon: <CheckCircle2 className="w-4 h-4"/>, label: "Completed",value: `${completedPct}%`, color: "from-emerald-500 to-teal-600", bg: "bg-emerald-50", text: "text-emerald-700", border: "border-emerald-200" },
+    { icon: <Clock3 className="w-4 h-4"/>,      label: "Hours",    value: `${totalDurationHrs}h`, color: "from-amber-500 to-orange-600", bg: "bg-amber-50", text: "text-amber-700", border: "border-amber-200" },
+  ];
+
+  return (
+    <div className="grid grid-cols-4 gap-3">
+      {stats.map((s, i) => (
+        <div key={i}
+          className={`relative flex items-center gap-3 px-4 py-3 rounded-xl border ${s.border} ${s.bg} overflow-hidden`}>
+          <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-white bg-gradient-to-br ${s.color} shadow-sm flex-shrink-0`}>
+            {s.icon}
+          </div>
+          <div className="min-w-0">
+            <p className={`text-lg font-black ${s.text} leading-none`}>{s.value}</p>
+            <p className="text-[10px] text-slate-500 font-semibold mt-0.5">{s.label}</p>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+// ─── Filter Chip ─────────────────────────────────────────────────────────────
+const FilterChip: React.FC<{
+  label: string; count: number; active: boolean; icon?: string;
+  onClick: () => void; color?: string;
+}> = ({label, count, active, icon, onClick, color}) => (
+  <button onClick={onClick}
+    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-bold whitespace-nowrap transition-all flex-shrink-0
+      ${active
+        ? "border-sky-500 bg-sky-500 text-white shadow-md shadow-sky-500/30 scale-105"
+        : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"}`}>
+    {icon && <span>{icon}</span>}
+    {label}
+    <span className={`inline-flex items-center justify-center min-w-[18px] h-4 px-1 rounded-full text-[9px] font-black
+      ${active ? "bg-white/25 text-white" : "bg-slate-100 text-slate-600"}`}>
+      {count}
+    </span>
+  </button>
+);
+
 // ─── Main ───────────────────────────────────────────────────────────────────
 export const VideoProjectManager: React.FC<VideoProjectManagerProps> = ({onShowToast, onLoadProject}) => {
   const [projects, setProjects] = useState<VideoProject[]>(() => load());
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<DubStatus|"all">("all");
+  const [priorityFilter, setPriorityFilter] = useState<ProjectPriority|"all">("all");
   const [sortF, setSortF] = useState<SortField>("updatedAt");
   const [sortD, setSortD] = useState<"asc"|"desc">("desc");
   const [view, setView] = useState<ViewMode>("grid");
@@ -539,7 +997,6 @@ export const VideoProjectManager: React.FC<VideoProjectManagerProps> = ({onShowT
   const handleFav = (id: string) =>
     setProjects(prev => prev.map(p => p.id===id ? {...p, isFavorite:!p.isFavorite, updatedAt:new Date().toISOString()} : p));
 
-  // ── Video attach/detach ──
   const handleAttach = (pid: string, file: ProjectFile) => {
     const now = new Date().toISOString();
     const v: ProjectVideo = {
@@ -588,6 +1045,7 @@ export const VideoProjectManager: React.FC<VideoProjectManagerProps> = ({onShowT
         || (p.series||"").toLowerCase().includes(q) || p.tags.some(t => t.toLowerCase().includes(q)));
     }
     if (filter !== "all") l = l.filter(p => p.status === filter);
+    if (priorityFilter !== "all") l = l.filter(p => p.priority === priorityFilter);
     l.sort((a, b) => {
       let av: any, bv: any;
       if (sortF==="name") { av=a.name; bv=b.name; }
@@ -601,90 +1059,192 @@ export const VideoProjectManager: React.FC<VideoProjectManagerProps> = ({onShowT
     });
     l.sort((a, b) => (b.isFavorite?1:0) - (a.isFavorite?1:0));
     return l;
-  }, [projects, search, filter, sortF, sortD])();
+  }, [projects, search, filter, priorityFilter, sortF, sortD])();
 
+  // ── Stats ──
   const tv = projects.reduce((a,p) => a+p.videos.length, 0);
   const dv = projects.reduce((a,p) => a+p.videos.filter(v=>v.dubStatus==="done").length, 0);
   const opct = tv>0 ? Math.round(dv/tv*100) : 0;
+  const totalDurHrs = Math.round(projects.reduce((a,p) => a+(p.totalDurationMin||0), 0) / 60 * 10) / 10;
   const pp = pickId ? projects.find(p => p.id===pickId) : null;
 
+  // ── Filter chip counts ──
+  const statusCounts = {
+    all:        projects.length,
+    pending:    projects.filter(p=>p.status==="pending").length,
+    processing: projects.filter(p=>p.status==="processing").length,
+    done:       projects.filter(p=>p.status==="done").length,
+    failed:     projects.filter(p=>p.status==="failed").length,
+    draft:      projects.filter(p=>p.status==="draft").length,
+  };
+  const priCounts = {
+    all:    projects.length,
+    high:   projects.filter(p=>p.priority==="high").length,
+    normal: projects.filter(p=>p.priority==="normal").length,
+    low:    projects.filter(p=>p.priority==="low").length,
+  };
+
+  const hasActiveFilter = search.trim().length > 0 || filter !== "all" || priorityFilter !== "all";
+
   return (
-    <div className="flex flex-col h-full bg-[#f8fafc] text-slate-800 font-khmer">
-      {/* header */}
-      <div className="flex-shrink-0 px-6 pt-5 pb-4 bg-white border-b border-slate-200/90 shadow-2xs">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-100 to-indigo-100 border border-sky-200 flex items-center justify-center shadow-2xs">
-              <FolderKanban className="w-4 h-4 text-sky-600"/>
+    <div className="flex flex-col h-full font-khmer" style={{ background: "#f1f5f9" }}>
+
+      {/* ── HEADER TOOLBAR ─────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 px-6 pt-4 pb-3 bg-white border-b border-slate-200 shadow-sm">
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Title + badge */}
+          <div className="flex items-center gap-3 mr-auto">
+            <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)" }}>
+              <FolderKanban className="w-5 h-5 text-white"/>
             </div>
             <div>
-              <h1 className="text-base font-black text-slate-900 tracking-tight">គ្រប់គ្រងគម្រោងវីដេអូ</h1>
-              <p className="text-[11px] text-slate-500">រៀបចំ និងតាមដានដំណើរការវីដេអូនីមួយៗ</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-base font-black text-slate-900 tracking-tight">PROJECT MANAGER</h1>
+                <span className="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black text-white"
+                  style={{ background: "linear-gradient(135deg, #0ea5e9, #6366f1)", minWidth: "24px" }}>
+                  {projects.length}
+                </span>
+              </div>
+              <p className="text-[10px] text-slate-500 font-medium">រៀបចំ និងតាមដានគម្រោង Dubbing</p>
             </div>
           </div>
-          <select value={filter} onChange={e => setFilter(e.target.value as any)}
-            className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-sky-500 shadow-2xs transition-all">
-            <option value="all">🔵 ទាំងអស់</option>
-            <option value="draft">📝 ព្រាង</option>
-            <option value="pending">⏳ រង់ចាំ</option>
-            <option value="processing">🔄 កំពុង</option>
-            <option value="done">✅ រួចរាល់</option>
-            <option value="failed">❌ បរាជ័យ</option>
-          </select>
-          <select value={sortF} onChange={e => setSortF(e.target.value as SortField)}
-            className="bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm text-slate-800 focus:outline-none focus:border-sky-500 shadow-2xs transition-all">
-            <option value="updatedAt">📅 ថ្ងៃថ្មី</option>
-            <option value="name">🔤 ឈ្មោះ</option>
-            <option value="progress">📊 វឌ្ឍនភាព</option>
-            <option value="status">🔘 ស្ថានភាព</option>
-          </select>
-          <button onClick={() => setSortD(d => d==="asc"?"desc":"asc")}
-            className="p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-slate-900 shadow-2xs transition-all">
-            {sortD==="asc" ? <SortAsc className="w-4 h-4"/> : <SortDesc className="w-4 h-4"/>}
-          </button>
-          <div className="flex rounded-xl overflow-hidden border border-slate-200 shadow-2xs bg-white">
-            <button onClick={() => setView("grid")} className={`p-2 transition-colors ${view==="grid"?"bg-sky-50 text-sky-700 font-bold":"bg-white text-slate-500 hover:text-slate-900"}`}><Grid3X3 className="w-4 h-4"/></button>
-            <button onClick={() => setView("list")} className={`p-2 transition-colors ${view==="list"?"bg-sky-50 text-sky-700 font-bold":"bg-white text-slate-500 hover:text-slate-900"}`}><List className="w-4 h-4"/></button>
-          </div>
-        </div>
-      </div>
 
-      {/* content */}
-      <div className="flex-1 overflow-y-auto px-6 py-5">
-        {list.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full gap-4 py-20">
-            <div className="w-20 h-20 rounded-2xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center">
-              <FolderOpen className="w-10 h-10 text-slate-400"/>
-            </div>
-            <div className="text-center">
-              <p className="text-slate-800 font-bold mb-1">{search||filter!=="all" ? "រកមិនឃើញ" : "មិនទាន់មានគម្រោង"}</p>
-              <p className="text-slate-500 text-sm">{search||filter!=="all" ? "សាកល្បងស្វែងរកឡើងវិញ" : "ចុច «បង្កើតគម្រោង» ដើម្បីចាប់ផ្តើម!"}</p>
-            </div>
-            {!search && filter==="all" && (
-              <button onClick={() => { setEditP({}); setFormOpen(true); }}
-                className="mt-2 flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-sky-50 to-indigo-50 border border-sky-200 rounded-xl text-sky-700 text-sm font-bold hover:bg-sky-100 transition-all shadow-2xs">
-                <Plus className="w-4 h-4"/>បង្កើតគម្រោងដំបូង
+          {/* View mode toggle */}
+          <div className="flex rounded-xl overflow-hidden border border-slate-200 bg-slate-100 p-0.5">
+            <button onClick={() => setView("grid")}
+              className={`p-1.5 rounded-lg transition-all ${view==="grid" ? "bg-white text-sky-600 shadow-sm font-bold" : "text-slate-500 hover:text-slate-700"}`}>
+              <LayoutGrid className="w-4 h-4"/>
+            </button>
+            <button onClick={() => setView("list")}
+              className={`p-1.5 rounded-lg transition-all ${view==="list" ? "bg-white text-sky-600 shadow-sm font-bold" : "text-slate-500 hover:text-slate-700"}`}>
+              <AlignJustify className="w-4 h-4"/>
+            </button>
+          </div>
+
+          {/* Sort dropdown */}
+          <div className="flex items-center gap-1 border border-slate-200 rounded-xl bg-white px-1 shadow-sm">
+            <select value={sortF} onChange={e => setSortF(e.target.value as SortField)}
+              className="bg-transparent border-none px-2 py-1.5 text-xs text-slate-700 focus:outline-none font-semibold cursor-pointer">
+              <option value="updatedAt">📅 ថ្ងៃថ្មី</option>
+              <option value="name">🔤 ឈ្មោះ</option>
+              <option value="progress">📊 វឌ្ឍនភាព</option>
+              <option value="status">🔘 ស្ថានភាព</option>
+              <option value="createdAt">🗓 បង្កើត</option>
+            </select>
+            <button onClick={() => setSortD(d => d==="asc"?"desc":"asc")}
+              className="p-1.5 text-slate-500 hover:text-slate-800 transition-colors">
+              {sortD==="asc" ? <SortAsc className="w-3.5 h-3.5"/> : <SortDesc className="w-3.5 h-3.5"/>}
+            </button>
+          </div>
+
+          {/* Search bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400"/>
+            <input value={search} onChange={e => setSearch(e.target.value)}
+              placeholder="ស្វែងរកគម្រោង..."
+              className="w-44 pl-8 pr-7 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-100 focus:bg-white transition-all focus:w-56"/>
+            {search && (
+              <button onClick={() => setSearch("")}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors">
+                <X className="w-3 h-3"/>
               </button>
             )}
           </div>
+
+          {/* New Project button */}
+          <button onClick={() => { setEditP({}); setFormOpen(true); }}
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-black text-white transition-all hover:scale-105 hover:shadow-lg flex-shrink-0"
+            style={{
+              background: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+              boxShadow: "0 4px 12px rgba(99,102,241,0.35)",
+            }}>
+            <Plus className="w-4 h-4"/>
+            <span className="hidden sm:inline">New Project</span>
+          </button>
+        </div>
+      </div>
+
+      {/* ── STATS SUMMARY ───────────────────────────────────────────────── */}
+      {projects.length > 0 && (
+        <div className="flex-shrink-0 px-6 pt-4">
+          <StatsSummary
+            totalProjects={projects.length}
+            totalVideos={tv}
+            completedPct={opct}
+            totalDurationHrs={totalDurHrs}/>
+        </div>
+      )}
+
+      {/* ── FILTER BAR ──────────────────────────────────────────────────── */}
+      <div className="flex-shrink-0 px-6 pt-3 pb-0">
+        {/* Status chips */}
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none" style={{ scrollbarWidth: "none" }}>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex-shrink-0">Status:</span>
+          <FilterChip label="ទាំងអស់"         count={statusCounts.all}        active={filter==="all"}        onClick={() => setFilter("all")}/>
+          <FilterChip label="ព្រាង"            count={statusCounts.draft}      active={filter==="draft"}      icon="📝" onClick={() => setFilter("draft")}/>
+          <FilterChip label="រង់ចាំ"           count={statusCounts.pending}    active={filter==="pending"}    icon="⏳" onClick={() => setFilter("pending")}/>
+          <FilterChip label="កំពុងដំណើរការ"   count={statusCounts.processing} active={filter==="processing"} icon="🔄" onClick={() => setFilter("processing")}/>
+          <FilterChip label="រួចរាល់"          count={statusCounts.done}       active={filter==="done"}       icon="✅" onClick={() => setFilter("done")}/>
+          <FilterChip label="បរាជ័យ"           count={statusCounts.failed}     active={filter==="failed"}     icon="❌" onClick={() => setFilter("failed")}/>
+
+          <span className="w-px h-5 bg-slate-200 flex-shrink-0 mx-1"/>
+          <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider flex-shrink-0">Priority:</span>
+          <FilterChip label="ទាំងអស់" count={priCounts.all}    active={priorityFilter==="all"}    onClick={() => setPriorityFilter("all")}/>
+          <FilterChip label="ខ្ពស់"   count={priCounts.high}   active={priorityFilter==="high"}   icon="🔴" onClick={() => setPriorityFilter("high")}/>
+          <FilterChip label="មធ្យម"  count={priCounts.normal} active={priorityFilter==="normal"} icon="🟡" onClick={() => setPriorityFilter("normal")}/>
+          <FilterChip label="ទាប"    count={priCounts.low}    active={priorityFilter==="low"}    icon="⚪" onClick={() => setPriorityFilter("low")}/>
+
+          {hasActiveFilter && (
+            <button onClick={() => { setSearch(""); setFilter("all"); setPriorityFilter("all"); }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold text-rose-600 bg-rose-50 border border-rose-200 hover:bg-rose-100 transition-all flex-shrink-0 ml-1">
+              <X className="w-2.5 h-2.5"/>លុប Filter
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* ── CONTENT AREA ────────────────────────────────────────────────── */}
+      <div className="flex-1 overflow-y-auto px-6 py-4">
+        {list.length === 0 ? (
+          <EmptyState hasFilter={hasActiveFilter} onNew={() => { setEditP({}); setFormOpen(true); }}/>
         ) : (
-          <div className={view==="grid" ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-3"}>
-            {list.map(p => (
-              <PCard key={p.id} p={p}
-                onEdit={x => { setEditP(x); setFormOpen(true); }}
-                onDel={id => setDelId(id)}
-                onFav={handleFav}
-                onAdd={id => setPickId(id)}
-                onDetach={handleDetach}
-                onLoad={handleLoad}
-                onVSt={handleVSt}/>
-            ))}
-          </div>
+          <>
+            {/* Results count */}
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-[11px] text-slate-500 font-semibold">
+                បង្ហាញ <strong className="text-slate-700">{list.length}</strong> ក្នុង <strong className="text-slate-700">{projects.length}</strong> គម្រោង
+                {hasActiveFilter && <span className="text-sky-600"> (Filtered)</span>}
+              </p>
+              {view === "grid" && (
+                <p className="text-[10px] text-slate-400">Grid · 3 col</p>
+              )}
+            </div>
+
+            <div className={view==="grid"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              : "space-y-2"}>
+              {list.map(p => (
+                <PCard key={p.id} p={p} viewMode={view}
+                  onEdit={x => { setEditP(x); setFormOpen(true); }}
+                  onDel={id => setDelId(id)}
+                  onFav={handleFav}
+                  onAdd={id => setPickId(id)}
+                  onDetach={handleDetach}
+                  onLoad={handleLoad}
+                  onVSt={handleVSt}/>
+              ))}
+            </div>
+          </>
         )}
       </div>
 
-      {/* modals */}
-      {formOpen && <PForm proj={editP} onSave={handleSave} onClose={() => { setFormOpen(false); setEditP(null); }}/>}
+      {/* ── SLIDE-IN FORM PANEL ──────────────────────────────────────────── */}
+      {formOpen && (
+        <PForm proj={editP} onSave={handleSave} onClose={() => { setFormOpen(false); setEditP(null); }}/>
+      )}
+
+      {/* ── VIDEO PICKER MODAL ───────────────────────────────────────────── */}
       {pp && (
         <VideoPicker
           attached={pp.videos.map(v => v.filename)}
@@ -692,23 +1252,50 @@ export const VideoProjectManager: React.FC<VideoProjectManagerProps> = ({onShowT
           onClose={() => setPickId(null)}
           toast={onShowToast}/>
       )}
+
+      {/* ── DELETE CONFIRM ───────────────────────────────────────────────── */}
       {delId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="bg-white border border-rose-200 rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-10 h-10 rounded-xl bg-rose-50 border border-rose-200 flex items-center justify-center"><Trash2 className="w-5 h-5 text-rose-600"/></div>
-              <div><h3 className="text-sm font-black text-slate-900">លុបគម្រោង?</h3><p className="text-[11px] text-slate-500">វីដេអូក្នុងគម្រោងនឹងត្រូវបានដកផងដែរ!</p></div>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
+                style={{ background: "linear-gradient(135deg, #fef2f2, #fee2e2)", border: "1px solid #fecaca" }}>
+                <Trash2 className="w-5 h-5 text-rose-600"/>
+              </div>
+              <div>
+                <h3 className="text-sm font-black text-slate-900">លុបគម្រោង?</h3>
+                <p className="text-[11px] text-slate-500">វីដេអូក្នុងគម្រោងនឹងត្រូវបានដកផងដែរ!</p>
+              </div>
             </div>
-            <p className="text-xs text-slate-600 mb-5 bg-rose-50/60 border border-rose-200 rounded-xl p-3">
-              ⚠️ <strong className="text-slate-900">"{projects.find(p=>p.id===delId)?.name}"</strong> ({projects.find(p=>p.id===delId)?.videos.length||0} វីដេអូ) នឹងត្រូវបានលុប។
-            </p>
+            <div className="p-3 rounded-xl mb-5 text-xs text-slate-700 leading-relaxed"
+              style={{ background: "#fef2f2", border: "1px solid #fecaca" }}>
+              ⚠️ <strong className="text-slate-900">"{projects.find(p=>p.id===delId)?.name}"</strong>
+              {" "}({projects.find(p=>p.id===delId)?.videos.length||0} វីដេអូ) នឹងត្រូវបានលុប។
+            </div>
             <div className="flex gap-2.5">
-              <button onClick={() => setDelId(null)} className="flex-1 py-2 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl border border-slate-200 transition-all font-medium">បោះបង់</button>
-              <button onClick={() => handleDel(delId)} className="flex-1 py-2 text-sm font-bold bg-rose-600 hover:bg-rose-700 rounded-xl text-white transition-all shadow-md shadow-rose-600/20">លុប</button>
+              <button onClick={() => setDelId(null)}
+                className="flex-1 py-2.5 text-sm text-slate-600 hover:text-slate-900 hover:bg-slate-100 rounded-xl border border-slate-200 transition-all font-semibold">
+                បោះបង់
+              </button>
+              <button onClick={() => handleDel(delId)}
+                className="flex-1 py-2.5 text-sm font-black text-white rounded-xl transition-all"
+                style={{ background: "linear-gradient(135deg, #f43f5e, #e11d48)", boxShadow: "0 4px 12px rgba(244,63,94,0.35)" }}>
+                លុប
+              </button>
             </div>
           </div>
         </div>
       )}
+
+      {/* Global shimmer keyframe */}
+      <style>{`
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
+        }
+        .scrollbar-none::-webkit-scrollbar { display: none; }
+        .scrollbar-none { scrollbar-width: none; }
+      `}</style>
     </div>
   );
 };

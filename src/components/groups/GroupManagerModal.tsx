@@ -416,7 +416,7 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
                 </label>
                 <input
                   type="text"
-                  placeholder="ឧ. រឿង ដាវទេពយុទ្ធសិល្ប៍ ភាគ ១-២០"
+                  placeholder="បញ្ចូលឈ្មោះ Group..."
                   value={newName}
                   onChange={(e) => setNewName(e.target.value)}
                   className="w-full bg-[#07090e] border border-white/[0.1] rounded-lg px-3 py-1.5 text-xs text-white placeholder-slate-500 outline-none focus:border-cyan-400 font-khmer transition-all"
@@ -449,7 +449,7 @@ export const GroupManagerModal: React.FC<GroupManagerModalProps> = ({
               </label>
               <input
                 type="text"
-                placeholder="ឧ. ភាពយន្តភាគ Anime ផ្សាយរៀងរាល់ថ្ងៃសៅរ៍..."
+                placeholder="ការពិពណ៌នាអំពី Group..."
                 value={newDesc}
                 onChange={(e) => setNewDesc(e.target.value)}
                 className="w-full bg-[#07090e] border border-white/[0.1] rounded-lg px-3 py-1.5 text-xs text-slate-300 placeholder-slate-500 outline-none focus:border-cyan-400 font-khmer transition-all"

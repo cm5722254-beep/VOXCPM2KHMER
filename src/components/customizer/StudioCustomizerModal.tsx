@@ -51,38 +51,7 @@ export interface ColorPresetItem {
   isDark?: boolean;
 }
 
-const DEFAULT_PRESET_WALLPAPERS: WallpaperItem[] = [
-  {
-    id: 'cyberpunk',
-    name: 'Cyberpunk Neon City',
-    preview: '🌃',
-    url: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=2560&q=95&auto=format&fit=crop',
-  },
-  {
-    id: 'anime_sunset',
-    name: 'Anime Sunset Tokyo Sky',
-    preview: '🌅',
-    url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2560&q=95&auto=format&fit=crop',
-  },
-  {
-    id: 'midnight_purple',
-    name: 'Midnight Purple Nebula',
-    preview: '🌌',
-    url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=2560&q=95&auto=format&fit=crop',
-  },
-  {
-    id: 'emerald_matrix',
-    name: 'Emerald Forest Shrine',
-    preview: '🌲',
-    url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=2560&q=95&auto=format&fit=crop',
-  },
-  {
-    id: 'studio_dark',
-    name: 'Carbon Stealth Dark',
-    preview: '🖤',
-    url: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=2560&q=95&auto=format&fit=crop',
-  },
-];
+const DEFAULT_PRESET_WALLPAPERS: WallpaperItem[] = [];
 
 const PRESET_BACKGROUND_COLORS: ColorPresetItem[] = [
   {
@@ -262,7 +231,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
     glassBorderGlow: theme.glassBorderGlow || 'subtle',
   }));
 
-  const [activeTab, setActiveTab] = useState<'color' | 'wallpaper' | 'glass' | 'stickers'>('color');
+  const [activeTab, setActiveTab] = useState<'color' | 'wallpaper'>('color');
 
   // Custom and preset wallpapers list in state
   const [customWallpapers, setCustomWallpapers] = useState<WallpaperItem[]>(() => {
@@ -670,29 +639,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
             <span>🖼️ WALLPAPER 4K & UPLOAD ({allWallpapers.length})</span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('glass')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'glass'
-                ? 'bg-white text-sky-800 border border-slate-300/80 shadow-xs ring-1 ring-sky-500/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-            <span>💎 COLOR GLASS (កញ្ចក់ពណ៌)</span>
-          </button>
 
-          <button
-            onClick={() => setActiveTab('stickers')}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
-              activeTab === 'stickers'
-                ? 'bg-white text-sky-800 border border-slate-300/80 shadow-xs ring-1 ring-sky-500/20'
-                : 'text-slate-600 hover:text-slate-900 hover:bg-white/60'
-            }`}
-          >
-            <Smile className="w-3.5 h-3.5 text-pink-500" />
-            <span>⭐ STICKERS ({localTheme.stickers.length})</span>
-          </button>
         </div>
 
         {/* ── Modal Body Content ── */}
@@ -756,7 +703,6 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                     localStorage.setItem('animestudio_theme_mode', 'dark');
                     document.documentElement.classList.add('dark');
                     document.documentElement.classList.remove('light');
-                    onShowToast?.('🌙 បានកំណត់ស្ទូឌីយោទៅ Night Mode (ពណ៌ងងឹតត្រជាក់ភ្នែក)!', 'info');
                   }}
                   className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between gap-3 shadow-xs hover:shadow-md ${
                     localTheme.themeMode === 'dark' || localTheme.backgroundColor === '#0b0f19'
@@ -1262,198 +1208,6 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       }
                       className="w-full accent-sky-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
                     />
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* ═══════════ TAB 3: COLOR GLASS ═══════════ */}
-          {activeTab === 'glass' && (
-            <div className="flex flex-col gap-5">
-              <div>
-                <label className="text-xs font-bold text-slate-800 block mb-2.5">
-                  ជ្រើសរើសពណ៌ Color Glass (Glassmorphism Light Tint):
-                </label>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                  {PRESET_GLASS_COLORS.map((g) => (
-                    <button
-                      key={g.id}
-                      onClick={() => handleSelectGlassColor(g.id)}
-                      className={`p-3.5 rounded-2xl border text-left transition-all relative overflow-hidden bg-white ${
-                        localTheme.glassColor === g.id
-                          ? 'border-sky-500 ring-2 ring-sky-400/40 shadow-sm'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between gap-1 mb-2">
-                        <span
-                          className="text-[9px] font-mono font-bold px-2 py-0.5 rounded-full border"
-                          style={{
-                            backgroundColor: g.tintRgba,
-                            borderColor: g.accentHex,
-                            color: g.accentHex,
-                          }}
-                        >
-                          {g.badge}
-                        </span>
-                        {localTheme.glassColor === g.id && (
-                          <CheckCircle2
-                            className="w-4 h-4 stroke-[3]"
-                            style={{ color: g.accentHex }}
-                          />
-                        )}
-                      </div>
-
-                      <div className="text-xs font-bold text-slate-900">{g.name}</div>
-                      <div className="text-[10.5px] text-slate-500 mt-0.5">
-                        កញ្ចក់រលើបរលោង ភ្លឺស្អាត
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Glass Controls: Blur, Opacity & Border Glow */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
-                {/* Glass Opacity */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                    <span className="flex items-center gap-1.5">
-                      <Sun className="w-3.5 h-3.5 text-sky-600" />
-                      <span>ភាពថ្លា Glass Opacity:</span>
-                    </span>
-                    <span className="font-mono text-sky-600 font-bold">
-                      {localTheme.glassOpacity || 80}%
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={20}
-                    max={95}
-                    step={5}
-                    value={localTheme.glassOpacity || 80}
-                    onChange={(e) =>
-                      updateTheme({
-                        ...localTheme,
-                        glassOpacity: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-full accent-sky-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
-                  />
-                </div>
-
-                {/* Glass Blur */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                    <span className="flex items-center gap-1.5">
-                      <Layers className="w-3.5 h-3.5 text-indigo-600" />
-                      <span>កម្រិតព្រិល Glass Blur:</span>
-                    </span>
-                    <span className="font-mono text-indigo-600 font-bold">
-                      {localTheme.glassBlur || 12}px
-                    </span>
-                  </div>
-                  <input
-                    type="range"
-                    min={0}
-                    max={30}
-                    step={2}
-                    value={localTheme.glassBlur || 12}
-                    onChange={(e) =>
-                      updateTheme({
-                        ...localTheme,
-                        glassBlur: parseInt(e.target.value, 10),
-                      })
-                    }
-                    className="w-full accent-indigo-600 cursor-pointer h-1.5 bg-slate-200 rounded-lg"
-                  />
-                </div>
-
-                {/* Border Glow Intensity */}
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                    <span className="flex items-center gap-1.5">
-                      <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-                      <span>កម្រិតពន្លឺ Border Glow:</span>
-                    </span>
-                    <span className="font-mono text-amber-700 font-bold capitalize">
-                      {localTheme.glassBorderGlow || 'subtle'}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1">
-                    {(['subtle', 'vibrant', 'neon'] as const).map((style) => (
-                      <button
-                        key={style}
-                        onClick={() =>
-                          updateTheme({ ...localTheme, glassBorderGlow: style })
-                        }
-                        className={`py-1 rounded-lg text-[10px] font-bold capitalize transition-all ${
-                          (localTheme.glassBorderGlow || 'subtle') === style
-                            ? 'bg-amber-100 text-amber-900 border border-amber-300'
-                            : 'bg-slate-100 text-slate-600 hover:text-slate-900'
-                        }`}
-                      >
-                        {style}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ═══════════ TAB 4: STICKERS ═══════════ */}
-          {activeTab === 'stickers' && (
-            <div className="flex flex-col gap-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-800 mb-2">
-                  ចុច Emoji Sticker ដើម្បីបិទអណ្តែតលើ Interface (Floating Stickers):
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-                  {PRESET_STICKERS.map((st) => (
-                    <button
-                      key={st.name}
-                      onClick={() => handleAddEmojiSticker(st.url, st.name)}
-                      className="p-3 rounded-2xl bg-white hover:bg-slate-50 border border-slate-200 hover:border-sky-300 flex items-center gap-2.5 transition-all active:scale-95 text-left shadow-2xs"
-                    >
-                      <span className="text-2xl">{st.url}</span>
-                      <span className="text-xs font-bold text-slate-800">{st.name}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {localTheme.stickers.length > 0 && (
-                <div className="p-4 rounded-2xl bg-white border border-slate-200 space-y-2 shadow-2xs">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-bold text-slate-800">
-                      Stickers កំពុងបង្ហាញ ({localTheme.stickers.length}):
-                    </span>
-                    <button
-                      onClick={() => updateTheme({ ...localTheme, stickers: [] })}
-                      className="text-xs text-red-600 hover:underline font-bold"
-                    >
-                      លុប Sticker ទាំងអស់
-                    </button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {localTheme.stickers.map((s) => (
-                      <div
-                        key={s.id}
-                        className="px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-200 flex items-center gap-2 text-xs text-slate-800"
-                      >
-                        <span className="text-base">{s.url}</span>
-                        <span>{s.name}</span>
-                        <button
-                          onClick={() => handleRemoveSticker(s.id)}
-                          className="text-slate-400 hover:text-red-500 ml-1"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </div>
-                    ))}
                   </div>
                 </div>
               )}

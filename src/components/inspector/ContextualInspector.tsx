@@ -180,7 +180,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
   }
 
   return (
-    <aside className="w-full lg:w-[340px] bg-white dark:bg-[#0f172a]/95 border-t lg:border-t-0 lg:border-l border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-slate-100 flex flex-col overflow-hidden select-none flex-shrink-0 z-10 transition-colors duration-200 font-khmer shadow-xs">
+    <aside className="studio-inspector w-full lg:w-[380px] bg-white dark:bg-[#0f172a]/95 border-t lg:border-t-0 lg:border-l border-slate-200/90 dark:border-slate-800 text-slate-900 dark:text-slate-100 flex flex-col overflow-hidden select-none flex-shrink-0 z-10 transition-colors duration-200 font-khmer shadow-xs">
       {/* ── Top Header & Tab Navigation ── */}
       <div className="border-b border-slate-200/90 dark:border-slate-800 bg-slate-50/90 dark:bg-slate-900/90 p-2 flex flex-col gap-1.5 flex-shrink-0">
         <div className="flex items-center justify-between px-1">

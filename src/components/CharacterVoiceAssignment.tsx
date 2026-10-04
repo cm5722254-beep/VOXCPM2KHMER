@@ -150,8 +150,8 @@ export default function CharacterVoiceAssignment({
       } else {
         // Fallback to default
         char.assignedVoice = char.gender === 'female' 
-          ? 'voxcpm:hang_phleung_char_6_female.mp3'
-          : 'voxcpm:hang_phleung_char_2_male.mp3';
+          ? 'voxcpm:vp_character_1_female.mp3'
+          : 'voxcpm:vp_character_2_male.mp3';
       }
     });
   };

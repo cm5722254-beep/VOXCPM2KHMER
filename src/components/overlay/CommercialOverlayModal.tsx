@@ -10,6 +10,7 @@ import {
   Clock,
   Layers,
   Eye,
+  Heart,
 } from 'lucide-react';
 import { CommercialOverlayConfig } from '../../types';
 
@@ -20,6 +21,7 @@ interface CommercialOverlayModalProps {
   onChangeConfig: (config: CommercialOverlayConfig) => void;
   mainVideoSrc?: string;
   onShowToast?: (msg: string, type: 'success' | 'error' | 'info' | 'warning') => void;
+  onOpenSponsor?: () => void;
 }
 
 export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
@@ -29,6 +31,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
   onChangeConfig,
   mainVideoSrc,
   onShowToast,
+  onOpenSponsor,
 }) => {
   const [localConfig, setLocalConfig] = useState<CommercialOverlayConfig>(config);
   const [videoInputUrl, setVideoInputUrl] = useState(config.videoUrl || '');
@@ -119,12 +122,27 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2">
+            {onOpenSponsor && (
+              <button
+                type="button"
+                onClick={() => {
+                  onClose();
+                  onOpenSponsor();
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/40 text-xs font-bold transition-all"
+              >
+                <Heart className="w-3.5 h-3.5 text-purple-400 fill-purple-400/20" />
+                <span>គ្រប់គ្រង Sponsor (Add Sponsor)</span>
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
         </div>
 
         {/* ── Modal Body: Left Controls | Right Live Preview ── */}

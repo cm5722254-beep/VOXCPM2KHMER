@@ -1,6 +1,8 @@
 export interface User {
   id: number;
   username: string;
+  name?: string;
+  email?: string;
   role: 'admin' | 'user';
   tier: 'premium' | 'free';
   premium_expires_at?: string | null;
@@ -8,6 +10,7 @@ export interface User {
   voxcpm_license_expires_at?: string | null;
   voxcpm_license_key?: string | null;
   current_device_id?: string | null;
+  machine_id?: string | null;
   created_at?: string;
 }
 
@@ -63,6 +66,9 @@ export interface TimelineSegment {
   breathiness?: number;
   raspiness?: number;
   vibrato?: number;
+  audio_tag?: string; // e.g. 'action', 'whisper', 'shout', 'cry', 'laugh'
+  is_thought?: boolean; // Inner monologue / thought bubble
+  text?: string; // Alias for display text (khmer_translation fallback)
 }
 
 export interface ProjectFile {
@@ -114,6 +120,9 @@ export interface WatermarkConfig {
   logoUrl?: string;
   scale?: number;
   rotationAngle?: number;
+  stylePreset?: string; // 'theatrical_gold' | 'cyber_neon' | 'glass_pill' | 'minimal_clean' | 'fire_ember' | 'hologram' | 'anime_channel' | 'silver_chrome' | 'dark_stealth' | 'gradient_rainbow'
+  icon?: 'shield' | 'star' | 'flame' | 'sparkle' | 'camera' | 'tv' | 'crown' | 'none';
+  glowEffect?: boolean;
 }
 
 export interface VideoStyleTextConfig {
@@ -150,6 +159,45 @@ export interface Effect3DPreset {
   titleStylePreset?: string;
 }
 
+export interface InVideoSponsorConfig {
+  enabled: boolean;
+  sponsorName: string;
+  tagline?: string;
+  contactInfo?: string; // Phone, Telegram, ABA
+  logoUrl?: string;
+  position: 'bottom_banner' | 'top_banner' | 'top_right' | 'top_left' | 'floating_pill' | 'lower_third';
+  stylePreset: 'theatrical_gold' | 'neon_cyan' | 'glass_blur' | 'red_breaking' | 'royal_purple' | 'amber_blaze';
+  animation: 'pulse' | 'shimmer' | 'static';
+  opacity?: number;
+}
+
+export interface SocialCanvasStyle {
+  enabled: boolean;
+  canvasRatio: '9:16' | '4:5' | '1:1' | '16:9';
+  backgroundType: 'blur_video' | 'cinema_gradient' | 'neon_glow' | 'cyber_mesh' | 'dark_matte';
+  blurAmount: number; // 5 to 40
+  topTitle: string; // e.g. "👉 រឿងភាគថ្មីកក្រើក ភាគ០១ | CapCut Studio"
+  bottomSubtitle: string; // e.g. "❤️ សូមជួយ Like & Follow ផេកផងបាទ"
+  headerFontFamily?: string;
+  headerTextColor?: string;
+  headerBgColor?: string;
+  frameBorderColor?: string;
+  frameBorderWidth?: number;
+}
+
+export interface RunningTickerTextConfig {
+  enabled: boolean;
+  text: string; // Marquee text
+  speed: 'slow' | 'medium' | 'fast';
+  direction: 'left' | 'right';
+  fontSize: number; // 14 to 32
+  textColor: string;
+  backgroundColor: string;
+  position: 'bottom' | 'top' | 'above_subtitles';
+  glowEffect: boolean;
+  newsBadgeText?: string; // e.g. "📢 ដំណឹង", "BREAKING", "HOT"
+}
+
 export interface VideoEffects {
   brightness: number; // 50 to 150 (default 100)
   contrast: number;   // 50 to 150 (default 100)
@@ -174,6 +222,15 @@ export interface VideoEffects {
   effect3dPreset?: string;
   effect3dIntensity?: number; // 0 to 100
   effect3dDepth?: number;     // 0 to 100
+  // Video Zoom & Fit Scaling (Fit vs Fill)
+  zoomScale?: number;         // 0.5 to 4.0 (default 1.0)
+  zoomFitMode?: 'contain' | 'cover'; // 'contain' (Fit) or 'cover' (Fill/Crop black bars)
+  panX?: number;
+  panY?: number;
+  // ── New Professional Enhancements ──
+  sponsorInVideo?: InVideoSponsorConfig;
+  socialCanvasStyle?: SocialCanvasStyle;
+  runningTickerText?: RunningTickerTextConfig;
 }
 
 export interface SubtitleStyle {
@@ -292,7 +349,12 @@ export type TabId =
   | 'tab-subtitles'
   | 'tab-tuner'
   | 'tab-thumbnail'
-  | 'tab-projects';
+  | 'tab-cutter'
+  | 'tab-posterforge'
+  | 'tab-projects'
+  | 'tab-classic'
+  | 'tab-narrator'
+  | 'tab-voiceover';
 
 // ── 3 Studio Engine Options ──
 export type StudioEngineOption =

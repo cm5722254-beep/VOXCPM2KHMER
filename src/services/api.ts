@@ -64,12 +64,31 @@ export const api = {
 
   getMe: () => request<{ user: User }>('/api/auth/me'),
 
+  // Auto login by hardware Machine ID (no username/password)
+  deviceLogin: () =>
+    request<{ token: string; user: User; machine_id: string }>('/api/auth/device-login', {
+      method: 'POST',
+    }),
+
   // License Key & VoxCPM2 Permissions
   activateLicense: (license_key: string) =>
-    request<{ success: boolean; message: string; user: User }>('/api/license/activate', {
+    request<{ success: boolean; message: string; user: User; token?: string }>('/api/license/activate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ license_key }),
+    }),
+
+  // Sponsors Management Endpoints
+  getSponsors: () => request<{ success: boolean; sponsors: any[] }>('/api/sponsors'),
+  saveSponsors: (sponsors: any[]) =>
+    request<{ success: boolean; sponsors: any[] }>('/api/sponsors', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sponsors }),
+    }),
+  deleteSponsor: (sponsorId: string) =>
+    request<{ success: boolean; sponsors: any[] }>(`/api/sponsors/${sponsorId}`, {
+      method: 'DELETE',
     }),
 
   adminListLicenseKeys: () =>
@@ -245,6 +264,8 @@ export const api = {
 
   createCharacter: (fd: FormData) => request('/api/characters/create', { method: 'POST', body: fd }),
 
+  extractVoice: (fd: FormData) => request<{ success: boolean; character: CharacterVoice }>('/api/characters/extract-voice', { method: 'POST', body: fd }),
+
   updateCharacter: (body: any) =>
     request('/api/characters/update', {
       method: 'PUT',
@@ -306,7 +327,7 @@ export const api = {
       body: JSON.stringify(body),
     }),
 
-  assembleCustom: (params: { filename: string; segments: TimelineSegment[]; bgmAudio?: string; removeOriginalVocals?: boolean; vocalGain?: number; bgmGain?: number }) =>
+  assembleCustom: (params: { filename: string; segments: TimelineSegment[]; bgmAudio?: string; removeOriginalVocals?: boolean; vocalGain?: number; bgmGain?: number; jobId?: string }) =>
     request<{ success: boolean; outputVideo: string; outputAudio: string; totalLinesDubbed: number }>('/api/dubbing/assemble-custom', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -339,6 +360,20 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ text, sourceLang, targetLang }),
+    }),
+
+  translateSegments: (segments: any[], sourceLang = 'zh', targetLang = 'km') =>
+    request<{ success: boolean; segments: any[] }>('/api/dubbing/translate-segments', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ segments, sourceLang, targetLang }),
+    }),
+
+  expertSubtitlerTranslate: (params: { text?: string; context?: string; character_relationships?: string; segments?: any[] }) =>
+    request<{ success: boolean; srt_block: string; srt_content: string; segments: any[]; raw_response?: string }>('/api/dubbing/expert-subtitler-translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
     }),
 
   // Audio Mixer
@@ -543,6 +578,93 @@ export const api = {
     request<{ success: boolean; message: string; restored_version?: string }>('/api/system/update/rollback', {
       method: 'POST',
     }),
+
+  // ✂️ Video Splitter & Merger Tools
+  getVideoToolsInfo: (body: { filename?: string; filePath?: string }) =>
+    request<{
+      success: boolean;
+      metadata: {
+        duration: number;
+        width: number;
+        height: number;
+        fps: number;
+        video_codec: string;
+        audio_codec: string;
+        size_bytes: number;
+      };
+      filename: string;
+      filePath: string;
+    }>('/api/video-tools/info', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  splitVideo: (body: {
+    filename?: string;
+    filePath?: string;
+    mode?: 'duration' | 'parts' | 'cues';
+    durationPerPartMinutes?: number;
+    numParts?: number;
+    customCues?: number[];
+    lossless?: boolean;
+    namingPrefix?: string;
+  }) =>
+    request<{
+      success: boolean;
+      job_id: string;
+      total_parts: number;
+      parts: Array<{
+        part_index: number;
+        filename: string;
+        url: string;
+        file_path: string;
+        start_time: number;
+        end_time: number;
+        duration: number;
+        size_bytes: number;
+        formatted_time: string;
+      }>;
+    }>('/api/video-tools/split', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  mergeVideos: (body: {
+    filenames?: string[];
+    filePaths?: string[];
+    outputName?: string;
+    lossless?: boolean;
+    targetResolution?: string;
+  }) =>
+    request<{
+      success: boolean;
+      job_id: string;
+      result: {
+        filename: string;
+        url: string;
+        file_path: string;
+        duration: number;
+        size_bytes: number;
+        width: number;
+        height: number;
+      };
+    }>('/api/video-tools/merge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  getVideoToolsJob: (jobId: string) =>
+    request<{
+      job_id: string;
+      status: string;
+      progress: number;
+      message: string;
+      results?: any;
+      result?: any;
+    }>(`/api/video-tools/jobs/${jobId}`),
 };
 
 

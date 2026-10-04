@@ -6,6 +6,9 @@ import shutil
 import asyncio
 import base64
 import logging
+import sqlite3
+import secrets
+import uuid
 from datetime import datetime, timedelta
 
 # Force UTF-8 encoding on Windows console
@@ -35,6 +38,11 @@ else:
 
 BASE_DIR = APP_DIR
 
+# Ensure ffmpeg in virtual environment or python directory is found in PATH
+bin_dir = os.path.dirname(sys.executable)
+if bin_dir and bin_dir not in os.environ.get("PATH", ""):
+    os.environ["PATH"] = bin_dir + os.pathsep + os.environ.get("PATH", "")
+
 # Prepend persistent patches and services to sys.path so hot updates override bundled modules
 for p in [os.path.join(APP_DIR, 'patches'), os.path.join(APP_DIR, 'services')]:
     if os.path.exists(p) and p not in sys.path:
@@ -46,6 +54,7 @@ if not os.path.exists(env_file_path):
 load_dotenv(dotenv_path=env_file_path, override=True)
 
 from services import audio_processor, auth_db
+from services.machine_id import get_machine_id, get_admin_machine_ids
 from services.khmer_dubber import KhmerDubber, clean_pure_khmer, ROLE_THEATRICAL_PROFILES
 from services.elevenlabs_service import elevenlabs_service
 from services.unified_db import unified_db
@@ -84,11 +93,83 @@ else:
 
 DATA_DIR = os.path.join(APP_DIR, 'data')
 ACTIVE_PROJECT_FILE = os.path.join(DATA_DIR, 'active_project.json')
+USER_DATA_DIR = os.path.join(
+    os.environ.get('LOCALAPPDATA') or os.path.expanduser('~/.local/share'),
+    'DabberPro',
+)
+PROJECT_DB_FILE = os.path.join(USER_DATA_DIR, 'dabber_local.sqlite3')
 
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(SAMPLES_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
+os.makedirs(USER_DATA_DIR, exist_ok=True)
+
+def _project_db():
+    """Open the local project database; SQLite is part of Python's standard library."""
+    connection = sqlite3.connect(PROJECT_DB_FILE, timeout=10)
+    connection.execute('PRAGMA journal_mode=WAL')
+    connection.execute('''
+        CREATE TABLE IF NOT EXISTS project_state (
+            project_key TEXT PRIMARY KEY,
+            payload_json TEXT NOT NULL,
+            updated_at REAL NOT NULL
+        )
+    ''')
+    return connection
+
+def _migrate_legacy_project():
+    """Import the existing JSON project once so users keep their saved work."""
+    if not os.path.exists(ACTIVE_PROJECT_FILE):
+        return
+    try:
+        with open(ACTIVE_PROJECT_FILE, 'r', encoding='utf-8') as legacy_file:
+            payload = json.load(legacy_file)
+        if not isinstance(payload, dict):
+            return
+        with _project_db() as connection:
+            exists = connection.execute(
+                "SELECT 1 FROM project_state WHERE project_key = 'active'"
+            ).fetchone()
+            if not exists:
+                connection.execute(
+                    "INSERT INTO project_state(project_key, payload_json, updated_at) VALUES ('active', ?, ?)",
+                    (json.dumps(payload, ensure_ascii=False), float(payload.get('updated_at') or time.time())),
+                )
+    except Exception as error:
+        logging.warning('Could not migrate legacy project JSON into SQLite: %s', error)
+
+def _save_project(payload):
+    if not isinstance(payload, dict):
+        raise ValueError('Project state must be a JSON object')
+    now = time.time()
+    payload.setdefault('updated_at', now)
+    with _project_db() as connection:
+        connection.execute(
+            '''INSERT INTO project_state(project_key, payload_json, updated_at)
+               VALUES ('active', ?, ?)
+               ON CONFLICT(project_key) DO UPDATE SET
+                 payload_json = excluded.payload_json, updated_at = excluded.updated_at''',
+            (json.dumps(payload, ensure_ascii=False), now),
+        )
+
+def _load_project():
+    with _project_db() as connection:
+        row = connection.execute(
+            "SELECT payload_json FROM project_state WHERE project_key = 'active'"
+        ).fetchone()
+    return json.loads(row[0]) if row else None
+
+def _clear_project():
+    with _project_db() as connection:
+        connection.execute("DELETE FROM project_state WHERE project_key = 'active'")
+    # Remove the imported legacy source too, otherwise it could be re-imported later.
+    try:
+        os.remove(ACTIVE_PROJECT_FILE)
+    except FileNotFoundError:
+        pass
+
+_migrate_legacy_project()
 
 # Auto-seed initial template/data files if not yet existing on user's machine
 bundle_data = os.path.join(BUNDLE_DIR, 'data')
@@ -133,7 +214,40 @@ def get_request_user(request: Request) -> Optional[dict]:
     if not token:
         # Check for persistent token in cookies
         token = request.cookies.get('auth_token', '')
-    return auth_db.get_user_by_token(token) if token else None
+    user = auth_db.get_user_by_token(token) if token else None
+    if user:
+        return user
+    # No login required: auto-identify by hardware Machine ID
+    try:
+        return get_device_user(request)
+    except Exception as e:
+        logger.warning(f"Machine ID auto-auth failed: {e}")
+        return None
+
+def resolve_machine_id(request: Request) -> str:
+    """Local requests use this PC's hardware ID; remote (hosted) clients use their browser device ID."""
+    client_host = request.client.host if request.client else ''
+    is_local = client_host in ('127.0.0.1', '::1', 'localhost') and not request.headers.get('x-forwarded-for')
+    if is_local:
+        return get_machine_id()
+    return (request.headers.get('x-device-id') or '').strip() or f"remote-{client_host}"
+
+def get_device_user(request: Request) -> dict:
+    """Find or auto-create the user bound to this machine ID."""
+    machine_id = resolve_machine_id(request)
+    user = auth_db.get_or_create_device_user(machine_id)
+    if machine_id.upper() in get_admin_machine_ids() and user.get('role') != 'admin':
+        conn = auth_db.get_db()
+        conn.execute("UPDATE users SET role = 'admin', tier = 'premium', has_voxcpm_license = 1 WHERE id = ?", (user['id'],))
+        conn.commit()
+        conn.close()
+        user.update({'role': 'admin', 'tier': 'premium', 'has_voxcpm_license': 1})
+    user = auth_db.check_and_expire_subscription(user)
+    user.pop('password_hash', None)
+    user.pop('salt', None)
+    user['has_voxcpm_license'] = bool(user.get('has_voxcpm_license') or user.get('role') == 'admin')
+    user['machine_id'] = machine_id
+    return user
 
 def require_admin(request: Request) -> dict:
     """Ensure current user is authenticated and has admin role."""
@@ -200,9 +314,11 @@ class DubbingStartRequest(BaseModel):
     scope: Optional[str] = 'full'
     castingSafetyMode: Optional[str] = 'safe_curated'
     characterVoiceMap: Optional[dict] = {}
+    emotionData: Optional[dict] = {}
     maleLeadVoice: Optional[str] = 'hang_phleung_char_2_male.mp3'
     femaleLeadVoice: Optional[str] = 'hang_phleung_char_6_female.mp3'
-    geminiModel: Optional[str] = 'gemini-3.5-flash'
+    geminiModel: Optional[str] = 'gemini-3.5-flash-lite'
+    segments: Optional[list] = None
 
 class ScanTimelineRequest(BaseModel):
     filename: str
@@ -228,6 +344,7 @@ class AssembleCustomRequest(BaseModel):
     removeOriginalVocals: Optional[bool] = False
     vocalGain: Optional[float] = 2.2
     bgmGain: Optional[float] = 0.85
+    jobId: Optional[str] = None
 
 class RenderExportRequest(BaseModel):
     filename: str
@@ -295,6 +412,18 @@ class SwitchModeRequest(BaseModel):
     cloudUrl: Optional[str] = None
 
 # --- Authentication & Admin Endpoints ---
+
+@app.post('/api/auth/device-login')
+def auth_device_login(request: Request):
+    """Auto login by hardware Machine ID (no username/password)."""
+    try:
+        user = get_device_user(request)
+        token = auth_db.create_session_for_user(user['id'], user['machine_id'])
+        response = JSONResponse(content={'token': token, 'user': user, 'machine_id': user['machine_id']})
+        response.set_cookie(key='auth_token', value=token, max_age=365 * 24 * 60 * 60, httponly=True, samesite='lax')
+        return response
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.post('/api/auth/register')
 def auth_register(body: AuthRegisterRequest, request: Request):
@@ -400,23 +529,76 @@ def auth_me(request: Request):
 
 @app.post('/api/license/activate')
 def api_activate_license(body: ActivateLicenseRequest, request: Request):
+    machine_id = resolve_machine_id(request)
     user = get_request_user(request)
-    device_id = request.headers.get('x-device-id') or body.deviceId or ('dev_' + secrets.token_hex(4))
     
     # If not logged in, auto-link to device user so activation always succeeds seamlessly
     if not user:
-        user = auth_db.get_or_create_device_user(device_id)
+        user = auth_db.get_or_create_device_user(machine_id)
         
     try:
-        res = auth_db.activate_license_key(user['id'], body.license_key)
+        clean_key = body.license_key.strip().upper()
+        res = auth_db.activate_license_key(user['id'], clean_key)
         # Issue persistent session token
-        token = auth_db.create_session_for_user(user['id'], device_id)
+        token = auth_db.create_session_for_user(user['id'], machine_id)
         res['token'] = token
+        
+        # Ensure updated user record is returned with license
+        updated_user = auth_db.get_or_create_device_user(machine_id)
+        updated_user.pop('password_hash', None)
+        updated_user.pop('salt', None)
+        updated_user['has_voxcpm_license'] = bool(updated_user.get('has_voxcpm_license') or updated_user.get('role') == 'admin')
+        updated_user['machine_id'] = machine_id
+        res['user'] = updated_user
+        res['machine_id'] = machine_id
         return res
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+# --- Sponsors Management Endpoints (Persisted in data/sponsors.json) ---
+SPONSORS_FILE = os.path.join(APP_DIR, 'data', 'sponsors.json')
+
+def load_sponsors_file() -> list:
+    if not os.path.exists(SPONSORS_FILE):
+        return []
+    try:
+        with open(SPONSORS_FILE, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return []
+
+def save_sponsors_file(sponsors: list) -> bool:
+    try:
+        os.makedirs(os.path.dirname(SPONSORS_FILE), exist_ok=True)
+        with open(SPONSORS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(sponsors, f, indent=2, ensure_ascii=False)
+        return True
+    except Exception as e:
+        logger.error(f"Error saving sponsors file: {e}")
+        return False
+
+@app.get('/api/sponsors')
+def api_get_sponsors():
+    """Retrieve all persisted sponsors."""
+    sponsors = load_sponsors_file()
+    return {'success': True, 'sponsors': sponsors}
+
+@app.post('/api/sponsors')
+def api_save_sponsors(body: dict):
+    """Save full list of sponsors to persistent data/sponsors.json."""
+    sponsors = body.get('sponsors', [])
+    save_sponsors_file(sponsors)
+    return {'success': True, 'sponsors': sponsors}
+
+@app.delete('/api/sponsors/{sponsor_id}')
+def api_delete_sponsor(sponsor_id: str):
+    """Delete a sponsor by ID."""
+    sponsors = load_sponsors_file()
+    updated = [s for s in sponsors if str(s.get('id')) != str(sponsor_id)]
+    save_sponsors_file(updated)
+    return {'success': True, 'sponsors': updated}
 
 @app.get('/api/admin/license-keys')
 def api_admin_list_keys(request: Request):
@@ -1210,12 +1392,9 @@ async def separate_audio_track(body: SeparateRequest):
 @app.post('/api/dubbing/start')
 async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundTasks, request: Request):
     user = get_request_user(request)
-    is_free = not user or (user.get('tier') != 'premium' and user.get('role') != 'admin')
-    if is_free:
-        # Free account: strictly locked to offline pure_khmer and default voice
-        body.voiceId = 'voxcpm-voice-actor'
-        os.environ['VOXCPM_MODE'] = 'pure_khmer'
-        os.environ['VOXCPM_API_URL'] = ''
+    # Enable full GPU / cloud voice cloning features for all active tool users
+    if not os.getenv('VOXCPM_API_URL'):
+        load_dotenv(dotenv_path=env_file_path, override=True)
 
     input_path, real_filename = resolve_uploaded_file(body.filename)
     if not input_path or not os.path.exists(input_path):
@@ -1330,9 +1509,11 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
                         'scope': body.scope,
                         'castingSafetyMode': body.castingSafetyMode,
                         'characterVoiceMap': body.characterVoiceMap,
+                        'emotionData': body.emotionData,
                         'maleLeadVoice': body.maleLeadVoice,
                         'femaleLeadVoice': body.femaleLeadVoice,
-                        'geminiModel': body.geminiModel
+                        'geminiModel': body.geminiModel,
+                        'segments': body.segments
                     },
                     on_progress=on_prog
                 )
@@ -1506,10 +1687,13 @@ async def scan_timeline(body: ScanTimelineRequest):
 
     audio_ext = os.path.splitext(body.filename)[0] + '.mp3'
     extracted_audio_path = os.path.join(OUTPUTS_DIR, f"audio_{audio_ext}")
-    if not os.path.exists(extracted_audio_path):
+    media_dur = audio_processor.get_media_duration(input_path)
+    if (not os.path.exists(extracted_audio_path) or 
+        os.path.getsize(extracted_audio_path) < 1000 or 
+        (media_dur > 5.0 and audio_processor.get_media_duration(extracted_audio_path) < media_dur - 3.0)):
         audio_processor.extract_audio(input_path, extracted_audio_path)
 
-    duration = audio_processor.get_media_duration(input_path)
+    duration = media_dur if media_dur > 0 else audio_processor.get_media_duration(input_path)
     segments = await khmer_dubber.extract_dialogue_timeline(extracted_audio_path, duration, body.scope)
 
     movie_voice_map = {}
@@ -1527,8 +1711,9 @@ async def scan_timeline(body: ScanTimelineRequest):
 
     formatted = []
     for idx, s in enumerate(segments):
-        sid = s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
-        assigned = char_map.get(sid, {})
+        ckey = s.get('canonical_id')
+        sid = ckey or s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
+        assigned = char_map.get(ckey) or char_map.get(sid) or char_map.get(s.get('speaker_name')) or {}
         
         # 🎭 Auto-detect emotion from original audio segment (if enabled)
         emotion_data = {}
@@ -1550,36 +1735,49 @@ async def scan_timeline(body: ScanTimelineRequest):
             
             # Detect emotion
             if os.path.exists(segment_audio_path):
-                import librosa
-                import numpy as np
-                
-                y, sr = librosa.load(segment_audio_path, sr=None)
-                
-                # Extract features
-                rms = librosa.feature.rms(y=y)[0]
-                volume = float(np.mean(rms) * 1000)
-                volume = min(100, max(0, volume))
-                
-                pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-                pitch_values = []
-                for t in range(pitches.shape[1]):
-                    index = magnitudes[:, t].argmax()
-                    pitch = pitches[index, t]
-                    if pitch > 0:
-                        pitch_values.append(pitch)
-                
-                avg_pitch = float(np.mean(pitch_values)) if pitch_values else 200.0
-                pitch_semitones = 12 * np.log2(avg_pitch / 200.0) if avg_pitch > 0 else 0
-                pitch_semitones = float(np.clip(pitch_semitones, -12, 12))
-                
-                tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-                speed = float(tempo / 120.0)
-                speed = min(2.0, max(0.5, speed))
-                
-                spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
-                energy = float(np.mean(spectral_centroids) / 40)
-                energy = min(100, max(0, energy))
-                
+                try:
+                    import librosa
+                    import numpy as np
+                    
+                    y, sr = librosa.load(segment_audio_path, sr=None)
+                    rms = librosa.feature.rms(y=y)[0]
+                    volume = float(np.mean(rms) * 1000)
+                    volume = min(100, max(0, volume))
+                    
+                    pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+                    pitch_values = []
+                    for t in range(pitches.shape[1]):
+                        index = magnitudes[:, t].argmax()
+                        pitch = pitches[index, t]
+                        if pitch > 0:
+                            pitch_values.append(pitch)
+                    
+                    avg_pitch = float(np.mean(pitch_values)) if pitch_values else 200.0
+                    pitch_semitones = 12 * np.log2(avg_pitch / 200.0) if avg_pitch > 0 else 0
+                    pitch_semitones = float(np.clip(pitch_semitones, -12, 12))
+                    
+                    tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+                    speed = float(tempo / 120.0)
+                    speed = min(2.0, max(0.5, speed))
+                    
+                    spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+                    energy = float(np.mean(spectral_centroids) / 40)
+                    energy = min(100, max(0, energy))
+                except Exception:
+                    # Ultra-fast SciPy/NumPy fallback
+                    import scipy.io.wavfile as wavfile
+                    import numpy as np
+                    sr, raw_y = wavfile.read(segment_audio_path)
+                    if raw_y.ndim > 1: raw_y = raw_y[:, 0]
+                    y = raw_y.astype(float)
+                    if len(y) > 0 and np.max(np.abs(y)) > 0:
+                        y = y / np.max(np.abs(y))
+                    rms = float(np.sqrt(np.mean(y**2))) if len(y) > 0 else 0.0
+                    volume = min(100, max(5, int(rms * 150)))
+                    energy = min(100, max(10, int(volume * 1.2)))
+                    pitch_semitones = 0.0
+                    speed = 1.0
+
                 intensity = int((volume * 0.7) + (energy * 0.3))
                 
                 # Detect emotion
@@ -1602,6 +1800,8 @@ async def scan_timeline(body: ScanTimelineRequest):
                     emotion = 'excited'
                 elif pitch_semitones > 2 and speed > 1.1 and volume < 65:
                     emotion = 'scared'
+                else:
+                    emotion = 'dramatic'
                 
                 emotion_data = {
                     'emotion': emotion,
@@ -1618,7 +1818,7 @@ async def scan_timeline(body: ScanTimelineRequest):
                 if os.path.exists(segment_audio_path):
                     os.remove(segment_audio_path)
         except Exception as e:
-            print(f"Emotion detection skipped for segment {idx}: {e}")
+            pass
         
         formatted.append({
             **s,
@@ -1626,7 +1826,7 @@ async def scan_timeline(body: ScanTimelineRequest):
             'voiceId': s.get('voiceId') or assigned.get('voiceId', 'voxcpm:kxev_char_01_male.mp3'),
             'voiceFilename': s.get('voiceFilename') or assigned.get('filename'),
             'voiceLabel': s.get('voiceLabel') or assigned.get('label'),
-            'movieVoiceSample': f"/media/outputs/{os.path.basename(movie_voice_map[sid])}" if sid in movie_voice_map else None,
+            'movieVoiceSample': f"/media/outputs/{os.path.basename(movie_voice_map.get(ckey) or movie_voice_map.get(sid) or '')}" if (movie_voice_map.get(ckey) or movie_voice_map.get(sid)) else None,
             'audioUrl': None,
             'source': 'pending',
             **emotion_data  # 🎭 Add emotion data
@@ -1639,25 +1839,313 @@ async def scan_timeline(body: ScanTimelineRequest):
         'characterVoiceMap': {k: v.get('voiceId') for k, v in char_map.items()}
     }
 
+# --- AI Batch Dialogue Translation to 100% Pure Khmer ---
+def format_timecode_srt(seconds: float) -> str:
+    if seconds is None or seconds < 0:
+        seconds = 0
+    h = int(seconds // 3600)
+    m = int((seconds % 3600) // 60)
+    s = int(seconds % 60)
+    ms = int(round((seconds - int(seconds)) * 1000))
+    return f"{h:02d}:{m:02d}:{s:02d},{ms:03d}"
+
+def parse_srt_string_to_segments(srt_text: str) -> list:
+    """Parses standard SRT text into studio timeline segments, extracting [M], [F], [M_THINK], [F_THINK] tags."""
+    segments = []
+    if not srt_text:
+        return segments
+
+    def tc_to_sec(tc_str: str) -> float:
+        tc_str = tc_str.strip().replace(',', '.')
+        parts = tc_str.split(':')
+        if len(parts) == 3:
+            return float(parts[0]) * 3600 + float(parts[1]) * 60 + float(parts[2])
+        elif len(parts) == 2:
+            return float(parts[0]) * 60 + float(parts[1])
+        try:
+            return float(tc_str)
+        except Exception:
+            return 0.0
+
+    blocks = re.split(r'\n\s*\n', srt_text.strip())
+    for idx, block in enumerate(blocks):
+        lines = [l.strip() for l in block.split('\n') if l.strip()]
+        if not lines:
+            continue
+        time_line_idx = -1
+        for i, l in enumerate(lines):
+            if '-->' in l:
+                time_line_idx = i
+                break
+
+        start_t = idx * 3.0
+        end_t = start_t + 2.5
+        text_lines = []
+        if time_line_idx != -1:
+            time_parts = lines[time_line_idx].split('-->')
+            if len(time_parts) == 2:
+                start_t = tc_to_sec(time_parts[0])
+                end_t = tc_to_sec(time_parts[1])
+            text_lines = lines[time_line_idx + 1:]
+        else:
+            text_lines = lines
+
+        raw_text = " ".join(text_lines).strip()
+        if not raw_text:
+            continue
+
+        tag_match = re.match(r'^(\[(?:M|F|M_THINK|F_THINK|THINK)\])\s*(.*)', raw_text, re.IGNORECASE)
+        tag = tag_match.group(1).upper() if tag_match else '[M]'
+        clean_text = tag_match.group(2) if tag_match else raw_text
+
+        gender = 'female' if 'F' in tag else 'male'
+        is_thought = 'THINK' in tag
+
+        segments.append({
+            'speaker_id': f"speaker_{idx + 1}",
+            'speaker_name': 'តួស្រី' if gender == 'female' else 'តួប្រុស',
+            'speaker_role': 'female_lead' if gender == 'female' else 'male_lead',
+            'gender': gender,
+            'start_time': round(start_t, 3),
+            'end_time': round(max(end_t, start_t + 0.8), 3),
+            'chinese_text': '',
+            'khmer_translation': f"{tag} {clean_text}".strip(),
+            'audio_tag': tag,
+            'is_thought': is_thought,
+            'status': 'ready',
+            'emotion': 'dramatic'
+        })
+    return segments
+
+EXPERT_SUBTITLER_DUBBING_SYSTEM_PROMPT = (
+    "អ្នកគឺជា អ្នកបកប្រែខ្សែភាពយន្តនិងរឿងភាគអាជីព (Expert Subtitler & Dubbing Translator)។\n"
+    "ភារកិច្ចចម្បងរបស់អ្នកគឺទាញយកសំឡេងសន្ទនា ឬបកប្រែរាល់អត្ថបទដែលបានផ្តល់ឲ្យ មកជាភាសាខ្មែរឲ្យបានស្តង់ដារបំផុត ដោយផ្តោតសំខាន់លើ 'ភាសានិយាយ' ដែលរលូន ស៊ីអារម្មណ៍ និងត្រូវសំឡេងតួអង្គ ១០០%។\n\n"
+    "សូមអនុវត្តតាមច្បាប់ទាំង ៦ នេះយ៉ាងតឹងរ៉ឹង៖\n\n"
+    "1. ភាសានិយាយធម្មជាតិ (Natural Spoken Language): ហាមដាច់ខាតការបកប្រែតាមបែបសរសេរស្ងួតៗ (Word-for-word)។ ត្រូវប្រើប្រាស់ពាក្យពេចន៍ដែលប្រជាជនខ្មែរនិយមនិយាយប្រចាំថ្ងៃ។ សូមប្រើកន្ទុយពាក្យបញ្ជាក់អារម្មណ៍ (ឧទាហរណ៍៖ ណា, ណ៎, ហ្មង, តើ, អញ្ចឹង, វើយ, ហាស, ចា៎, ចុះ) ឲ្យសក្ដិសមនឹងបរិបទសន្ទនា។\n"
+    "2. ត្រូវសំឡេងតួអង្គនិយាយ (Match the actor's voice): ត្រូវប្រើសព្វនាមហៅគ្នា (បង/អូន, ឯង/អញ, ខ្ញុំ/លោក, ពួកម៉ាក, សម្លាញ់, អា...) ឲ្យត្រូវនឹងអាយុ ឋានៈ និងទំនាក់ទំនងរបស់តួអង្គ។ ត្រូវរក្សាតួអង្គជាប់ជានិច្ច (១ តួអង្គ ១ សំឡេង ហាមប្រើសំឡេងច្រើនក្នុងមួយតួអង្គ)។\n"
+    "3. បញ្ចេញមនោសញ្ចេតនា (Emotional Depth): អានការបកប្រែរួច ត្រូវតែមានអារម្មណ៍ (ខឹង, សើច, យំ, ផ្អែមល្ហែម, ចំអក, ភ័យស្លន់ស្លោ) ដូចទៅនឹងអត្ថបទដើម។ បើអត្ថបទដើមមានន័យបង្កប់ ឬការលេងពាក្យ ត្រូវបត់បែនពាក្យខ្មែរឲ្យចេញន័យនោះដោយរលូន។\n"
+    "4. ភាពច្បាស់លាស់សម្រាប់ការដាក់អក្សររត់ (Subtitle): ប្រយោគមិនត្រូវវែងអន្លាយពេកទេ ត្រូវតែកាត់សាច់យកខ្លឹម ដើម្បីឲ្យស៊ីគ្នានឹងល្បឿននៃការនិយាយ និងត្រូវមាត់ ត្រូវឃ្លា។\n"
+    "5. [AUDIO TYPES & TAGS] (រាល់បន្ទាត់អត្ថបទត្រូវចាប់ផ្ដើមដោយស្លាកស័ក្តិសមមួយ):\n"
+    "   A. Male Dialogue: [M]\n"
+    "   B. Female Dialogue: [F]\n"
+    "   C. Male Thought: [M_THINK]\n"
+    "   D. Female Thought: [F_THINK]\n\n"
+    "   ឧទាហរណ៍:\n"
+    "   1\n"
+    "   00:01:00,000 --> 00:01:01,500\n"
+    "   [M] ឯងហ៊ានក្បត់អញ!\n\n"
+    "   2\n"
+    "   00:01:01,600 --> 00:01:03,000\n"
+    "   [F] ថ្ងៃនេះឯងត្រូវតែស្លាប់!\n\n"
+    "   3\n"
+    "   00:01:03,600 --> 00:01:04,000\n"
+    "   [M_THINK] ឯងត្រូវតែស្លាប់ទៅ\n\n"
+    "6. ទម្រង់លទ្ធផល (Output Format): រាល់លទ្ធផលនៃការបកប្រែទាំងអស់ សូមផ្តល់ឲ្យជាទម្រង់ហ្វាល SRT ដោយដាក់វានៅក្នុង Code Block (```srt ... ```) ដើម្បីងាយស្រួល Copy យកទៅប្រើប្រាស់បន្ត។"
+)
+
+class TranslateSegmentsRequest(BaseModel):
+    segments: List[dict]
+    sourceLang: Optional[str] = 'zh'
+    targetLang: Optional[str] = 'km'
+    context: Optional[str] = None
+    character_relationships: Optional[str] = None
+
+class ExpertSubtitlerRequest(BaseModel):
+    text: Optional[str] = ""
+    context: Optional[str] = ""
+    character_relationships: Optional[str] = ""
+    segments: Optional[List[dict]] = None
+
+@app.post('/api/dubbing/expert-subtitler-translate')
+async def expert_subtitler_translate_endpoint(body: ExpertSubtitlerRequest):
+    import requests
+    import re
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Missing GEMINI_API_KEY in .env")
+
+    context_hint = ""
+    if body.character_relationships:
+        context_hint += f"\nបរិបទទំនាក់ទំនងតួអង្គ (Character Relationships & Pronouns): {body.character_relationships}"
+    if body.context:
+        context_hint += f"\nបរិបទបន្ថែម (Context): {body.context}"
+
+    raw_input = (body.text or '').strip()
+    if not raw_input and body.segments:
+        lines = []
+        for idx, s in enumerate(body.segments):
+            orig = s.get('chinese_text') or s.get('khmer_translation') or ''
+            st = s.get('start_time', idx * 2.5)
+            et = s.get('end_time', st + 2.0)
+            gen = s.get('gender') or 'male'
+            sname = s.get('speaker_name') or ''
+            tag = '[F]' if gen == 'female' else '[M]'
+            lines.append(f"{idx + 1}\n{format_timecode_srt(st)} --> {format_timecode_srt(et)}\n{tag} ({sname}) {orig}")
+        raw_input = "\n\n".join(lines)
+
+    if not raw_input:
+        return {'success': False, 'error': 'No text or segments provided'}
+
+    user_prompt = (
+        f"{EXPERT_SUBTITLER_DUBBING_SYSTEM_PROMPT}\n"
+        f"{context_hint}\n\n"
+        f"អត្ថបទ/Subtitle ដើមដែលត្រូវបកប្រែ:\n"
+        f"```\n{raw_input}\n```\n\n"
+        "សូមបញ្ចេញលទ្ធផលជាទម្រង់ SRT នៅក្នុង Code Block ដូចខាងក្រោម (```srt ... ```)៖"
+    )
+
+    candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "contents": [{
+            "parts": [{"text": user_prompt}]
+        }]
+    }
+
+    for m in candidate_models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        try:
+            resp = requests.post(url, headers=headers, json=payload, timeout=50)
+            if resp.status_code == 200:
+                data = resp.json()
+                raw_ans = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                srt_match = re.search(r'```(?:srt)?\s*([\s\S]*?)\s*```', raw_ans)
+                srt_content = srt_match.group(1).strip() if srt_match else raw_ans.strip()
+
+                parsed_segments = parse_srt_string_to_segments(srt_content)
+                if body.segments and len(body.segments) == len(parsed_segments):
+                    for i, orig_s in enumerate(body.segments):
+                        if orig_s.get('start_time') is not None:
+                            parsed_segments[i]['start_time'] = orig_s['start_time']
+                        if orig_s.get('end_time') is not None:
+                            parsed_segments[i]['end_time'] = orig_s['end_time']
+                        if orig_s.get('chinese_text'):
+                            parsed_segments[i]['chinese_text'] = orig_s['chinese_text']
+                        if orig_s.get('speaker_name'):
+                            parsed_segments[i]['speaker_name'] = orig_s['speaker_name']
+
+                return {
+                    'success': True,
+                    'srt_block': f"```srt\n{srt_content}\n```",
+                    'srt_content': srt_content,
+                    'segments': parsed_segments,
+                    'raw_response': raw_ans
+                }
+        except Exception as e:
+            print(f"Expert subtitler translate error with {m}: {e}")
+
+    raise HTTPException(status_code=500, detail="Failed to translate via Expert Subtitler AI")
+
+@app.post('/api/dubbing/translate-segments')
+async def translate_segments_endpoint(body: TranslateSegmentsRequest):
+    import requests
+    import re
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key:
+        raise HTTPException(status_code=400, detail="Missing GEMINI_API_KEY in .env")
+
+    if not body.segments:
+        return {'success': True, 'segments': []}
+
+    lines_to_translate = []
+    for idx, s in enumerate(body.segments):
+        txt = s.get('chinese_text') or s.get('khmer_translation') or ''
+        gen = s.get('gender') or 'male'
+        sname = s.get('speaker_name') or ''
+        lines_to_translate.append(f"{idx}: [{ 'F' if gen == 'female' else 'M' }] ({sname}) {txt}")
+
+    batch_text = "\n".join(lines_to_translate)
+    prompt = (
+        f"{EXPERT_SUBTITLER_DUBBING_SYSTEM_PROMPT}\n\n"
+        "Translate each line into natural, spoken Cambodian movie dubbing Khmer according to the 6 strict rules.\n"
+        "Prepend each translated line with the proper tag: [M], [F], [M_THINK], or [F_THINK].\n"
+        "Keep 1 character = 1 consistent voice across the whole dialogue.\n"
+        "Return a JSON object mapping line index to translated Khmer string:\n"
+        "```json\n"
+        "{\n"
+        "  \"0\": \"[M] ឃ្លាខ្មែរ...\",\n"
+        "  \"1\": \"[F] ឃ្លាខ្មែរ...\"\n"
+        "}\n"
+        "```\n\n"
+        f"Input lines:\n{batch_text}"
+    )
+
+    candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "contents": [{
+            "parts": [{"text": prompt}]
+        }]
+    }
+
+    for m in candidate_models:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        try:
+            resp = requests.post(url, headers=headers, json=payload, timeout=35)
+            if resp.status_code == 200:
+                data = resp.json()
+                raw = data.get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                json_match = re.search(r'```json\s*([\s\S]*?)\s*```', raw)
+                json_str = json_match.group(1) if json_match else raw
+                translations_map = json.loads(json_str)
+                updated_segments = []
+                for idx, s in enumerate(body.segments):
+                    key = str(idx)
+                    s_copy = dict(s)
+                    if key in translations_map:
+                        cleaned = clean_pure_khmer(translations_map[key], keep_tags=True)
+                        s_copy['khmer_translation'] = cleaned
+                        tag_match = re.match(r'^(\[(?:M|F|M_THINK|F_THINK|THINK)\])', cleaned, re.IGNORECASE)
+                        if tag_match:
+                            s_copy['audio_tag'] = tag_match.group(1).upper()
+                            if 'F' in tag_match.group(1).upper():
+                                s_copy['gender'] = 'female'
+                            elif 'M' in tag_match.group(1).upper():
+                                s_copy['gender'] = 'male'
+                        s_copy['status'] = 'ready'
+                    updated_segments.append(s_copy)
+                return {'success': True, 'segments': updated_segments}
+        except Exception as err:
+            print(f"Translate batch error with {m}: {err}")
+
+    return {'success': True, 'segments': body.segments}
+
+@app.post('/api/translate')
+async def translate_single(request: Request):
+    import requests
+    data = await request.json()
+    text = data.get('text', '')
+    api_key = os.getenv('GEMINI_API_KEY')
+    if not api_key or not text:
+        return {'translation': text}
+    prompt = f"Translate this movie dialogue line to natural Cambodian movie dubbing Khmer 100%:\n{text}\nOnly return the translated Khmer text."
+    for m in ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']:
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+        try:
+            resp = requests.post(url, headers={"Content-Type": "application/json"}, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
+            if resp.status_code == 200:
+                raw = resp.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '').strip()
+                if raw:
+                    return {'translation': clean_pure_khmer(raw)}
+        except Exception:
+            pass
+    return {'translation': text}
+
 # --- Project State Persistence (Never lose timeline/segments on browser refresh) ---
 @app.post('/api/project/save')
 async def save_project_state(request: Request):
     try:
         data = await request.json()
         data['updated_at'] = time.time()
-        with open(ACTIVE_PROJECT_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        _save_project(data)
         return {'success': True, 'message': 'គម្រោងត្រូវបានរក្សាទុកដោយជោគជ័យ!'}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to save project: {str(e)}")
 
 @app.get('/api/project/load')
 async def load_project_state():
-    if not os.path.exists(ACTIVE_PROJECT_FILE):
-        return {'success': False, 'project': None}
     try:
-        with open(ACTIVE_PROJECT_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        data = _load_project()
         return {'success': True, 'project': data}
     except Exception as e:
         return {'success': False, 'error': str(e), 'project': None}
@@ -1665,8 +2153,7 @@ async def load_project_state():
 @app.post('/api/project/clear')
 async def clear_project_state():
     try:
-        if os.path.exists(ACTIVE_PROJECT_FILE):
-            os.remove(ACTIVE_PROJECT_FILE)
+        _clear_project()
         return {'success': True, 'message': 'Project cache cleared'}
     except Exception as e:
         return {'success': False, 'error': str(e)}
@@ -1695,18 +2182,7 @@ async def record_line(audio: UploadFile = File(...), lineIndex: int = Form(0)):
 
 @app.post('/api/dubbing/generate-line')
 async def generate_line(body: GenerateLineRequest, request: Request):
-    user = get_request_user(request)
-    is_admin = bool(user and user.get('role') == 'admin')
-    has_license = bool(user and user.get('has_voxcpm_license'))
-    is_vox_voice = bool(body.voiceId and (body.voiceId.startswith('voxcpm:') or body.voiceId == 'movie-live-clone'))
-    
-    if is_vox_voice and not (is_admin or has_license):
-        raise HTTPException(
-            status_code=403,
-            detail="សំឡេង VoxCPM2 / Voice Clone សម្រាប់តែគណនីមាន Key License ពី Admin ប៉ុណ្ណោះ! សូមបញ្ចូល Key License ដើម្បីប្រើប្រាស់។"
-        )
-
-    out_name = f"ai_line_{body.lineIndex}_{int(time.time() * 1000)}.wav"
+    out_name = f"ai_line_{body.lineIndex}_{int(time.time() * 1000)}.mp3"
     out_path = os.path.join(OUTPUTS_DIR, out_name)
 
     is_female = body.gender == 'female'
@@ -1717,15 +2193,20 @@ async def generate_line(body: GenerateLineRequest, request: Request):
         if os.path.exists(cand):
             studio_ref = cand
 
-    if not studio_ref and body.voiceId and body.voiceId.startswith('voxcpm:'):
-        sample_name = body.voiceId.replace('voxcpm:', '')
-        cand_d = os.path.join(SAMPLES_DIR, sample_name)
-        cand_m = os.path.join(SAMPLES_DIR, f"{sample_name}.mp3")
-        if os.path.exists(cand_d): studio_ref = cand_d
-        elif os.path.exists(cand_m): studio_ref = cand_m
+    if not studio_ref and body.voiceId:
+        clean_v = body.voiceId.replace('voxcpm:', '').strip()
+        cand_d = os.path.join(SAMPLES_DIR, clean_v)
+        cand_m = os.path.join(SAMPLES_DIR, f"{clean_v}.mp3")
+        if os.path.exists(cand_d) and os.path.isfile(cand_d):
+            studio_ref = cand_d
+        elif os.path.exists(cand_m) and os.path.isfile(cand_m):
+            studio_ref = cand_m
 
-    if not studio_ref:
-        studio_ref = os.path.join(SAMPLES_DIR, 'main_lead_female.mp3' if is_female else 'main_lead_male.mp3')
+    if not studio_ref or not os.path.exists(studio_ref):
+        default_sample = 'vp_character_1_female.mp3' if is_female else 'vp_character_2_male.mp3'
+        cand_def = os.path.join(SAMPLES_DIR, default_sample)
+        if os.path.exists(cand_def):
+            studio_ref = cand_def
 
     clean_text = clean_pure_khmer(body.text)
     if not clean_text:
@@ -1758,54 +2239,48 @@ async def detect_emotion_from_audio(body: EmotionDetectionRequest):
     វិភាគសំឡេងនិងកំណត់អារម្មណ៍ដោយស្វ័យប្រវត្តិ
     """
     try:
-        import librosa
-        import numpy as np
-        
-        # Download audio file
-        audio_path = body.audioUrl
-        if audio_path.startswith('/media/'):
-            audio_path = os.path.join(BASE_DIR, audio_path.lstrip('/'))
-        elif audio_path.startswith('http'):
-            # Download from URL
-            import requests
-            response = requests.get(audio_path)
-            temp_path = os.path.join(OUTPUTS_DIR, f"temp_emotion_{int(time.time() * 1000)}.wav")
-            with open(temp_path, 'wb') as f:
-                f.write(response.content)
-            audio_path = temp_path
-        
-        # Load audio with librosa
-        y, sr = librosa.load(audio_path, sr=None)
-        
-        # Extract features
-        # 1. RMS Energy (volume/loudness)
-        rms = librosa.feature.rms(y=y)[0]
-        volume = float(np.mean(rms) * 1000)
-        volume = min(100, max(0, volume))
-        
-        # 2. Pitch (fundamental frequency)
-        pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
-        pitch_values = []
-        for t in range(pitches.shape[1]):
-            index = magnitudes[:, t].argmax()
-            pitch = pitches[index, t]
-            if pitch > 0:
-                pitch_values.append(pitch)
-        
-        avg_pitch = float(np.mean(pitch_values)) if pitch_values else 200.0
-        # Convert to semitones relative to 200 Hz base
-        pitch_semitones = 12 * np.log2(avg_pitch / 200.0) if avg_pitch > 0 else 0
-        pitch_semitones = float(np.clip(pitch_semitones, -12, 12))
-        
-        # 3. Tempo/Speed (beats per minute)
-        tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
-        speed = float(tempo / 120.0)  # Normalize to 1.0 = normal speed
-        speed = min(2.0, max(0.5, speed))
-        
-        # 4. Energy (spectral centroid)
-        spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
-        energy = float(np.mean(spectral_centroids) / 40)
-        energy = min(100, max(0, energy))
+        try:
+            import librosa
+            import numpy as np
+            
+            y, sr = librosa.load(audio_path, sr=None)
+            
+            rms = librosa.feature.rms(y=y)[0]
+            volume = float(np.mean(rms) * 1000)
+            volume = min(100, max(0, volume))
+            
+            pitches, magnitudes = librosa.piptrack(y=y, sr=sr)
+            pitch_values = []
+            for t in range(pitches.shape[1]):
+                index = magnitudes[:, t].argmax()
+                pitch = pitches[index, t]
+                if pitch > 0:
+                    pitch_values.append(pitch)
+            
+            avg_pitch = float(np.mean(pitch_values)) if pitch_values else 200.0
+            pitch_semitones = 12 * np.log2(avg_pitch / 200.0) if avg_pitch > 0 else 0
+            pitch_semitones = float(np.clip(pitch_semitones, -12, 12))
+            
+            tempo, _ = librosa.beat.beat_track(y=y, sr=sr)
+            speed = float(tempo / 120.0)
+            speed = min(2.0, max(0.5, speed))
+            
+            spectral_centroids = librosa.feature.spectral_centroid(y=y, sr=sr)[0]
+            energy = float(np.mean(spectral_centroids) / 40)
+            energy = min(100, max(0, energy))
+        except Exception:
+            import scipy.io.wavfile as wavfile
+            import numpy as np
+            sr, raw_y = wavfile.read(audio_path)
+            if raw_y.ndim > 1: raw_y = raw_y[:, 0]
+            y = raw_y.astype(float)
+            if len(y) > 0 and np.max(np.abs(y)) > 0:
+                y = y / np.max(np.abs(y))
+            rms = float(np.sqrt(np.mean(y**2))) if len(y) > 0 else 0.0
+            volume = min(100, max(5, int(rms * 150)))
+            energy = min(100, max(10, int(volume * 1.2)))
+            pitch_semitones = 0.0
+            speed = 1.0
         
         # 5. Intensity (combination of volume and energy)
         intensity = int((volume * 0.7) + (energy * 0.3))
@@ -1871,121 +2346,201 @@ async def detect_emotion_from_audio(body: EmotionDetectionRequest):
 
 @app.post('/api/dubbing/assemble-custom')
 async def assemble_custom(body: AssembleCustomRequest):
-    input_path = os.path.join(UPLOADS_DIR, body.filename)
-    if not os.path.exists(input_path):
-        root_path = os.path.join(BASE_DIR, body.filename)
-        if os.path.exists(root_path): input_path = root_path
-    if not os.path.exists(input_path):
-        raise HTTPException(status_code=404, detail="Video file not found")
+    job_id = body.jobId
+    if job_id:
+        active_jobs[job_id] = {
+            'status': 'processing',
+            'progress': 8,
+            'message': 'កំពុងចាប់ផ្តើមត្រួតពិនិត្យ និងរៀបចំដំឡើងវីដេអូ...',
+            'created': time.time()
+        }
+        broadcast_progress(job_id, active_jobs[job_id].copy())
 
-    duration = audio_processor.get_media_duration(input_path)
-    audio_ext = os.path.splitext(body.filename)[0] + '.mp3'
-    extracted_audio_path = os.path.join(OUTPUTS_DIR, f"audio_{audio_ext}")
-    if not os.path.exists(extracted_audio_path):
-        audio_processor.extract_audio(input_path, extracted_audio_path)
+    try:
+        input_path = os.path.join(UPLOADS_DIR, body.filename)
+        if not os.path.exists(input_path):
+            root_path = os.path.join(BASE_DIR, body.filename)
+            if os.path.exists(root_path): input_path = root_path
+        if not os.path.exists(input_path):
+            raise HTTPException(status_code=404, detail="Video file not found")
 
-    # Turbo Hardware Concurrency: Synthesize missing speech in parallel workers
-    concurrency_limit = min(16, max(4, (os.cpu_count() or 4) * 2))
-    sem = asyncio.Semaphore(concurrency_limit)
+        duration = audio_processor.get_media_duration(input_path)
+        audio_ext = os.path.splitext(body.filename)[0] + '.mp3'
+        extracted_audio_path = os.path.join(OUTPUTS_DIR, f"audio_{audio_ext}")
+        if not os.path.exists(extracted_audio_path):
+            if job_id:
+                active_jobs[job_id].update({'progress': 12, 'message': 'កំពុងទាញយកខ្សែសំឡេងវីដេអូដើម (Audio Extraction)...'})
+                broadcast_progress(job_id, active_jobs[job_id].copy())
+            audio_processor.extract_audio(input_path, extracted_audio_path)
 
-    async def prepare_segment(i, seg):
-        audio_path = None
-        if seg.get('audioUrl'):
-            base = os.path.basename(seg['audioUrl'])
-            p = os.path.join(OUTPUTS_DIR, base)
-            if os.path.exists(p): audio_path = p
+        if job_id:
+            active_jobs[job_id].update({'progress': 18, 'message': 'បានស្រង់សំឡេងដើមរួចរាល់ — កំពុងពិនិត្យ និងសំយោគសំឡេងខ្មែរគ្រប់តួអង្គ...'})
+            broadcast_progress(job_id, active_jobs[job_id].copy())
 
-        # Auto-synthesize any missing line with retry so ZERO lines are dropped!
-        if not audio_path and (seg.get('khmer_translation') or seg.get('chinese_text')):
-            raw_text = seg.get('khmer_translation') or seg.get('chinese_text') or ''
-            text_to_speak = clean_pure_khmer(raw_text) or raw_text.strip()
-            if text_to_speak:
-                auto_path = os.path.join(OUTPUTS_DIR, f"auto_studio_line_py_{i}_{int(time.time() * 1000)}.wav")
-                is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
-                role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
-                theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
-                fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
-                pitch = theatrical.get('pitch', '+0Hz')
-                rate = theatrical.get('rate', '+0%')
+        # Turbo Hardware Concurrency: Synthesize missing speech in parallel workers
+        concurrency_limit = min(16, max(4, (os.cpu_count() or 4) * 2))
+        sem = asyncio.Semaphore(concurrency_limit)
+        total_segs = len(body.segments)
+        completed_segs = 0
+        seg_lock = asyncio.Lock()
 
-                # Retry up to 3 times
-                for attempt in range(3):
-                    try:
-                        async with sem:
-                            await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
-                        if os.path.exists(auto_path) and os.path.getsize(auto_path) > 500:
-                            audio_path = auto_path
-                            break
-                    except Exception as ex:
-                        print(f"Auto-synthesize line {i} attempt {attempt+1} notice: {ex}")
-                        await asyncio.sleep(0.3)
+        async def prepare_segment(i, seg):
+            nonlocal completed_segs
+            audio_path = None
+            if seg.get('audioUrl'):
+                base = os.path.basename(seg['audioUrl'])
+                p = os.path.join(OUTPUTS_DIR, base)
+                if os.path.exists(p): audio_path = p
 
-        if not audio_path:
-            # Fallback silence placeholder so line is NEVER dropped
-            silence_path = os.path.join(OUTPUTS_DIR, f"silent_line_{i}.wav")
-            audio_processor.run_command(f'ffmpeg -nostdin -y -f lavfi -i anullsrc=r=44100:cl=stereo -t 1.0 "{silence_path}"')
-            audio_path = silence_path
+            # Auto-synthesize any missing line with retry so ZERO lines are dropped!
+            if not audio_path and (seg.get('khmer_translation') or seg.get('chinese_text')):
+                raw_text = seg.get('khmer_translation') or seg.get('chinese_text') or ''
+                text_to_speak = clean_pure_khmer(raw_text) or raw_text.strip()
+                if text_to_speak:
+                    auto_path = os.path.join(OUTPUTS_DIR, f"auto_studio_line_py_{i}_{int(time.time() * 1000)}.wav")
+                    is_female = seg.get('gender') == 'female' or ('ស្រី' in (seg.get('speaker_name') or ''))
+                    role = seg.get('speaker_role') or ('female_lead' if is_female else 'male_lead')
+                    theatrical = ROLE_THEATRICAL_PROFILES.get(role, {})
+                    fb_voice = theatrical.get('voice', 'km-KH-SreymomNeural' if is_female else 'km-KH-PisethNeural')
+                    pitch = theatrical.get('pitch', '+0Hz')
+                    rate = theatrical.get('rate', '+0%')
+
+                    # Retry up to 3 times
+                    for attempt in range(3):
+                        try:
+                            async with sem:
+                                await khmer_dubber.synthesize_khmer_speech(text_to_speak, auto_path, fb_voice, pitch=pitch, rate=rate)
+                            if os.path.exists(auto_path) and os.path.getsize(auto_path) > 500:
+                                audio_path = auto_path
+                                break
+                        except Exception as ex:
+                            print(f"Auto-synthesize line {i} attempt {attempt+1} notice: {ex}")
+                            await asyncio.sleep(0.3)
+
+            if not audio_path:
+                # Fallback silence placeholder so line is NEVER dropped
+                silence_path = os.path.join(OUTPUTS_DIR, f"silent_line_{i}.wav")
+                audio_processor.run_command(f'ffmpeg -nostdin -y -f lavfi -i anullsrc=r=44100:cl=stereo -t 1.0 "{silence_path}"')
+                audio_path = silence_path
+
+            async with seg_lock:
+                completed_segs += 1
+                if job_id and total_segs > 0:
+                    prog_pct = 20 + int((completed_segs / total_segs) * 58)
+                    line_sample = (clean_pure_khmer(seg.get('khmer_translation') or '') or '')[:20]
+                    active_jobs[job_id].update({
+                        'progress': min(78, prog_pct),
+                        'message': f"កំពុងផលិតសំឡេងខ្មែរ: ឃ្លាទី {completed_segs}/{total_segs} {('«' + line_sample + '...»') if line_sample else ''}"
+                    })
+                    broadcast_progress(job_id, active_jobs[job_id].copy())
+
+            return {
+                **seg,
+                'audioPath': audio_path,
+                'start_time': float(seg.get('start_time', 0)),
+                'end_time': float(seg.get('end_time', float(seg.get('start_time', 0)) + 2.5))
+            }
+
+        raw_mapped = await asyncio.gather(*(prepare_segment(i, seg) for i, seg in enumerate(body.segments)))
+        mapped_segments = [m for m in raw_mapped if m is not None]
+
+        if not mapped_segments:
+            raise HTTPException(status_code=400, detail="មិនមានឃ្លាសន្ទនាសម្រាប់ដំណើរការ dubbing ឡើយ!")
+
+        ts = int(time.time() * 1000)
+        master_dialogue_path = os.path.join(OUTPUTS_DIR, f"custom_master_dialogue_py_{ts}.wav")
+
+        if job_id:
+            active_jobs[job_id].update({'progress': 80, 'message': 'កំពុងតម្រៀបសំឡេងតួអង្គទាំងអស់តាមបន្ទាត់ពេលវេលា (Timeline Alignment)...'})
+            broadcast_progress(job_id, active_jobs[job_id].copy())
+
+        await khmer_dubber.assemble_timeline_audio(mapped_segments, duration, master_dialogue_path)
+
+        dubbed_audio_path = os.path.join(OUTPUTS_DIR, f"custom_dubbed_master_py_{ts}.mp3")
+
+        # Clean BGM selection: Strip Chinese vocals if requested
+        bgm_source_path = extracted_audio_path
+        if body.bgmAudio:
+            bgm_cand = os.path.join(OUTPUTS_DIR, os.path.basename(body.bgmAudio))
+            if os.path.exists(bgm_cand):
+                bgm_source_path = bgm_cand
+        elif body.removeOriginalVocals:
+            ai_bgm_cand = os.path.join(OUTPUTS_DIR, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_ai_bgm.wav")
+            dsp_bgm_cand = os.path.join(OUTPUTS_DIR, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_dsp_bgm.wav")
+            if os.path.exists(ai_bgm_cand):
+                bgm_source_path = ai_bgm_cand
+            elif os.path.exists(dsp_bgm_cand):
+                bgm_source_path = dsp_bgm_cand
+            else:
+                if job_id:
+                    active_jobs[job_id].update({'progress': 84, 'message': 'កំពុងបំបែកសំឡេងច្រៀង និងស្រង់ភ្លេងកំដរ BGM ស្អាត...'})
+                    broadcast_progress(job_id, active_jobs[job_id].copy())
+                from services import vocal_separator
+                sep_res = vocal_separator.separate_vocals_and_bgm(extracted_audio_path, OUTPUTS_DIR, True)
+                if sep_res.get('bgmPath') and os.path.exists(sep_res['bgmPath']):
+                    bgm_source_path = sep_res['bgmPath']
+
+        if job_id:
+            active_jobs[job_id].update({'progress': 88, 'message': 'កំពុងលាយបញ្ចូលសំឡេងខ្មែរជាមួយភ្លេងកំដរ BGM (Sound Effects & Vocal Mixing)...'})
+            broadcast_progress(job_id, active_jobs[job_id].copy())
+
+        v_gain = body.vocalGain or 2.2
+        b_gain = body.bgmGain or 0.85
+        # Smart BGM routing: clean AI/DSP stem -> cinema mixer; raw audio -> vocal suppression mixer
+        bgm_is_clean_stem = (
+            bgm_source_path != extracted_audio_path and
+            ('_ai_bgm' in bgm_source_path or '_dsp_bgm' in bgm_source_path)
+        )
+        if bgm_is_clean_stem:
+            print('[Cinema Mix] Clean Demucs BGM stem — using pristine cinema mixer (no vocal suppression DSP)')
+            audio_processor.mix_clean_bgm_with_khmer(bgm_source_path, master_dialogue_path, dubbed_audio_path, v_gain, b_gain)
+        else:
+            audio_processor.mix_vocals_with_original(bgm_source_path, master_dialogue_path, dubbed_audio_path, v_gain, b_gain)
+
+        video_ext = os.path.splitext(input_path)[1]
+        out_video_filename = f"custom_dubbed_khmer_py_{ts}{video_ext}"
+        out_video_path = os.path.join(OUTPUTS_DIR, out_video_filename)
+        
+        if job_id:
+            active_jobs[job_id].update({'progress': 94, 'message': 'កំពុង Render និងបញ្ចូលខ្សែសំឡេង Dubbing ចូលក្នុងវីដេអូសម្រេច (FFmpeg)...'})
+            broadcast_progress(job_id, active_jobs[job_id].copy())
+
+        # Run merge in separate thread to avoid blocking
+        await asyncio.to_thread(
+            audio_processor.merge_video_audio,
+            input_path,
+            dubbed_audio_path,
+            out_video_path
+        )
+
+        out_video_url = f"/media/outputs/{out_video_filename}"
+        out_audio_url = f"/media/outputs/{os.path.basename(dubbed_audio_path)}"
+
+        if job_id:
+            active_jobs[job_id].update({
+                'status': 'completed',
+                'progress': 100,
+                'message': '🎉 ការដំឡើងវីដេអូ Dubbing គ្រប់តួអង្គសម្រេចជោគជ័យ ១០០%!',
+                'outputVideo': out_video_url,
+                'outputAudio': out_audio_url
+            })
+            broadcast_progress(job_id, active_jobs[job_id].copy())
 
         return {
-            **seg,
-            'audioPath': audio_path,
-            'start_time': float(seg.get('start_time', 0)),
-            'end_time': float(seg.get('end_time', float(seg.get('start_time', 0)) + 2.5))
+            'success': True,
+            'outputVideo': out_video_url,
+            'outputAudio': out_audio_url,
+            'totalLinesDubbed': len(mapped_segments)
         }
-
-    raw_mapped = await asyncio.gather(*(prepare_segment(i, seg) for i, seg in enumerate(body.segments)))
-    mapped_segments = [m for m in raw_mapped if m is not None]
-
-    if not mapped_segments:
-        raise HTTPException(status_code=400, detail="មិនមានឃ្លាសន្ទនាសម្រាប់ដំណើរការ dubbing ឡើយ!")
-
-    ts = int(time.time() * 1000)
-    master_dialogue_path = os.path.join(OUTPUTS_DIR, f"custom_master_dialogue_py_{ts}.wav")
-    await khmer_dubber.assemble_timeline_audio(mapped_segments, duration, master_dialogue_path)
-
-    dubbed_audio_path = os.path.join(OUTPUTS_DIR, f"custom_dubbed_master_py_{ts}.mp3")
-
-    # Clean BGM selection: Strip Chinese vocals if requested
-    bgm_source_path = extracted_audio_path
-    if body.bgmAudio:
-        bgm_cand = os.path.join(OUTPUTS_DIR, os.path.basename(body.bgmAudio))
-        if os.path.exists(bgm_cand):
-            bgm_source_path = bgm_cand
-    elif body.removeOriginalVocals:
-        ai_bgm_cand = os.path.join(OUTPUTS_DIR, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_ai_bgm.wav")
-        dsp_bgm_cand = os.path.join(OUTPUTS_DIR, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_dsp_bgm.wav")
-        if os.path.exists(ai_bgm_cand):
-            bgm_source_path = ai_bgm_cand
-        elif os.path.exists(dsp_bgm_cand):
-            bgm_source_path = dsp_bgm_cand
-        else:
-            from services import vocal_separator
-            sep_res = vocal_separator.separate_vocals_and_bgm(extracted_audio_path, OUTPUTS_DIR, True)
-            if sep_res.get('bgmPath') and os.path.exists(sep_res['bgmPath']):
-                bgm_source_path = sep_res['bgmPath']
-
-    v_gain = body.vocalGain or 2.2
-    b_gain = body.bgmGain or 0.85
-    audio_processor.mix_vocals_with_original(bgm_source_path, master_dialogue_path, dubbed_audio_path, v_gain, b_gain)
-
-    video_ext = os.path.splitext(input_path)[1]
-    out_video_filename = f"custom_dubbed_khmer_py_{ts}{video_ext}"
-    out_video_path = os.path.join(OUTPUTS_DIR, out_video_filename)
-    
-    # Run merge in separate thread to avoid blocking
-    await asyncio.to_thread(
-        audio_processor.merge_video_audio,
-        input_path,
-        dubbed_audio_path,
-        out_video_path
-    )
-
-    return {
-        'success': True,
-        'outputVideo': f"/media/outputs/{out_video_filename}",
-        'outputAudio': f"/media/outputs/{os.path.basename(dubbed_audio_path)}",
-        'totalLinesDubbed': len(mapped_segments)
-    }
+    except Exception as ex:
+        if job_id:
+            active_jobs[job_id].update({
+                'status': 'failed',
+                'error': str(ex),
+                'message': f"កំហុសក្នុងការដំឡើងវីដេអូ: {ex}"
+            })
+            broadcast_progress(job_id, active_jobs[job_id].copy())
+        raise
 
 @app.post('/api/video/render-export')
 async def render_export_video(body: RenderExportRequest):
@@ -2226,26 +2781,6 @@ def get_extracted_characters():
 
 @app.get('/api/characters/all')
 def get_all_characters(request: Request):
-    user = get_request_user(request)
-    is_free = not user or (user.get('tier') != 'premium' and user.get('role') != 'admin')
-
-    # If Free user, return ONLY the Default Natural voice
-    if is_free:
-        default_voice = {
-            'id': 'default_neural_piseth',
-            'filename': 'default_neural.mp3',
-            'label': '🎙️ Default Neural (PisethNatural - Free)',
-            'role_key': 'male_lead',
-            'gender': 'male',
-            'is_curated': True,
-            'is_free_only': True,
-            'words': 'សំឡេងធម្មជាតិស្តង់ដារ PisethNeural សម្រាប់គណនី Free',
-            'exists': True,
-            'previewUrl': None,
-            'sizeBytes': 0
-        }
-        return {'success': True, 'count': 1, 'characters': [default_voice], 'isFree': True}
-
     json_path = os.path.join(BASE_DIR, 'extracted_characters.json')
     characters = []
     if os.path.exists(json_path):
@@ -2259,7 +2794,7 @@ def get_all_characters(request: Request):
     if os.path.exists(SAMPLES_DIR):
         existing_filenames = set(c.get('filename') for c in characters)
         for f in os.listdir(SAMPLES_DIR):
-            if (f.endswith('.mp3') or f.endswith('.wav')) and f not in existing_filenames:
+            if (f.endswith('.mp3') or f.endswith('.wav')) and f not in existing_filenames and not f.startswith('2026'):
                 base_name = os.path.splitext(f)[0]
                 is_wav_pair = f.endswith('.wav') and any(os.path.splitext(c.get('filename', ''))[0] == base_name for c in characters)
                 if not is_wav_pair:
@@ -2287,6 +2822,228 @@ def get_all_characters(request: Request):
         })
 
     return {'success': True, 'count': len(enriched), 'characters': enriched, 'isFree': False}
+
+@app.get('/api/characters')
+def get_characters_alias(request: Request):
+    return get_all_characters(request)
+
+class TtsCloneRequest(BaseModel):
+    text: str
+    voice_id: Optional[str] = ''
+    gender: Optional[str] = 'male'
+    speed: Optional[float] = 1.0
+    pitch: Optional[float] = 0.0
+    stability: Optional[float] = 0.75
+    similarity_boost: Optional[float] = 0.8
+    style: Optional[float] = 0.0
+    emotion: Optional[str] = 'standard'
+
+@app.post('/api/tts/clone')
+async def tts_clone_endpoint(body: TtsCloneRequest):
+    out_name = f"recap_voice_{int(time.time() * 1000)}_{secrets.token_hex(3)}.mp3"
+    out_path = os.path.join(OUTPUTS_DIR, out_name)
+    clean_text = clean_pure_khmer(body.text)
+    if not clean_text:
+        clean_text = "បាទ"
+
+    studio_ref = None
+    voice_id = body.voice_id or ''
+    if voice_id:
+        clean_v = voice_id.replace('voxcpm:', '').strip()
+        cand_d = os.path.join(SAMPLES_DIR, clean_v)
+        cand_m = os.path.join(SAMPLES_DIR, f"{clean_v}.mp3")
+        if os.path.exists(cand_d) and os.path.isfile(cand_d):
+            studio_ref = cand_d
+        elif os.path.exists(cand_m) and os.path.isfile(cand_m):
+            studio_ref = cand_m
+
+    is_female = body.gender == 'female'
+    if not studio_ref:
+        default_sample = 'vp_character_1_female.mp3' if is_female else 'vp_character_2_male.mp3'
+        cand_def = os.path.join(SAMPLES_DIR, default_sample)
+        if os.path.exists(cand_def):
+            studio_ref = cand_def
+
+    rate_percent = int((body.speed - 1.0) * 100)
+    rate_str = f"{'+' if rate_percent >= 0 else ''}{rate_percent}%"
+    pitch_val = int(body.pitch * 5)
+    pitch_str = f"{'+' if pitch_val >= 0 else ''}{pitch_val}Hz"
+
+    await khmer_dubber.synthesize_realistic_speech(
+        clean_text,
+        out_path,
+        body.voice_id,
+        studio_ref if (studio_ref and os.path.exists(studio_ref)) else None,
+        {
+            'gender': body.gender,
+            'emotion': body.emotion,
+            'rate': rate_str,
+            'pitch': pitch_str
+        }
+    )
+
+    if (abs(body.speed - 1.0) > 0.05 or abs(body.pitch) > 0.5) and os.path.exists(out_path):
+        tmp_mod = f"{out_path}_mod.mp3"
+        tempo_filter = f"atempo={max(0.5, min(2.0, body.speed))}"
+        pitch_semi = body.pitch
+        pitch_filter = f"asetrate=44100*2^({pitch_semi}/12),aresample=44100" if pitch_semi != 0 else ""
+        af_parts = [p for p in [tempo_filter, pitch_filter] if p]
+        if af_parts:
+            af_str = ",".join(af_parts)
+            try:
+                audio_processor.run_command(f'ffmpeg -nostdin -y -i "{out_path}" -af "{af_str}" -b:a 192k "{tmp_mod}"')
+                if os.path.exists(tmp_mod) and os.path.getsize(tmp_mod) > 1000:
+                    shutil.move(tmp_mod, out_path)
+            except Exception:
+                pass
+
+    url = f"/media/outputs/{out_name}"
+    return {
+        'success': True,
+        'audio_url': url,
+        'url': url,
+        'filename': out_name
+    }
+
+class AudioMergeRequest(BaseModel):
+    audio_urls: List[str]
+    pause_ms: Optional[int] = 300
+    bgm_url: Optional[str] = None
+    bgm_volume: Optional[float] = 0.15
+    voice_volume: Optional[float] = 1.0
+
+@app.post('/api/audio/merge')
+async def merge_audio_endpoint(body: AudioMergeRequest):
+    if not body.audio_urls:
+        raise HTTPException(status_code=400, detail="No audio URLs provided")
+
+    file_paths = []
+    for u in body.audio_urls:
+        if not u:
+            continue
+        rel = u.replace('/media/outputs/', '').replace('/media/uploads/', '').replace('/media/samples/', '')
+        found = None
+        for d in [OUTPUTS_DIR, UPLOADS_DIR, SAMPLES_DIR]:
+            p = os.path.join(d, rel)
+            if os.path.exists(p):
+                found = p
+                break
+        if found:
+            file_paths.append(found)
+
+    if not file_paths:
+        raise HTTPException(status_code=400, detail="No valid audio files found on disk")
+
+    out_name = f"recap_master_{int(time.time() * 1000)}.mp3"
+    out_path = os.path.join(OUTPUTS_DIR, out_name)
+    pause_sec = max(0.0, float(body.pause_ms or 300) / 1000.0)
+
+    concat_list_path = os.path.join(OUTPUTS_DIR, f"concat_{int(time.time()*1000)}.txt")
+    silence_file = None
+    if pause_sec > 0.05:
+        silence_file = os.path.join(OUTPUTS_DIR, f"silence_{int(time.time()*1000)}.wav")
+        audio_processor.run_command(f'ffmpeg -nostdin -y -f lavfi -i anullsrc=r=44100:cl=stereo -t {pause_sec} "{silence_file}"')
+
+    try:
+        with open(concat_list_path, 'w', encoding='utf-8') as f:
+            for i, fp in enumerate(file_paths):
+                safe_fp = fp.replace('\\', '/')
+                f.write(f"file '{safe_fp}'\n")
+                if silence_file and i < len(file_paths) - 1:
+                    safe_silence = silence_file.replace('\\', '/')
+                    f.write(f"file '{safe_silence}'\n")
+
+        temp_merged = os.path.join(OUTPUTS_DIR, f"temp_voice_{int(time.time()*1000)}.mp3")
+        audio_processor.run_command(f'ffmpeg -nostdin -y -f concat -safe 0 -i "{concat_list_path}" -c:a libmp3lame -b:a 192k "{temp_merged}"')
+
+        if body.bgm_url:
+            bgm_clean = body.bgm_url.replace('/media/outputs/', '').replace('/media/uploads/', '').replace('/media/samples/', '')
+            bgm_path = None
+            for d in [UPLOADS_DIR, OUTPUTS_DIR, SAMPLES_DIR]:
+                p = os.path.join(d, bgm_clean)
+                if os.path.exists(p):
+                    bgm_path = p
+                    break
+            if bgm_path:
+                v_vol = body.voice_volume if body.voice_volume is not None else 1.0
+                b_vol = body.bgm_volume if body.bgm_volume is not None else 0.15
+                cmd = f'ffmpeg -nostdin -y -i "{temp_merged}" -stream_loop -1 -i "{bgm_path}" -filter_complex "[0:a]volume={v_vol}[a0];[1:a]volume={b_vol}[a1];[a0][a1]amix=inputs=2:duration=first:dropout_transition=2[out]" -map "[out]" -c:a libmp3lame -b:a 320k "{out_path}"'
+                audio_processor.run_command(cmd)
+            else:
+                shutil.move(temp_merged, out_path)
+        else:
+            shutil.move(temp_merged, out_path)
+    finally:
+        if os.path.exists(concat_list_path):
+            try: os.unlink(concat_list_path)
+            except Exception: pass
+        if silence_file and os.path.exists(silence_file):
+            try: os.unlink(silence_file)
+            except Exception: pass
+        if os.path.exists(temp_merged):
+            try: os.unlink(temp_merged)
+            except Exception: pass
+
+    return {
+        'success': True,
+        'url': f"/media/outputs/{out_name}",
+        'filename': out_name
+    }
+
+class RecapRenderVideoRequest(BaseModel):
+    video_url: str
+    audio_url: str
+    bgm_url: Optional[str] = None
+    subtitles_srt: Optional[str] = None
+
+@app.post('/api/recap/render-video')
+async def render_recap_video_endpoint(body: RecapRenderVideoRequest):
+    v_clean = body.video_url.replace('/media/uploads/', '').replace('/media/outputs/', '')
+    video_path = None
+    for d in [UPLOADS_DIR, OUTPUTS_DIR]:
+        p = os.path.join(d, v_clean)
+        if os.path.exists(p):
+            video_path = p
+            break
+    if not video_path:
+        raise HTTPException(status_code=400, detail="Video file not found")
+
+    a_clean = body.audio_url.replace('/media/outputs/', '').replace('/media/uploads/', '')
+    audio_path = None
+    for d in [OUTPUTS_DIR, UPLOADS_DIR]:
+        p = os.path.join(d, a_clean)
+        if os.path.exists(p):
+            audio_path = p
+            break
+    if not audio_path:
+        raise HTTPException(status_code=400, detail="Audio file not found")
+
+    out_name = f"recap_video_{int(time.time() * 1000)}.mp4"
+    out_path = os.path.join(OUTPUTS_DIR, out_name)
+
+    srt_path = None
+    if body.subtitles_srt and body.subtitles_srt.strip():
+        srt_path = os.path.join(OUTPUTS_DIR, f"recap_sub_{int(time.time()*1000)}.srt")
+        with open(srt_path, 'w', encoding='utf-8') as f:
+            f.write(body.subtitles_srt)
+
+    try:
+        if srt_path:
+            esc_srt = srt_path.replace('\\', '/').replace(':', '\\:')
+            cmd = f'ffmpeg -nostdin -y -i "{video_path}" -i "{audio_path}" -c:v libx264 -preset veryfast -crf 22 -vf "subtitles=\'{esc_srt}\':force_style=\'FontName=Kantumruy Pro,FontSize=20,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,BorderStyle=3,Outline=2\'" -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k -shortest "{out_path}"'
+        else:
+            cmd = f'ffmpeg -nostdin -y -i "{video_path}" -i "{audio_path}" -c:v copy -map 0:v:0 -map 1:a:0 -c:a aac -b:a 192k -shortest "{out_path}"'
+        audio_processor.run_command(cmd)
+    finally:
+        if srt_path and os.path.exists(srt_path):
+            try: os.unlink(srt_path)
+            except Exception: pass
+
+    return {
+        'success': True,
+        'url': f"/media/outputs/{out_name}",
+        'filename': out_name
+    }
 
 @app.put('/api/characters/update')
 def update_character(body: CharacterUpdateRequest):
@@ -2387,6 +3144,84 @@ async def create_character(
         }
     }
 
+@app.post('/api/characters/extract-voice')
+async def extract_voice_from_media(
+    mediaFile: UploadFile = File(...),
+    startTime: float = Form(0.0),
+    endTime: float = Form(10.0),
+    isolateVocal: bool = Form(True),
+    label: str = Form(...),
+    gender: str = Form('male'),
+    role_key: str = Form('male_lead'),
+    words: Optional[str] = Form('')
+):
+    """
+    Extract a character voice sample from any uploaded video or audio file.
+    Trims the selected duration and applies vocal isolation / noise reduction.
+    """
+    try:
+        ts = int(time.time() * 1000)
+        temp_input = os.path.join(UPLOADS_DIR, f"temp_extract_{ts}_{mediaFile.filename}")
+        with open(temp_input, 'wb') as buffer:
+            shutil.copyfileobj(mediaFile.file, buffer)
+
+        target_filename = f"extracted_voice_{ts}.mp3"
+        dest_path = os.path.join(SAMPLES_DIR, target_filename)
+
+        duration = max(1.0, endTime - startTime)
+        af_filter = "highpass=f=120,lowpass=f=3800,afftdn=nf=-25,volume=1.4" if isolateVocal else "volume=1.2"
+
+        cmd = [
+            'ffmpeg', '-hide_banner', '-loglevel', 'error', '-y',
+            '-ss', str(startTime),
+            '-t', str(duration),
+            '-i', temp_input,
+            '-vn',
+            '-af', af_filter,
+            '-c:a', 'libmp3lame',
+            '-b:a', '192k',
+            dest_path
+        ]
+
+        await asyncio.to_thread(subprocess.run, cmd, check=True)
+
+        if os.path.exists(temp_input):
+            try:
+                os.remove(temp_input)
+            except Exception:
+                pass
+
+        json_path = os.path.join(BASE_DIR, 'extracted_characters.json')
+        characters = []
+        if os.path.exists(json_path):
+            with open(json_path, 'r', encoding='utf-8') as f:
+                characters = json.load(f)
+
+        new_char = {
+            'id': f"voxcpm:{target_filename}",
+            'filename': target_filename,
+            'label': label.strip() if label else 'សំឡេងកាត់ចេញថ្មី',
+            'role_key': role_key,
+            'gender': gender,
+            'is_curated': True,
+            'words': words.strip() if words else f'សំឡេងកាត់ ({duration:.1f}s)'
+        }
+
+        characters.insert(0, new_char)
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(characters, f, ensure_ascii=False, indent=2)
+
+        return {
+            'success': True,
+            'character': {
+                **new_char,
+                'exists': True,
+                'previewUrl': f"/media/samples/{target_filename}"
+            }
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Voice extraction failed: {str(e)}")
+
 @app.delete('/api/characters/delete/{char_id:path}')
 def delete_character(char_id: str):
     import urllib.parse
@@ -2410,14 +3245,12 @@ def delete_character(char_id: str):
     return {'success': True, 'message': 'Character removed successfully'}
 
 # --- Project Persistence (Never lose project data on browser reload) ---
-PROJECT_DATA_FILE = os.path.join(DATA_DIR, 'active_project.json')
 
 @app.post('/api/project/save')
 async def save_project_state(request: Request):
     try:
         data = await request.json()
-        with open(PROJECT_DATA_FILE, 'w', encoding='utf-8') as f:
-            json.dump(data, f, ensure_ascii=False, indent=2)
+        _save_project(data)
         return {'success': True, 'message': 'Project state saved successfully'}
     except Exception as e:
         print(f"Error saving project: {e}")
@@ -2425,11 +3258,8 @@ async def save_project_state(request: Request):
 
 @app.get('/api/project/load')
 def load_project_state():
-    if not os.path.exists(PROJECT_DATA_FILE):
-        return {'success': True, 'project': None}
     try:
-        with open(PROJECT_DATA_FILE, 'r', encoding='utf-8') as f:
-            data = json.load(f)
+        data = _load_project()
         return {'success': True, 'project': data}
     except Exception as e:
         print(f"Error loading project: {e}")
@@ -2438,8 +3268,7 @@ def load_project_state():
 @app.post('/api/project/clear')
 def clear_project_state():
     try:
-        if os.path.exists(PROJECT_DATA_FILE):
-            os.remove(PROJECT_DATA_FILE)
+        _clear_project()
         return {'success': True, 'message': 'Project state cleared'}
     except Exception as e:
         print(f"Error clearing project: {e}")
@@ -2471,11 +3300,7 @@ def load_project_groups() -> list:
                 return json.load(f)
         except Exception:
             pass
-    defaults = [
-        {"id": "grp_all", "name": "ទូទៅ (General)", "color": "cyan", "description": "គម្រោងវីដេអូទូទៅ", "createdAt": datetime.now().isoformat()},
-        {"id": "grp_chinese_drama", "name": "រឿង ដាវទេពយុទ្ធសិល្ប៍", "color": "purple", "description": "ស៊េរីភាពយន្តភាគចិនបុរាណ", "createdAt": datetime.now().isoformat()},
-        {"id": "grp_anime_action", "name": "រឿង Anime Action", "color": "emerald", "description": "គំនូរជីវចលផ្សងព្រេង", "createdAt": datetime.now().isoformat()}
-    ]
+    defaults = []
     save_project_groups(defaults)
     return defaults
 
@@ -2639,6 +3464,34 @@ def delete_project_group(group_id: str):
             s['groupName'] = 'ទូទៅ (General)'
     save_video_shelf(shelf)
     return {'success': True, 'groups': groups}
+
+# --- Live System Usage (sidebar monitor) ---
+_gpu_cache = {'t': 0.0, 'v': None}
+
+@app.get('/api/system/usage')
+def get_system_usage():
+    cpu = ram = None
+    try:
+        import psutil
+        cpu = psutil.cpu_percent(interval=None)
+        ram = psutil.virtual_memory().percent
+    except Exception:
+        pass
+    now = time.time()
+    if now - _gpu_cache['t'] > 3:
+        _gpu_cache['t'] = now
+        try:
+            import subprocess
+            out = subprocess.run(
+                ['nvidia-smi', '--query-gpu=utilization.gpu', '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=2,
+                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+            )
+            if out.returncode == 0 and out.stdout.strip():
+                _gpu_cache['v'] = float(out.stdout.strip().splitlines()[0])
+        except Exception:
+            _gpu_cache['v'] = None
+    return {'cpu': cpu, 'ram': ram, 'gpu': _gpu_cache['v']}
 
 # --- Hardware Acceleration & Performance Endpoint ---
 @app.get('/api/system/hardware')
@@ -3091,6 +3944,276 @@ def reload_all_modules():
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+# ============================================================================
+# ✂️ VIDEO CUTTER & MERGER (AUTO-SPLIT 1H-5H & MULTI-CLIP CONCAT)
+# ============================================================================
+from services import video_cutter_service
+from typing import Dict, Any, List, Optional
+
+active_video_tools_jobs: Dict[str, Dict[str, Any]] = {}
+
+def resolve_server_video_path(path_or_name: str) -> str:
+    """Resolve file path whether given filename, relative url, or absolute path."""
+    if not path_or_name:
+        raise HTTPException(status_code=400, detail="Missing video file path or filename")
+    
+    clean = path_or_name.strip()
+    if os.path.isabs(clean) and os.path.exists(clean):
+        return clean
+    
+    # Strip URL prefixes
+    for prefix in ['/media/uploads/', '/media/outputs/', 'media/uploads/', 'media/outputs/']:
+        if clean.startswith(prefix):
+            clean = clean[len(prefix):]
+            break
+            
+    # Try uploads dir
+    candidate_upload = os.path.join(UPLOADS_DIR, clean)
+    if os.path.exists(candidate_upload):
+        return candidate_upload
+        
+    # Try outputs dir
+    candidate_output = os.path.join(OUTPUTS_DIR, clean)
+    if os.path.exists(candidate_output):
+        return candidate_output
+        
+    return candidate_upload
+
+
+class VideoInfoRequest(BaseModel):
+    filename: Optional[str] = None
+    filePath: Optional[str] = None
+
+
+@app.post('/api/video-tools/info')
+async def get_video_info_endpoint(body: VideoInfoRequest):
+    try:
+        resolved = resolve_server_video_path(body.filePath or body.filename or '')
+        meta = await asyncio.to_thread(video_cutter_service.get_video_metadata, resolved)
+        return {
+            'success': True,
+            'metadata': meta,
+            'filename': os.path.basename(resolved),
+            'filePath': resolved,
+        }
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+class VideoSplitRequest(BaseModel):
+    filename: Optional[str] = None
+    filePath: Optional[str] = None
+    mode: str = 'duration' # 'duration' | 'parts' | 'cues'
+    durationPerPartMinutes: float = 10.0
+    numParts: int = 5
+    customCues: Optional[List[float]] = None
+    lossless: bool = True
+    namingPrefix: str = 'ភាគ'
+
+
+@app.post('/api/video-tools/split')
+async def split_video_endpoint(body: VideoSplitRequest):
+    try:
+        resolved = resolve_server_video_path(body.filePath or body.filename or '')
+        job_id = f"split_{int(time.time() * 1000)}"
+        active_video_tools_jobs[job_id] = {
+            'job_id': job_id,
+            'status': 'processing',
+            'progress': 5,
+            'message': 'កំពុងចាប់ផ្ដើមស្កេន និងត្រៀមកាត់វីដេអូ...'
+        }
+
+        def on_prog(pct: int, msg: str):
+            if job_id in active_video_tools_jobs:
+                active_video_tools_jobs[job_id].update({'progress': pct, 'message': msg})
+
+        dur_sec = max(10.0, body.durationPerPartMinutes * 60.0)
+
+        results = await asyncio.to_thread(
+            video_cutter_service.split_video_sync,
+            resolved,
+            OUTPUTS_DIR,
+            body.mode,
+            dur_sec,
+            body.numParts,
+            body.customCues,
+            body.lossless,
+            body.namingPrefix,
+            on_prog
+        )
+
+        active_video_tools_jobs[job_id] = {
+            'job_id': job_id,
+            'status': 'completed',
+            'progress': 100,
+            'message': f'🎉 បានកាត់វីដេអូជា {len(results)} ភាគរួចរាល់!',
+            'results': results
+        }
+
+        return {
+            'success': True,
+            'job_id': job_id,
+            'total_parts': len(results),
+            'parts': results
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Split error: {str(e)}")
+
+
+class VideoMergeRequest(BaseModel):
+    filenames: Optional[List[str]] = None
+    filePaths: Optional[List[str]] = None
+    outputName: Optional[str] = 'merged_cinema_movie'
+    lossless: bool = True
+    targetResolution: str = 'auto'
+
+
+@app.post('/api/video-tools/merge')
+async def merge_videos_endpoint(body: VideoMergeRequest):
+    try:
+        raw_items = body.filePaths or body.filenames or []
+        if not raw_items:
+            raise HTTPException(status_code=400, detail="សូមជ្រើសរើសវីដេអូយ៉ាងហោចណាស់ ២ ឃ្លីប")
+
+        resolved_paths = [resolve_server_video_path(item) for item in raw_items]
+        job_id = f"merge_{int(time.time() * 1000)}"
+        active_video_tools_jobs[job_id] = {
+            'job_id': job_id,
+            'status': 'processing',
+            'progress': 5,
+            'message': f'កំពុងត្រៀមបញ្ចូល {len(resolved_paths)} វីដេអូ...'
+        }
+
+        def on_prog(pct: int, msg: str):
+            if job_id in active_video_tools_jobs:
+                active_video_tools_jobs[job_id].update({'progress': pct, 'message': msg})
+
+        out_name = (body.outputName or 'merged_video').strip()
+        if not out_name.endswith('.mp4'):
+            out_name = f"{out_name}_{int(time.time())}.mp4"
+
+        result = await asyncio.to_thread(
+            video_cutter_service.merge_videos_sync,
+            resolved_paths,
+            OUTPUTS_DIR,
+            out_name,
+            body.lossless,
+            body.targetResolution,
+            on_prog
+        )
+
+        active_video_tools_jobs[job_id] = {
+            'job_id': job_id,
+            'status': 'completed',
+            'progress': 100,
+            'message': '🎉 បានបញ្ចូលវីដេអូទាំងអស់ជោគជ័យ!',
+            'result': result
+        }
+
+        return {
+            'success': True,
+            'job_id': job_id,
+            'result': result
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Merge error: {str(e)}")
+
+
+@app.get('/api/video-tools/jobs/{job_id}')
+async def get_video_tools_job(job_id: str):
+    if job_id in active_video_tools_jobs:
+        return active_video_tools_jobs[job_id]
+    return {'job_id': job_id, 'status': 'not_found', 'progress': 0, 'message': 'Job not found'}
+
+
+# ─── Character Voice Extractor (កាត់យកសំឡេងតួអង្គពី Video/MP3) ───────────────
+@app.post('/api/characters/extract-voice')
+async def extract_voice_endpoint(
+    mediaFile: UploadFile = File(...),
+    startTime: float = Form(0.0),
+    endTime: float = Form(10.0),
+    isolateVocal: str = Form('true'),
+    label: str = Form(''),
+    gender: str = Form('male'),
+    role_key: str = Form('male_lead'),
+    words: str = Form('')
+):
+    try:
+        ext = os.path.splitext(mediaFile.filename or '')[1] or '.mp4'
+        temp_input_name = f"raw_extract_{int(time.time()*1000)}_{uuid.uuid4().hex[:6]}{ext}"
+        temp_input_path = os.path.join(UPLOADS_DIR, temp_input_name)
+
+        with open(temp_input_path, 'wb') as f:
+            shutil.copyfileobj(mediaFile.file, f)
+
+        out_filename = f"extracted_{int(time.time()*1000)}_{uuid.uuid4().hex[:6]}.mp3"
+        out_path = os.path.join(SAMPLES_DIR, out_filename)
+
+        dur = max(0.5, float(endTime) - float(startTime))
+        st = max(0.0, float(startTime))
+
+        if isolateVocal.lower() in ('true', '1', 'yes'):
+            af = "highpass=f=120,lowpass=f=3800,afftdn=nf=-25,volume=1.4,loudnorm"
+            cmd = f'ffmpeg -y -ss {st} -t {dur} -i "{temp_input_path}" -vn -af "{af}" -ac 1 -ar 32000 -b:a 128k "{out_path}"'
+        else:
+            cmd = f'ffmpeg -y -ss {st} -t {dur} -i "{temp_input_path}" -vn -ac 2 -ar 44100 -b:a 192k "{out_path}"'
+
+        audio_processor.run_command(cmd)
+
+        char_id = f"custom_voice_{int(time.time()*1000)}"
+        clean_label = (label or '').strip() or f"តួអង្គ {char_id[-4:]}"
+        new_char = {
+            "id": char_id,
+            "label": clean_label,
+            "filename": out_filename,
+            "gender": gender if gender in ('male', 'female') else 'male',
+            "role": role_key or 'male_lead',
+            "words": (words or '').strip() or 'សំឡេងកាត់ចេញពីវីដេអូ/MP3',
+            "audioUrl": f"/media/samples/{out_filename}",
+            "isCustom": True,
+            "createdAt": datetime.now().isoformat()
+        }
+
+        extracted_file = os.path.join(DATA_DIR, 'extracted_characters.json')
+        existing_chars = []
+        if os.path.exists(extracted_file):
+            try:
+                with open(extracted_file, 'r', encoding='utf-8') as f:
+                    existing_chars = json.load(f)
+            except Exception:
+                existing_chars = []
+        existing_chars.insert(0, new_char)
+        with open(extracted_file, 'w', encoding='utf-8') as f:
+            json.dump(existing_chars, f, ensure_ascii=False, indent=2)
+
+        try:
+            if os.path.exists(temp_input_path):
+                os.remove(temp_input_path)
+        except Exception:
+            pass
+
+        return {
+            "success": True,
+            "character": new_char,
+            "message": f"Successfully extracted voice for {clean_label}"
+        }
+    except Exception as e:
+        logger.error(f"Voice extraction error: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Voice extraction failed: {str(e)}")
+
+
+@app.get('/api/characters/extracted')
+async def get_extracted_characters_endpoint():
+    extracted_file = os.path.join(DATA_DIR, 'extracted_characters.json')
+    if os.path.exists(extracted_file):
+        try:
+            with open(extracted_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except Exception:
+            pass
+    return []
 
 
 # ============================================================================

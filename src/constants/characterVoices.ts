@@ -1,0 +1,145 @@
+import { CharacterVoice } from '../types';
+
+export const CURATED_CHARACTER_VOICES: CharacterVoice[] = [
+  {
+    id: 'voxcpm:vp_character_1_female.mp3',
+    filename: 'vp_character_1_female.mp3',
+    label: '🌸 សំឡេងតួឯកស្រី ០១ (Female Lead 01)',
+    role_key: 'female_lead',
+    gender: 'female',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួឯកស្រី ពិរោះស្រទន់ សុភាពរាបសារ',
+    previewUrl: '/media/samples/vp_character_1_female.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_2_male.mp3',
+    filename: 'vp_character_2_male.mp3',
+    label: '👑 សំឡេងតួឯកប្រុស ០១ (Male Lead 01)',
+    role_key: 'male_lead',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួឯកប្រុស អង់អាច ម៉ឺងម៉ាត់ មានអំណាច',
+    previewUrl: '/media/samples/vp_character_2_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_6_female.mp3',
+    filename: 'vp_character_6_female.mp3',
+    label: '🌺 សំឡេងតួស្រីទន់ភ្លន់ (Soft Female Lead)',
+    role_key: 'female_lead',
+    gender: 'female',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួស្រី ទន់ភ្លន់រម្យទម',
+    previewUrl: '/media/samples/vp_character_6_female.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_7_male.mp3',
+    filename: 'vp_character_7_male.mp3',
+    label: '⚔️ សំឡេងតួប្រុសអំណាច (Warrior / Commander Male)',
+    role_key: 'male_lead',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួប្រុស មេបញ្ជាការ/អ្នកចម្បាំង',
+    previewUrl: '/media/samples/vp_character_7_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_9_male.mp3',
+    filename: 'vp_character_9_male.mp3',
+    label: '⚡ សំឡេងតួប្រុសស្វាហាប់ (Energetic Hero Male)',
+    role_key: 'hero',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួប្រុស ស្វាហាប់រស់រវើក',
+    previewUrl: '/media/samples/vp_character_9_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_10_male.mp3',
+    filename: 'vp_character_10_male.mp3',
+    label: '🏎️ សំឡេងតួប្រុសវ័យក្មេង (Young Master Male)',
+    role_key: 'young_master',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួប្រុសវ័យក្មេង ពូកែឌឺដង',
+    previewUrl: '/media/samples/vp_character_10_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_12_male.mp3',
+    filename: 'vp_character_12_male.mp3',
+    label: '💼 សំឡេងតួប្រុសចាស់ទុំ/ព្រឹទ្ធាចារ្យ (Elder / Mentor Male)',
+    role_key: 'elder',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរព្រឹទ្ធាចារ្យ ចាស់ទុំមានគុណធម៌',
+    previewUrl: '/media/samples/vp_character_12_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_14_female.mp3',
+    filename: 'vp_character_14_female.mp3',
+    label: '✨ សំឡេងតួស្រីវ័យក្មេង (Young Sweet Female)',
+    role_key: 'young_female',
+    gender: 'female',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរនារីវ័យក្មេង ស្រស់ស្រាយ',
+    previewUrl: '/media/samples/vp_character_14_female.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_16_male.mp3',
+    filename: 'vp_character_16_male.mp3',
+    label: '🛡️ សំឡេងតួប្រុសស្មោះត្រង់/ម៉ត់ចត់ (Steadfast Male)',
+    role_key: 'male_lead',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួប្រុស ស្មោះត្រង់ម៉ត់ចត់',
+    previewUrl: '/media/samples/vp_character_16_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_17_male.mp3',
+    filename: 'vp_character_17_male.mp3',
+    label: '🎭 សំឡេងតួប្រុសកំប្លែង/កូនចៅជំនិត (Comic Relief / Sidekick)',
+    role_key: 'comic',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួកំប្លែង កូនចៅជំនិត',
+    previewUrl: '/media/samples/vp_character_17_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_19_male.mp3',
+    filename: 'vp_character_19_male.mp3',
+    label: '📜 សំឡេងអ្នកនិទានរឿង (Theatrical Narrator Male)',
+    role_key: 'narrator',
+    gender: 'male',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរអ្នកនិទានរឿង ធ្ងន់ច្បាស់មានទឹកដម',
+    previewUrl: '/media/samples/vp_character_19_male.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_20_female.mp3',
+    filename: 'vp_character_20_female.mp3',
+    label: '🔥 សំឡេងតួស្រីមានឥទ្ធិពល/កាច (Strong / Empress Female)',
+    role_key: 'villain_female',
+    gender: 'female',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួស្រីកាច មានអំណាច',
+    previewUrl: '/media/samples/vp_character_20_female.mp3',
+  },
+  {
+    id: 'voxcpm:vp_character_21_female.mp3',
+    filename: 'vp_character_21_female.mp3',
+    label: '🎀 សំឡេងតួស្រីរស់រវើក (Lively Charming Female)',
+    role_key: 'female_lead',
+    gender: 'female',
+    is_curated: true,
+    words: 'សំឡេងខ្មែរតួស្រី រស់រវើកមានមន្តស្នេហ៍',
+    previewUrl: '/media/samples/vp_character_21_female.mp3',
+  },
+];
+
+export const DEFAULT_FEMALE_LEAD_VOICE = 'vp_character_1_female.mp3';
+export const DEFAULT_MALE_LEAD_VOICE = 'vp_character_2_male.mp3';
+
+export const findCharacterVoice = (voiceIdOrFilename?: string | null): CharacterVoice | undefined => {
+  if (!voiceIdOrFilename) return undefined;
+  const clean = voiceIdOrFilename.replace(/^voxcpm:/, '').trim();
+  return CURATED_CHARACTER_VOICES.find(
+    (c) => c.filename === clean || c.id === voiceIdOrFilename || c.filename === voiceIdOrFilename
+  );
+};

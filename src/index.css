@@ -2,6 +2,7 @@
    FONT IMPORTS — must be before @tailwind
    ================================================================ */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Kantumruy+Pro:ital,wght@0,100..700;1,100..700&family=Battambang:wght@400;700;900&family=Moul&display=swap');
+@import '../public/css/light-theme.css';
 
 @tailwind base;
 @tailwind components;
@@ -73,28 +74,33 @@
 
   :root.dark,
   .dark {
-    /* ── Night Mode (Dark) Studio Palette ── */
-    --bg-primary:   #0b0f19;
-    --bg-canvas:    #070a12;
-    --bg-surface:   #0f172a;
-    --bg-elevated:  #1e293b;
-    --bg-hover:     #1e293b;
+    /* ── KHMER DUBBING PRO — CapCut Pro Neutral Matte Dark Palette ── */
+    --bg-primary:   #121214; /* CapCut Neutral Charcoal Black Canvas */
+    --bg-canvas:    #16161A;
+    --bg-surface:   #1A1A20;
+    --bg-elevated:  #222228;
+    --bg-hover:     #2A2A34;
 
     --border-subtle: rgba(255, 255, 255, 0.08);
-    --border-default: rgba(255, 255, 255, 0.15);
-    --border-strong: rgba(255, 255, 255, 0.25);
-    --border-cyan:   rgba(14, 165, 233, 0.4);
-    --border-violet: rgba(124, 58, 237, 0.35);
+    --border-default: rgba(255, 255, 255, 0.12);
+    --border-strong: rgba(255, 255, 255, 0.22);
+    --border-cyan:   rgba(0, 242, 173, 0.4); /* CapCut Mint Accent */
+    --border-violet: rgba(139, 92, 246, 0.35);
 
-    --text-primary:   #f8fafc;
-    --text-secondary: #cbd5e1;
-    --text-muted:     #94a3b8;
-    --text-disabled:  #64748b;
+    --text-primary:   #FFFFFF;
+    --text-secondary: #D1D5DB;
+    --text-muted:     #9CA3AF;
+    --text-disabled:  #6B7280;
 
-    --shadow-sm:   0 1px 2px 0 rgba(0, 0, 0, 0.4);
-    --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.5), 0 2px 4px -2px rgba(0, 0, 0, 0.4);
-    --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.6), 0 4px 6px -4px rgba(0, 0, 0, 0.5);
-    --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.7), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+    --accent-cyan:   #00F2AD; /* CapCut Vibrant Mint */
+    --accent-blue:   #3B82F6;
+    --accent-violet: #8B5CF6;
+
+    --shadow-sm:   0 1px 2px 0 rgba(0, 0, 0, 0.5);
+    --shadow-md:   0 4px 6px -1px rgba(0, 0, 0, 0.6), 0 2px 4px -2px rgba(0, 0, 0, 0.5);
+    --shadow-lg:   0 10px 15px -3px rgba(0, 0, 0, 0.7), 0 4px 6px -4px rgba(0, 0, 0, 0.6);
+    --shadow-xl:   0 20px 25px -5px rgba(0, 0, 0, 0.8), 0 8px 10px -6px rgba(0, 0, 0, 0.7);
+    --shadow-glow: 0 0 20px rgba(0, 242, 173, 0.2);
   }
 
   * {
@@ -189,6 +195,22 @@
 
   .animate-fadeIn {
     animation: fadeIn 0.2s ease-out;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 9999px;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 242, 173, 0.4);
   }
 
   .glass-effect {
@@ -518,6 +540,211 @@ select {
   transform: translateY(-1px);
 }
 .btn-primary:active { transform: scale(0.97) translateY(0); }
+
+/* ================================================================
+   ATITEBDABBER PRO — MASTER GLASS UI SYSTEM (2026 EDITION)
+   Clean, luminous glassmorphism with dynamic light/dark reactivity
+   ================================================================ */
+
+/* ── Universal Glass Button ── */
+.btn-glass {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(14px) saturate(180%);
+  -webkit-backdrop-filter: blur(14px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+.btn-glass:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 24px 0 rgba(0, 0, 0, 0.22), inset 0 1px 0 0 rgba(255, 255, 255, 0.25);
+}
+.btn-glass:active {
+  transform: translateY(0.5px) scale(0.98);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.15);
+}
+
+/* Light mode adaptation for btn-glass */
+.light .btn-glass,
+html.light .btn-glass {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(0, 0, 0, 0.09);
+  box-shadow: 0 2px 8px 0 rgba(0, 0, 0, 0.05), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+  color: #1e293b;
+}
+.light .btn-glass:hover,
+html.light .btn-glass:hover {
+  background: rgba(255, 255, 255, 0.98);
+  border-color: rgba(0, 0, 0, 0.18);
+  box-shadow: 0 4px 14px 0 rgba(0, 0, 0, 0.09), inset 0 1px 0 0 rgba(255, 255, 255, 1);
+}
+
+/* ── Primary Glass Button (Cyan / Mint glow) ── */
+.btn-glass-primary {
+  background: linear-gradient(135deg, rgba(0, 242, 173, 0.15) 0%, rgba(6, 182, 212, 0.22) 100%);
+  backdrop-filter: blur(16px) saturate(190%);
+  -webkit-backdrop-filter: blur(16px) saturate(190%);
+  border: 1px solid rgba(0, 242, 173, 0.35);
+  color: #00f2ad;
+  box-shadow: 0 4px 20px 0 rgba(0, 242, 173, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glass-primary:hover {
+  background: linear-gradient(135deg, rgba(0, 242, 173, 0.25) 0%, rgba(6, 182, 212, 0.35) 100%);
+  border-color: rgba(0, 242, 173, 0.6);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 30px 0 rgba(0, 242, 173, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+  color: #ffffff;
+}
+.btn-glass-primary:active {
+  transform: translateY(0.5px) scale(0.98);
+}
+
+/* ── Emerald / Mint Glass Button ── */
+.btn-glass-emerald {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(5, 150, 105, 0.2) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: #34d399;
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+  transition: all 0.25s ease;
+}
+.btn-glass-emerald:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.25) 0%, rgba(5, 150, 105, 0.35) 100%);
+  border-color: rgba(16, 185, 129, 0.55);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+  color: #ffffff;
+}
+
+/* ── Amber / Golden Glass Button ── */
+.btn-glass-amber {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.2) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #fbbf24;
+  box-shadow: 0 4px 16px rgba(245, 158, 11, 0.15);
+  transition: all 0.25s ease;
+}
+.btn-glass-amber:hover {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(217, 119, 6, 0.35) 100%);
+  border-color: rgba(245, 158, 11, 0.6);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+  color: #ffffff;
+}
+
+/* ── Purple / Indigo Glass Button ── */
+.btn-glass-purple {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.15) 0%, rgba(124, 58, 237, 0.2) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(168, 85, 247, 0.3);
+  color: #c084fc;
+  box-shadow: 0 4px 16px rgba(168, 85, 247, 0.15);
+  transition: all 0.25s ease;
+}
+.btn-glass-purple:hover {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.25) 0%, rgba(124, 58, 237, 0.35) 100%);
+  border-color: rgba(168, 85, 247, 0.55);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.3);
+  color: #ffffff;
+}
+
+/* ── Danger Glass Button ── */
+.btn-glass-danger {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.2) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #f87171;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.15);
+  transition: all 0.25s ease;
+}
+.btn-glass-danger:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(220, 38, 38, 0.35) 100%);
+  border-color: rgba(239, 68, 68, 0.55);
+  transform: translateY(-1.5px);
+  box-shadow: 0 8px 25px rgba(239, 68, 68, 0.3);
+  color: #ffffff;
+}
+
+/* ── Pro Glass Panels ── */
+.glass-panel-pro {
+  background: rgba(18, 22, 34, 0.75);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 20px 50px 0 rgba(0, 0, 0, 0.4), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
+}
+.light .glass-panel-pro,
+html.light .glass-panel-pro {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 15px 40px 0 rgba(0, 0, 0, 0.08), inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+/* ── Interactive Glass Card ── */
+.glass-card-interactive {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-card-interactive:hover {
+  background: rgba(255, 255, 255, 0.07);
+  border-color: rgba(0, 242, 173, 0.35);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(0, 242, 173, 0.15);
+}
+.light .glass-card-interactive,
+html.light .glass-card-interactive {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+.light .glass-card-interactive:hover,
+html.light .glass-card-interactive:hover {
+  background: #ffffff;
+  border-color: rgba(14, 165, 233, 0.4);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 0 0 15px rgba(14, 165, 233, 0.12);
+}
+
+/* ── Glass Inputs ── */
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+  transition: all 0.2s ease;
+}
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(0, 242, 173, 0.5);
+  box-shadow: 0 0 0 3px rgba(0, 242, 173, 0.15), 0 0 15px rgba(0, 242, 173, 0.2);
+  outline: none;
+}
+.light .glass-input,
+html.light .glass-input {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  color: #0f172a;
+}
+.light .glass-input:focus,
+html.light .glass-input:focus {
+  border-color: #0ea5e9;
+  box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.15);
+}
 
 .btn-ghost {
   background: rgba(255,255,255,0.04);
@@ -2258,3 +2485,37 @@ select {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ================================================================
+   MARQUEE & TICKER ANIMATION (Continuous 60fps scrolling)
+   ================================================================ */
+@keyframes tickerMarquee {
+  0% {
+    transform: translateX(100%);
+  }
+  100% {
+    transform: translateX(-100%);
+  }
+}
+
+.animate-marquee {
+  display: inline-block;
+  white-space: nowrap;
+  animation: tickerMarquee 16s linear infinite;
+  will-change: transform;
+}
+
+@keyframes shimmerSweep {
+  0% {
+    transform: translateX(-150%) skewX(-20deg);
+  }
+  100% {
+    transform: translateX(350%) skewX(-20deg);
+  }
+}
+
+.animate-shimmer {
+  animation: shimmerSweep 3s ease-in-out infinite;
+  will-change: transform;
+}
+

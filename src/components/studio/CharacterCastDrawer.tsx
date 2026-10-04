@@ -15,6 +15,7 @@ import {
   Laptop,
 } from 'lucide-react';
 import { TimelineSegment, CharacterVoice, User, ProjectGroup } from '../../types';
+import { CURATED_CHARACTER_VOICES } from '../../constants/characterVoices';
 import { VoxCPM2OnlineToggle } from '../ui/VoxCPM2OnlineToggle';
 
 interface CharacterCastDrawerProps {
@@ -56,6 +57,7 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
   activeGroup,
   onApplyGroupVoices,
 }) => {
+  const activeCharacters = characters && characters.length > 0 ? characters : CURATED_CHARACTER_VOICES;
   const [playingAudio, setPlayingAudio] = useState<string | null>(null);
   const [audioElem, setAudioElem] = useState<HTMLAudioElement | null>(null);
 
@@ -417,8 +419,8 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
 
                       {char.gender === 'female' ? (
                         <>
-                          <optgroup label="🌸 ជម្រើសទី ២: សំឡេងតួស្រី (Female Voice Library - ៣៨+ តួ)">
-                            {characters
+                          <optgroup label="🌸 ជម្រើសទី ២: បណ្ណាល័យសំឡេងតួស្រី (Female Voice Library)">
+                            {activeCharacters
                               .filter((c) => c.gender === 'female')
                               .map((c) => {
                                 const owner = voiceOwnerMap[c.filename] || voiceOwnerMap[c.id];
@@ -438,9 +440,9 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                         </>
                       ) : (
                         <>
-                          <optgroup label="🎙️ ជម្រើសទី ២: សំឡេងតួប្រុស (Male Voice Library - ៣៨+ តួ)">
-                            {characters
-                              .filter((c) => c.gender === 'male')
+                          <optgroup label="🎙️ ជម្រើសទី ២: បណ្ណាល័យសំឡេងតួប្រុស (Male Voice Library)">
+                            {activeCharacters
+                              .filter((c) => c.gender !== 'female')
                               .map((c) => {
                                 const owner = voiceOwnerMap[c.filename] || voiceOwnerMap[c.id];
                                 const isOwnedByOther = owner && owner !== char.name;

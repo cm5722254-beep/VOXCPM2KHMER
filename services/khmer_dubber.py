@@ -10,10 +10,23 @@ import edge_tts
 from services import audio_processor
 from services.elevenlabs_service import elevenlabs_service
 
-def clean_pure_khmer(text: str) -> str:
-    """Filter out all Thai unicode (\u0E00-\u0E7F), Chinese unicode (\u4E00-\u9FFF), Japanese/Korean, and ensure 100% pure authentic Khmer."""
+def strip_dubbing_tags(text: str) -> str:
+    """Strip [M], [F], [M_THINK], [F_THINK], [THINK] tags so speech synthesis only speaks pure words."""
     if not text:
         return ""
+    return re.sub(r'^\s*\[(M|F|M_THINK|F_THINK|THINK)\]\s*', '', text, flags=re.IGNORECASE).strip()
+
+def clean_pure_khmer(text: str, keep_tags: bool = True) -> str:
+    """Filter out all Thai unicode (\u0E00-\u0E7F), Chinese unicode (\u4E00-\u9FFF), Japanese/Korean, and preserve authentic Khmer. Preserves dubbing tags if keep_tags=True."""
+    if not text:
+        return ""
+    tag_prefix = ""
+    tag_match = re.match(r'^\s*(\[(?:M|F|M_THINK|F_THINK|THINK)\])\s*', text, flags=re.IGNORECASE)
+    if tag_match:
+        if keep_tags:
+            tag_prefix = tag_match.group(1).upper() + " "
+        text = text[tag_match.end():]
+
     # 1. Remove all Thai unicode characters completely (\u0E00-\u0E7F)
     cleaned = re.sub(r'[\u0E00-\u0E7F]+', '', text)
     # 2. Remove all Chinese unicode characters completely (\u4E00-\u9FFF)
@@ -22,39 +35,118 @@ def clean_pure_khmer(text: str) -> str:
     cleaned = re.sub(r'[\u3040-\u30FF\u31F0-\u31FF\uAC00-\uD7AF]+', '', cleaned)
     # 4. Clean multiple spaces and trim
     cleaned = re.sub(r'\s+', ' ', cleaned).strip()
-    return cleaned
+    return (tag_prefix + cleaned).strip()
 
 def detect_speaker_gender(speaker_name: str = '', speaker_role: str = '', chinese_text: str = '', raw_gender: str = None) -> str:
     """Accurately classify character gender without any gender confusion or crossover (ស្រី ឬ ប្រុស ដាច់ដោយឡែក)."""
-    # Priority 1: Raw gender from AI if explicitly provided
+    # Priority 1: Direct examination of speaker_role and speaker_name (highest authority)
+    name_role = f"{speaker_name} {speaker_role}".lower()
+
+    male_name_tokens = ['ប្រុស', 'ក្មេងប្រុស', 'តួប្រុស', 'តួឯកប្រុស', 'លោក', 'ពូ', 'ឪពុក', 'បង', 'តា', 'អ៊ំប្រុស', 'មេទ័ព', 'សិស្សច្បង', 'ប្អូនប្រុស', 'male', 'boy', 'man', 'father', 'uncle', 'hero', 'brother', 'son']
+    female_name_tokens = ['ស្រី', 'ក្មេងស្រី', 'តួស្រី', 'តួឯកស្រី', 'នាង', 'ម៉ាក់', 'យាយ', 'អ៊ំស្រី', 'អ្នកនាង', 'ប្អូនស្រី', 'ម្តាយ', 'female', 'girl', 'woman', 'mother', 'sister', 'lady', 'maid', 'queen', 'princess', 'daughter']
+
+    has_male_name = any(m in name_role for m in male_name_tokens)
+    has_female_name = any(f in name_role for f in female_name_tokens)
+
+    if has_male_name and not has_female_name:
+        return 'male'
+    if has_female_name and not has_male_name:
+        return 'female'
+
+    # Priority 2: Raw gender from AI if explicitly provided
     if raw_gender and str(raw_gender).lower() in ['female', 'fem', 'f', 'ស្រី', 'woman', 'girl']:
         return 'female'
     if raw_gender and str(raw_gender).lower() in ['male', 'm', 'ប្រុស', 'man', 'boy']:
         return 'male'
 
-    text_to_check = f"{speaker_name} {speaker_role} {chinese_text}".lower()
-
-    # Female indicators (មាតិកាស្រី) - MUST CHECK FIRST to avoid false male detection
-    female_khmer = ['ស្រី', 'នាង', 'ម៉ាក់', 'យាយ', 'អ៊ំស្រី', 'ប្អូនស្រី', 'អ្នកនាង', 'ភរិយា', 'ម្ចាស់ក្សត្រី', 'តួស្រី', 'ក្មេងស្រី', 'កូនស្រី', 'អ្នកបម្រើស្រី', 'ស្រីកាច', 'ម៉ែ', 'មេម៉ាយ', 'ក្រមុំ', 'កូនស្រីតូច', 'នារី']
-    female_roles = ['female', 'woman', 'girl', 'lady', 'maid', 'queen', 'princess', 'sister', 'mother', 'servant_female', 'fierce_female', 'villain_female', 'old_woman', 'bride', 'teacher_female', 'wife']
-    female_chinese = ['小姐', '姑娘', '夫人', '公主', '王妃', '母', '姐', '妹', '女', '她', '丫鬟', '婆', '太太', '新娘', '媽', '妃']
-
-    # Check female indicators FIRST (higher priority)
-    for kw in female_khmer + female_roles + female_chinese:
-        if kw in text_to_check:
+    # Priority 3: Fallback check on full tokens
+    female_chinese = ['小姐', '姑娘', '夫人', '公主', '王妃', '母', '姐', '妹', '女', '丫鬟', '婆', '太太', '新娘', '媽', '妃']
+    for kw in female_chinese:
+        if kw in name_role:
             return 'female'
 
-    # Male indicators (មាតិកាប្រុស)
-    male_khmer = ['ប្រុស', 'លោក', 'បង', 'ឪពុក', 'តា', 'អ៊ំប្រុស', 'មេទ័ព', 'ប្អូនប្រុស', 'ស្វាមី', 'កូនចៅ', 'ព្រះអង្គ', 'ចៅហ្វាយ', 'តួប្រុស', 'ប្រុសកាច', 'ព្រឹទ្ធាចារ្យ', 'ឪពុកពោះម៉ាយ', 'កូនប្រុស', 'តួឯកប្រុស', 'ភ្នាក់ងារ']
-    male_roles = ['male', 'man', 'boy', 'general', 'governor', 'elder', 'uncle', 'king', 'prince', 'brother', 'father', 'fierce_male', 'old_uncle', 'president', 'mediator', 'staff', 'soldier', 'warrior', 'hero']
-    male_chinese = ['先生', '公子', '少爷', '王爷', '将领', '父', '兄', '弟', '男', '他', '大夫', '宗主', '掌门', '师傅', '老爷', '哥', '侠', '爹']
-
-    for kw in male_khmer + male_roles + male_chinese:
-        if kw in text_to_check:
+    male_chinese = ['先生', '公子', '少爷', '王爷', '将领', '父', '兄', '弟', '男', '大夫', '宗主', '掌门', '师傅', '老爷', '哥', '侠', '爹']
+    for kw in male_chinese:
+        if kw in name_role:
             return 'male'
 
-    # Default: male (conservative default to prevent false female classification)
     return 'male'
+
+def classify_speaker_character_type(speaker_name: str = '', speaker_role: str = '', chinese_text: str = '', raw_gender: str = None) -> tuple:
+    """
+    Classify character into:
+    - gender: 'male' or 'female'
+    - role_type: 'child' (ក្មេង), 'elder' (ចាស់), 'female_lead' (ស្រីឯក), 'male_lead' (ប្រុសឯក), 'supporting' (តួបន្ទាប់បន្សំ)
+    """
+    text = f"{speaker_name} {speaker_role} {chinese_text}".lower()
+    gender = detect_speaker_gender(speaker_name, speaker_role, chinese_text, raw_gender)
+
+    # 1. Child check (ក្មេង)
+    child_kw = ['កូន', 'កុមារ', 'ក្មេង', 'កូនតូច', 'ចៅ', 'កុមារា', 'កុមារី', 'child', 'kid', 'boy', 'girl', 'baby', 'son', 'daughter', '孩', '童', '儿']
+    if any(k in text for k in child_kw):
+        return (gender, 'child')
+
+    # 2. Elder check (ចាស់ / ព្រឹទ្ធាចារ្យ)
+    elder_kw = ['តា', 'យាយ', 'ព្រឹទ្ធាចារ្យ', 'ចាស់', 'អ៊ំ', 'មេភូមិ', 'elder', 'old', 'grandpa', 'grandma', 'grandfather', 'grandmother', 'master', '爷', '婆', '老', '祖']
+    if any(k in text for k in elder_kw):
+        return (gender, 'elder')
+
+    # 3. Lead checks (តួឯក)
+    if any(k in text for k in ['lead', 'ឯក', 'main', 'hero', '主角', '男主', '女主', 'តួឯក']):
+        return (gender, 'female_lead' if gender == 'female' else 'male_lead')
+
+    # 4. Supporting / Secondary checks (តួបន្ទាប់បន្សំ / កាច / កំប្លែង / បម្រើ)
+    return (gender, 'supporting')
+
+def get_canonical_speaker_key(seg: dict) -> str:
+    """
+    Unify and lock character identification across the entire film:
+    Guarantees 1 Character = 1 Canonical Identity (គ្មានការផ្លាស់ប្តូរសំឡេងពាក់កណ្តាលរឿង).
+    """
+    sname = (seg.get('speaker_name') or '').strip().lower()
+    srole = (seg.get('speaker_role') or '').strip().lower()
+    sid = (seg.get('speaker_id') or '').strip().lower()
+
+    # 1. Child check (ក្មេងប្រុស / ក្មេងស្រី / កូនតូច / 糯糯 / 孩)
+    if any(k in sname for k in ['ក្មេងប្រុស', 'កុមារា', 'កូនប្រុសតូច', 'boy', 'kid_boy']) or (('child' in srole or 'kid' in srole) and 'female' not in srole and 'ស្រី' not in sname):
+        return 'char_child_male'
+    if any(k in sname for k in ['ក្មេងស្រី', 'កុមារី', 'កូនស្រីតូច', 'girl', 'kid_girl', '糯糯']) or (('child' in srole or 'kid' in srole) and ('female' in srole or 'ស្រី' in sname)):
+        return 'char_child_female'
+
+    # 2. Main Lead Male (តួឯកប្រុស / ប្រុសឯក / ពូប្រាំ / 五叔 / 男主 / hero)
+    if any(k in sname for k in ['តួឯកប្រុស', 'ប្រុសឯក', 'ពូប្រាំ', '五叔', '男主', 'hero']) or srole == 'male_lead':
+        return 'char_male_lead'
+
+    # 3. Main Lead Female (តួឯកស្រី / ស្រីឯក / 女主 / heroine)
+    if any(k in sname for k in ['តួឯកស្រី', 'ស្រីឯក', '女主', 'heroine']) or srole == 'female_lead':
+        return 'char_female_lead'
+
+    # 4. Senior Brother / Disciple (សិស្សច្បង / បងធំ / 大师兄 / senior)
+    if any(k in sname for k in ['សិស្សច្បង', 'បងធំ', '大师兄', 'senior']):
+        return 'char_senior_brother'
+
+    # 5. Junior Sister / Disciple (សិស្សប្អូន / 小师妹 / junior_female)
+    if any(k in sname for k in ['សិស្សប្អូន', 'ប្អូនស្រី', '小师妹']):
+        return 'char_junior_sister'
+
+    # 6. Fierce Male / Demon / Antagonist (តួប្រុសកាច / ពួកមា / 魔修 / villain)
+    if any(k in sname for k in ['កាច', 'មា', 'មេទ័ព', '魔修', 'villain', 'fierce']):
+        return 'char_fierce_male'
+
+    # 7. Elder Master (ព្រឹទ្ធាចារ្យ / តា / លោកគ្រូ / master / elder)
+    if any(k in sname for k in ['ព្រឹទ្ធាចារ្យ', 'ចាស់', 'លោកតា', 'តា', 'លោកគ្រូ', '师傅', '师父', 'master', 'elder']):
+        return 'char_elder_master'
+
+    # 8. Supporting Female / Maid
+    if any(k in sname for k in ['អ្នកបម្រើ', 'យាយ', 'ស្រីកាច', 'old_woman', 'maid']):
+        return 'char_supporting_female'
+
+    # Clean alphanumeric / Khmer name
+    clean_name = re.sub(r'[^a-zA-Z0-9_\u1780-\u17FF]', '', sname)
+    if clean_name and not clean_name.startswith('speaker') and len(clean_name) > 1:
+        return f"char_{clean_name}"
+
+    return sid or 'char_default'
 
 ROLE_THEATRICAL_PROFILES = {
     'male_lead': {'voice': 'km-KH-PisethNeural', 'pitch': '+0Hz', 'rate': '+0%'},
@@ -79,7 +171,7 @@ class KhmerDubber:
 
     async def synthesize_khmer_speech(self, khmer_text: str, output_path: str, voice_name: str = 'km-KH-PisethNeural', pitch: str = '+0Hz', rate: str = '+0%'):
         """Synthesize Khmer text directly via Python native edge-tts (100% pure authentic Khmer)."""
-        khmer_text = clean_pure_khmer(khmer_text)
+        khmer_text = clean_pure_khmer(strip_dubbing_tags(khmer_text), keep_tags=False)
         if not khmer_text or not any('\u1780' <= c <= '\u17FF' for c in khmer_text):
             khmer_text = "បាទ"
 
@@ -88,12 +180,13 @@ class KhmerDubber:
         await communicate.save(temp_mp3)
 
         if output_path.endswith('.wav'):
-            audio_processor.run_command(f'ffmpeg -nostdin -y -threads 2 -i "{temp_mp3}" -ar 44100 -ac 2 "{output_path}"')
             try:
+                audio_processor.run_command(f'ffmpeg -nostdin -y -threads 2 -i "{temp_mp3}" -ar 44100 -ac 2 "{output_path}"')
                 if os.path.exists(temp_mp3) and temp_mp3 != output_path:
                     os.remove(temp_mp3)
             except Exception:
-                pass
+                import shutil
+                shutil.copy2(temp_mp3, output_path)
         return output_path
 
     async def synthesize_with_voxcpm(self, text: str, output_path: str, reference_audio_path: str = None):
@@ -102,13 +195,13 @@ class KhmerDubber:
         if not voxcpm_url:
             raise ValueError('VOXCPM_API_URL not configured')
 
-        text = clean_pure_khmer(text)
+        text = clean_pure_khmer(strip_dubbing_tags(text), keep_tags=False)
         if not text:
             text = "បាទ"
 
         def _do_sync_post():
             files = {}
-            data = {'text': text}
+            data = {'text': text, 'timesteps': 12, 'cfg_value': 2.2}
             ref_file = None
             try:
                 if reference_audio_path and os.path.exists(reference_audio_path):
@@ -132,9 +225,14 @@ class KhmerDubber:
 
     async def synthesize_realistic_speech(self, text: str, output_path: str, voice_id: str = 'builtin-neural', reference_audio_path: str = None, options: dict = None):
         """Synthesize 100% pure authentic Cambodian Khmer speech with theatrical character acting delivery."""
-        text = clean_pure_khmer(text)
+        is_thought = bool(re.search(r'\[(?:M_THINK|F_THINK|THINK)\]', str(text), flags=re.IGNORECASE)) or bool(options and options.get('is_thought'))
+        text = clean_pure_khmer(strip_dubbing_tags(text), keep_tags=False)
         if not text or not any('\u1780' <= c <= '\u17FF' for c in text):
             text = "បាទ"
+
+        options = dict(options or {})
+        if is_thought:
+            options['is_thought'] = True
 
         options = options or {}
         gender = options.get('gender')
@@ -249,6 +347,23 @@ class KhmerDubber:
                 print(f"🎙️ Generating Zero-Shot Voice Clone via VoxCPM2 ({os.getenv('VOXCPM_API_URL')}) with ref: {ref_to_use or 'none'}... [Gender: {'female' if is_female else 'male'}, Emotion: {emotion}]")
                 await self.synthesize_with_voxcpm(text, output_path, ref_to_use if (ref_to_use and os.path.exists(ref_to_use)) else None)
                 if os.path.exists(output_path) and os.path.getsize(output_path) > 1000:
+                    # Apply dramatic acting acoustic enhancements matching the character's emotion
+                    if emotion in ['angry', 'fierce', 'shout']:
+                        tmp_em = f"{output_path}_em.wav"
+                        try:
+                            audio_processor.run_command(f'ffmpeg -nostdin -y -i "{output_path}" -af "volume=1.22,equalizer=f=2800:t=q:w=1:g=2" "{tmp_em}"')
+                            if os.path.exists(tmp_em) and os.path.getsize(tmp_em) > 1000:
+                                shutil.move(tmp_em, output_path)
+                        except Exception:
+                            pass
+                    elif emotion in ['sad', 'whisper', 'grief']:
+                        tmp_em = f"{output_path}_em.wav"
+                        try:
+                            audio_processor.run_command(f'ffmpeg -nostdin -y -i "{output_path}" -af "volume=0.88,lowpass=f=4500" "{tmp_em}"')
+                            if os.path.exists(tmp_em) and os.path.getsize(tmp_em) > 1000:
+                                shutil.move(tmp_em, output_path)
+                        except Exception:
+                            pass
                     print(f"✅ VoxCPM2 48kHz Voice Clone generated successfully: {output_path}")
                     return output_path
             except Exception as vox_err:
@@ -318,34 +433,36 @@ class KhmerDubber:
         character_voice_assignment = {}
         used_voices = set()
 
-        # Step 1: Normalize and lock character gender across ALL segments so no character ever flips gender
+        # Step 1: Normalize canonical identity and lock gender across ALL segments so no character ever flips gender
         speaker_gender_map = {}
         for s in segments:
-            sid = s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
-            sname = s.get('speaker_name') or sid
+            ckey = get_canonical_speaker_key(s)
+            s['canonical_id'] = ckey
+            sname = s.get('speaker_name') or ckey
             srole = s.get('speaker_role') or ''
             ctext = s.get('chinese_text') or ''
             raw_gen = s.get('gender')
             det = detect_speaker_gender(sname, srole, ctext, raw_gen)
-            if sid not in speaker_gender_map or det == 'female':
-                speaker_gender_map[sid] = det
+            if ckey not in speaker_gender_map or det == 'female':
+                speaker_gender_map[ckey] = det
 
-        # Apply locked gender to all segments
+        # Apply locked gender and canonical_id to all segments
         for s in segments:
-            sid = s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
-            s['gender'] = speaker_gender_map.get(sid, 'male')
+            ckey = s.get('canonical_id') or get_canonical_speaker_key(s)
+            s['canonical_id'] = ckey
+            s['gender'] = speaker_gender_map.get(ckey, 'male')
 
-        # Step 2: Build unique speakers list
+        # Step 2: Build unique speakers list based strictly on canonical_id
         unique_speakers = []
         seen_sids = set()
         for s in segments:
-            sid = s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
-            if sid not in seen_sids:
-                seen_sids.add(sid)
-                gen = speaker_gender_map.get(sid, 'male')
+            ckey = s['canonical_id']
+            if ckey not in seen_sids:
+                seen_sids.add(ckey)
+                gen = speaker_gender_map.get(ckey, 'male')
                 unique_speakers.append({
-                    'id': sid,
-                    'name': s.get('speaker_name') or sid,
+                    'id': ckey,
+                    'name': s.get('speaker_name') or ckey,
                     'role': s.get('speaker_role') or ('female_lead' if gen == 'female' else 'male_lead'),
                     'gender': gen
                 })
@@ -483,19 +600,63 @@ class KhmerDubber:
                         used_voices.add(fn)
                         break
 
-                # If pool exhausted, recycle WITHIN SAME GENDER with pitch shift (NEVER cross to other gender!)
-                if not chosen_char and gender_pool:
-                    same_gender_count = len([x for x in character_voice_assignment.values() if x.get('gender') == sp['gender']])
-                    base_cand = gender_pool[same_gender_count % len(gender_pool)]
-                    fn = base_cand.get('filename')
-                    character_voice_assignment[sid] = {
-                        'voiceId': f"voxcpm:{fn}",
-                        'filename': fn,
-                        'audioPath': os.path.join(samples_dir, fn),
-                        'label': f"{base_cand.get('label', fn)} (#{same_gender_count + 1})",
-                        'role_key': base_cand.get('role_key', sp['role']),
-                        'gender': sp['gender']
-                    }
+                # If library pool is exhausted for this gender:
+                # 🎯 USER REQUIREMENT: 1 character = 1 voice strictly. If exhausted, CLONE directly from the movie dialogue!
+                if not chosen_char:
+                    movie_sample = movie_voice_map.get(sid) or movie_voice_map.get(sp['name'])
+                    if movie_sample and os.path.exists(movie_sample) and movie_sample not in used_voices:
+                        fn = os.path.basename(movie_sample)
+                        character_voice_assignment[sid] = {
+                            'voiceId': f"movie_clone:{sid}",
+                            'filename': fn,
+                            'audioPath': movie_sample,
+                            'label': f"🎯 Clone សំឡេងផ្ទាល់ពីរឿង ({sp['name']})",
+                            'role_key': sp['role'],
+                            'gender': sp['gender'],
+                            'is_movie_clone': True
+                        }
+                        used_voices.add(movie_sample)
+                        continue
+
+                    # Distinctive acoustic profile for Child, Elder, or Supporting roles
+                    if sp['role'] == 'child':
+                        character_voice_assignment[sid] = {
+                            'voiceId': 'km-KH-SreymomNeural' if is_fem else 'km-KH-PisethNeural',
+                            'filename': 'child_theatrical',
+                            'audioPath': None,
+                            'label': f"🧒 សំឡេងកុមារ ({sp['name']})",
+                            'role_key': 'child',
+                            'gender': sp['gender'],
+                            'pitch': '+24Hz',
+                            'rate': '+10%',
+                            'is_natural': True
+                        }
+                    elif sp['role'] == 'elder':
+                        character_voice_assignment[sid] = {
+                            'voiceId': 'km-KH-SreymomNeural' if is_fem else 'km-KH-PisethNeural',
+                            'filename': 'elder_theatrical',
+                            'audioPath': None,
+                            'label': f"👴 សំឡេងចាស់/ព្រឹទ្ធាចារ្យ ({sp['name']})",
+                            'role_key': 'elder',
+                            'gender': sp['gender'],
+                            'pitch': '-16Hz',
+                            'rate': '-12%',
+                            'is_natural': True
+                        }
+                    else:
+                        same_gender_count = len([x for x in character_voice_assignment.values() if x.get('gender') == sp['gender']])
+                        base_cand = gender_pool[same_gender_count % len(gender_pool)] if gender_pool else None
+                        fn = base_cand.get('filename') if base_cand else ('vp_character_1_female.mp3' if is_fem else 'vp_character_2_male.mp3')
+                        p_offset = -12 + (same_gender_count * 5) % 24
+                        character_voice_assignment[sid] = {
+                            'voiceId': f"voxcpm:{fn}",
+                            'filename': fn,
+                            'audioPath': os.path.join(samples_dir, fn) if os.path.exists(os.path.join(samples_dir, fn)) else None,
+                            'label': f"{sp['name']} (សំឡេងដាច់ដោយឡែក #{same_gender_count + 1})",
+                            'role_key': sp['role'],
+                            'gender': sp['gender'],
+                            'pitch': f"{p_offset:+d}Hz"
+                        }
                     continue
 
                 if chosen_char:
@@ -511,8 +672,11 @@ class KhmerDubber:
 
         # Step 4: Lock each character's assigned voice to EVERY segment of that character from start to finish
         for s in segments:
-            sid = s.get('speaker_id') or s.get('speaker_name') or 'speaker_1'
-            assigned = character_voice_assignment.get(sid, {})
+            ckey = s.get('canonical_id') or get_canonical_speaker_key(s)
+            s['canonical_id'] = ckey
+            sid = s.get('speaker_id') or ckey
+            sname = s.get('speaker_name') or ckey
+            assigned = character_voice_assignment.get(ckey) or character_voice_assignment.get(sid) or character_voice_assignment.get(sname) or {}
             if assigned:
                 s['voiceId'] = assigned.get('voiceId')
                 s['voiceFilename'] = assigned.get('filename')
@@ -521,6 +685,10 @@ class KhmerDubber:
                 s['gender'] = assigned.get('gender', s.get('gender'))
                 if assigned.get('is_movie_clone') and assigned.get('audioPath'):
                     s['movieVoiceSample'] = assigned.get('audioPath')
+                # Sync aliases so all lookups return the identical voice
+                character_voice_assignment[ckey] = assigned
+                character_voice_assignment[sid] = assigned
+                if sname: character_voice_assignment[sname] = assigned
 
         return character_voice_assignment
 
@@ -548,9 +716,9 @@ class KhmerDubber:
         if not api_key:
             return []
 
-        active_choice = preferred_model or os.getenv('GEMINI_MODEL', 'gemini-3.5-flash')
+        active_choice = preferred_model or os.getenv('GEMINI_MODEL', 'gemini-3.5-flash-lite')
         candidate_models = [active_choice]
-        for m in ['gemini-3.5-flash', 'gemini-3.1-flash-lite', 'gemini-3.7-flash', 'gemini-flash-latest']:
+        for m in ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.1-flash-lite']:
             if m not in candidate_models:
                 candidate_models.append(m)
 
@@ -558,39 +726,24 @@ class KhmerDubber:
             base64_audio = base64.b64encode(f.read()).decode('utf-8')
 
         prompt = (
-            "You are a legendary movie dubbing director and audio engineer specialized in Cambodian theatrical movie dubbing (រឿងភាគចិនបុរាណនិយាយខ្មែរ / ភាពយន្តចិន).\n"
-            "Carefully listen to this video audio clip. Even when background music, battle sounds, orchestra, or sound effects are playing, accurately extract all spoken dialogue lines, character speeches, and singing lyrics.\n\n"
-            "CRITICAL LANGUAGE AND SCRIPT RULES:\n"
-            "- 100% PURE AUTHENTIC CAMBODIAN KHMER SCRIPT ONLY (ភាសាខ្មែរ / អក្សរខ្មែរ ១០០%).\n"
-            "- ABSOLUTELY FORBIDDEN: NEVER include any Thai characters, Thai script, Thai words, Vietnamese, or Chinese characters in 'khmer_translation'.\n"
-            "- Every single translated line MUST use strictly valid Khmer letters (ក-អ, ា-ៅ, ្, ៗ, ៕).\n"
-            "- All lines must be translated into authentic, natural Cambodian theatrical dubbing Khmer (ភាសាកុនបុរាណនិយាយខ្មែរ).\n\n"
-            "Instructions:\n"
-            "1. Speech Recognition (ASR): Transcribe each spoken Chinese line.\n"
-            "2. Speaker Diarization & Age/Gender Recognition (ស្កេនចាប់សំឡេង ស្រី, ប្រុស, ក្មេង, ចាស់):\n"
-            "   Carefully analyze acoustic pitch, vocal maturity, and dialogue context to classify 'gender' and 'speaker_role' into one of:\n"
-            "   - 'child': កុមារ / សំឡេងក្មេងប្រុសស្រី\n"
-            "   - 'male_lead': តួឯកប្រុសពេញវ័យ\n"
-            "   - 'female_lead': តួឯកស្រីពេញវ័យ\n"
-            "   - 'servant_female': អ្នកបម្រើស្រី / យុវតី\n"
-            "   - 'fierce_male': តួប្រុសកាច\n"
-            "   - 'fierce_female': តួស្រីកាច\n"
-            "   - 'general': មេទ័ព / មន្ត្រីយោធា\n"
-            "   - 'villager': អ្នកភូមិ\n"
-            "   - 'governor': ចៅហ្វាយខេត្ត / មន្ត្រីធំ\n"
-            "   - 'old_uncle': តួអ៊ំចាស់ / តា\n"
-            "   - 'elder': ព្រឹទ្ធាចារ្យ / តាគ្រូចាស់\n"
-            "   - 'old_woman': យាយចាស់ / ម្តាយចាស់\n"
-            "   - 'crowd': មហាជន\n"
-            "3. Theatrical Khmer Dubbing & SYLLABLE SYNC (បកប្រែឱ្យស៊ីនឹងមាត់តួ និងអក្សរចិនដើម):\n"
-            "   - Translate each line into authentic, highly dramatic, poetic, and cinematic Khmer matching Cambodian movie dubbing style.\n"
-            "   - CRITICAL LIP-SYNC & PACING RULE: The Khmer translated dialogue MUST match the exact length, tempo, and syllable rhythm of the original Chinese spoken line so the dubbed audio fits perfectly within the original speech duration (មិនឱ្យវែងពេក ឬខ្លីពេក គឺត្រូវនឹងចលនាមាត់ និងអក្សរចិនដើម ១០០%).\n"
-            "   - Infuse passionate emotion, dramatic interjections ('ឱ!', 'ឯង!', 'ឈប់ភ្លាម!', 'ហ៊ឺ...', 'ហេតុអ្វី?', 'ព្រះអើយ!', 'មិនអាចទេ!'), and acting punctuation (!, ?, ..., ~).\n"
-            "4. EXACT MILLISECOND TIMESTAMPS (ម៉ោងចាប់ផ្តើម និងបញ្ចប់ឱ្យស៊ីគ្នា ១០០% នឹងអក្សរចិនដើម):\n"
-            "   - 'start_time': The precise millisecond the character starts speaking the Chinese words.\n"
-            "   - 'end_time': The precise millisecond the character stops speaking the Chinese words.\n"
-            "   - Accurate Timestamps: Relative start_time and end_time (in seconds, e.g. 1.25, 4.80).\n\n"
-            "Output format: Return a JSON array enclosed in ```json ... ``` code block:\n"
+            "អ្នកគឺជា អ្នកបកប្រែខ្សែភាពយន្តនិងរឿងភាគអាជីព (Expert Subtitler & Dubbing Translator)។\n"
+            "ភារកិច្ចចម្បងរបស់អ្នកគឺទាញយកសំឡេងសន្ទនាពីវីដេអូ/អូឌីយ៉ូនេះ ឬបកប្រែរាល់អត្ថបទមកជាភាសាខ្មែរឲ្យបានស្តង់ដារបំផុត ដោយផ្តោតសំខាន់លើ 'ភាសានិយាយ' ដែលរលូន ស៊ីអារម្មណ៍ និងត្រូវសំឡេងតួអង្គ ១០០%។\n\n"
+            "សូមអនុវត្តតាមច្បាប់ទាំង ៦ នេះយ៉ាងតឹងរ៉ឹងបំផុត៖\n"
+            "1. ភាសានិយាយធម្មជាតិ (Natural Spoken Language): ហាមដាច់ខាតការបកប្រែតាមបែបសរសេរស្ងួតៗ (Word-for-word)។ ត្រូវប្រើប្រាស់ពាក្យពេចន៍ដែលប្រជាជនខ្មែរនិយមនិយាយប្រចាំថ្ងៃ។ សូមប្រើកន្ទុយពាក្យបញ្ជាក់អារម្មណ៍ (ឧទាហរណ៍៖ ណា, ណ៎, ហ្មង, តើ, អញ្ចឹង, វើយ, ហាស, ចា៎, ចុះ) ឲ្យសក្ដិសមនឹងបរិបទសន្ទនា។\n"
+            "2. ត្រូវសំឡេងតួអង្គនិយាយ (Match the actor's voice): ត្រូវប្រើសព្វនាមហៅគ្នា (បង/អូន, ឯង/អញ, ខ្ញុំ/លោក, ពួកម៉ាក, សម្លាញ់, អា...) ឲ្យត្រូវនឹងអាយុ ឋានៈ និងទំនាក់ទំនងរបស់តួអង្គ។ ត្រូវរក្សាតួអង្គជាប់ជានិច្ច (១ តួអង្គ ១ សំឡេង ហាមប្រើសំឡេងច្រើនក្នុងមួយតួអង្គ)។\n"
+            "3. បញ្ចេញមនោសញ្ចេតនា (Emotional Depth): អានការបកប្រែរួច ត្រូវតែមានអារម្មណ៍ (ខឹង, សើច, យំ, ផ្អែមល្ហែម, ចំអក, ភ័យស្លន់ស្លោ) ដូចទៅនឹងអត្ថបទដើម។ បើអត្ថបទដើមមានន័យបង្កប់ ឬការលេងពាក្យ ត្រូវបត់បែនពាក្យខ្មែរឲ្យចេញន័យនោះដោយរលូន។\n"
+            "4. ភាពច្បាស់លាស់សម្រាប់ការដាក់អក្សររត់ (Subtitle): ប្រយោគមិនត្រូវវែងអន្លាយពេកទេ ត្រូវតែកាត់សាច់យកខ្លឹម ដើម្បីឲ្យស៊ីគ្នានឹងល្បឿននៃការនិយាយ និងត្រូវមាត់ ត្រូវឃ្លា។\n"
+            "5. [AUDIO TYPES & TAGS] (រាល់ឃ្លាត្រូវចាប់ផ្ដើមដោយស្លាកមួយក្នុងចំណោមនេះ):\n"
+            "   A. Male Dialogue: [M]\n"
+            "   B. Female Dialogue: [F]\n"
+            "   C. Male Thought: [M_THINK]\n"
+            "   D. Female Thought: [F_THINK]\n"
+            "   ឧទាហរណ៍:\n"
+            "   [M] ឯងហ៊ានក្បត់អញ!\n"
+            "   [F] ថ្ងៃនេះឯងត្រូវតែស្លាប់!\n"
+            "   [M_THINK] ឯងត្រូវតែស្លាប់ទៅ\n"
+            "6. ភាសាខ្មែរសុទ្ធ ១០០% ហាមអក្សរថៃ អក្សរចិន ក្នុង khmer_translation។\n\n"
+            "Output format: Return JSON array enclosed in ```json ... ``` code block:\n"
             "```json\n"
             "[\n"
             "  {\n"
@@ -600,9 +753,10 @@ class KhmerDubber:
             "    \"gender\": \"male\",\n"
             "    \"start_time\": 1.25,\n"
             "    \"end_time\": 4.10,\n"
-            "    \"chinese_text\": \"Original Chinese line\",\n"
-            "    \"khmer_translation\": \"Authentic theatrical Khmer dialogue (100% PURE KHMER, NO THAI, EXACT DURATION FIT)\",\n"
-            "    \"emotion\": \"heroic\"\n"
+            "    \"chinese_text\": \"Original line\",\n"
+            "    \"khmer_translation\": \"[M] ឯងហ៊ានក្បត់អញអញ្ចឹងហ្អេស!\",\n"
+            "    \"audio_tag\": \"[M]\",\n"
+            "    \"emotion\": \"angry\"\n"
             "  }\n"
             "]\n"
             "```"
@@ -676,18 +830,17 @@ class KhmerDubber:
                         khmer = clean_pure_khmer(raw_khmer)
                         chinese = (seg.get('chinese_text') or seg.get('chinese') or '').strip()
 
-                        # Guarantee 100% genuine Khmer text exists
+                        # Guarantee 100% genuine Khmer text from the real spoken dialogue
                         if not khmer or not any('\u1780' <= c <= '\u17FF' for c in khmer):
-                            role_fallback = {
-                                'female_lead': 'ហេតុអ្វីអ្នកធ្វើបែបនេះ?',
-                                'male_lead': 'ឈប់ភ្លាម! ឯងជាអ្នកណា?',
-                                'servant_female': 'ចាសលោកម្ចាស់!',
-                                'fierce_female': 'ឯងកុំព្រហើនពេក!',
-                                'fierce_male': 'ឯងគ្មានផ្លូវរត់រួចទេ!',
-                                'general': 'កងទ័ពទាំងអស់ ត្រៀមខ្លួន!',
-                                'elder': 'សូមចិត្តត្រជាក់សិនទៅកូន...'
-                            }
-                            khmer = role_fallback.get(seg.get('speaker_role'), 'តើមានរឿងអ្វីកើតឡើង?')
+                            if chinese:
+                                try:
+                                    t_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={api_key}"
+                                    t_resp = requests.post(t_url, json={"contents": [{"parts": [{"text": f"Translate this dialogue line to natural Cambodian Khmer: {chinese}"}]}]}, timeout=12)
+                                    if t_resp.status_code == 200:
+                                        t_raw = t_resp.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
+                                        khmer = clean_pure_khmer(t_raw)
+                                except Exception:
+                                    pass
 
                         s_name = seg.get('speaker_name') or ''
                         s_role = seg.get('speaker_role') or ''
@@ -696,6 +849,11 @@ class KhmerDubber:
                             s_name = 'តួស្រី' if s_gen == 'female' else 'តួប្រុស'
                         if not s_role:
                             s_role = 'female_lead' if s_gen == 'female' else 'male_lead'
+
+                        # Ensure valid tag [M], [F], [M_THINK], [F_THINK]
+                        if not re.match(r'^\s*\[(?:M|F|M_THINK|F_THINK|THINK)\]', khmer, re.IGNORECASE):
+                            default_tag = '[F]' if s_gen == 'female' else '[M]'
+                            khmer = f"{default_tag} {khmer}".strip()
 
                         result.append({
                             'speaker_id': seg.get('speaker_id') or f"speaker_{idx + 1}",
@@ -734,8 +892,8 @@ class KhmerDubber:
             except Exception:
                 pass
 
-        chunk_size = 90.0
-        chunk_step = 85.0  # 5.0 seconds overlap between consecutive chunks to never cut sentences
+        chunk_size = 50.0
+        chunk_step = 47.0  # 3.0 seconds overlap between consecutive chunks to never cut sentences
         temp_dir = os.path.join(os.path.dirname(audio_path), f"chunks_py_{int(asyncio.get_event_loop().time() * 1000)}")
         os.makedirs(temp_dir, exist_ok=True)
         all_segments = []
@@ -838,31 +996,51 @@ class KhmerDubber:
         character_voice_map = {}
         speaker_groups = {}
         for seg in segments:
-            sid = seg.get('speaker_id')
-            if sid not in speaker_groups:
-                speaker_groups[sid] = []
-            speaker_groups[sid].push(seg) if hasattr(speaker_groups[sid], 'push') else speaker_groups[sid].append(seg)
+            ckey = get_canonical_speaker_key(seg)
+            seg['canonical_id'] = ckey
+            if ckey not in speaker_groups:
+                speaker_groups[ckey] = []
+            speaker_groups[ckey].append(seg)
 
         samples_dir = os.path.join(os.path.dirname(__file__), '..', 'samples')
         for speaker_id, lines in speaker_groups.items():
             first_line = lines[0]
             is_female = first_line.get('gender') == 'female'
-            default_ref = os.path.join(samples_dir, 'main_lead_female.mp3' if is_female else 'main_lead_male.mp3')
+            default_ref = os.path.join(samples_dir, 'hang_phleung_char_6_female.mp3' if is_female else 'hang_phleung_char_2_male.mp3')
+            if not os.path.exists(default_ref):
+                default_ref = os.path.join(samples_dir, 'main_lead_female.mp3' if is_female else 'main_lead_male.mp3')
 
-            best_line = next((l for l in lines if 2.5 <= (l.get('end_time', 0) - l.get('start_time', 0)) <= 12.0), lines[0])
-            st = max(0.0, best_line.get('start_time', 0.0) - 0.2)
-            dur = min(10.0, max(3.0, best_line.get('end_time', 0.0) - best_line.get('start_time', 0.0) + 0.4))
+            # Select longest, clearest uninterrupted dialogue line for reference cloning
+            best_line = None
+            cand_lines = [l for l in lines if 3.0 <= (l.get('end_time', 0) - l.get('start_time', 0)) <= 9.0]
+            if cand_lines:
+                best_line = cand_lines[0]
+            else:
+                best_line = max(lines, key=lambda l: (l.get('end_time', 0) - l.get('start_time', 0)))
+
+            st = max(0.0, best_line.get('start_time', 0.0) - 0.1)
+            raw_dur = max(2.5, best_line.get('end_time', 0.0) - best_line.get('start_time', 0.0) + 0.2)
+            dur = min(8.0, raw_dur)
             sample_path = os.path.join(output_dir, f"ref_voice_{speaker_id}.mp3")
 
             try:
-                audio_processor.run_command(f'ffmpeg -y -ss {st} -t {dur} -i "{audio_path}" -vn -ar 44100 -ac 2 -b:a 192k "{sample_path}"')
-                if os.path.exists(sample_path) and os.path.getsize(sample_path) > 5000:
+                audio_processor.run_command(f'ffmpeg -nostdin -y -i "{audio_path}" -ss {st} -t {dur} -vn -ar 44100 -ac 2 -b:a 192k "{sample_path}"')
+                if os.path.exists(sample_path) and os.path.getsize(sample_path) > 1000:
                     character_voice_map[speaker_id] = sample_path
-                    print(f"Extracted real movie voice sample for {speaker_id}: {sample_path}")
+                    print(f"Extracted real movie voice sample for {speaker_id} ({first_line.get('speaker_name', '')}): {sample_path}")
                 else:
                     character_voice_map[speaker_id] = default_ref
             except Exception:
                 character_voice_map[speaker_id] = default_ref
+
+            # Also map any aliases / raw speaker_ids to this same reference sample
+            for l in lines:
+                raw_sid = l.get('speaker_id')
+                if raw_sid and raw_sid not in character_voice_map:
+                    character_voice_map[raw_sid] = character_voice_map[speaker_id]
+                raw_sname = l.get('speaker_name')
+                if raw_sname and raw_sname not in character_voice_map:
+                    character_voice_map[raw_sname] = character_voice_map[speaker_id]
 
         return character_voice_map
 
@@ -886,13 +1064,13 @@ class KhmerDubber:
                 next_seg = valid[i + 1]
                 gap = next_seg.get('start_time', 0.0) - seg.get('start_time', 0.0)
                 if gap > 0.6:
-                    max_allowed = min(max_allowed, gap - 0.15)
+                    max_allowed = min(max_allowed, gap - 0.20)
 
             # Precision mouth movement fitting: ensure Khmer audio syncs directly with original Chinese subtitle duration
             orig_slot = max(0.6, (seg.get('end_time', 0.0) - seg.get('start_time', 0.0)))
             if aud_dur > max_allowed and max_allowed >= 0.8:
                 speed_ratio = aud_dur / max_allowed
-                clamped_speed = min(1.45, max(1.05, speed_ratio))
+                clamped_speed = min(1.40, max(1.05, speed_ratio))
                 stretched_path = os.path.join(temp_dir, f"fitted_py_{i}.wav")
                 try:
                     audio_processor.tune_audio_pitch_and_speed(seg['audioPath'], stretched_path, clamped_speed, 0)
@@ -902,7 +1080,6 @@ class KhmerDubber:
                 except Exception as e:
                     print(f"Time stretch notice on line {i}: {e}")
             elif aud_dur < orig_slot * 0.75 and orig_slot >= 1.5:
-                # If Khmer audio finished too quickly, gently stretch tempo so it doesn't leave awkward silence
                 slow_ratio = aud_dur / orig_slot
                 clamped_speed = max(0.85, min(0.98, slow_ratio))
                 stretched_path = os.path.join(temp_dir, f"fitted_slow_py_{i}.wav")
@@ -914,12 +1091,14 @@ class KhmerDubber:
                 except Exception as e:
                     print(f"Gentle slow stretch notice on line {i}: {e}")
 
-            # Guarantee ZERO speech overlap
+            # 🎯 STRICT USER REQUIREMENT: ហាមប្រើសំឡេងជាន់គ្នា (ZERO OVERLAPPING GUARANTEE)
+            # Minimum natural conversational pause between consecutive lines (at least 0.22s)
             if i < len(valid) - 1:
                 next_seg = valid[i + 1]
                 cur_end = seg.get('start_time', 0.0) + seg['duration']
-                if cur_end > next_seg.get('start_time', 0.0):
-                    next_seg['start_time'] = cur_end + 0.12
+                min_next_start = cur_end + 0.22
+                if next_seg.get('start_time', 0.0) < min_next_start:
+                    next_seg['start_time'] = round(min_next_start, 2)
 
         batch_size = 15
         sub_tracks = []
@@ -970,62 +1149,50 @@ class KhmerDubber:
 
         video_duration = audio_processor.get_media_duration(video_path)
 
-        if on_progress: on_progress(15, f'AI Gemini ({gemini_model}) កំពុងវិភាគសាច់រឿង និងបកប្រែគ្រប់តួអង្គក្នុងវីដេអូ...')
-        dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model=gemini_model)
+        provided_segments = options.get('segments')
+        if provided_segments and len(provided_segments) > 0:
+            dialogue_segments = [dict(s) for s in provided_segments]
+            if on_progress: on_progress(25, f'✅ បានផ្ទុក {len(dialogue_segments)} ឃ្លាសន្ទនាពិតប្រាកដចេញពីសាច់រឿង...')
+        else:
+            if on_progress: on_progress(15, f'AI Gemini ({gemini_model}) កំពុងស្ដាប់ និងស្រង់ឃ្លាសន្ទនាពិតប្រាកដចេញពីវីដេអូ...')
+            dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model=gemini_model)
 
         if not dialogue_segments:
-            print("🎬 [Theatrical Fallback] No dialogue segments found via Gemini API (missing key, rate-limit, or video intro fanfare). Activating authentic theatrical cast script...")
-            if on_progress: on_progress(35, 'AI រកឃើញឈុតភ្លេងក្បាលរឿង — កំពុងរៀបចំ Theatrical Curated Cinema Dubbing ជូនដោយស្វ័យប្រវត្តិ...')
+            # Second pass: retry with verified ultra-fast gemini-3.5-flash-lite
+            print("Retrying dialogue timeline extraction with gemini-3.5-flash-lite...")
+            if on_progress: on_progress(25, 'AI កំពុងវិភាគស្វែងរកសម្លេងសន្ទនាជុំវិញឈុតសកម្មភាព (Second Pass)...')
+            dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model='gemini-3.5-flash-lite')
 
-            curated_path = os.path.join(os.path.dirname(__file__), '..', 'extracted_characters.json')
-            if os.path.exists(curated_path):
-                try:
-                    with open(curated_path, 'r', encoding='utf-8') as f:
-                        curated = json.load(f)
+        # 🎯 USER REQUIREMENT: លុបសំឡេងដើម ទុកតែភ្លេង (AI Vocal Separation)
+        if on_progress: on_progress(35, '⚡ AI កំពុងលុបសំឡេងចិនដើម (Vocal Removal) — រក្សាទុកតែភ្លេងកំដរ BGM & សំឡេងបែបផែន (SFX)...')
+        from services import vocal_separator
+        ai_bgm_cand = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_ai_bgm.wav")
+        dsp_bgm_cand = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_dsp_bgm.wav")
+        ai_vocals_cand = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_ai_vocals.wav")
+        dsp_vocals_cand = os.path.join(output_dir, f"{os.path.splitext(os.path.basename(extracted_audio_path))[0]}_dsp_vocals.wav")
 
-                    # Distribute across movie scene after opening intro (starting at 65s, or 3s if short video)
-                    start_t = 65.0 if video_duration > 90.0 else 3.0
-                    selected = curated[:10] if len(curated) >= 10 else curated
-                    for i, c in enumerate(selected):
-                        dialogue_segments.append({
-                            'speaker_id': f"speaker_{i + 1}",
-                            'speaker_name': re.sub(r'^[^\w\s\u1780-\u17FF]+', '', c.get('label', 'តួអង្គ')).strip(),
-                            'speaker_role': c.get('role_key', 'male_lead' if c.get('gender') == 'male' else 'female_lead'),
-                            'gender': c.get('gender', 'male'),
-                            'start_time': start_t,
-                            'end_time': start_t + 4.0,
-                            'chinese_text': c.get('words', ''),
-                            'khmer_translation': c.get('words', ''),
-                            'emotion': 'dramatic'
-                        })
-                        start_t += 5.5
-                except Exception as ce:
-                    print(f"Error loading curated cast: {ce}")
+        clean_bgm_path = extracted_audio_path
+        clean_vocals_path = None
+        if os.path.exists(ai_bgm_cand):
+            clean_bgm_path = ai_bgm_cand
+        elif os.path.exists(dsp_bgm_cand):
+            clean_bgm_path = dsp_bgm_cand
 
-            if not dialogue_segments:
-                # Emergency cinematic dialogues
-                emergency = [
-                    ('speaker_1', 'តួឯកប្រុស', 'male_lead', 'male', 'ឈប់ភ្លាម! ឯងជាអ្នកណា ហេតុអ្វីបានជាមកទីនេះ?'),
-                    ('speaker_2', 'តួឯកស្រី', 'female_lead', 'female', 'កុំបារម្ភអី... ខ្ញុំមកទីនេះដើម្បីជួយអ្នកទេ!'),
-                    ('speaker_1', 'តួឯកប្រុស', 'male_lead', 'male', 'ក្បាច់គុនរបស់ឯងពិតជាអស្ចារ្យមិនធម្មតាមែន!'),
-                    ('speaker_3', 'មេទ័ព', 'general', 'male', 'កងទ័ពទាំងអស់ ស្តាប់បញ្ជា ត្រៀមខ្លួនការពារបន្ទាយ!'),
-                    ('speaker_2', 'តួឯកស្រី', 'female_lead', 'female', 'រឿងនេះគ្រោះថ្នាក់ខ្លាំងណាស់ ពួកយើងត្រូវតែប្រយ័ត្ន!'),
-                    ('speaker_4', 'ព្រឹទ្ធាចារ្យ', 'elder', 'male', 'សូមចិត្តត្រជាក់សិនទៅកូន គ្រប់យ៉ាងសុទ្ធតែមានដំណោះស្រាយ...'),
-                ]
-                t = 60.0 if video_duration > 90.0 else 2.5
-                for sid, sname, srole, sgen, stext in emergency:
-                    dialogue_segments.append({
-                        'speaker_id': sid,
-                        'speaker_name': sname,
-                        'speaker_role': srole,
-                        'gender': sgen,
-                        'start_time': t,
-                        'end_time': t + 3.8,
-                        'chinese_text': stext,
-                        'khmer_translation': stext,
-                        'emotion': 'heroic'
-                    })
-                    t += 5.0
+        if os.path.exists(ai_vocals_cand):
+            clean_vocals_path = ai_vocals_cand
+        elif os.path.exists(dsp_vocals_cand):
+            clean_vocals_path = dsp_vocals_cand
+        else:
+            try:
+                sep_res = vocal_separator.separate_vocals_and_bgm(extracted_audio_path, output_dir, prefer_ai=True)
+                if sep_res.get('bgmPath') and os.path.exists(sep_res['bgmPath']):
+                    clean_bgm_path = sep_res['bgmPath']
+                if sep_res.get('vocalsPath') and os.path.exists(sep_res['vocalsPath']):
+                    clean_vocals_path = sep_res['vocalsPath']
+            except Exception as se:
+                print(f"BGM separation notice: {se}")
+
+        if on_progress: on_progress(42, '✅ បានបំបែកសំឡេងដើមចេញរួចរាល់ — រក្សាភ្លេងកំដរ BGM & SFX បានស្អាតល្អ ១០០%!')
 
         samples_dir = os.path.join(os.path.dirname(__file__), '..', 'samples')
         male_lead_opt = options.get('maleLeadVoice', 'hang_phleung_char_2_male.mp3')
@@ -1039,12 +1206,13 @@ class KhmerDubber:
         if not os.path.exists(female_lead):
             female_lead = os.path.join(samples_dir, 'main_lead_female.mp3')
 
-        if on_progress: on_progress(42, f'បានរកឃើញតួអង្គ និងរៀបចំឃ្លាសន្ទនាសរុប {len(dialogue_segments)} បន្ទាត់! កំពុងកាត់ និងស្រង់សំឡេងដើមគ្រប់តួពីរឿង...')
+        if on_progress: on_progress(45, f'កំពុងបែងចែកតួអង្គ (ប្រុស ស្រី ក្មេង ចាស់ តួបន្ទាប់បន្សំ) និងកាត់សំឡេងដើមគ្រប់តួពីរឿង...')
 
-        # Extract authentic movie character voice samples for every character
-        auto_voice_map = await self.extract_character_voice_samples(extracted_audio_path, dialogue_segments, output_dir)
+        # Extract authentic movie character voice samples for every character (using isolated vocals for crystal-clear cloning!)
+        source_audio_for_samples = clean_vocals_path if (clean_vocals_path and os.path.exists(clean_vocals_path)) else extracted_audio_path
+        auto_voice_map = await self.extract_character_voice_samples(source_audio_for_samples, dialogue_segments, output_dir)
 
-        if on_progress: on_progress(46, 'កំពុងចាត់តាំងសំឡេង 1:1 សម្រាប់គ្រប់តួអង្គ (Strictly Zero Duplicate Voices, Movie Clone Fallback)...')
+        if on_progress: on_progress(49, 'កំពុងចាត់តាំងសំឡេង 1:1 សម្រាប់គ្រប់តួអង្គ (Strictly Zero Duplicate Voices, Movie Clone Fallback)...')
 
         # 1-to-1 Unique Voice Assignment for every character (Guarantees zero voice collision across characters)
         unique_char_map = self.assign_unique_voices_to_segments(
@@ -1056,7 +1224,7 @@ class KhmerDubber:
             voice_mode=voice_id
         )
 
-        if on_progress: on_progress(50, 'កំពុង Clone សំឡេងតួអង្គនីមួយៗតាមសាច់រឿង (Zero-Shot 48kHz Voice Cloning)...')
+        if on_progress: on_progress(53, 'កំពុង Clone និងផលិតសំឡេងខ្មែរតាមសាច់រឿង (Zero-Shot 48kHz Voice Synthesis)...')
 
         total_lines = len(dialogue_segments)
         completed_lines = 0
@@ -1064,21 +1232,24 @@ class KhmerDubber:
 
         async def synth_line(i, seg):
             nonlocal completed_lines
-            char_name = seg.get('speaker_name') or seg.get('speaker_id')
-            sid = seg.get('speaker_id') or char_name
+            ckey = seg.get('canonical_id') or get_canonical_speaker_key(seg)
+            char_name = seg.get('speaker_name') or ckey
+            sid = seg.get('speaker_id') or ckey
             is_female = seg.get('gender') == 'female'
-            assigned_info = unique_char_map.get(sid) or unique_char_map.get(char_name) or {}
+            assigned_info = unique_char_map.get(ckey) or unique_char_map.get(sid) or unique_char_map.get(char_name) or {}
 
             ref_voice = reference_audio_path
             if not ref_voice:
                 if assigned_info and assigned_info.get('audioPath') and os.path.exists(assigned_info['audioPath']):
                     ref_voice = assigned_info['audioPath']
+                elif auto_voice_map.get(ckey) and os.path.exists(auto_voice_map[ckey]):
+                    ref_voice = auto_voice_map[ckey]
                 elif auto_voice_map.get(sid) and os.path.exists(auto_voice_map[sid]):
                     ref_voice = auto_voice_map[sid]
                 elif not assigned_info.get('is_natural'):
                     ref_voice = female_lead if is_female else male_lead
 
-            line_output_path = os.path.join(output_dir, f"line_{i}_{seg.get('speaker_id')}.wav")
+            line_output_path = os.path.join(output_dir, f"line_{i}_{ckey}.wav")
             seg_voice_id = assigned_info.get('voiceId') or voice_id
 
             async with synth_sem:
@@ -1110,28 +1281,39 @@ class KhmerDubber:
                     seg['audioPath'] = line_output_path
 
             completed_lines += 1
-            prog = 50 + round((completed_lines / max(1, total_lines)) * 32)
+            prog = 53 + round((completed_lines / max(1, total_lines)) * 32)
             if on_progress and (completed_lines % 2 == 0 or completed_lines == total_lines):
                 on_progress(prog, f'⚡ ផលិតសំឡេង Turbo 8x ({completed_lines}/{total_lines}): "{seg.get("khmer_translation", "")[:28]}..."')
 
         await asyncio.gather(*(synth_line(idx, s) for idx, s in enumerate(dialogue_segments)))
 
-        if on_progress: on_progress(85, 'កំពុងតម្រៀបសំឡេងតួអង្គទាំងអស់តាមបន្ទាត់ពេលវេលា (Timeline Alignment)...')
+        if on_progress: on_progress(86, '⏱️ កំពុងតម្រៀបសំឡេងតួអង្គទាំងអស់តាមបន្ទាត់ពេលវេលា (Timeline Alignment)...')
         ts = int(asyncio.get_event_loop().time() * 1000)
         master_dialogue_path = os.path.join(output_dir, f"dialogue_master_{ts}.wav")
         await self.assemble_timeline_audio(dialogue_segments, video_duration, master_dialogue_path)
 
-        if on_progress: on_progress(92, 'កំពុងកាត់សំឡេងចិនដើម និងលាយបញ្ចូលសំឡេងខ្មែរជាមួយភ្លេង BGM & Sound Effects (រក្សាភ្លេងកំដរធម្មតា)...')
+        if on_progress: on_progress(91, '🎛️ កំពុងលាយបញ្ចូលសំឡេងខ្មែរជាមួយភ្លេងកំដរ BGM & SFX គុណភាព Cinema Theatrical Mix (រក្សាភ្លេងកំដរ 100%)...')
         dubbed_audio_path = os.path.join(output_dir, f"dubbed_master_{ts}.mp3")
-        audio_processor.mix_vocals_with_original(extracted_audio_path, master_dialogue_path, dubbed_audio_path, 2.2, 0.85)
+        # 🎯 Route: clean AI stem -> mix_clean_bgm_with_khmer (pristine BGM, no vocal suppression)
+        #          raw audio  -> mix_vocals_with_original (applies center-channel vocal cancellation)
+        bgm_is_clean_stem = (
+            clean_bgm_path != extracted_audio_path and
+            ('_ai_bgm' in clean_bgm_path or '_dsp_bgm' in clean_bgm_path)
+        )
+        if bgm_is_clean_stem:
+            print(f"[Cinema Dub] Clean Demucs BGM stem detected — skipping vocal suppression DSP for pristine quality")
+            audio_processor.mix_clean_bgm_with_khmer(clean_bgm_path, master_dialogue_path, dubbed_audio_path, 2.2, 0.92)
+        else:
+            print(f"[Cinema Dub] Raw audio source — applying center-channel vocal suppression DSP")
+            audio_processor.mix_vocals_with_original(clean_bgm_path, master_dialogue_path, dubbed_audio_path, 2.2, 0.85)
 
-        if on_progress: on_progress(97, 'កំពុងបញ្ចូលសំឡេង Dubbing គ្រប់តួអង្គចូលក្នុងវីដេអូដើម (Final Video Remux)...')
+        if on_progress: on_progress(96, '🎬 កំពុងបញ្ចូលសំឡេង Dubbing គ្រប់តួអង្គចូលក្នុងវីដេអូដើម (Final Video Remux)...')
         video_ext = os.path.splitext(video_path)[1]
         output_video_filename = f"dubbed_khmer_{ts}{video_ext}"
         output_video_path = os.path.join(output_dir, output_video_filename)
         audio_processor.merge_video_audio(video_path, dubbed_audio_path, output_video_path)
 
-        if on_progress: on_progress(100, 'ដំណើរការ Dubbing គ្រប់តួអង្គចេញពីរឿងជោគជ័យ 100%!')
+        if on_progress: on_progress(100, '🎉 ដំណើរការ 1-Click AI Cinema Dubbing គ្រប់តួអង្គជោគជ័យ ១០០%!')
 
         khmer_script = "\n".join([f"{s.get('speaker_name') or s.get('speaker_id')}: {s.get('khmer_translation')}" for s in dialogue_segments])
         return {

@@ -89,6 +89,18 @@
       <!-- Video Player (Shows when video loaded) -->
       <div class="m-player-container" id="mPlayerCard" style="display:none;">
         <video id="mVideoPlayer" controls playsinline></video>
+        <!-- Mobile Zoom Floating Controls -->
+        <div class="m-video-zoom-bar" id="mVideoZoomBar">
+          <button type="button" class="m-zoom-btn" id="mBtnToggleFit" title="ពង្រីកពេញ/សមល្មម">
+            <span id="mFitIcon">⛶</span>
+            <span id="mFitLabel">លាតពេញ (Fill)</span>
+          </button>
+          <div class="m-zoom-divider"></div>
+          <button type="button" class="m-zoom-btn-icon" id="mBtnZoomOut" title="ពង្រួម">-</button>
+          <span class="m-zoom-level" id="mZoomText">100%</span>
+          <button type="button" class="m-zoom-btn-icon" id="mBtnZoomIn" title="ពង្រីក">+</button>
+          <button type="button" class="m-zoom-btn-icon" id="mBtnZoomReset" style="display:none;" title="Reset">↺</button>
+        </div>
       </div>
 
       <div class="m-file-meta-row" id="mVideoMetaRow" style="display:none;">

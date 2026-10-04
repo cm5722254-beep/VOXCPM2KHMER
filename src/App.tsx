@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Header } from './components/layout/Header';
 import { Sidebar } from './components/layout/Sidebar';
+import { MobileNavDock } from './components/layout/MobileNavDock';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { DubbingStudio } from './components/studio/DubbingStudio';
 import { CharacterLibrary } from './components/characters/CharacterLibrary';
@@ -9,17 +10,19 @@ import { AudioMixerConsole } from './components/mixer/AudioMixerConsole';
 import { SubtitleStudio } from './components/subtitles/SubtitleStudio';
 import { VoiceTunerLab } from './components/tuner/VoiceTunerLab';
 import { ThumbnailGenerator } from './components/thumbnail/ThumbnailGenerator';
+import { VideoCutterPage } from './components/cutter/VideoCutterPage';
 import { VideoDownloaderModal } from './components/downloader/VideoDownloaderModal';
 import { ToastContainer, ToastMessage } from './components/ui/Toast';
 import { WorkflowView } from './components/workflow/WorkflowView';
 import { VideoProjectManager } from './components/projects/VideoProjectManager';
+import { AutoDubbingChoiceModal, DubbingModeChoice } from './components/modals/AutoDubbingChoiceModal';
 
-import { AuthModal } from './components/modals/AuthModal';
 import { SettingsModal } from './components/modals/SettingsModal';
 import { ExportModal } from './components/modals/ExportModal';
 import { QuickVoxcpmModal } from './components/modals/QuickVoxcpmModal';
 import { AdminUsersModal } from './components/modals/AdminUsersModal';
 import { LicenseActivationModal } from './components/modals/LicenseActivationModal';
+import { LicenseGate } from './components/modals/LicenseGate';
 import { AddVoiceModal } from './components/modals/AddVoiceModal';
 import { EditVoiceModal } from './components/modals/EditVoiceModal';
 import { VoiceAuditionModal } from './components/modals/VoiceAuditionModal';
@@ -32,9 +35,15 @@ import { UserGuideModal } from './components/modals/UserGuideModal';
 import { VideoTrimmerModal } from './components/trimmer/VideoTrimmerModal';
 import { CommercialOverlayModal } from './components/overlay/CommercialOverlayModal';
 import { StudioCustomizerModal } from './components/customizer/StudioCustomizerModal';
-import { QuickThemeFloatingWidget } from './components/customizer/QuickThemeFloatingWidget';
+
 import { SoftwareUpdateModal } from './components/modals/SoftwareUpdateModal';
+import { SponsorModal } from './components/modals/SponsorModal';
 import { KhmerOfflineStudioPage } from './components/offline/KhmerOfflineStudioPage';
+import { PosterForgeStudio } from './components/posterforge/PosterForgeStudio';
+import { NarratorStudio } from './components/narrator/NarratorStudio';
+import { StudioProgressHUD } from './components/studio/StudioProgressHUD';
+import { CURATED_CHARACTER_VOICES } from './constants/characterVoices';
+import { getLicenseInfo } from './utils/subscription';
 
 import { api } from './services/api';
 import {
@@ -54,16 +63,10 @@ import {
   KhmerOfflineConfig,
   StudioCustomUITheme,
 } from './types';
-import { Mic, Volume2 } from 'lucide-react';
+import { Mic, Volume2, Loader2 } from 'lucide-react';
 import { initGlobalClickSound } from './utils/soundEffects';
 
-const DEFAULT_PRESET_TIMELINE_SEGMENTS: TimelineSegment[] = [
-  { line_index: 0, start_time: 1.2, end_time: 4.8, speaker_name: "Xiao Yan (តួឯកប្រុស)", gender: "male", speaker_role: "male_lead", voiceId: "voxcpm:kxev_char_01_male.mp3", voiceFilename: "kxev_char_01_male.mp3", voiceLabel: "👑 អ្នកប្រុសធំ ផេ (តួឯកប្រុស)", chinese_text: "你好，欢迎来到这里。", khmer_translation: "សួស្តី សូមស្វាគមន៍មកកាន់ទីនេះ!", status: "ready" },
-  { line_index: 1, start_time: 5.5, end_time: 9.0, speaker_name: "Yun Yun (តួឯកស្រី)", gender: "female", speaker_role: "female_lead", voiceId: "voxcpm:kxev_char_02_female.mp3", voiceFilename: "kxev_char_02_female.mp3", voiceLabel: "🌸 ប្អូនស្រី ស៊ាវអ៊ី (តួឯកស្រី)", chinese_text: "今天的天气真好，我们走吧。", khmer_translation: "អាកាសធាតុថ្ងៃនេះពិតជាល្អណាស់ តោះពួកយើងចេញដំណើរទៅ។", status: "ready" },
-  { line_index: 2, start_time: 10.2, end_time: 14.5, speaker_name: "Elder Gu (ព្រឹទ្ធាចារ្យ)", gender: "male", speaker_role: "elder", voiceId: "voxcpm:kxev_char_04_male.mp3", voiceFilename: "kxev_char_04_male.mp3", voiceLabel: "💼 លោកប្រធាន (ព្រឹទ្ធាចារ្យ)", chinese_text: "大家一定要小心前方的危险！", khmer_translation: "អ្នកទាំងអស់គ្នាត្រូវតែប្រុងប្រយ័ត្ននឹងគ្រោះថ្នាក់នៅខាងមុខ!", status: "ready" }
-];
-
-const DEFAULT_ANIME_WALLPAPER = 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2560&q=95&auto=format&fit=crop';
+const DEFAULT_ANIME_WALLPAPER = '';
 
 export const App: React.FC = () => {
   // Navigation & Shell
@@ -79,9 +82,9 @@ export const App: React.FC = () => {
   const [projectGroups, setProjectGroups] = useState<ProjectGroup[]>([]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
 
-  // User & Auth
+  // User & Auth (auto by hardware Machine ID — no login/register)
   const [user, setUser] = useState<User | null>(null);
-  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isAuthChecking, setIsAuthChecking] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Config & Status
@@ -91,13 +94,13 @@ export const App: React.FC = () => {
 
   // ── 2026 Core 3 Options & Features ──
   const [studioEngine, setStudioEngine] = useState<StudioEngineOption>('khmer_offline');
-  const [isGuideOpen, setIsGuideOpen] = useState<boolean>(() => {
-    return !localStorage.getItem('animestudio_guide_dismissed');
-  });
+  // Keep the editor unobstructed on startup; the guide remains available from Help.
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isVideoTrimmerOpen, setIsVideoTrimmerOpen] = useState(false);
   const [isCommercialOverlayOpen, setIsCommercialOverlayOpen] = useState(false);
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [isAutoDubChoiceOpen, setIsAutoDubChoiceOpen] = useState(false);
   const [versionInfo, setVersionInfo] = useState<{
     current_version: string;
     latest_version: string;
@@ -125,7 +128,7 @@ export const App: React.FC = () => {
     batchEpisodes: 5,
     mode: 'episodes',
     turboThreads: 8,
-    voiceId: 'hang_phleung_char_2_male.mp3',
+    voiceId: 'vp_character_2_male.mp3',
   });
 
   const [customUITheme, setCustomUITheme] = useState<StudioCustomUITheme>(() => {
@@ -133,41 +136,52 @@ export const App: React.FC = () => {
       const saved = localStorage.getItem('animestudio_custom_theme');
       if (saved) {
         const parsed = JSON.parse(saved);
+        if (localStorage.getItem('animestudio_reference_ui_v2') !== 'capcut_pro_v1') {
+          localStorage.setItem('animestudio_reference_ui_v2', 'capcut_pro_v1');
+          localStorage.setItem('animestudio_theme_mode', 'dark');
+          parsed.bgMode = 'color';
+          parsed.backgroundColor = '#121214';
+          parsed.backgroundPreset = 'capcut_matte';
+          parsed.themeMode = 'dark';
+          localStorage.setItem('animestudio_custom_theme', JSON.stringify(parsed));
+        }
         return {
           wallpaperUrl: parsed.wallpaperUrl || DEFAULT_ANIME_WALLPAPER,
           wallpaperOpacity: parsed.wallpaperOpacity !== undefined ? parsed.wallpaperOpacity : 85,
           wallpaperBlur: parsed.wallpaperBlur || 0,
-          backgroundColor: parsed.backgroundColor || '#0b0f19',
+          backgroundColor: parsed.backgroundColor || '#121214',
           bgMode: parsed.bgMode || 'color',
-          accentColor: parsed.accentColor || 'sky',
+          accentColor: parsed.accentColor || 'mint',
           stickers: parsed.stickers || [],
           glassColor: parsed.glassColor || 'cyber',
           glassOpacity: parsed.glassOpacity !== undefined ? parsed.glassOpacity : 85,
           glassBlur: parsed.glassBlur !== undefined ? parsed.glassBlur : 12,
           glassBorderGlow: parsed.glassBorderGlow || 'subtle',
-          backgroundPreset: parsed.backgroundPreset || 'default_dark',
+          backgroundPreset: parsed.backgroundPreset || 'capcut_matte',
           themeMode: parsed.themeMode || 'dark',
         };
       }
     } catch {}
+    localStorage.setItem('animestudio_reference_ui_v2', 'capcut_pro_v1');
+    localStorage.setItem('animestudio_theme_mode', 'dark');
     return {
       wallpaperUrl: DEFAULT_ANIME_WALLPAPER,
       wallpaperOpacity: 85,
       wallpaperBlur: 0,
-      backgroundColor: '#0b0f19',
+      backgroundColor: '#121214',
       bgMode: 'color',
-      accentColor: 'sky',
+      accentColor: 'mint',
       stickers: [],
       glassColor: 'cyber',
       glassOpacity: 85,
       glassBlur: 12,
       glassBorderGlow: 'subtle',
-      backgroundPreset: 'default_dark',
+      backgroundPreset: 'capcut_matte',
       themeMode: 'dark',
     };
   });
 
-  // 1-Click Night / Light Mode State (Defaults to Pro Studio Dark for zero eye-strain & sharp text)
+  // The studio opens in its cinematic dark workspace; the theme toggle remains available.
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     try {
       const savedTheme = localStorage.getItem('animestudio_theme_mode');
@@ -178,7 +192,7 @@ export const App: React.FC = () => {
         return parsed.themeMode === 'dark' || parsed.backgroundPreset === 'default_dark';
       }
     } catch {}
-    return true; // Default to Pro Studio Dark
+    return true;
   });
 
   // Sync document.documentElement with dark / light class
@@ -205,7 +219,6 @@ export const App: React.FC = () => {
         backgroundColor: prev.bgMode === 'wallpaper' ? prev.backgroundColor : '#0b0f19',
         backgroundPreset: 'default_dark',
       }));
-      showToast('🌙 បានប្តូរទៅ Night Mode (ពណ៌ងងឹតត្រជាក់ភ្នែក)', 'info');
     } else {
       document.documentElement.classList.add('light');
       document.documentElement.classList.remove('dark');
@@ -215,17 +228,27 @@ export const App: React.FC = () => {
         backgroundColor: prev.bgMode === 'wallpaper' ? prev.backgroundColor : '#f8fafc',
         backgroundPreset: 'pearl_snow',
       }));
-      showToast('🥛 បានប្តូរទៅ Light Mode (ពណ៌សគុជខ្យង ស្រទន់ភ្នែក)', 'info');
     }
   };
 
   // Media & Dubbing
-  const [uploadedFile, setUploadedFile] = useState<ProjectFile | null>(null);
+  const [uploadedFile, setUploadedFile] = useState<ProjectFile | null>(() => {
+    try {
+      const saved = localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.uploadedFile && parsed.uploadedFile.id !== 'demo_video_2026') {
+          return parsed.uploadedFile;
+        }
+      }
+    } catch {}
+    return null;
+  });
   const [recentFiles, setRecentFiles] = useState<ProjectFile[]>([]);
   const [voiceMode, setVoiceMode] = useState('voice_actor_clone'); // Default: Voice Actor Library
   const [dubbingScope, setDubbingScope] = useState('120');
-  const [maleLeadVoice, setMaleLeadVoice] = useState('hang_phleung_char_2_male.mp3');
-  const [femaleLeadVoice, setFemaleLeadVoice] = useState('hang_phleung_char_6_female.mp3');
+  const [maleLeadVoice, setMaleLeadVoice] = useState('vp_character_2_male.mp3');
+  const [femaleLeadVoice, setFemaleLeadVoice] = useState('vp_character_1_female.mp3');
   const [geminiModel, setGeminiModel] = useState('gemini-3.5-flash');
 
   // Video Upload Progress & Instant Preview
@@ -236,6 +259,8 @@ export const App: React.FC = () => {
   const [isDubbing, setIsDubbing] = useState(false);
   const [dubbingProgress, setDubbingProgress] = useState(0);
   const [dubbingMessage, setDubbingMessage] = useState('');
+  const [currentJobId, setCurrentJobId] = useState<string | null>(null);
+  const [showProgressHUD, setShowProgressHUD] = useState(false);
   const [outputVideo, setOutputVideo] = useState<string | null>(null);
   const [outputAudio, setOutputAudio] = useState<string | null>(null);
   const [cleanBgmUrl, setCleanBgmUrl] = useState<string | null>(null);
@@ -260,25 +285,25 @@ export const App: React.FC = () => {
     glowBloom: false,
     colorTint: 'none',
     watermark: {
-      enabled: true,
-      text: '© សម្រាយរឿង HD - ស្ដេចអាទិទេព PRO',
+      enabled: false,
+      text: '',
       position: 'top-right',
       opacity: 85,
       fontSize: 13,
       fontFamily: 'Outfit',
       textColor: '#ffffff',
-      showBadge: true,
+      showBadge: false,
     },
     styleText: {
       enabled: false,
-      title: 'សង្គ្រាមអាទិទេព',
-      subtitle: 'បញ្ចូលសំឡេងខ្មែរដោយ AI Dubbing',
-      badge: 'ភាគ ០១ - ចប់',
+      title: '',
+      subtitle: '',
+      badge: '',
       stylePreset: 'gold3d',
       position: 'bottom-left',
       fontSize: 26,
       fontFamily: 'Koulen',
-      showBanner: true,
+      showBanner: false,
     },
   });
 
@@ -293,18 +318,22 @@ export const App: React.FC = () => {
     animation: 'none',
   });
 
-  // Timeline & Segments
-  const [segments, setSegments] = useState<TimelineSegment[]>([]);
+  // Timeline & Segments - strictly REAL data, no fake mock segments!
+  const [segments, setSegments] = useState<TimelineSegment[]>(() => {
+    try {
+      const saved = localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.segments && parsed.segments.length > 0) {
+          const isDummy = parsed.segments.some((s: any) => s.speaker_name === 'នាង សោភា (Female)' && s.khmer_translation?.includes('មិនមែនជាការបញ្ចប់'));
+          if (!isDummy) return parsed.segments;
+        }
+      }
+    } catch {}
+    return [];
+  });
   const [selectedSegmentIndex, setSelectedSegmentIndex] = useState(0);
   const [isScanningTimeline, setIsScanningTimeline] = useState(false);
-
-  // License Guard: If user does not have key license, strictly lock engine to Option 3: Khmer Offline!
-  useEffect(() => {
-    const isLicensed = Boolean(user && (user.role === 'admin' || user.has_voxcpm_license));
-    if (!isLicensed && studioEngine !== 'khmer_offline') {
-      setStudioEngine('khmer_offline');
-    }
-  }, [user, studioEngine]);
 
   // Helper to ensure segments are sorted chronologically and never overlap with each other
   const sanitizeSegments = (segs: TimelineSegment[]): TimelineSegment[] => {
@@ -337,7 +366,7 @@ export const App: React.FC = () => {
   };
 
   // Characters
-  const [characters, setCharacters] = useState<CharacterVoice[]>([]);
+  const [characters, setCharacters] = useState<CharacterVoice[]>(CURATED_CHARACTER_VOICES);
   const [selectedCharForEdit, setSelectedCharForEdit] = useState<CharacterVoice | null>(null);
   const [selectedCharForAudition, setSelectedCharForAudition] = useState<CharacterVoice | null>(null);
 
@@ -351,6 +380,7 @@ export const App: React.FC = () => {
   const [isDownloaderOpen, setIsDownloaderOpen] = useState(false);
   const [isSystemStatusOpen, setIsSystemStatusOpen] = useState(false);
   const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [isSponsorOpen, setIsSponsorOpen] = useState(false);
   const [diskStats, setDiskStats] = useState<{ formattedSize: string; count: number } | null>(null);
   const [isSavingProject, setIsSavingProject] = useState(false);
   const isRestoringProjectRef = useRef(true);
@@ -391,22 +421,63 @@ export const App: React.FC = () => {
     };
   }, []);
 
-  // Global hotkeys for studio speed
+  // Global hotkeys for studio speed (Section 23)
   useEffect(() => {
     const handleGlobalKeys = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       if (tag === 'INPUT' || tag === 'TEXTAREA' || (e.target as HTMLElement)?.isContentEditable) return;
-      if (e.key === '?' || e.key === 'F1') {
+
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') {
+        e.preventDefault();
+        if (e.shiftKey) {
+          showToast('បានធ្វើឡើងវិញ (Redo)', 'info');
+        } else {
+          showToast('បានត្រឡប់ក្រោយ (Undo)', 'info');
+        }
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+        e.preventDefault();
+        saveProjectToStorage(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        setIsExportOpen(true);
+      } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        // Toggle command search
+        const btn = document.querySelector('button[title*="Ctrl + K"]') as HTMLButtonElement;
+        if (btn) btn.click();
+      } else if (e.code === 'Space') {
+        e.preventDefault();
+        if (videoRef.current) {
+          if (videoRef.current.paused) videoRef.current.play().catch(() => {});
+          else videoRef.current.pause();
+        }
+      } else if (e.key === '?' || e.key === 'F1') {
         e.preventDefault();
         setIsShortcutsOpen((prev) => !prev);
-      } else if (e.code === 'KeyE' && !e.ctrlKey && !e.metaKey) {
+      } else if (e.code === 'KeyS' && !e.ctrlKey && !e.metaKey) {
         e.preventDefault();
-        setIsExportOpen((prev) => !prev);
+        showToast('Split clip at playhead position', 'info');
+      } else if (e.code === 'KeyM' && !e.ctrlKey && !e.metaKey) {
+        e.preventDefault();
+        if (videoRef.current) {
+          videoRef.current.muted = !videoRef.current.muted;
+          showToast(videoRef.current.muted ? 'Muted preview' : 'Unmuted preview', 'info');
+        }
+      } else if (e.code === 'Delete' || e.code === 'Backspace') {
+        if (segments.length > 0 && selectedSegmentIndex >= 0 && selectedSegmentIndex < segments.length) {
+          const target = segments[selectedSegmentIndex];
+          if (window.confirm(`Delete dialogue segment #${selectedSegmentIndex + 1}?`)) {
+            const next = segments.filter((_, idx) => idx !== selectedSegmentIndex);
+            setSegments(next);
+            setSelectedSegmentIndex(Math.max(0, selectedSegmentIndex - 1));
+            showToast('Deleted selected clip', 'info');
+          }
+        }
       }
     };
     window.addEventListener('keydown', handleGlobalKeys);
     return () => window.removeEventListener('keydown', handleGlobalKeys);
-  }, []);
+  }, [segments, selectedSegmentIndex]);
 
   // Toast Helper with deduplication & max queue protection
   const showToast = (message: string, type: 'success' | 'error' | 'warning' | 'info' = 'info') => {
@@ -424,7 +495,7 @@ export const App: React.FC = () => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Save Project State (localStorage + backend disk file)
+  // Save Project State (browser cache + local SQLite through the desktop backend)
   const saveProjectToStorage = async (isManual = false) => {
     try {
       if (isManual) setIsSavingProject(true);
@@ -479,11 +550,26 @@ export const App: React.FC = () => {
         } catch (_) {}
       }
 
-      // Check server if not in localStorage or to compare
-      if (!savedData) {
-        const remote = await api.loadProject().catch(() => null);
-        if (remote && remote.project) {
-          savedData = remote.project;
+      // Also check the server: a stale local cache with an empty timeline must
+      // not hide a project that still has dialogue saved on disk.
+      const remote = await api.loadProject().catch(() => null);
+      const remoteData = remote?.project;
+      if (remoteData) {
+        const localHasSegments = Array.isArray(savedData?.segments) && savedData.segments.length > 0;
+        const remoteHasSegments = Array.isArray(remoteData.segments) && remoteData.segments.length > 0;
+        const toMilliseconds = (value: unknown) => {
+          const timestamp = Number(value || 0);
+          return timestamp > 0 && timestamp < 1_000_000_000_000 ? timestamp * 1000 : timestamp;
+        };
+        const localTimestamp = toMilliseconds(savedData?.timestamp || savedData?.updated_at);
+        const remoteTimestamp = toMilliseconds(remoteData.timestamp || remoteData.updated_at);
+
+        if (
+          !savedData ||
+          (!localHasSegments && remoteHasSegments) ||
+          remoteTimestamp > localTimestamp
+        ) {
+          savedData = remoteData;
         }
       }
 
@@ -526,14 +612,8 @@ export const App: React.FC = () => {
 
   // Initial Data Fetch & Project Restore
   useEffect(() => {
-    // 1. Auth Check
-    api
-      .getMe()
-      .then((res) => {
-        if (res.user) setUser(res.user);
-        else setIsAuthModalOpen(true);
-      })
-      .catch(() => setIsAuthModalOpen(true));
+    // 1. Auto Auth by Machine ID (no login/register)
+    autoMachineLogin();
 
     // 2. Config & Status
     loadConfigAndStatus();
@@ -703,7 +783,7 @@ export const App: React.FC = () => {
   const loadCharacters = async () => {
     try {
       const res = await api.getCharacters();
-      if (res.characters) {
+      if (res.characters && res.characters.length > 0) {
         setCharacters(res.characters);
       }
     } catch (_) {}
@@ -831,12 +911,146 @@ export const App: React.FC = () => {
       });
 
       if (res.jobId) {
+        setCurrentJobId(res.jobId);
+        setShowProgressHUD(true);
         pollDubbingJob(res.jobId);
       }
     } catch (err: any) {
       setIsDubbing(false);
       showToast(`បរាជ័យក្នុងការ Dubbing: ${err.message}`, 'error');
     }
+  };
+
+  // 🎬 1-CLICK AI CINEMA DUBBING (ដំណើរការស្វ័យប្រវត្តិ ១០០% ជាមួយ ២ ជម្រើស & ដល់ ១០ ភាគ)
+  const handleOneClickCinemaDubbing = () => {
+    if (!uploadedFile && shelfItems.length === 0 && recentFiles.length === 0) {
+      showToast('⚠️ សូមបញ្ចូល ឬ Upload វីដេអូរឿងជាមុនសិន!', 'warning');
+      return;
+    }
+
+    if (isUploadingFile) {
+      showToast('⚡ វីដេអូកំពុងផ្ញើចូល Server សូមរង់ចាំឱ្យពេញ ១០០% សិន (ប្រហែលប៉ុន្មានវិនាទី)...', 'warning');
+      return;
+    }
+
+    setIsAutoDubChoiceOpen(true);
+  };
+
+  const handleConfirmAutoDubbing = async (choiceConfig: {
+    mode: DubbingModeChoice;
+    selectedFilenames: string[];
+  }) => {
+    setIsAutoDubChoiceOpen(false);
+    const queue = choiceConfig.selectedFilenames;
+    if (!queue || queue.length === 0) {
+      showToast('⚠️ មិនមានវីដេអូត្រូវបានជ្រើសរើសឡើយ!', 'warning');
+      return;
+    }
+
+    setIsDubbing(true);
+    setShowProgressHUD(true);
+    setDubbingProgress(1);
+
+    const totalEpisodes = queue.length;
+
+    for (let idx = 0; idx < totalEpisodes; idx++) {
+      const filename = queue[idx];
+      const epNum = idx + 1;
+      const progressPrefix = totalEpisodes > 1 ? `[ភាគ ${epNum}/${totalEpisodes}] ` : '';
+
+      setDubbingMessage(`🎬 ${progressPrefix}កំពុងវិភាគ និងស្រង់សំឡេងរឿង (${filename})...`);
+      showToast(`🎬 ${progressPrefix}ចាប់ផ្តើម ${choiceConfig.mode === 'movie_clone_all' ? 'Clone ពីសំឡេងរឿងដើម' : 'Voice Character + Fallback ពីរឿង'}...`, 'info');
+
+      // 1:1 mapping and emotion preservation
+      const characterVoiceMap: Record<string, string> = {};
+      const emotionData: Record<string, any> = {};
+
+      segments.forEach((s) => {
+        const charKey = s.speaker_name || s.speaker_id;
+        if (charKey && s.voiceId) {
+          characterVoiceMap[charKey] = s.voiceId;
+          if (s.speaker_id) characterVoiceMap[s.speaker_id] = s.voiceId;
+        }
+        if (s.emotion) {
+          const segmentKey = `${s.start_time}-${s.end_time}`;
+          emotionData[segmentKey] = {
+            emotion: s.emotion,
+            emotionIntensity: s.emotionIntensity,
+            emotionParams: s.emotionParams,
+          };
+        }
+      });
+
+      try {
+        const res = await api.startDubbing({
+          filename: filename,
+          sourceLang: 'zh',
+          targetLang: 'km',
+          voiceId: choiceConfig.mode, // 'movie_clone_all' or 'voice_actor_clone'
+          scope: 'full',
+          characterVoiceMap,
+          emotionData,
+          maleLeadVoice,
+          femaleLeadVoice,
+          geminiModel,
+          segments: filename === uploadedFile?.filename && segments && segments.length > 0 ? segments : undefined,
+        });
+
+        if (res.jobId) {
+          setCurrentJobId(res.jobId);
+          await new Promise<void>((resolve) => {
+            let isFinished = false;
+            const pollInterval = setInterval(async () => {
+              if (isFinished) {
+                clearInterval(pollInterval);
+                return;
+              }
+              try {
+                const job = await api.getDubbingStatus(res.jobId);
+                if (typeof job.progress === 'number') {
+                  const baseProgress = ((epNum - 1) / totalEpisodes) * 100;
+                  const scaledProg = baseProgress + (job.progress / totalEpisodes);
+                  setDubbingProgress(Math.round(totalEpisodes > 1 ? scaledProg : job.progress));
+                }
+                if (job.message) {
+                  setDubbingMessage(`${progressPrefix}${job.message}`);
+                }
+
+                if (job.status === 'completed') {
+                  isFinished = true;
+                  clearInterval(pollInterval);
+                  if (filename === uploadedFile?.filename || idx === totalEpisodes - 1) {
+                    setOutputVideo(job.outputVideo || null);
+                    setOutputAudio(job.outputAudio || null);
+                    if (job.dialogueSegments && job.dialogueSegments.length > 0) {
+                      setSegments(sanitizeSegments(job.dialogueSegments));
+                    }
+                  }
+                  showToast(`🎉 ${progressPrefix}ឌាប់សំឡេងជោគជ័យ ១០០%!`, 'success');
+                  resolve();
+                } else if (job.status === 'failed') {
+                  isFinished = true;
+                  clearInterval(pollInterval);
+                  showToast(`⚠️ ${progressPrefix}មានកំហុស: ${job.error || 'បរាជ័យ'}`, 'error');
+                  resolve();
+                }
+              } catch (_) {}
+            }, 1200);
+          });
+        }
+      } catch (err: any) {
+        showToast(`⚠️ ${progressPrefix}បរាជ័យ: ${err.message}`, 'error');
+      }
+
+      // Gentle pause to ensure OS memory garbage collection and prevent PC freeze
+      await new Promise((r) => setTimeout(r, 800));
+    }
+
+    setIsDubbing(false);
+    setDubbingProgress(100);
+    setDubbingMessage('🎉 ការឌាប់រឿងទាំងអស់ត្រូវបានបញ្ចប់ដោយជោគជ័យ ១០០%!');
+    showToast('🎉 ការឌាប់រឿងទាំងអស់ត្រូវបានបញ្ចប់ដោយជោគជ័យ ១០០%!', 'success');
+    loadFiles();
   };
 
   const pollDubbingJob = (jobId: string) => {
@@ -848,19 +1062,24 @@ export const App: React.FC = () => {
       }
       try {
         const job = await api.getDubbingStatus(jobId);
-        setDubbingProgress(job.progress || 0);
-        setDubbingMessage(job.message || 'កំពុងដំណើរការ...');
+        if (typeof job.progress === 'number') {
+          setDubbingProgress(job.progress);
+        }
+        if (job.message) {
+          setDubbingMessage(job.message);
+        }
 
         if (job.status === 'completed') {
           finished = true;
           clearInterval(interval);
+          setDubbingProgress(100);
           setIsDubbing(false);
           setOutputVideo(job.outputVideo || null);
           setOutputAudio(job.outputAudio || null);
           if (job.dialogueSegments && job.dialogueSegments.length > 0) {
             setSegments(sanitizeSegments(job.dialogueSegments));
           }
-          showToast('ការបញ្ជូលសំឡេងជោគជ័យ 100%!', 'success');
+          showToast('🎉 ការបញ្ជូលសំឡេងជោគជ័យ 100%!', 'success');
           loadFiles();
         } else if (job.status === 'failed') {
           finished = true;
@@ -869,7 +1088,7 @@ export const App: React.FC = () => {
           showToast(`បរាជ័យ: ${job.error || 'កំហុសបច្ចេកទេស'}`, 'error');
         }
       } catch (_) {}
-    }, 1500);
+    }, 1000);
   };
 
   const handleScanTimeline = async () => {
@@ -881,8 +1100,8 @@ export const App: React.FC = () => {
     setIsScanningTimeline(true);
     showToast('AI Gemini កំពុងស្កេន និងស្រង់ឃ្លាសន្ទនារឿង...', 'info');
     try {
-      // 180s scope for fast, responsive dialogue extraction without hitting Gemini backoffs
-      const res = await api.scanTimeline(uploadedFile.filename, '180', voiceMode);
+      // Scan dialogue lines using selected dubbingScope (or full video)
+      const res = await api.scanTimeline(uploadedFile.filename, dubbingScope || 'full', voiceMode);
       if (res.success && res.segments && res.segments.length > 0) {
         setSegments(sanitizeSegments(res.segments));
         showToast(`ស្កេនជោគជ័យ! រកឃើញ ${res.segments.length} ឃ្លាសន្ទនាក្នុងរឿង`, 'success');
@@ -906,10 +1125,14 @@ export const App: React.FC = () => {
       return;
     }
 
+    const jobId = `assemble_${Date.now()}`;
+    setCurrentJobId(jobId);
     setIsDubbing(true);
-    setDubbingProgress(20);
-    setDubbingMessage(`🎬 កំពុង Generate វីដេអូតាមសំឡេងតួអង្គ (${segments.length} ឃ្លា)...`);
-    showToast(`🎬 កំពុង Generate វីដេអូតាមសំឡេងតួអង្គដែលបានរើស (${segments.length} ឃ្លា)...`, 'info');
+    setDubbingProgress(8);
+    setDubbingMessage(`🎬 កំពុងចាប់ផ្តើមដំឡើងវីដេអូតាមសំឡេងតួអង្គ (${segments.length} ឃ្លា)...`);
+    setShowProgressHUD(true);
+    showToast(`🎬 កំពុងដំឡើងវីដេអូតាមសំឡេងតួអង្គ (${segments.length} ឃ្លា)...`, 'info');
+    pollDubbingJob(jobId);
 
     try {
       const res = await api.assembleCustom({
@@ -917,14 +1140,17 @@ export const App: React.FC = () => {
         segments,
         bgmAudio: cleanBgmUrl || undefined,
         removeOriginalVocals: true, // Auto strips original Chinese vocals!
+        jobId,
       });
       if (res.success) {
         setOutputVideo(res.outputVideo);
         if (res.outputAudio) setOutputAudio(res.outputAudio);
         setIsDubbing(false);
         setDubbingProgress(100);
-        showToast('🎉 បាន Generate វីដេអូតាមសំឡេងតួអង្គសម្រេចដោយជោគជ័យ ១០០%!', 'success');
+        setDubbingMessage('🎉 បានដំឡើងវីដេអូតាមសំឡេងតួអង្គសម្រេចដោយជោគជ័យ ១០០%!');
+        showToast('🎉 បានដំឡើងវីដេអូតាមសំឡេងតួអង្គសម្រេចដោយជោគជ័យ ១០០%!', 'success');
         setActiveTab('tab-dubbing');
+        loadFiles();
       } else {
         setIsDubbing(false);
         showToast('ការបង្កើតវីដេអូមិនទាន់ជោគជ័យ', 'error');
@@ -973,11 +1199,23 @@ export const App: React.FC = () => {
     }
   };
 
+  const autoMachineLogin = async () => {
+    try {
+      const res = await api.deviceLogin();
+      if (res.token) localStorage.setItem('studio_auth_token', res.token);
+      if (res.user) setUser({ ...res.user, machine_id: res.machine_id });
+    } catch (err: any) {
+      showToast(`⚠️ មិនអាចចាប់ Machine ID បានទេ: ${err.message}`, 'error');
+    } finally {
+      setIsAuthChecking(false);
+    }
+  };
+
   const handleLogout = async () => {
+    // No accounts anymore: reset session and re-identify this machine
     await api.logout().catch(() => {});
     localStorage.removeItem('studio_auth_token');
-    setUser(null);
-    setIsAuthModalOpen(true);
+    await autoMachineLogin();
   };
 
   const handleOpenThumbnailStudio = () => {
@@ -1054,17 +1292,28 @@ export const App: React.FC = () => {
     }
 
     const targetEpCount = selectedEps.length > 0 ? selectedEps.length : khmerOfflineConfig.batchEpisodes;
+    const jobId = `offline_${Date.now()}`;
+    setCurrentJobId(jobId);
     setIsDubbing(true);
-    setDubbingProgress(15);
+    setDubbingProgress(10);
     setDubbingMessage(`⚡ កំពុងដំណើរការ KHMER OFFLINE (ចំនួន ${targetEpCount} ភាគ ${khmerOfflineConfig.mode === 'full_movie' ? '• រឿងពេញ' : ''})...`);
+    setShowProgressHUD(true);
     showToast(`⚡ កំពុងដំណើរការ KHMER OFFLINE ល្បឿនលឿន Multi-thread (${khmerOfflineConfig.turboThreads}x)...`, 'info');
+    pollDubbingJob(jobId);
+
+    if (segments.length === 0) {
+      showToast('⚠️ មិនទាន់មាន Segments សន្ទនាទេ! សូម Extract Dialogues ជាមុនសិន។', 'warning');
+      setIsDubbing(false);
+      return;
+    }
 
     try {
       const res = await api.assembleCustom({
         filename: targetFilename,
-        segments: segments.length > 0 ? segments : DEFAULT_PRESET_TIMELINE_SEGMENTS,
+        segments: segments,
         bgmAudio: cleanBgmUrl || undefined,
         removeOriginalVocals: true,
+        jobId,
       });
 
       if (res.success) {
@@ -1074,6 +1323,7 @@ export const App: React.FC = () => {
         setDubbingProgress(100);
         showToast(`🎉 បានបញ្ចប់ KHMER OFFLINE ${targetEpCount} ភាគជោគជ័យ!`, 'success');
         setActiveTab('tab-dubbing');
+        loadFiles();
       } else {
         setIsDubbing(false);
         showToast('ការបង្កើតមិនទាន់ជោគជ័យ', 'error');
@@ -1097,13 +1347,51 @@ export const App: React.FC = () => {
 
   const activeGlass = glassColorPresets[customUITheme.glassColor || 'cyan'] || glassColorPresets.cyan;
 
+  const licenseInfo = getLicenseInfo(user);
+  const isLicensed = licenseInfo.isLicensed;
+
+  // 1. Initial Auth / Machine Checking Screen
+  if (isAuthChecking) {
+    return (
+      <div className="fixed inset-0 bg-[#07090e] flex flex-col items-center justify-center font-khmer select-none text-slate-200 z-[1000]">
+        <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 shadow-[0_0_35px_rgba(6,182,212,0.25)] animate-pulse">
+          <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
+        </div>
+        <h2 className="text-base font-bold text-white mb-1.5 tracking-wide">
+          កំពុងត្រួតពិនិត្យអាជ្ញាប័ណ្ណស្ទូឌីយោ...
+        </h2>
+        <p className="text-xs text-slate-400">
+          Verifying Hardware Machine ID & Studio License...
+        </p>
+      </div>
+    );
+  }
+
+  // 2. Mandatory License Gate (Must enter valid License Key to access the tool)
+  if (!isLicensed) {
+    return (
+      <>
+        <LicenseGate
+          user={user}
+          onSuccess={(updatedUser) => {
+            setUser(updatedUser);
+            showToast('🎉 បានដំណើរការ Key License ដោយជោគជ័យ! សូមស្វាគមន៍មកកាន់ប្រព័ន្ធ', 'success');
+          }}
+          onShowToast={showToast}
+          onRefreshUser={autoMachineLogin}
+        />
+        <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+      </>
+    );
+  }
+
   return (
     <div
-      className={`flex flex-col h-screen w-screen overflow-hidden ${isDarkMode ? 'text-slate-100 bg-[#0b0f19]' : 'text-slate-900 bg-[#f8fafc]'} font-khmer studio-enter relative transition-colors duration-300`}
+      className={`app-shell flex flex-col h-screen w-screen overflow-hidden ${isDarkMode ? 'text-slate-100 bg-[#121214]' : 'text-slate-900 bg-[#f8fafc]'} font-khmer studio-enter relative transition-colors duration-300`}
       style={{
         background: customUITheme.bgMode === 'wallpaper' && customUITheme.wallpaperUrl
           ? undefined
-          : (customUITheme.backgroundColor || (isDarkMode ? '#0b0f19' : '#f8fafc')),
+          : (customUITheme.backgroundColor || (isDarkMode ? '#121214' : '#f8fafc')),
         ...(customUITheme.bgMode === 'wallpaper' && customUITheme.wallpaperUrl
           ? {
               backgroundImage: `linear-gradient(rgba(${isDarkMode ? '11,15,25' : '248,250,252'},${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100)).toFixed(2)}), rgba(${isDarkMode ? '11,15,25' : '248,250,252'},${Math.max(0, (1 - (customUITheme.wallpaperOpacity || 85) / 100)).toFixed(2)})), url("${customUITheme.wallpaperUrl}")`,
@@ -1157,7 +1445,7 @@ export const App: React.FC = () => {
             else videoRef.current.pause();
           }
         }}
-        onOpenAuthModal={() => setIsAuthModalOpen(true)}
+        onOpenAuthModal={autoMachineLogin}
         onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
         engineMode={engineMode}
         onSwitchEngine={handleSwitchEngine}
@@ -1189,6 +1477,7 @@ export const App: React.FC = () => {
         onToggleDarkMode={handleToggleDarkMode}
         bgMode={customUITheme.bgMode || 'color'}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
+        onOneClickDubbing={handleOneClickCinemaDubbing}
       />
 
       {/* Main Workspace Layout */}
@@ -1226,10 +1515,11 @@ export const App: React.FC = () => {
           onOpenCustomizer={() => setIsCustomizerOpen(true)}
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
+          onOpenSponsor={() => setIsSponsorOpen(true)}
         />
 
         {/* Dynamic Studio Views */}
-        <main className="flex-1 flex flex-col overflow-hidden bg-transparent">
+        <main className="app-content flex-1 flex flex-col overflow-hidden bg-transparent pb-14 md:pb-0">
           {activeTab === 'tab-dashboard' && (
             <DashboardView
               files={recentFiles}
@@ -1390,6 +1680,7 @@ export const App: React.FC = () => {
               activeGroupId={activeGroupId}
               onSelectGroup={setActiveGroupId}
               onOpenGroupManager={() => setIsGroupManagerOpen(true)}
+              onOneClickDubbing={handleOneClickCinemaDubbing}
             />
           </div>
 
@@ -1538,6 +1829,7 @@ export const App: React.FC = () => {
           {activeTab === 'tab-character' && (
             <CharacterLibrary
               characters={characters}
+              isDarkMode={isDarkMode}
               onOpenAddModal={() => setIsAddVoiceOpen(true)}
               onOpenEditModal={(c) => setSelectedCharForEdit(c)}
               onOpenAuditionModal={(c) => setSelectedCharForAudition(c)}
@@ -1545,16 +1837,40 @@ export const App: React.FC = () => {
               onDeleteVoice={(char) => {
                 setCharacters((prev) => prev.filter((c) => c.id !== char.id));
               }}
+              onAddCharacter={(newChar) => {
+                setCharacters((prev) => [newChar, ...prev]);
+                setMaleLeadVoice(newChar.filename);
+              }}
               onSelectVoice={(char) => {
                 setMaleLeadVoice(char.filename);
                 showToast(`បានជ្រើសរើស "${char.label}" ជាសំឡេងតួឯក!`, 'success');
               }}
               selectedVoiceId={maleLeadVoice}
               onShowToast={showToast}
+              activeEngine={studioEngine}
+              onSelectEngine={(e) => {
+                setStudioEngine(e);
+                if (e === 'voxcpm_computer') {
+                  api.switchVoxcpmMode('local').catch(() => {});
+                } else if (e === 'voxcpm_claude') {
+                  api.switchVoxcpmMode('cloud').catch(() => {});
+                }
+              }}
+              onOpenQuickVoxModal={() => setIsVoxModalOpen(true)}
             />
           )}
 
-          {activeTab === 'tab-translator' && <TranslationDesk onShowToast={showToast} />}
+          {activeTab === 'tab-translator' && (
+            <TranslationDesk
+              onShowToast={showToast}
+              segments={segments}
+              onApplySegments={(newSegs) => {
+                setSegments(newSegs);
+                setActiveTab('tab-subtitles');
+                showToast(`✅ បានអនុវត្ត ${newSegs.length} ឃ្លាចូលទៅក្នុង Subtitle Studio រួចរាល់!`, 'success');
+              }}
+            />
+          )}
 
           {activeTab === 'tab-mixer' && (
             <AudioMixerConsole
@@ -1632,18 +1948,45 @@ export const App: React.FC = () => {
               }}
             />
           )}
+
+          {activeTab === 'tab-cutter' && (
+            <VideoCutterPage
+              onShowToast={showToast}
+              recentFiles={recentFiles}
+              onOpenStudio={() => setActiveTab('tab-dubbing')}
+            />
+          )}
+
+          {activeTab === 'tab-posterforge' && (
+            <PosterForgeStudio
+              onShowToast={showToast}
+              isAdmin={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
+            />
+          )}
+
+          {activeTab === 'tab-narrator' && (
+            <NarratorStudio onShowToast={showToast} />
+          )}
         </main>
       </div>
 
+      {/* Floating Mobile Bottom Navigation Dock (md:hidden) */}
+      <MobileNavDock
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+        onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        isDubbing={isDubbing}
+      />
+
       {/* Modals */}
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onSuccess={(u) => {
-          setUser(u);
-          setIsAuthModalOpen(false);
-          loadCharacters();
-        }}
-        onShowToast={showToast}
+      <AutoDubbingChoiceModal
+        isOpen={isAutoDubChoiceOpen}
+        onClose={() => setIsAutoDubChoiceOpen(false)}
+        onConfirmDubbing={handleConfirmAutoDubbing}
+        currentVideo={uploadedFile}
+        shelfItems={shelfItems}
+        recentFiles={recentFiles}
+        isDubbing={isDubbing}
       />
 
       <SettingsModal
@@ -1652,7 +1995,10 @@ export const App: React.FC = () => {
         onShowToast={showToast}
         onRefreshConfig={loadConfigAndStatus}
         user={user}
-        onLogout={handleLogout}
+        onOpenLicenseModal={() => {
+          setIsSettingsOpen(false);
+          setIsLicenseModalOpen(true);
+        }}
       />
 
       <ExportModal
@@ -1773,13 +2119,25 @@ export const App: React.FC = () => {
         activeGroupId={activeGroupId}
         onShowToast={showToast}
         characters={characters}
-        isLicensed={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
+        isLicensed={isLicensed}
       />
 
       {/* Hardware Turbo Acceleration Modal */}
       <HardwareTurboModal
         isOpen={isHardwareTurboOpen}
         onClose={() => setIsHardwareTurboOpen(false)}
+        onShowToast={showToast}
+      />
+
+      {/* License Management & Expiration Modal */}
+      <LicenseActivationModal
+        isOpen={isLicenseModalOpen}
+        user={user}
+        onClose={() => setIsLicenseModalOpen(false)}
+        onSuccess={(updatedUser) => {
+          setUser(updatedUser);
+          showToast('🎉 បានបន្តសុពលភាព Key License ដោយជោគជ័យ!', 'success');
+        }}
         onShowToast={showToast}
       />
 
@@ -1851,14 +2209,31 @@ export const App: React.FC = () => {
         isAdmin={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
       />
 
-      {/* Floating Theme & Wallpaper Quick-Access Dock */}
-      <QuickThemeFloatingWidget
-        theme={customUITheme}
-        isDarkMode={isDarkMode}
-        onToggleDarkMode={handleToggleDarkMode}
-        onChangeTheme={setCustomUITheme}
-        onOpenCustomizer={() => setIsCustomizerOpen(true)}
+      {/* ❤️ Sponsor & ឧបត្ថម្ភ Manager */}
+      <SponsorModal
+        isOpen={isSponsorOpen}
+        onClose={() => setIsSponsorOpen(false)}
+        isAdmin={Boolean(user && (user.role === 'admin' || user.has_voxcpm_license))}
         onShowToast={showToast}
+      />
+
+      {/* 🚀 Real-time Studio Progress HUD (0% - 100% Tracking with clear % and stage display) */}
+      <StudioProgressHUD
+        isOpen={showProgressHUD || isDubbing}
+        progress={dubbingProgress}
+        message={dubbingMessage}
+        jobId={currentJobId}
+        outputVideo={outputVideo}
+        outputAudio={outputAudio}
+        onClose={() => setShowProgressHUD(false)}
+        onWatchVideo={() => {
+          setActiveTab('tab-dubbing');
+          setShowProgressHUD(false);
+          if (videoRef.current) {
+            videoRef.current.currentTime = 0;
+            videoRef.current.play().catch(() => {});
+          }
+        }}
       />
 
       {/* Toast Notifications */}

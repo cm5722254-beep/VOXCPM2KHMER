@@ -2,6 +2,7 @@ import os
 import sqlite3
 import hashlib
 import secrets
+import json
 from datetime import datetime, timedelta
 from typing import Optional, Dict, List, Any
 
@@ -18,6 +19,41 @@ else:
 DATA_DIR = os.path.join(APP_DIR, 'data')
 os.makedirs(DATA_DIR, exist_ok=True)
 DB_PATH = os.path.join(DATA_DIR, 'studio_auth.db')
+LICENSE_FILE = os.path.join(DATA_DIR, 'license.json')
+
+def save_license_file(key_code: str, expires_at: Optional[str] = None, days_valid: int = 30, machine_id: Optional[str] = None):
+    """Save persistent license to local file on disk so it is never lost on refresh or reboot."""
+    try:
+        from services.machine_id import get_machine_id
+        mid = machine_id or get_machine_id()
+        data = {
+            'license_key': key_code.strip().upper(),
+            'activated_at': datetime.now().isoformat(),
+            'expires_at': expires_at,
+            'days_valid': days_valid,
+            'machine_id': mid,
+            'is_lifetime': (days_valid == -1 or days_valid <= 0 or expires_at is None)
+        }
+        with open(LICENSE_FILE, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"Error saving license file: {e}")
+
+def load_license_file() -> Optional[Dict[str, Any]]:
+    """Load persistent license from disk and verify it has not expired."""
+    if not os.path.exists(LICENSE_FILE):
+        return None
+    try:
+        with open(LICENSE_FILE, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        exp_str = data.get('expires_at')
+        if exp_str:
+            exp_dt = datetime.fromisoformat(exp_str)
+            if datetime.now() > exp_dt:
+                return None
+        return data
+    except Exception:
+        return None
 
 # Auto-seed initial database if not yet existing on user's machine
 from services import supabase_db
@@ -89,7 +125,8 @@ def init_db():
         ('has_voxcpm_license', 'INTEGER DEFAULT 0'),
         ('voxcpm_license_expires_at', 'TEXT'),
         ('voxcpm_license_key', 'TEXT'),
-        ('current_device_id', 'TEXT')
+        ('current_device_id', 'TEXT'),
+        ('machine_id', 'TEXT')
     ]:
         try:
             cur.execute(f"ALTER TABLE users ADD COLUMN {col} {col_def}")
@@ -556,9 +593,51 @@ def activate_license_key(user_id: int, key_code: str) -> Dict[str, Any]:
         raise ValueError("Key License មិនត្រឹមត្រូវទេ សូមពិនិត្យឡើងវិញ!")
 
     key_dict = sb_key if sb_key else dict(key_row)
+    days = key_dict.get('days_valid', 30)
+
     if key_dict.get('is_used'):
-        conn.close()
-        raise ValueError("Key License នេះត្រូវបានប្រើប្រាស់រួចហើយ!")
+        used_at_str = key_dict.get('used_at')
+        is_still_valid = False
+        expires_at_iso = None
+        if days == -1 or days <= 0:
+            is_still_valid = True
+        elif used_at_str:
+            try:
+                used_dt = datetime.fromisoformat(used_at_str)
+                exp_dt = used_dt + timedelta(days=days)
+                if datetime.now() < exp_dt:
+                    is_still_valid = True
+                    expires_at_iso = exp_dt.isoformat()
+            except Exception:
+                pass
+
+        if is_still_valid:
+            # Key is still valid or lifetime! Re-bind to current user & save to local license file
+            cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            user_row = cur.fetchone()
+            if user_row:
+                cur.execute('''
+                    UPDATE users 
+                    SET has_voxcpm_license = 1, voxcpm_license_expires_at = ?, voxcpm_license_key = ?
+                    WHERE id = ?
+                ''', (expires_at_iso, clean_key, user_id))
+                conn.commit()
+            save_license_file(clean_key, expires_at_iso, days)
+            cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+            u_row = cur.fetchone()
+            conn.close()
+            tier_label = get_license_tier_label(days)
+            return {
+                'success': True,
+                'message': f"🎉 Key License នៅតែមានសុពលភាព ({tier_label}) និងបានចងចាំដោយជោគជ័យ!",
+                'has_voxcpm_license': True,
+                'voxcpm_license_expires_at': expires_at_iso,
+                'tier_label': tier_label,
+                'user': dict(u_row) if u_row else None
+            }
+        else:
+            conn.close()
+            raise ValueError("Key License នេះត្រូវបានប្រើប្រាស់រួចហើយ និងបានផុតកំណត់សុពលភាព!")
 
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
     user_row = cur.fetchone()
@@ -569,7 +648,6 @@ def activate_license_key(user_id: int, key_code: str) -> Dict[str, Any]:
     username = user_row['username']
     now = datetime.now()
     now_iso = now.isoformat()
-    days = key_dict['days_valid']
     expires_at_iso = None if (days == -1 or days <= 0) else (now + timedelta(days=days)).isoformat()
 
     # Mark key as used in SQLite
@@ -586,6 +664,7 @@ def activate_license_key(user_id: int, key_code: str) -> Dict[str, Any]:
         WHERE id = ?
     ''', (expires_at_iso, clean_key, user_id))
     conn.commit()
+    save_license_file(clean_key, expires_at_iso, days)
     conn.close()
 
     # Sync key usage and user upgrade to Supabase cloud
@@ -622,7 +701,8 @@ def activate_license_key(user_id: int, key_code: str) -> Dict[str, Any]:
             'role': user_row['role'],
             'tier': user_row['tier'],
             'has_voxcpm_license': True,
-            'voxcpm_license_expires_at': expires_at_iso
+            'voxcpm_license_expires_at': expires_at_iso,
+            'voxcpm_license_key': clean_key
         }
     }
 
@@ -953,20 +1033,53 @@ def reset_user_password(user_id: int, new_password: str) -> bool:
 
 
 def get_or_create_device_user(device_id: str) -> Dict[str, Any]:
-    """Find existing user for device or auto-create a persistent local user record."""
+    """Find existing user for device or auto-create a persistent local user record.
+    Prioritizes existing accounts that already have VoxCPM licenses or Admin role,
+    and automatically re-applies any persistent local license file.
+    """
     device_id = (device_id or 'default').strip()
+    clean_dev = device_id.replace('dev_', '').replace('-', '')[:8]
+    expected_username = f"user_{clean_dev}" if clean_dev else ""
+
     conn = get_db()
     cur = conn.cursor()
-    cur.execute("SELECT * FROM users WHERE current_device_id = ? AND is_active = 1", (device_id,))
+
+    # Look up existing user by machine_id, current_device_id, or username prefix
+    cur.execute("""
+        SELECT * FROM users 
+        WHERE (current_device_id = ? OR machine_id = ? OR username = ? OR username LIKE ?) 
+          AND is_active = 1
+        ORDER BY has_voxcpm_license DESC, (CASE WHEN role='admin' THEN 1 ELSE 0 END) DESC, id DESC
+    """, (device_id, device_id, expected_username, f"{expected_username}%"))
     row = cur.fetchone()
+
+    lic = load_license_file()
+
     if row:
         user_dict = dict(row)
+        # Ensure machine_id is recorded
+        if not user_dict.get('machine_id'):
+            cur.execute("UPDATE users SET machine_id = ? WHERE id = ?", (device_id, user_dict['id']))
+            conn.commit()
+            user_dict['machine_id'] = device_id
+
+        # If user record lost license status but disk license is valid, automatically restore!
+        if lic and not user_dict.get('has_voxcpm_license'):
+            cur.execute("""
+                UPDATE users 
+                SET has_voxcpm_license = 1, voxcpm_license_key = ?, voxcpm_license_expires_at = ?
+                WHERE id = ?
+            """, (lic['license_key'], lic.get('expires_at'), user_dict['id']))
+            conn.commit()
+            user_dict['has_voxcpm_license'] = 1
+            user_dict['voxcpm_license_key'] = lic['license_key']
+            user_dict['voxcpm_license_expires_at'] = lic.get('expires_at')
+
         conn.close()
         return user_dict
 
     now_iso = datetime.now().isoformat()
-    clean_dev = device_id.replace('dev_', '').replace('-', '')[:8]
-    username = f"user_{clean_dev}" if clean_dev else f"user_{secrets.token_hex(3)}"
+    username = expected_username or f"user_{secrets.token_hex(3)}"
 
     # Avoid collision
     cur.execute("SELECT id FROM users WHERE username = ?", (username,))
@@ -975,10 +1088,16 @@ def get_or_create_device_user(device_id: str) -> Dict[str, Any]:
 
     salt = secrets.token_hex(16)
     pwd_hash = hash_password("123456", salt)
+
+    # If disk license exists, brand new record inherits license immediately
+    has_lic = 1 if lic else 0
+    lic_key = lic['license_key'] if lic else None
+    lic_exp = lic.get('expires_at') if lic else None
+
     cur.execute('''
-        INSERT INTO users (username, password_hash, salt, role, tier, has_voxcpm_license, current_device_id, created_at, is_active)
-        VALUES (?, ?, ?, 'user', 'free', 0, ?, ?, 1)
-    ''', (username, pwd_hash, salt, device_id, now_iso))
+        INSERT INTO users (username, password_hash, salt, role, tier, has_voxcpm_license, voxcpm_license_key, voxcpm_license_expires_at, current_device_id, machine_id, created_at, is_active)
+        VALUES (?, ?, ?, 'user', 'free', ?, ?, ?, ?, ?, ?, 1)
+    ''', (username, pwd_hash, salt, has_lic, lic_key, lic_exp, device_id, device_id, now_iso))
     user_id = cur.lastrowid
     conn.commit()
     cur.execute("SELECT * FROM users WHERE id = ?", (user_id,))
@@ -997,7 +1116,12 @@ def create_session_for_user(user_id: int, device_id: str = 'default') -> str:
         INSERT INTO sessions (token, user_id, device_id, created_at, expires_at)
         VALUES (?, ?, ?, ?, ?)
     ''', (token, user_id, device_id, now_iso, session_exp))
-    cur.execute("UPDATE users SET current_device_id = ? WHERE id = ?", (device_id, user_id))
+    # Update current_device_id while preserving hardware machine_id
+    cur.execute("""
+        UPDATE users 
+        SET current_device_id = ? 
+        WHERE id = ? AND (current_device_id IS NULL OR current_device_id = '' OR current_device_id LIKE 'dev_%')
+    """, (device_id, user_id))
     conn.commit()
     conn.close()
     return token

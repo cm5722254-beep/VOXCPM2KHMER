@@ -345,6 +345,128 @@ document.addEventListener('DOMContentLoaded', () => {
     const rem = Math.floor(s % 60);
     return `${m}:${rem < 10 ? '0' : ''}${rem}`;
   }
+
+  // 8. Mobile Video Zoom & Fit Engine (ពង្រីក-ពង្រួមវីដេអូ & Fit/Fill)
+  let mZoomScale = 1.0;
+  let mIsFill = false;
+  let mPanX = 0;
+  let mPanY = 0;
+  const btnToggleFit = document.getElementById('mBtnToggleFit');
+  const btnZoomIn = document.getElementById('mBtnZoomIn');
+  const btnZoomOut = document.getElementById('mBtnZoomOut');
+  const btnZoomReset = document.getElementById('mBtnZoomReset');
+  const zoomText = document.getElementById('mZoomText');
+  const fitLabel = document.getElementById('mFitLabel');
+
+  function applyMobileZoom() {
+    if (!videoPlayer) return;
+    if (mIsFill) {
+      playerCard.classList.add('is-fill');
+      if (fitLabel) fitLabel.textContent = 'សមល្មម (Fit)';
+    } else {
+      playerCard.classList.remove('is-fill');
+      if (fitLabel) fitLabel.textContent = 'លាតពេញ (Fill)';
+    }
+
+    if (mZoomScale !== 1.0 || mPanX !== 0 || mPanY !== 0) {
+      videoPlayer.style.transform = `scale(${mZoomScale}) translate(${mPanX / mZoomScale}px, ${mPanY / mZoomScale}px)`;
+      if (btnZoomReset) btnZoomReset.style.display = 'inline-flex';
+    } else {
+      videoPlayer.style.transform = '';
+      if (btnZoomReset) btnZoomReset.style.display = mIsFill ? 'inline-flex' : 'none';
+    }
+
+    if (zoomText) {
+      zoomText.textContent = mIsFill && mZoomScale === 1.0 ? 'Fill' : `${Math.round(mZoomScale * 100)}%`;
+    }
+  }
+
+  if (btnToggleFit) {
+    btnToggleFit.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mIsFill = !mIsFill;
+      if (mIsFill) {
+        showToast('🔍 លាតពេញអេក្រង់ (Fill / Crop) - បំបាត់គែមខ្មៅ', 'info');
+      } else {
+        mZoomScale = 1.0;
+        mPanX = 0;
+        mPanY = 0;
+        showToast('🔍 សមល្មមតាមទំហំដើម (Fit 100%)', 'info');
+      }
+      applyMobileZoom();
+    });
+  }
+
+  if (btnZoomIn) {
+    btnZoomIn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mZoomScale = Math.min(3.5, +(mZoomScale + 0.25).toFixed(2));
+      applyMobileZoom();
+    });
+  }
+
+  if (btnZoomOut) {
+    btnZoomOut.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mZoomScale = Math.max(0.6, +(mZoomScale - 0.25).toFixed(2));
+      applyMobileZoom();
+    });
+  }
+
+  if (btnZoomReset) {
+    btnZoomReset.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mZoomScale = 1.0;
+      mIsFill = false;
+      mPanX = 0;
+      mPanY = 0;
+      applyMobileZoom();
+    });
+  }
+
+  // Double tap on video player to toggle zoom / fill
+  let lastTapTime = 0;
+  videoPlayer.addEventListener('click', (e) => {
+    const now = Date.now();
+    if (now - lastTapTime < 320) {
+      e.preventDefault();
+      mIsFill = !mIsFill;
+      if (!mIsFill) { mZoomScale = 1.0; mPanX = 0; mPanY = 0; }
+      applyMobileZoom();
+      showToast(mIsFill ? '🔍 លាតពេញអេក្រង់ (Fill)' : '🔍 សមល្មម (Fit)', 'info');
+    }
+    lastTapTime = now;
+  });
+
+  // Mobile Pinch-to-zoom on video player
+  let initialPinchDist = null;
+  videoPlayer.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 2) {
+      initialPinchDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+    }
+  }, { passive: true });
+
+  videoPlayer.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 2 && initialPinchDist) {
+      const currentDist = Math.hypot(
+        e.touches[0].clientX - e.touches[1].clientX,
+        e.touches[0].clientY - e.touches[1].clientY
+      );
+      const ratio = currentDist / initialPinchDist;
+      if (Math.abs(ratio - 1) > 0.03) {
+        mZoomScale = Math.min(3.5, Math.max(0.6, +(mZoomScale * ratio).toFixed(2)));
+        initialPinchDist = currentDist;
+        applyMobileZoom();
+      }
+    }
+  }, { passive: true });
+
+  videoPlayer.addEventListener('touchend', () => {
+    initialPinchDist = null;
+  });
 });
 
 // Toast Helper
