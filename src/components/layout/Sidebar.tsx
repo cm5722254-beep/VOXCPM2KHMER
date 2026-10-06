@@ -4,32 +4,40 @@ import {
   FolderKanban,
   Film,
   Mic2,
-  Bot,
-  Sparkles,
-  Box,
+  Users,
+  Languages,
+  Clock,
   Sliders,
+  Sparkles,
   Subtitles,
+  Zap,
   Share2,
+  Cloud,
+  Wand2,
+  Volume2,
+  VolumeX,
+  Scissors,
   Settings,
+  HardDrive,
+  Shield,
+  Activity,
+  HelpCircle,
   Crown,
   ChevronRight,
-  HardDrive,
-  Activity,
-  Layers,
-  Users,
   PanelLeftClose,
   PanelLeftOpen,
-  Heart,
-  Zap,
-  TrendingUp,
   Plus,
   X,
-  Mic,
-  Scissors,
-  Wand2,
+  Heart,
+  Bot,
+  Layers,
+  Brain,
+  Flame,
+  Rocket,
 } from 'lucide-react';
 import { TabId, User } from '../../types';
-import { tw } from '../../hooks/useDesignTokens';
+import { DragonLogo } from '../dragon/DragonLogo';
+import { getLicenseInfo } from '../../utils/subscription';
 
 interface SidebarProps {
   activeTab: TabId;
@@ -57,6 +65,11 @@ interface SidebarProps {
   onOpenAudioMixer?: () => void;
   onOpenSubtitles?: () => void;
   onOpenSponsor?: () => void;
+  onOpenVoiceLab?: () => void;
+  onOpenVIPModal?: () => void;
+  onOpenAIAssistant?: () => void;
+  onOpenGuide?: () => void;
+  onOpenRoadmap?: () => void;
 }
 
 interface NavItemProps {
@@ -66,108 +79,42 @@ interface NavItemProps {
   onClick: () => void;
   isCollapsed: boolean;
   badge?: string;
-  badgeColor?: 'cyan' | 'purple' | 'emerald' | 'amber';
+  badgeColor?: 'cyan' | 'purple' | 'emerald' | 'amber' | 'fire';
+  accent?: 'cyan' | 'purple' | 'jade' | 'fire';
   title?: string;
-  accentColor?: 'green' | 'blue' | 'purple' | 'amber' | 'rose';
+  animationIndex?: number;
 }
 
-// ── Tooltip component for collapsed state ──
+/* ─── Enhanced Glass Tooltip ─── */
 const Tooltip: React.FC<{ label: string; visible: boolean }> = ({ label, visible }) => (
   <div
     style={{
       position: 'absolute',
-      left: 'calc(100% + 12px)',
+      left: 'calc(100% + 10px)',
       top: '50%',
-      transform: visible ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0.85)',
+      transform: visible ? 'translateY(-50%) scale(1)' : 'translateY(-50%) scale(0.9)',
       opacity: visible ? 1 : 0,
       pointerEvents: 'none',
       transition: 'opacity 0.18s ease, transform 0.18s ease',
       zIndex: 9999,
       whiteSpace: 'nowrap',
-      background: 'linear-gradient(135deg, rgba(30,32,40,0.98) 0%, rgba(20,22,30,0.98) 100%)',
-      border: '1px solid rgba(255,255,255,0.12)',
-      borderRadius: '10px',
-      padding: '6px 12px',
-      fontSize: '12px',
-      fontWeight: 600,
-      color: '#e2e8f0',
-      boxShadow: '0 8px 24px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.04)',
+      background: 'rgba(12,7,9,0.95)',
       backdropFilter: 'blur(12px)',
+      border: '1px solid rgba(220,38,38,0.3)',
+      borderRadius: '8px',
+      padding: '5px 10px',
+      fontSize: '11px',
+      fontWeight: 700,
+      color: '#F8FAFC',
+      boxShadow: '0 8px 32px rgba(0,0,0,0.8), 0 0 16px rgba(220,38,38,0.15)',
+      fontFamily: 'inherit',
     }}
   >
     {label}
-    {/* Arrow */}
-    <span
-      style={{
-        position: 'absolute',
-        left: '-5px',
-        top: '50%',
-        transform: 'translateY(-50%) rotate(45deg)',
-        width: '8px',
-        height: '8px',
-        background: 'rgba(30,32,40,0.98)',
-        border: '1px solid rgba(255,255,255,0.12)',
-        borderRight: 'none',
-        borderTop: 'none',
-      }}
-    />
   </div>
 );
 
-// ── Accent color maps ──
-const accentMap = {
-  green: {
-    activeBg: 'rgba(16,185,129,0.15)',
-    activeBorder: 'rgba(16,185,129,0.5)',
-    activeShadow: '0 0 20px rgba(16,185,129,0.3), inset 0 0 12px rgba(16,185,129,0.05)',
-    activeText: '#6ee7b7',
-    pillColor: 'rgba(16,185,129,0.9)',
-    pillShadow: '0 0 12px rgba(16,185,129,0.7)',
-    hoverBg: 'rgba(16,185,129,0.07)',
-    iconColor: '#34d399',
-  },
-  blue: {
-    activeBg: 'rgba(59,130,246,0.15)',
-    activeBorder: 'rgba(59,130,246,0.5)',
-    activeShadow: '0 0 20px rgba(59,130,246,0.3), inset 0 0 12px rgba(59,130,246,0.05)',
-    activeText: '#93c5fd',
-    pillColor: 'rgba(59,130,246,0.9)',
-    pillShadow: '0 0 12px rgba(59,130,246,0.7)',
-    hoverBg: 'rgba(59,130,246,0.07)',
-    iconColor: '#60a5fa',
-  },
-  purple: {
-    activeBg: 'rgba(139,92,246,0.15)',
-    activeBorder: 'rgba(139,92,246,0.5)',
-    activeShadow: '0 0 20px rgba(139,92,246,0.3), inset 0 0 12px rgba(139,92,246,0.05)',
-    activeText: '#c4b5fd',
-    pillColor: 'rgba(139,92,246,0.9)',
-    pillShadow: '0 0 12px rgba(139,92,246,0.7)',
-    hoverBg: 'rgba(139,92,246,0.07)',
-    iconColor: '#a78bfa',
-  },
-  amber: {
-    activeBg: 'rgba(245,158,11,0.15)',
-    activeBorder: 'rgba(245,158,11,0.5)',
-    activeShadow: '0 0 20px rgba(245,158,11,0.3), inset 0 0 12px rgba(245,158,11,0.05)',
-    activeText: '#fcd34d',
-    pillColor: 'rgba(245,158,11,0.9)',
-    pillShadow: '0 0 12px rgba(245,158,11,0.7)',
-    hoverBg: 'rgba(245,158,11,0.07)',
-    iconColor: '#fbbf24',
-  },
-  rose: {
-    activeBg: 'rgba(244,63,94,0.15)',
-    activeBorder: 'rgba(244,63,94,0.5)',
-    activeShadow: '0 0 20px rgba(244,63,94,0.3), inset 0 0 12px rgba(244,63,94,0.05)',
-    activeText: '#fda4af',
-    pillColor: 'rgba(244,63,94,0.9)',
-    pillShadow: '0 0 12px rgba(244,63,94,0.7)',
-    hoverBg: 'rgba(244,63,94,0.07)',
-    iconColor: '#fb7185',
-  },
-};
-
+/* ─── Nav Item with Cinematic Entrance ─── */
 const NavItem: React.FC<NavItemProps> = ({
   icon,
   label,
@@ -176,138 +123,69 @@ const NavItem: React.FC<NavItemProps> = ({
   isCollapsed,
   badge,
   badgeColor = 'cyan',
+  accent = 'cyan',
   title,
-  accentColor = 'green',
+  animationIndex = 0,
 }) => {
   const [isHovered, setIsHovered] = useState(false);
-  const accent = accentMap[accentColor];
 
-  const getBadgeStyle = (): React.CSSProperties => {
+  const getBadgeStyle = () => {
     switch (badgeColor) {
       case 'purple':
-        return { background: 'rgba(139,92,246,0.2)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.4)' };
       case 'amber':
-        return { background: 'rgba(245,158,11,0.2)', color: '#fcd34d', border: '1px solid rgba(245,158,11,0.4)' };
-      case 'emerald':
+      case 'fire':
       case 'cyan':
+      case 'emerald':
       default:
-        return { background: 'rgba(16,185,129,0.2)', color: '#6ee7b7', border: '1px solid rgba(16,185,129,0.4)' };
+        return 'text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 shadow-[0_0_8px_rgba(220,38,38,0.3)]';
     }
   };
 
-  const buttonStyle: React.CSSProperties = active
-    ? {
-        background: `linear-gradient(135deg, ${accent.activeBg} 0%, rgba(20,22,30,0.6) 100%)`,
-        border: `1px solid ${accent.activeBorder}`,
-        boxShadow: accent.activeShadow,
-        color: accent.activeText,
-        position: 'relative',
-        overflow: 'visible',
-      }
-    : isHovered
-    ? {
-        background: `linear-gradient(135deg, ${accent.hoverBg} 0%, rgba(255,255,255,0.03) 100%)`,
-        border: '1px solid rgba(255,255,255,0.08)',
-        color: '#f1f5f9',
-        position: 'relative',
-        overflow: 'visible',
-      }
-    : {
-        background: 'transparent',
-        border: '1px solid transparent',
-        color: '#94a3b8',
-        position: 'relative',
-        overflow: 'visible',
-      };
-
   return (
-    <div style={{ position: 'relative' }}>
+    <div
+      className="relative font-khmer opacity-0 animate-slide-left"
+      style={{ animationDelay: `${animationIndex * 35}ms` }}
+    >
       <button
         type="button"
         onClick={onClick}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
-        style={{
-          ...buttonStyle,
-          width: '100%',
-          display: 'flex',
-          alignItems: 'center',
-          gap: isCollapsed ? 0 : '10px',
-          padding: isCollapsed ? '10px 0' : '9px 10px',
-          borderRadius: '12px',
-          fontSize: '12px',
-          fontWeight: active ? 700 : 500,
-          transition: 'all 0.2s cubic-bezier(0.4, 0, 0.2, 1)',
-          cursor: 'pointer',
-          justifyContent: isCollapsed ? 'center' : 'flex-start',
-          userSelect: 'none',
-          outline: 'none',
-        }}
+        className={`w-full flex items-center transition-all duration-200 select-none outline-none relative rounded-xl font-semibold ${
+          isCollapsed ? 'justify-center p-2.5 my-0.5' : 'justify-start py-2 my-0.5 gap-2.5'
+        } ${
+          isCollapsed
+            ? active
+              ? 'bg-gradient-to-r from-red-500/15 to-orange-500/5 text-white shadow-[inset_0_0_20px_rgba(220,38,38,0.08)] border border-red-500/40'
+              : isHovered
+              ? 'bg-white/[0.04] text-white border border-white/[0.06]'
+              : 'bg-transparent text-slate-400 hover:text-white border border-transparent'
+            : active
+            ? 'bg-gradient-to-r from-red-500/15 to-orange-500/5 border-l-2 border-red-500 text-white shadow-[inset_0_0_20px_rgba(220,38,38,0.08)] pl-2.5 pr-3 font-bold'
+            : isHovered
+            ? 'bg-white/[0.04] text-white border border-white/[0.06] px-3'
+            : 'bg-transparent text-slate-400 hover:text-white border border-transparent px-3'
+        }`}
       >
-        {/* Active left-border glow pill */}
-        {active && (
-          <span
-            style={{
-              position: 'absolute',
-              left: '-1px',
-              top: '20%',
-              height: '60%',
-              width: '3px',
-              borderRadius: '0 3px 3px 0',
-              background: accent.pillColor,
-              boxShadow: accent.pillShadow,
-              transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-              animation: 'pillIn 0.25s cubic-bezier(0.4, 0, 0.2, 1)',
-            }}
-          />
-        )}
-
         {/* Icon */}
         <span
-          style={{
-            width: '18px',
-            height: '18px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            color: active ? accent.iconColor : isHovered ? accent.iconColor : '#64748b',
-            transition: 'color 0.2s ease, transform 0.2s ease',
-            transform: isHovered && !active ? 'scale(1.1)' : 'scale(1)',
-          }}
+          className={`shrink-0 transition-transform duration-200 ${
+            active
+              ? 'text-red-400 drop-shadow-[0_0_8px_rgba(239,68,68,0.8)] scale-110'
+              : isHovered
+              ? 'text-white scale-105'
+              : 'text-slate-400 hover:text-white'
+          }`}
         >
           {icon}
         </span>
 
-        {/* Label + Badge */}
+        {/* Label & Badge */}
         {!isCollapsed && (
           <>
-            <span
-              style={{
-                flex: 1,
-                textAlign: 'left',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-                whiteSpace: 'nowrap',
-                letterSpacing: '0.01em',
-                transition: 'opacity 0.2s ease',
-              }}
-            >
-              {label}
-            </span>
+            <span className="flex-1 text-left truncate tracking-wide font-khmer text-[12.5px] leading-tight">{label}</span>
             {badge && (
-              <span
-                style={{
-                  ...getBadgeStyle(),
-                  fontSize: '9px',
-                  fontWeight: 800,
-                  padding: '2px 7px',
-                  borderRadius: '999px',
-                  fontFamily: 'monospace',
-                  lineHeight: 1,
-                  flexShrink: 0,
-                }}
-              >
+              <span className={`shrink-0 ${getBadgeStyle()}`}>
                 {badge}
               </span>
             )}
@@ -315,144 +193,26 @@ const NavItem: React.FC<NavItemProps> = ({
         )}
       </button>
 
-      {/* Tooltip for collapsed state */}
+      {/* Tooltip on collapse */}
       {isCollapsed && <Tooltip label={title || label} visible={isHovered} />}
     </div>
   );
 };
 
-// ── Section divider with label ──
+/* ─── Section Divider with crimson gradient ─── */
 const SectionDivider: React.FC<{ label: string; isCollapsed: boolean }> = ({ label, isCollapsed }) => (
-  <div
-    style={{
-      padding: isCollapsed ? '8px 0 4px' : '10px 4px 4px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '8px',
-      overflow: 'hidden',
-    }}
-  >
+  <div className={`overflow-hidden ${isCollapsed ? 'py-2 px-1 flex justify-center' : ''}`}>
     {isCollapsed ? (
-      <div
-        style={{
-          width: '24px',
-          height: '1px',
-          background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
-          margin: '0 auto',
-          transition: 'all 0.3s ease',
-        }}
-      />
+      <div className="w-5 h-px bg-red-950/60" />
     ) : (
-      <>
-        <span
-          style={{
-            fontSize: '9px',
-            fontWeight: 700,
-            color: 'rgba(148,163,184,0.5)',
-            letterSpacing: '0.12em',
-            whiteSpace: 'nowrap',
-            transition: 'opacity 0.2s ease',
-            fontFamily: 'monospace',
-          }}
-        >
-          {label}
-        </span>
-        <div
-          style={{
-            flex: 1,
-            height: '1px',
-            background: 'linear-gradient(90deg, rgba(255,255,255,0.08), transparent)',
-          }}
-        />
-      </>
+      <div className="flex items-center gap-2 px-3 pt-4 pb-1.5">
+        <div className="h-px flex-1 bg-gradient-to-r from-red-500/30 to-transparent" />
+        <span className="text-[9px] font-black text-red-500/80 tracking-[0.2em] uppercase">{label}</span>
+        <div className="h-px w-4 bg-red-500/20" />
+      </div>
     )}
   </div>
 );
-
-// ── User avatar/initials badge ──
-const UserAvatar: React.FC<{ user?: User | null; isCollapsed: boolean }> = ({ user, isCollapsed }) => {
-  const initials = user?.name
-    ? user.name
-        .split(' ')
-        .slice(0, 2)
-        .map((w) => w[0])
-        .join('')
-        .toUpperCase()
-    : 'U';
-
-  const avatarContent = (
-    <div
-      style={{
-        width: '36px',
-        height: '36px',
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #06b6d4 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontSize: '13px',
-        fontWeight: 800,
-        color: '#fff',
-        flexShrink: 0,
-        boxShadow: '0 0 0 2px rgba(99,102,241,0.4), 0 4px 12px rgba(99,102,241,0.3)',
-        letterSpacing: '0.02em',
-      }}
-    >
-      {initials}
-    </div>
-  );
-
-  if (isCollapsed) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', padding: '4px 0 8px' }}>
-        {avatarContent}
-      </div>
-    );
-  }
-
-  return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        padding: '8px 10px',
-        borderRadius: '12px',
-        background: 'rgba(255,255,255,0.03)',
-        border: '1px solid rgba(255,255,255,0.07)',
-        marginBottom: '6px',
-      }}
-    >
-      {avatarContent}
-      <div style={{ flex: 1, overflow: 'hidden' }}>
-        <div
-          style={{
-            fontSize: '12px',
-            fontWeight: 700,
-            color: '#e2e8f0',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {user?.name || 'User'}
-        </div>
-        <div
-          style={{
-            fontSize: '10px',
-            color: 'rgba(148,163,184,0.6)',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {user?.email || 'PRO VIP'}
-        </div>
-      </div>
-      <Crown style={{ width: '14px', height: '14px', color: '#fbbf24', flexShrink: 0 }} />
-    </div>
-  );
-};
 
 export const Sidebar: React.FC<SidebarProps> = ({
   activeTab,
@@ -480,728 +240,327 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onOpenAudioMixer,
   onOpenSubtitles,
   onOpenSponsor,
+  onOpenVoiceLab,
+  onOpenVIPModal,
+  onOpenAIAssistant,
+  onOpenGuide,
+  onOpenRoadmap,
 }) => {
-  const [newProjectHovered, setNewProjectHovered] = useState(false);
-
   const handleClick = (fn: () => void) => {
     fn();
     onCloseMobile?.();
   };
 
+  const lic = getLicenseInfo(user);
+
   return (
     <>
-      {/* Keyframe injector */}
-      <style>{`
-        @keyframes pillIn {
-          from { opacity: 0; transform: scaleY(0.4); }
-          to   { opacity: 1; transform: scaleY(1); }
-        }
-        @keyframes pulse-ring {
-          0%   { transform: scale(1);   opacity: 0.7; }
-          70%  { transform: scale(1.6); opacity: 0; }
-          100% { transform: scale(1.6); opacity: 0; }
-        }
-        @keyframes gradientShift {
-          0%   { background-position: 0%   50%; }
-          50%  { background-position: 100% 50%; }
-          100% { background-position: 0%   50%; }
-        }
-        .sidebar-scrollbar::-webkit-scrollbar { width: 3px; }
-        .sidebar-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .sidebar-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
-        .sidebar-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.16); }
-      `}</style>
-
       {/* Mobile backdrop overlay */}
       {isMobileOpen && (
         <div
           onClick={onCloseMobile}
-          className="fixed inset-0 bg-black/75 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
-          title="ចុចដើម្បីបិទ Menu"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-40 md:hidden animate-in fade-in duration-200"
         />
       )}
 
       <aside
         style={{
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          background: 'linear-gradient(180deg, #0f1014 0%, #12141a 50%, #0f1014 100%)',
-          borderRight: '1px solid rgba(255,255,255,0.07)',
-          userSelect: 'none',
-          transition: 'width 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          zIndex: isMobileOpen ? 50 : 30,
-          flexShrink: 0,
-          fontFamily: 'inherit',
-          width: isMobileOpen ? '260px' : isCollapsed ? '64px' : '240px',
-          position: isMobileOpen ? 'fixed' : 'relative',
-          ...(isMobileOpen
-            ? { top: 0, bottom: 0, left: 0, boxShadow: '6px 0 40px rgba(0,0,0,0.8)' }
-            : {}),
+          width: isMobileOpen ? '280px' : isCollapsed ? '68px' : '260px',
         }}
-        className={isMobileOpen ? '' : 'hidden md:flex'}
+        className={`h-full flex flex-col bg-[#0C0709] border-r border-red-950/50 shadow-[4px_0_24px_rgba(0,0,0,0.5)] select-none transition-all duration-300 z-30 shrink-0 font-khmer ${
+          isMobileOpen ? 'fixed top-0 bottom-0 left-0 shadow-2xl z-50 flex' : 'hidden md:flex relative'
+        }`}
       >
-        {/* Mobile Header with Close Button */}
-        {isMobileOpen && (
-          <div className="flex items-center justify-between px-3 py-2.5 border-b border-white/[0.08] bg-[#141418] shrink-0 font-khmer">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 rounded-lg bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
-                <Mic className="w-3.5 h-3.5 text-emerald-400" />
-              </div>
-              <span className="text-xs font-bold text-white tracking-wide">
-                មឺនុយស្ទូឌីយោ
-              </span>
-            </div>
-            <button
-              type="button"
-              onClick={onCloseMobile}
-              className="p-1 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
-              title="បិទ (Close)"
-            >
-              <X className="w-4 h-4" />
-            </button>
+        {/* ── Top Header & Dragon Brand ── */}
+        <div className="p-3 border-b border-red-950/50 bg-[#100A0C] flex items-center justify-between shrink-0">
+          <div
+            onClick={() => handleClick(() => onSelectTab('tab-dashboard'))}
+            className="cursor-pointer overflow-hidden flex items-center"
+          >
+            <DragonLogo
+              size={isCollapsed ? 'sm' : 'md'}
+              withText={!isCollapsed}
+              withTagline={!isCollapsed}
+              animated={true}
+            />
           </div>
-        )}
 
-        {/* ── Top bar: Collapse toggle (desktop only) ── */}
-        <div
-          className="hidden md:flex"
-          style={{
-            padding: '8px',
-            justifyContent: isCollapsed ? 'center' : 'flex-end',
-            borderBottom: '1px solid rgba(255,255,255,0.05)',
-            flexShrink: 0,
-          }}
-        >
+          {/* Collapse Toggle Button (Desktop only) */}
           <button
             type="button"
             onClick={onToggleCollapse}
+            className="hidden md:flex p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
             title={isCollapsed ? 'ពង្រីក Sidebar' : 'បង្រួម Sidebar'}
-            style={{
-              padding: '6px',
-              borderRadius: '8px',
-              color: '#64748b',
-              background: 'transparent',
-              border: 'none',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'color 0.2s, background 0.2s',
-            }}
-            onMouseEnter={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#fff';
-              (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
-            }}
-            onMouseLeave={(e) => {
-              (e.currentTarget as HTMLButtonElement).style.color = '#64748b';
-              (e.currentTarget as HTMLButtonElement).style.background = 'transparent';
-            }}
           >
-            {isCollapsed
-              ? <PanelLeftOpen style={{ width: '16px', height: '16px' }} />
-              : <PanelLeftClose style={{ width: '16px', height: '16px' }} />}
+            {isCollapsed ? <PanelLeftOpen className="w-4 h-4" /> : <PanelLeftClose className="w-4 h-4" />}
+          </button>
+
+          {/* Close button on mobile */}
+          {isMobileOpen && (
+            <button
+              type="button"
+              onClick={onCloseMobile}
+              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-white"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          )}
+        </div>
+
+        {/* ── "+ គម្រោងថ្មី" Quick Action Button ── */}
+        <div className="p-2.5 shrink-0">
+          <button
+            type="button"
+            onClick={() => handleClick(onNewProject)}
+            className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl bg-gradient-to-r from-red-600 via-red-500 to-orange-500 hover:from-red-500 hover:to-orange-400 text-white font-black text-xs shadow-[0_4px_20px_rgba(220,38,38,0.4)] hover:shadow-[0_6px_28px_rgba(220,38,38,0.6)] active:scale-95 transition-all duration-200 ${
+              isCollapsed ? 'px-0' : 'px-3'
+            }`}
+            title="គម្រោងថ្មី"
+          >
+            <Plus className="w-4 h-4 shrink-0" />
+            {!isCollapsed && <span>+ គម្រោងថ្មី</span>}
           </button>
         </div>
 
-        {/* ── New Project Quick Action ── */}
+        {/* ── Scrollable Navigation Items ── */}
         <div
+          className="flex-1 overflow-y-auto px-2 py-1 space-y-0.5"
           style={{
-            padding: isCollapsed ? '8px 8px 0' : '10px 10px 0',
-            flexShrink: 0,
+            scrollbarWidth: 'thin',
+            scrollbarColor: 'rgba(220,38,38,0.35) transparent',
           }}
         >
-          <div style={{ position: 'relative', display: 'inline-flex', width: '100%' }}>
-            {/* Pulsing ring behind button */}
-            <span
-              style={{
-                position: 'absolute',
-                inset: 0,
-                borderRadius: '12px',
-                background: 'rgba(99,102,241,0.4)',
-                animation: 'pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                pointerEvents: 'none',
-              }}
-            />
-            <button
-              type="button"
-              onClick={() => handleClick(onNewProject)}
-              onMouseEnter={() => setNewProjectHovered(true)}
-              onMouseLeave={() => setNewProjectHovered(false)}
-              title={isCollapsed ? 'គម្រោងថ្មី' : undefined}
-              style={{
-                position: 'relative',
-                zIndex: 1,
-                width: '100%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: isCollapsed ? 'center' : 'flex-start',
-                gap: '8px',
-                padding: isCollapsed ? '9px 0' : '9px 12px',
-                borderRadius: '12px',
-                background: newProjectHovered
-                  ? 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 50%, #0891b2 100%)'
-                  : 'linear-gradient(135deg, #3730a3 0%, #5b21b6 50%, #0e7490 100%)',
-                backgroundSize: '200% 200%',
-                animation: 'gradientShift 4s ease infinite',
-                border: 'none',
-                cursor: 'pointer',
-                color: '#fff',
-                fontSize: '12px',
-                fontWeight: 700,
-                letterSpacing: '0.04em',
-                boxShadow: newProjectHovered
-                  ? '0 4px 20px rgba(99,102,241,0.5), 0 0 0 1px rgba(99,102,241,0.3)'
-                  : '0 2px 12px rgba(99,102,241,0.3)',
-                transition: 'all 0.2s ease',
-                transform: newProjectHovered ? 'translateY(-1px)' : 'none',
-              }}
-            >
-              <span
-                style={{
-                  width: '18px',
-                  height: '18px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                }}
-              >
-                <Plus style={{ width: '16px', height: '16px' }} />
-              </span>
-              {!isCollapsed && <span>គម្រោងថ្មី</span>}
-            </button>
-          </div>
-        </div>
+          {/* ── SECTION 1: ម៉ឺនុយចម្បង ── */}
+          <SectionDivider label="ម៉ឺនុយចម្បង" isCollapsed={isCollapsed} />
 
-        {/* ── Navigation ── */}
-        <div
-          className="sidebar-scrollbar"
-          style={{
-            flex: 1,
-            overflowY: 'auto',
-            overflowX: 'hidden',
-            padding: '6px 8px',
-          }}
-        >
-          {/* ── SECTION: MAIN ── */}
-          <SectionDivider label="MAIN" isCollapsed={isCollapsed} />
-
-          {/* ផ្ទាំងគ្រប់គ្រង */}
+          {/* 🏠 ផ្ទាំងគ្រប់គ្រង */}
           <NavItem
-            icon={<LayoutDashboard style={{ width: '16px', height: '16px' }} />}
+            icon={<LayoutDashboard className="w-4 h-4" />}
             label="ផ្ទាំងគ្រប់គ្រង"
             active={activeTab === 'tab-dashboard'}
             onClick={() => handleClick(() => onSelectTab('tab-dashboard'))}
             isCollapsed={isCollapsed}
-            title="ផ្ទាំងគ្រប់គ្រង"
-            accentColor="green"
+            title="ផ្ទាំងគ្រប់គ្រងទូទៅ"
+            animationIndex={0}
           />
 
-          {/* គម្រោង */}
+          {/* 🎬 កែសម្រួល & ដាក់សំឡេង (Dubbing Studio - Core) */}
           <NavItem
-            icon={<FolderKanban style={{ width: '16px', height: '16px' }} />}
-            label="គម្រោង"
-            active={activeTab === 'tab-projects' || activeTab === 'tab-groups'}
-            onClick={() => handleClick(() => (onOpenGroups ? onOpenGroups() : onSelectTab('tab-projects')))}
-            isCollapsed={isCollapsed}
-            title="គម្រោង"
-            accentColor="green"
-          />
-
-          {/* បណ្ណាល័យមេឌៀ */}
-          <NavItem
-            icon={<Film style={{ width: '16px', height: '16px' }} />}
-            label="បណ្ណាល័យមេឌៀ"
-            active={activeTab === 'tab-shelf'}
-            onClick={() => handleClick(() => (onOpenShelf ? onOpenShelf() : onSelectTab('tab-shelf')))}
-            isCollapsed={isCollapsed}
-            badge={`${shelfCount || 1}/10`}
-            badgeColor="cyan"
-            title="បណ្ណាល័យមេឌៀ"
-            accentColor="green"
-          />
-
-          {/* ── SECTION: STUDIO ── */}
-          <SectionDivider label="STUDIO" isCollapsed={isCollapsed} />
-
-          {/* ស្ទូឌីយោឌាប់សំឡេង */}
-          <NavItem
-            icon={<Mic2 style={{ width: '16px', height: '16px' }} />}
-            label="ស្ទូឌីយោឌាប់សំឡេង"
-            active={activeTab === 'tab-dubbing' || activeTab === 'tab-workflow'}
+            icon={<Film className="w-4 h-4" />}
+            label="កែសម្រួល & ដាក់សំឡេង"
+            active={activeTab === 'tab-dubbing'}
             onClick={() => handleClick(() => {
               onOpenDubbingStudio?.();
               onSelectTab('tab-dubbing');
             })}
             isCollapsed={isCollapsed}
             badge="PRO"
+            badgeColor="fire"
+            title="ស្ទូឌីយោកែសម្រួល & ដាក់សំឡេងភាពយន្ត"
+            animationIndex={1}
+          />
+
+          {/* 📁 គម្រោងទាំងអស់ */}
+          <NavItem
+            icon={<FolderKanban className="w-4 h-4" />}
+            label="គម្រោងភាពយន្ត"
+            active={activeTab === 'tab-projects' || activeTab === 'tab-groups'}
+            onClick={() => handleClick(() => onSelectTab('tab-projects'))}
+            isCollapsed={isCollapsed}
+            title="គ្រប់គ្រងគម្រោង & Series ភាគ"
+            animationIndex={2}
+          />
+
+          {/* 🎙️ បន្ទប់សំឡេង AI */}
+          <NavItem
+            icon={<Mic2 className="w-4 h-4" />}
+            label="បន្ទប់សំឡេង AI"
+            active={activeTab === 'tab-voicelab' || activeTab === 'tab-tuner'}
+            onClick={() => handleClick(() => {
+              onOpenVoiceLab?.();
+              onSelectTab('tab-voicelab');
+            })}
+            isCollapsed={isCollapsed}
+            badge="100+"
             badgeColor="purple"
-            title="ស្ទូឌីយោឌាប់សំឡេង"
-            accentColor="blue"
+            title="បណ្ណាល័យសំឡេង AI ខ្មែរ"
+            animationIndex={3}
           />
 
-          {/* សម្រាយរឿង AI (Movie & Story Recap Studio) */}
+          {/* 👥 គ្រប់គ្រងតួអង្គ */}
           <NavItem
-            icon={<Sparkles style={{ width: '16px', height: '16px' }} />}
-            label="សម្រាយរឿង AI"
-            active={activeTab === 'tab-narrator'}
-            onClick={() => handleClick(() => onSelectTab('tab-narrator'))}
+            icon={<Users className="w-4 h-4" />}
+            label="គ្រប់គ្រងតួអង្គ"
+            active={activeTab === 'tab-character'}
+            onClick={() => handleClick(() => onSelectTab('tab-character'))}
             isCollapsed={isCollapsed}
-            badge="RECAP"
-            badgeColor="cyan"
-            title="ស្ទូឌីយោសម្រាយរឿង AI អាជីព (Single Voice Clone Movie Recap Studio)"
-            accentColor="purple"
+            title="កំណត់សំឡេង និងតួអង្គ"
+            animationIndex={4}
           />
 
-          {/* បង្កើតសំឡេង AI */}
-          <NavItem
-            icon={<Bot style={{ width: '16px', height: '16px' }} />}
-            label="បង្កើតសំឡេង AI"
-            active={activeTab === 'tab-offline' || activeTab === 'tab-manual'}
-            onClick={() => handleClick(() => {
-              onOpenAITTS?.();
-              onSelectTab('tab-offline');
-            })}
-            isCollapsed={isCollapsed}
-            badge="AUTO"
-            badgeColor="emerald"
-            title="បង្កើតសំឡេង AI"
-            accentColor="blue"
-          />
+          {/* ── SECTION 2: ឧបករណ៍ស្ទូឌីយោ ── */}
+          <SectionDivider label="ឧបករណ៍ស្ទូឌីយោ" isCollapsed={isCollapsed} />
 
-          {/* ចម្លងសំឡេង */}
+          {/* 🎧 លាយសំឡេង */}
           <NavItem
-            icon={<Users style={{ width: '16px', height: '16px' }} />}
-            label="ចម្លងសំឡេង"
-            active={activeTab === 'tab-character' || activeTab === 'tab-tuner'}
-            onClick={() => handleClick(() => {
-              onOpenVoiceCloning?.();
-              onSelectTab('tab-character');
-            })}
-            isCollapsed={isCollapsed}
-            title="ចម្លងសំឡេង"
-            accentColor="blue"
-          />
-
-          {/* ចំណងជើងរង */}
-          <NavItem
-            icon={<Subtitles style={{ width: '16px', height: '16px' }} />}
-            label="ចំណងជើងរង"
-            active={activeTab === 'tab-subtitles'}
-            onClick={() => handleClick(() => {
-              onOpenSubtitles?.();
-              onSelectTab('tab-subtitles');
-            })}
-            isCollapsed={isCollapsed}
-            title="ចំណងជើងរង"
-            accentColor="blue"
-          />
-
-          {/* សំឡេង និងតន្ត្រី */}
-          <NavItem
-            icon={<Layers style={{ width: '16px', height: '16px' }} />}
-            label="សំឡេង និងតន្ត្រី"
-            active={activeTab === 'tab-workflow'}
-            onClick={() => handleClick(() => onSelectTab('tab-workflow'))}
-            isCollapsed={isCollapsed}
-            title="សំឡេង និងតន្ត្រី"
-            accentColor="blue"
-          />
-
-          {/* ── SECTION: TOOLS ── */}
-          <SectionDivider label="TOOLS" isCollapsed={isCollapsed} />
-
-          {/* កាត់ត & បញ្ចូលភាគ (1H-5H Auto Splitter & Merger) */}
-          <NavItem
-            icon={<Scissors style={{ width: '16px', height: '16px' }} />}
-            label="កាត់ត & បញ្ចូលភាគ"
-            active={activeTab === 'tab-cutter'}
-            onClick={() => handleClick(() => onSelectTab('tab-cutter'))}
-            isCollapsed={isCollapsed}
-            badge="1H-5H"
-            badgeColor="emerald"
-            title="Auto Split វីដេអូ 1H-5H ជាច្រើនភាគ & Merge វីដេអូខ្លីៗចូលគ្នា"
-            accentColor="green"
-          />
-
-          {/* PosterForge AI — បង្កើត Poster AI */}
-          <NavItem
-            icon={<Wand2 style={{ width: '16px', height: '16px' }} />}
-            label="PosterForge AI"
-            active={activeTab === 'tab-posterforge'}
-            onClick={() => handleClick(() => onSelectTab('tab-posterforge'))}
-            isCollapsed={isCollapsed}
-            badge="AI 4K"
-            badgeColor="amber"
-            title="PosterForge AI — បង្កើត Poster ភាពយន្ត 3D, Donghua, Xianxia & Anime"
-            accentColor="amber"
-          />
-
-          {/* បែបផែន */}
-          <NavItem
-            icon={<Sparkles style={{ width: '16px', height: '16px' }} />}
-            label="បែបផែន"
-            active={activeTab === 'tab-thumbnail'}
-            onClick={() => handleClick(() => {
-              onOpenEffects?.();
-              onSelectTab('tab-thumbnail');
-            })}
-            isCollapsed={isCollapsed}
-            badge="VIP"
-            badgeColor="purple"
-            title="បែបផែន"
-            accentColor="purple"
-          />
-
-          {/* កែពណ៌ */}
-          <NavItem
-            icon={<HardDrive style={{ width: '16px', height: '16px' }} />}
-            label="កែពណ៌"
-            active={false}
-            onClick={() => handleClick(() => onOpenEffects?.())}
-            isCollapsed={isCollapsed}
-            title="កែពណ៌"
-            accentColor="purple"
-          />
-
-          {/* បែបផែន 3D */}
-          <NavItem
-            icon={<Box style={{ width: '16px', height: '16px' }} />}
-            label="បែបផែន 3D"
-            active={false}
-            onClick={() => handleClick(() => onOpen3DEffects?.())}
-            isCollapsed={isCollapsed}
-            title="បែបផែន 3D"
-            accentColor="purple"
-          />
-
-          {/* ឧបករណ៍លាយសំឡេង */}
-          <NavItem
-            icon={<Sliders style={{ width: '16px', height: '16px' }} />}
-            label="ឧបករណ៍លាយសំឡេង"
+            icon={<Sliders className="w-4 h-4" />}
+            label="លាយសំឡេង"
             active={activeTab === 'tab-mixer'}
             onClick={() => handleClick(() => {
               onOpenAudioMixer?.();
               onSelectTab('tab-mixer');
             })}
             isCollapsed={isCollapsed}
-            title="ឧបករណ៍លាយសំឡេង"
-            accentColor="purple"
+            title="ឧបករណ៍លាយសំឡេង (Audio Mixer)"
+            animationIndex={5}
           />
 
-          {/* ── SECTION: SYSTEM ── */}
-          <SectionDivider label="SYSTEM" isCollapsed={isCollapsed} />
-
-          {/* នាំចេញ */}
+          {/* 🎨 អក្សររត់ */}
           <NavItem
-            icon={<Share2 style={{ width: '16px', height: '16px' }} />}
-            label="នាំចេញ"
+            icon={<Subtitles className="w-4 h-4" />}
+            label="អក្សររត់"
+            active={activeTab === 'tab-subtitles'}
+            onClick={() => handleClick(() => {
+              onOpenSubtitles?.();
+              onSelectTab('tab-subtitles');
+            })}
+            isCollapsed={isCollapsed}
+            title="ស្ទូឌីយោអក្សររត់ (Subtitles)"
+            animationIndex={6}
+          />
+
+          {/* 📂 បញ្ចូលសំឡេងភាគ (Batch Studio) */}
+          <NavItem
+            icon={<Layers className="w-4 h-4 text-amber-400" />}
+            label="ស្ទូឌីយោភាគ (Batch)"
+            active={activeTab === 'tab-batchstudio'}
+            onClick={() => handleClick(() => onSelectTab('tab-batchstudio'))}
+            isCollapsed={isCollapsed}
+            title="បញ្ចូលសំឡេងវីដេអូច្រើនភាគ"
+            animationIndex={7}
+          />
+
+          {/* ✂️ កាត់ត & បំបែកឈុត */}
+          <NavItem
+            icon={<Scissors className="w-4 h-4 text-amber-400" />}
+            label="កាត់ត & បំបែកឈុត"
+            active={activeTab === 'tab-cutter'}
+            onClick={() => handleClick(() => onSelectTab('tab-cutter'))}
+            isCollapsed={isCollapsed}
+            title="កាត់ត និងបំបែកភាគភាពយន្ត"
+            animationIndex={8}
+          />
+
+          {/* 📦 បញ្ចេញវីដេអូ */}
+          <NavItem
+            icon={<Share2 className="w-4 h-4" />}
+            label="បញ្ចេញវីដេអូ"
+            active={false}
             onClick={() => handleClick(onOpenExport)}
             isCollapsed={isCollapsed}
-            title="នាំចេញ"
-            accentColor="amber"
+            title="បញ្ចេញវីដេអូសម្រេច & សំឡេង"
+            animationIndex={9}
           />
 
-          {/* ការកំណត់ */}
+          {/* ── SECTION 3: ប្រព័ន្ធ & ជំនួយ ── */}
+          <SectionDivider label="ប្រព័ន្ធ & ការកំណត់" isCollapsed={isCollapsed} />
+
+          {/* ⚙️ ការកំណត់ */}
           <NavItem
-            icon={<Settings style={{ width: '16px', height: '16px' }} />}
+            icon={<Settings className="w-4 h-4" />}
             label="ការកំណត់"
             onClick={() => handleClick(onOpenSettings)}
             isCollapsed={isCollapsed}
-            title="ការកំណត់"
-            accentColor="amber"
+            title="ការកំណត់ទូទៅ"
+            animationIndex={10}
           />
 
-          {/* Sponsor */}
-          {onOpenSponsor && (
+          {/* ⚡ ស្ថានភាពម៉ាស៊ីន */}
+          <NavItem
+            icon={<Activity className="w-4 h-4 text-red-400" />}
+            label="ស្ថានភាពម៉ាស៊ីន"
+            onClick={() => handleClick(() => onOpenHardwareTurbo?.())}
+            isCollapsed={isCollapsed}
+            title="ពិនិត្យ CPU, RAM, GPU & ធនធាន"
+            animationIndex={11}
+          />
+
+          {/* 📖 ជំនួយ & ការណែនាំ */}
+          <NavItem
+            icon={<HelpCircle className="w-4 h-4 text-slate-400" />}
+            label="ជំនួយ & ការណែនាំ"
+            onClick={() => handleClick(() => onOpenGuide?.())}
+            isCollapsed={isCollapsed}
+            title="សៀវភៅណែនាំប្រើប្រាស់កម្មវិធី"
+            animationIndex={12}
+          />
+
+          {/* 🚀 Next Version Commercial Roadmap */}
+          {onOpenRoadmap && (
             <NavItem
-              icon={<Heart style={{ width: '16px', height: '16px' }} />}
-              label="Sponsor / ឧបត្ថម្ភ"
-              badge="VIP"
-              badgeColor="purple"
-              onClick={() => handleClick(onOpenSponsor)}
+              icon={<Rocket className="w-4 h-4 text-amber-400 animate-pulse" />}
+              label="Version បន្ទាប់"
+              active={false}
+              onClick={() => handleClick(onOpenRoadmap)}
               isCollapsed={isCollapsed}
-              title="គ្រប់គ្រង Sponsor & អ្នកឧបត្ថម្ភ"
-              accentColor="rose"
+              badge="ថ្មី"
+              badgeColor="purple"
+              title="មើលគម្រោង Advanced AI Dubbing Engine ក្នុង Version បន្ទាប់"
+              animationIndex={13}
             />
           )}
         </div>
 
-        {/* ── Bottom cards ── */}
-        <div
-          style={{
-            padding: '10px',
-            borderTop: '1px solid rgba(255,255,255,0.07)',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px',
-            flexShrink: 0,
-          }}
-        >
-          {/* User Avatar */}
-          <UserAvatar user={user} isCollapsed={isCollapsed} />
-
+        {/* ── Bottom Section: VIP Membership Card ── */}
+        <div className="p-3 border-t border-red-950/50 bg-[#100A0C] shrink-0 font-khmer">
           {!isCollapsed ? (
-            <>
-              {/* MEMBERSHIP Card — glassmorphism */}
-              <div
-                style={{
-                  padding: '12px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(30,32,50,0.8) 0%, rgba(20,22,36,0.9) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  border: '1px solid',
-                  borderImageSlice: 1,
-                  borderColor: 'transparent',
-                  boxShadow: '0 0 0 1px rgba(99,102,241,0.25), inset 0 0 20px rgba(99,102,241,0.04), 0 4px 20px rgba(0,0,0,0.4)',
-                  position: 'relative',
-                  overflow: 'hidden',
-                }}
-              >
-                {/* Gradient border overlay */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: '14px',
-                    padding: '1px',
-                    background: 'linear-gradient(135deg, rgba(99,102,241,0.5) 0%, rgba(139,92,246,0.3) 50%, rgba(6,182,212,0.3) 100%)',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                    pointerEvents: 'none',
-                  }}
-                />
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    marginBottom: '6px',
-                  }}
-                >
-                  <div
-                    style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '6px',
-                      fontSize: '12px',
-                      fontWeight: 700,
-                      color: '#f1f5f9',
-                      letterSpacing: '0.06em',
-                    }}
-                  >
-                    <Crown style={{ width: '13px', height: '13px', color: '#fbbf24' }} />
-                    <span>សមាជិកភាព</span>
+            /* Animated gradient border VIP card */
+            <div
+              onClick={() => onOpenVIPModal?.()}
+              className="relative overflow-hidden rounded-2xl p-[1px] bg-gradient-to-br from-red-600/40 via-orange-500/20 to-red-900/40 hover:from-red-500/60 hover:to-orange-500/30 transition-all duration-300 cursor-pointer group"
+            >
+              <div className="rounded-2xl bg-[#1C0F14] p-3">
+                {/* Ambient glow blob */}
+                <div className="absolute top-0 right-0 w-24 h-24 bg-red-500/10 blur-xl group-hover:bg-red-500/20 transition-all pointer-events-none" />
+
+                <div className="flex items-center justify-between mb-1.5 relative z-10">
+                  <div className="flex items-center gap-1.5">
+                    <Crown className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <span className="text-xs font-black text-white tracking-wide">
+                      DRAGON VIP
+                    </span>
                   </div>
-                  <span
-                    style={{
-                      padding: '2px 8px',
-                      borderRadius: '999px',
-                      background: 'linear-gradient(135deg, rgba(6,182,212,0.25) 0%, rgba(99,102,241,0.25) 100%)',
-                      color: '#67e8f9',
-                      border: '1px solid rgba(6,182,212,0.4)',
-                      fontSize: '9.5px',
-                      fontWeight: 800,
-                      fontFamily: 'monospace',
-                    }}
-                  >
-                    PRO VIP
+                  <span className="text-[9px] font-mono font-black px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/40 shadow-[0_0_8px_rgba(220,38,38,0.3)]">
+                    {lic.isLifetime ? 'LIFETIME' : lic.isLicensed ? 'PRO' : 'ឥតគិតថ្លៃ'}
                   </span>
                 </div>
-                <div style={{ fontSize: '11px', color: 'rgba(148,163,184,0.8)', marginBottom: '10px' }}>
-                  ផែនការបច្ចុប្បន្ន:{' '}
-                  <span style={{ color: '#67e8f9', fontWeight: 700 }}>PRO VIP</span>
-                </div>
-                <button
-                  type="button"
-                  onClick={onOpenSettings}
-                  style={{
-                    width: '100%',
-                    padding: '7px',
-                    borderRadius: '9px',
-                    background: 'rgba(255,255,255,0.06)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    color: '#f1f5f9',
-                    fontSize: '11.5px',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s ease',
-                  }}
-                  onMouseEnter={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(6,182,212,0.15)';
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(6,182,212,0.4)';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#67e8f9';
-                  }}
-                  onMouseLeave={(e) => {
-                    (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)';
-                    (e.currentTarget as HTMLButtonElement).style.borderColor = 'rgba(255,255,255,0.1)';
-                    (e.currentTarget as HTMLButtonElement).style.color = '#f1f5f9';
-                  }}
-                >
-                  គ្រប់គ្រងសមាជិកភាព
-                </button>
-              </div>
 
-              {/* SYSTEM STATUS Card — glassmorphism */}
-              <div
-                onClick={onOpenSystemStatus}
-                style={{
-                  padding: '12px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(20,30,24,0.85) 0%, rgba(15,22,20,0.92) 100%)',
-                  backdropFilter: 'blur(16px)',
-                  WebkitBackdropFilter: 'blur(16px)',
-                  boxShadow: '0 0 0 1px rgba(16,185,129,0.2), inset 0 0 20px rgba(16,185,129,0.03), 0 4px 20px rgba(0,0,0,0.4)',
-                  cursor: 'pointer',
-                  position: 'relative',
-                  overflow: 'hidden',
-                  transition: 'box-shadow 0.2s ease',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow =
-                    '0 0 0 1px rgba(16,185,129,0.4), inset 0 0 20px rgba(16,185,129,0.06), 0 8px 28px rgba(0,0,0,0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLDivElement).style.boxShadow =
-                    '0 0 0 1px rgba(16,185,129,0.2), inset 0 0 20px rgba(16,185,129,0.03), 0 4px 20px rgba(0,0,0,0.4)';
-                }}
-              >
-                {/* Gradient border overlay */}
-                <div
-                  style={{
-                    position: 'absolute',
-                    inset: 0,
-                    borderRadius: '14px',
-                    padding: '1px',
-                    background: 'linear-gradient(135deg, rgba(16,185,129,0.4) 0%, rgba(6,182,212,0.2) 50%, rgba(16,185,129,0.1) 100%)',
-                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                    WebkitMaskComposite: 'xor',
-                    maskComposite: 'exclude',
-                    pointerEvents: 'none',
-                  }}
-                />
-                <div style={{ fontSize: '12px', fontWeight: 700, color: '#f1f5f9', marginBottom: '6px', letterSpacing: '0.03em' }}>
-                  ស្ថានភាពប្រព័ន្ធ
+                <div className="space-y-1 text-[10px] text-slate-400 relative z-10 font-khmer">
+                  <div className="flex justify-between">
+                    <span>សមត្ថភាព AI:</span>
+                    <span className="font-mono text-white font-bold">១០០% ដំណើរការពិត</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>ដំណើរការ GPU:</span>
+                    <span className="text-amber-400 font-bold">ល្បឿនលឿន TURBO</span>
+                  </div>
                 </div>
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    color: '#34d399',
-                    marginBottom: '10px',
-                  }}
-                >
-                  <span
-                    style={{
-                      width: '7px',
-                      height: '7px',
-                      borderRadius: '50%',
-                      background: '#34d399',
-                      boxShadow: '0 0 6px #34d399',
-                      animation: 'pulse-ring 2s ease infinite',
-                      display: 'inline-block',
-                      flexShrink: 0,
-                    }}
-                  />
-                  <span>ប្រព័ន្ធដំណើរការធម្មតា</span>
-                </div>
-                {/* CPU / RAM / GPU metrics */}
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '6px', textAlign: 'center' }}>
-                  {[
-                    { label: 'CPU', val: '12%', color: '#60a5fa' },
-                    { label: 'RAM', val: '48%', color: '#a78bfa' },
-                    { label: 'GPU', val: '35%', color: '#34d399' },
-                  ].map(({ label, val, color }) => (
-                    <div
-                      key={label}
-                      style={{
-                        padding: '7px 4px',
-                        borderRadius: '9px',
-                        background: 'rgba(0,0,0,0.3)',
-                        border: `1px solid ${color}22`,
-                        backdropFilter: 'blur(8px)',
-                      }}
-                    >
-                      <div style={{ fontSize: '8.5px', color: 'rgba(148,163,184,0.6)', letterSpacing: '0.08em', marginBottom: '2px', fontFamily: 'monospace' }}>
-                        {label}
-                      </div>
-                      <div style={{ fontSize: '12px', fontWeight: 800, color, fontFamily: 'monospace' }}>{val}</div>
-                    </div>
-                  ))}
+
+                <div className="mt-2.5 pt-2 border-t border-red-950/60 flex items-center justify-between text-[10px] font-bold text-red-400 group-hover:text-white transition-colors relative z-10">
+                  <span>គ្រប់គ្រងកញ្ចប់ VIP</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </div>
               </div>
-            </>
-          ) : (
-            /* Collapsed bottom icons */
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-              <button
-                type="button"
-                onClick={onOpenSettings}
-                title="សមាជិកភាព: PRO"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(30,32,50,0.8), rgba(20,22,36,0.9))',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(99,102,241,0.3)',
-                  color: '#fbbf24',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '16px',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.1)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(99,102,241,0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
-                }}
-              >
-                👑
-              </button>
-              <button
-                type="button"
-                onClick={onOpenSystemStatus}
-                title="ប្រព័ន្ធដំណើរការធម្មតា (CPU 12%, RAM 48%, GPU 35%)"
-                style={{
-                  width: '40px',
-                  height: '40px',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, rgba(14,24,20,0.85), rgba(10,20,16,0.92))',
-                  backdropFilter: 'blur(12px)',
-                  border: '1px solid rgba(16,185,129,0.3)',
-                  color: '#34d399',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s ease',
-                  boxShadow: '0 2px 12px rgba(0,0,0,0.3)',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.1)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px rgba(16,185,129,0.4)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-                  (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 2px 12px rgba(0,0,0,0.3)';
-                }}
-              >
-                <Activity style={{ width: '16px', height: '16px' }} />
-              </button>
             </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => onOpenVIPModal?.()}
+              className="w-full p-2.5 rounded-xl bg-[#1C0F14] hover:bg-[#28151D] border border-red-950/50 hover:border-red-500/40 flex items-center justify-center text-amber-400 transition-all duration-200"
+              title="Dragon VIP Membership"
+            >
+              <Crown className="w-5 h-5 fill-amber-400" />
+            </button>
           )}
         </div>
       </aside>

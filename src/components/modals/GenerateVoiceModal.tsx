@@ -169,7 +169,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
     >
       {/* ── Modal Container ── */}
       <div
-        className="w-full max-w-xl rounded-2xl bg-[#141417] border border-white/[0.10] shadow-2xl overflow-hidden flex flex-col text-zinc-200 max-h-[90vh]"
+        className="w-full max-w-xl rounded-2xl bg-slate-100 dark:bg-[#141417] border border-white/[0.10] shadow-2xl overflow-hidden flex flex-col text-zinc-200 max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
         {/* ── Header ── */}
@@ -179,12 +179,12 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
 
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600/20 to-teal-600/20 border border-emerald-500/30 flex items-center justify-center shadow-sm">
-              <Sparkles className="w-4 h-4 text-emerald-400" />
+              <Sparkles className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-sm font-bold text-white tracking-wide leading-tight">
+              <h2 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide leading-tight">
                 GENERATE AI VOICE{' '}
-                <span className="text-emerald-400 text-xs font-normal">| បង្កើតសំឡេង AI</span>
+                <span className="text-emerald-600 dark:text-emerald-400 text-xs font-normal">| បង្កើតសំឡេង AI</span>
               </h2>
               <p className="text-[11px] text-zinc-500 mt-0.5">High-fidelity Khmer neural synthesis engine</p>
             </div>
@@ -193,7 +193,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
           {/* Close button with hover ring */}
           <button
             onClick={onClose}
-            className="w-7 h-7 rounded-lg flex items-center justify-center text-zinc-400 hover:text-white hover:bg-white/[0.08] ring-0 hover:ring-1 hover:ring-white/20 transition-all"
+            className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-slate-200 dark:bg-white/[0.08] ring-0 hover:ring-1 hover:ring-white/20 transition-all"
           >
             <X className="w-4 h-4" />
           </button>
@@ -205,21 +205,21 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
           {/* Character & Voice */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">
-                Character <span className="text-emerald-400 normal-case font-normal">(តួអង្គ)</span>
+              <label className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">
+                Character <span className="text-emerald-600 dark:text-emerald-400 normal-case font-normal">(តួអង្គ)</span>
               </label>
               <input
                 type="text"
                 value={character}
                 onChange={(e) => setCharacter(e.target.value)}
                 placeholder="បញ្ចូលឈ្មោះតួអង្គ..."
-                className="w-full bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition placeholder-zinc-600"
+                className="w-full bg-white dark:bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-slate-800 dark:text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition placeholder-zinc-600"
               />
             </div>
 
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider">
                   Voice Model
                 </label>
                 {voice && (
@@ -231,7 +231,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
                       const audio = new Audio(`/media/samples/${filename}`);
                       audio.play().catch(() => {});
                     }}
-                    className="inline-flex items-center gap-1 text-[10px] text-emerald-400 hover:text-emerald-300 transition-colors"
+                    className="inline-flex items-center gap-1 text-[10px] text-emerald-600 dark:text-emerald-400 hover:text-emerald-300 transition-colors"
                   >
                     <Volume2 className="w-3 h-3" />
                     <span>សាកស្តាប់</span>
@@ -241,7 +241,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
               <select
                 value={voice}
                 onChange={(e) => setVoice(e.target.value)}
-                className="w-full bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer font-khmer"
+                className="w-full bg-white dark:bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-slate-800 dark:text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer font-khmer"
               >
                 <optgroup label="🌸 សំឡេង Clone តួស្រី (Female Clones)">
                   {activeCharacters
@@ -267,28 +267,28 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
 
           {/* Dialogue Text */}
           <div>
-            <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">
-              Khmer Text <span className="text-emerald-400 normal-case font-normal">(អត្ថបទនិយាយ)</span>
+            <label className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">
+              Khmer Text <span className="text-emerald-600 dark:text-emerald-400 normal-case font-normal">(អត្ថបទនិយាយ)</span>
             </label>
             <textarea
               rows={3}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="បញ្ចូលអត្ថបទសន្ទនាជាភាសាខ្មែរនៅទីនេះ..."
-              className="w-full bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-sm outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition placeholder-zinc-600 leading-relaxed resize-none"
+              className="w-full bg-white dark:bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-slate-800 dark:text-white text-sm outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition placeholder-zinc-600 leading-relaxed resize-none"
             />
           </div>
 
           {/* Emotion & Speaking Style */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">
-                Emotion <span className="text-emerald-400 normal-case font-normal">(អារម្មណ៍)</span>
+              <label className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">
+                Emotion <span className="text-emerald-600 dark:text-emerald-400 normal-case font-normal">(អារម្មណ៍)</span>
               </label>
               <select
                 value={emotion}
                 onChange={(e) => setEmotion(e.target.value)}
-                className="w-full bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer"
+                className="w-full bg-white dark:bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-slate-800 dark:text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer"
               >
                 <option value="Normal">Normal (ធម្មតា)</option>
                 <option value="Happy">Happy (សប្បាយរីករាយ)</option>
@@ -300,13 +300,13 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
               </select>
             </div>
             <div>
-              <label className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5 block">
-                Speaking Style <span className="text-emerald-400 normal-case font-normal">(ស្ទីលនិយាយ)</span>
+              <label className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5 block">
+                Speaking Style <span className="text-emerald-600 dark:text-emerald-400 normal-case font-normal">(ស្ទីលនិយាយ)</span>
               </label>
               <select
                 value={style}
                 onChange={(e) => setStyle(e.target.value)}
-                className="w-full bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer"
+                className="w-full bg-white dark:bg-[#0f1013] border border-white/[0.10] rounded-xl px-3 py-2 text-slate-800 dark:text-white text-xs outline-none focus:border-emerald-500/60 focus:ring-1 focus:ring-emerald-500/30 transition cursor-pointer"
               >
                 <option value="Natural">Natural (ធម្មជាតិ)</option>
                 <option value="Cinematic">Cinematic (ភាពយន្ត)</option>
@@ -318,11 +318,11 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
           </div>
 
           {/* Speed & Pitch Controls */}
-          <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 grid grid-cols-2 gap-4 hover:border-white/[0.14] transition-colors">
+          <div className="rounded-xl bg-white dark:bg-[#1a1d23] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] p-4 grid grid-cols-2 gap-4 hover:border-white/[0.14] transition-colors">
             <div>
               <div className="flex justify-between text-xs mb-2">
-                <span className="text-zinc-400 font-semibold">Speed (ល្បឿន)</span>
-                <span className="font-mono text-emerald-400 font-bold">{speed.toFixed(1)}x</span>
+                <span className="text-slate-600 dark:text-zinc-400 font-semibold">Speed (ល្បឿន)</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">{speed.toFixed(1)}x</span>
               </div>
               <input
                 type="range"
@@ -336,8 +336,8 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
             </div>
             <div>
               <div className="flex justify-between text-xs mb-2">
-                <span className="text-zinc-400 font-semibold">Pitch (កម្ពស់)</span>
-                <span className="font-mono text-emerald-400 font-bold">{pitch > 0 ? `+${pitch}` : pitch}</span>
+                <span className="text-slate-600 dark:text-zinc-400 font-semibold">Pitch (កម្ពស់)</span>
+                <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">{pitch > 0 ? `+${pitch}` : pitch}</span>
               </div>
               <input
                 type="range"
@@ -352,13 +352,13 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
           </div>
 
           {/* Quality Mode — pill tabs */}
-          <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 hover:border-white/[0.14] transition-colors">
+          <div className="rounded-xl bg-white dark:bg-[#1a1d23] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] p-4 hover:border-white/[0.14] transition-colors">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+              <span className="text-xs font-semibold text-slate-600 dark:text-zinc-400 uppercase tracking-wider mb-1.5">
                 Quality Profile (គុណភាព)
               </span>
               {/* Pill Tab Navigation */}
-              <div className="relative flex gap-1 p-1 rounded-xl bg-[#0f1013] border border-white/[0.08]">
+              <div className="relative flex gap-1 p-1 rounded-xl bg-white dark:bg-[#0f1013] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 {['Standard', 'High', 'Ultra'].map((q) => (
                   <button
                     key={q}
@@ -366,8 +366,8 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
                     onClick={() => setQuality(q)}
                     className={`relative px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                       quality === q
-                        ? 'bg-white/10 text-white shadow-sm'
-                        : 'text-zinc-500 hover:text-zinc-300'
+                        ? 'bg-white/10 text-slate-800 dark:text-white shadow-sm'
+                        : 'text-zinc-500 hover:text-slate-700 dark:text-zinc-300'
                     }`}
                   >
                     {quality === q && (
@@ -382,9 +382,9 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
 
           {/* Generation Progress */}
           {isGenerating && (
-            <div className="rounded-xl bg-[#1a1d23] border border-white/[0.08] p-4 space-y-3 animate-in fade-in">
+            <div className="rounded-xl bg-white dark:bg-[#1a1d23] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] p-4 space-y-3 animate-in fade-in">
               <div className="flex items-center justify-between text-xs">
-                <span className="text-emerald-400 font-bold flex items-center gap-2">
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-2">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   {steps[currentStep]?.title ?? steps[0].title}
                 </span>
@@ -406,16 +406,16 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
         </div>
 
         {/* ── Footer Actions ── */}
-        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-t border-white/[0.08] bg-[#0f1013]/80">
+        <div className="shrink-0 flex items-center justify-between px-5 py-3.5 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0f1013]/80">
           <button
             type="button"
             onClick={handlePreviewAudio}
             disabled={isGenerating}
-            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#1e2127] border border-white/[0.08] hover:border-white/20 text-zinc-200 text-xs font-bold transition-all disabled:opacity-50"
+            className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e2127] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/20 text-zinc-200 text-xs font-bold transition-all disabled:opacity-50"
           >
             {isPlayingPreview
-              ? <Square className="w-3.5 h-3.5 text-emerald-400" />
-              : <Play className="w-3.5 h-3.5 text-emerald-400" />}
+              ? <Square className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+              : <Play className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
             <span>Preview</span>
           </button>
 
@@ -424,7 +424,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isGenerating}
-              className="px-4 py-2.5 rounded-xl bg-[#1e2127] border border-white/[0.08] hover:border-white/20 text-zinc-300 text-xs font-bold transition-all disabled:opacity-50"
+              className="px-4 py-2.5 rounded-xl bg-white dark:bg-[#1e2127] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/20 text-slate-700 dark:text-zinc-300 text-xs font-bold transition-all disabled:opacity-50"
             >
               Cancel
             </button>
@@ -432,7 +432,7 @@ export const GenerateVoiceModal: React.FC<GenerateVoiceModalProps> = ({
               type="button"
               onClick={handleStartGenerate}
               disabled={isGenerating || !text.trim()}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold shadow-lg active:scale-95 transition-all disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-800 dark:text-white text-xs font-bold shadow-lg active:scale-95 transition-all disabled:opacity-50"
             >
               <Wand2 className="w-4 h-4" />
               <span>{isGenerating ? 'Generating...' : 'Generate (បង្កើត)'}</span>

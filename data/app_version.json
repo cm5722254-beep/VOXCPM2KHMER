@@ -1,22 +1,38 @@
 {
-  "current_version": "V2.2PRO",
-  "latest_version": "V2.2PRO",
-  "has_update": true,
-  "release_date": "2026-09-22",
-  "download_url": "https://github.com/mazercheat-dotcom/animeducksystem/releases/download/V2.2PRO/update_patch_V2.2PRO.zip",
-  "patch_size_mb": 6.87,
+  "current_version": "V3.0.0",
+  "latest_version": "V3.0.0",
+  "has_update": false,
+  "release_date": "2026-10-05",
+  "download_url": "",
+  "patch_size_mb": 0,
   "changelog": [
     {
       "type": "NEW",
-      "text": "V2.2PRO Feature Update"
-    },
-    {
-      "type": "IMPROVED",
-      "text": "Enhanced performance and stability"
+      "text": "🐉 Dragon Dabber Pro V3.0.0 — Full Function Validation Build"
     },
     {
       "type": "FIXED",
-      "text": "System bug fixes and optimizations"
+      "text": "🔧 ជួសជុល Gemini model name ឱ្យត្រឹមត្រូវ (gemini-1.5-flash-latest)"
+    },
+    {
+      "type": "FIXED",
+      "text": "🛡️ Hardware Safety: Safe Concurrency, Low Storage Guard, Dragon Safe Mode"
+    },
+    {
+      "type": "FIXED",
+      "text": "🤖 AI Model Recommender — ណែនាំ AI ត្រឹមត្រូវតាមស្ថានភាព Hardware"
+    },
+    {
+      "type": "FIXED",
+      "text": "⚡ Batch Orchestrator: Hardware-aware concurrency enforcement"
+    },
+    {
+      "type": "IMPROVED",
+      "text": "🎬 Sponsor Render Pipeline verified real FFmpeg composite"
+    },
+    {
+      "type": "IMPROVED",
+      "text": "📦 Removed demo/test modules — no fake functionality"
     }
   ]
 }

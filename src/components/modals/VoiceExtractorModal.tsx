@@ -151,18 +151,18 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 select-none font-khmer">
-      <div className="bg-[#12141A] border border-white/15 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
+      <div className="bg-white dark:bg-[#12141A] border border-white/15 rounded-2xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
         {/* Modal Header */}
-        <div className="p-4 px-5 border-b border-white/[0.08] flex items-center justify-between bg-[#161822]">
+        <div className="p-4 px-5 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#161822]">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
-              <Scissors className="w-4 h-4 text-emerald-400" />
+              <Scissors className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-white">
+              <h2 className="text-sm font-extrabold text-slate-800 dark:text-white">
                 កាត់យកសំឡេងតួអង្គពី Video ឬ MP3 (Voice Extractor)
               </h2>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400">
                 ទម្លាក់វីដេអូ ឬសម្លេងចូល រួចកាត់យកចន្លោះ 3s - 15s ធ្វើជាសំឡេងតួអង្គ Dubbing
               </p>
             </div>
@@ -170,7 +170,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -184,14 +184,14 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
               onClick={() => fileInputRef.current?.click()}
               className="border-2 border-dashed border-white/15 hover:border-emerald-400/50 rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer bg-black/30 hover:bg-black/40 transition-all text-center group"
             >
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+              <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
                 <Upload className="w-7 h-7" />
               </div>
               <div>
-                <p className="text-xs font-bold text-white">
+                <p className="text-xs font-bold text-slate-800 dark:text-white">
                   ចុច ឬទម្លាក់វីដេអូ (MP4, MKV) ឬឯកសារសំឡេង (MP3, WAV) ចូលទីនេះ
                 </p>
-                <p className="text-[10px] text-zinc-400 mt-1">
+                <p className="text-[10px] text-slate-600 dark:text-zinc-400 mt-1">
                   ទាញយកសំឡេងនិយាយរបស់តួអង្គពីរឿង ឬបទចម្រៀងបានភ្លាមៗ
                 </p>
               </div>
@@ -217,8 +217,8 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                       onTimeUpdate={handleTimeUpdate}
                     />
                     <div className="flex items-center gap-3">
-                      <Volume2 className="w-8 h-8 text-emerald-400 animate-pulse" />
-                      <span className="text-xs font-bold text-white truncate max-w-xs">{file.name}</span>
+                      <Volume2 className="w-8 h-8 text-emerald-600 dark:text-emerald-400 animate-pulse" />
+                      <span className="text-xs font-bold text-slate-800 dark:text-white truncate max-w-xs">{file.name}</span>
                     </div>
                   </div>
                 )}
@@ -227,11 +227,11 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
               {/* Time Trimmer Controls */}
               <div className="p-4 rounded-xl bg-black/40 border border-white/10 space-y-3">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-300 font-bold flex items-center gap-1.5">
-                    <Clock className="w-3.5 h-3.5 text-emerald-400" />
+                  <span className="text-slate-700 dark:text-zinc-300 font-bold flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                     <span>ជ្រើសរើសចន្លោះសំឡេងដែលនិយាយច្បាស់៖</span>
                   </span>
-                  <span className="font-mono text-emerald-400 font-bold">
+                  <span className="font-mono text-emerald-600 dark:text-emerald-400 font-bold">
                     ប្រវែង៖ {selectedDuration.toFixed(1)} វិនាទី
                   </span>
                 </div>
@@ -239,9 +239,9 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                 {/* Range Sliders */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[11px] text-zinc-400">
+                    <div className="flex justify-between text-[11px] text-slate-600 dark:text-zinc-400">
                       <span>ចាប់ផ្ដើម (Start)</span>
-                      <span className="font-mono text-white font-bold">{startTime.toFixed(1)}s</span>
+                      <span className="font-mono text-slate-800 dark:text-white font-bold">{startTime.toFixed(1)}s</span>
                     </div>
                     <input
                       type="range"
@@ -259,9 +259,9 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <div className="flex justify-between text-[11px] text-zinc-400">
+                    <div className="flex justify-between text-[11px] text-slate-600 dark:text-zinc-400">
                       <span>បញ្ចប់ (End)</span>
-                      <span className="font-mono text-white font-bold">{endTime.toFixed(1)}s</span>
+                      <span className="font-mono text-slate-800 dark:text-white font-bold">{endTime.toFixed(1)}s</span>
                     </div>
                     <input
                       type="range"
@@ -293,7 +293,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                   <button
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="text-[11px] text-zinc-400 hover:text-white transition-colors"
+                    className="text-[11px] text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white transition-colors"
                   >
                     ប្ដូរឯកសារផ្សេង
                   </button>
@@ -306,11 +306,11 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                 className="p-3 rounded-xl bg-black/40 border border-white/10 flex items-center justify-between cursor-pointer"
               >
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-yellow-400" />
+                  <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-600 dark:text-yellow-400" />
                     <span>លុបភ្លេងកំដរ & សំឡេងរំខាន (AI Vocal Clean / Denoise)</span>
                   </span>
-                  <span className="text-[10px] text-zinc-400">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">
                     ចម្រាញ់យកតែសម្លេងនិយាយសុទ្ធ 100% សម្រាប់ប្រើក្នុងការ Clone និង Dubbing
                   </span>
                 </div>
@@ -325,7 +325,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
               {/* Character Details Form */}
               <div className="space-y-3 pt-2 border-t border-white/10">
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-300">
+                  <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                     ឈ្មោះសំឡេងតួអង្គ (Character Voice Name) *
                   </label>
                   <input
@@ -334,17 +334,17 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                     value={label}
                     onChange={(e) => setLabel(e.target.value)}
                     placeholder="ឧ. 👑 តួឯកប្រុស រ៉ាជានី..."
-                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-emerald-400"
+                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-400"
                   />
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-300">ភេទ (Gender)</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">ភេទ (Gender)</label>
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value as any)}
-                      className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-emerald-400"
+                      className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-400"
                     >
                       <option value="male">👨 ប្រុស (Male)</option>
                       <option value="female">👩 ស្រី (Female)</option>
@@ -352,11 +352,11 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-xs font-bold text-zinc-300">តួនាទី (Role)</label>
+                    <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">តួនាទី (Role)</label>
                     <select
                       value={role}
                       onChange={(e) => setRole(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-emerald-400"
+                      className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-400"
                     >
                       <option value="male_lead">👑 តួប្រុសឯក (Male Lead)</option>
                       <option value="female_lead">🌸 តួស្រីឯក (Female Lead)</option>
@@ -369,7 +369,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-xs font-bold text-zinc-300">
+                  <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                     ពាក្យគំរូ ឬការពិពណ៌នា (Sample Words / Description)
                   </label>
                   <input
@@ -377,7 +377,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
                     value={words}
                     onChange={(e) => setWords(e.target.value)}
                     placeholder="ឧ. សំឡេងកាច ម៉ឺងម៉ាត់ បែបខ្សែភាពយន្តចិន..."
-                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-emerald-400"
+                    className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-emerald-400"
                   />
                 </div>
               </div>
@@ -397,11 +397,11 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="p-4 px-5 border-t border-white/[0.08] bg-[#161822] flex items-center justify-between">
+        <div className="p-4 px-5 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#161822] flex items-center justify-between">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-colors"
           >
             បោះបង់ (Cancel)
           </button>
@@ -410,7 +410,7 @@ export const VoiceExtractorModal: React.FC<VoiceExtractorModalProps> = ({
             type="button"
             onClick={handleExtractAndSave}
             disabled={isProcessing || !file || !label.trim()}
-            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-xs shadow-lg shadow-emerald-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-800 dark:text-white font-black text-xs shadow-lg shadow-emerald-500/30 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isProcessing ? (
               <>

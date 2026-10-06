@@ -195,7 +195,7 @@ export const Step6Result: React.FC<Step6ResultProps> = ({
           <div className="flex flex-col gap-3">
             <button
               onClick={() => handleDownload('video')}
-              className="w-full py-4 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white font-bold text-sm shadow-[0_0_20px_rgba(2,132,199,0.3)] transition-all active:scale-95 flex items-center justify-center gap-2"
+              className="w-full py-4 rounded-2xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-sm shadow-[0_0_20px_rgba(2,132,199,0.3)] transition-all active:scale-95 flex items-center justify-center gap-2"
             >
               <Download className="w-5 h-5" /> ↓ ទាញយកវីដេអូ (Download MP4)
             </button>
@@ -218,13 +218,13 @@ export const Step6Result: React.FC<Step6ResultProps> = ({
             <div className="grid grid-cols-2 gap-3">
               <button
                 onClick={() => handleDownload('srt')}
-                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-800 dark:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs"
               >
                 <FileText className="w-3.5 h-3.5" /> ទាញយក SRT
               </button>
               <button
                 onClick={() => handleDownload('audio')}
-                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs"
+                className="py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/5 dark:hover:bg-white/10 border border-slate-200 dark:border-white/10 text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-800 dark:text-white text-[11px] font-semibold flex items-center justify-center gap-1.5 transition-all shadow-2xs"
               >
                 <Music className="w-3.5 h-3.5" /> ទាញយក Audio
               </button>

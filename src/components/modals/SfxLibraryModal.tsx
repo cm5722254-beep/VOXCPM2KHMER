@@ -127,25 +127,25 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div
-        className="w-full max-w-3xl rounded-xl bg-[#141414] border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
+        className="w-full max-w-3xl rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header - CapCut Dark */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#181818] border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-[#181818] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#222226] border border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#222226] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
               <Zap className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-wide">
+                <h2 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   បណ្ណាល័យបែបផែនសំឡេង (SFX LIBRARY)
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-[#00C2FF]/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-slate-200 dark:border-[#00C2FF]/30">
                   REAL SFX
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400">
                 បញ្ចូល និងគ្រប់គ្រងឯកសារបែបផែនសំឡេងពិតប្រាកដ (Foley, Impact, Whoosh, Ambience)
               </p>
             </div>
@@ -172,7 +172,7 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
             <button
               type="button"
               onClick={handleClose}
-              className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+              className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -182,20 +182,20 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
         {/* SFX List or Clean Empty State */}
         <div className="p-5 max-h-[55vh] overflow-y-auto">
           {sfxList.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-white/[0.08] rounded-xl bg-[#161616]/50">
-              <div className="w-12 h-12 rounded-full bg-[#1F1F24] flex items-center justify-center text-zinc-500 mb-3">
+            <div className="flex flex-col items-center justify-center py-12 px-4 text-center border border-dashed border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-xl bg-white dark:bg-[#161616]/50">
+              <div className="w-12 h-12 rounded-full bg-white dark:bg-[#1F1F24] flex items-center justify-center text-zinc-500 mb-3">
                 <FileAudio className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-bold text-white mb-1">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
                 មិនទាន់មានបែបផែនសំឡេង SFX នៅឡើយទេ
               </h3>
-              <p className="text-xs text-zinc-400 max-w-sm mb-4">
+              <p className="text-xs text-slate-600 dark:text-zinc-400 max-w-sm mb-4">
                 សូមចុចប៊ូតុងខាងក្រោមដើម្បីបញ្ចូលឯកសារបែបផែនសំឡេងពិតប្រាកដ (.wav, .mp3, .ogg) ពីកុំព្យូទ័ររបស់អ្នក។ គ្មានទិន្នន័យក្លែងក្លាយឡើយ។
               </p>
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-[#202020] hover:bg-[#282828] text-white border border-white/[0.1] text-xs font-semibold transition-all hover:border-[#00C2FF]/50"
+                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-[#202020] hover:bg-white dark:bg-[#282828] text-slate-800 dark:text-white border border-white/[0.1] text-xs font-semibold transition-all hover:border-slate-200 dark:border-[#00C2FF]/50"
               >
                 <Upload className="w-4 h-4 text-[#00C2FF]" />
                 <span>ជ្រើសរើសឯកសារ SFX ពីកុំព្យូទ័រ</span>
@@ -210,8 +210,8 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
                     key={sfx.id}
                     className={`flex items-center justify-between p-3 rounded-lg border transition-all ${
                       isPlaying
-                        ? 'bg-[#1C1C22] border-[#00C2FF]/50 shadow-md'
-                        : 'bg-[#181818] border-white/[0.06] hover:border-white/[0.15]'
+                        ? 'bg-white dark:bg-[#1C1C22] border-slate-200 dark:border-[#00C2FF]/50 shadow-md'
+                        : 'bg-white dark:bg-[#181818] border-white/[0.06] hover:border-white/[0.15]'
                     }`}
                   >
                     <div className="flex items-center gap-3 min-w-0">
@@ -221,7 +221,7 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
                         className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${
                           isPlaying
                             ? 'bg-[#00C2FF] text-black'
-                            : 'bg-[#222226] text-zinc-300 hover:text-white'
+                            : 'bg-white dark:bg-[#222226] text-slate-700 dark:text-zinc-300 hover:text-slate-800 dark:text-white'
                         }`}
                       >
                         {isPlaying ? (
@@ -232,9 +232,9 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
                       </button>
 
                       <div className="min-w-0">
-                        <div className="text-xs font-bold text-white truncate">{sfx.name}</div>
-                        <div className="text-[11px] text-zinc-400 flex items-center gap-2 mt-0.5">
-                          <span className="font-mono text-zinc-300">{sfx.duration}</span>
+                        <div className="text-xs font-bold text-slate-800 dark:text-white truncate">{sfx.name}</div>
+                        <div className="text-[11px] text-slate-600 dark:text-zinc-400 flex items-center gap-2 mt-0.5">
+                          <span className="font-mono text-slate-700 dark:text-zinc-300">{sfx.duration}</span>
                           <span>•</span>
                           <span className="text-[10px] text-cyan-400 font-medium">Real SFX</span>
                         </div>
@@ -245,7 +245,7 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
                       <button
                         type="button"
                         onClick={() => handleAdd(sfx)}
-                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#00C2FF]/15 hover:bg-[#00C2FF]/25 text-[#00C2FF] border border-[#00C2FF]/40 text-xs font-bold transition-all active:scale-95"
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-[#00C2FF]/15 hover:bg-[#00C2FF]/25 text-[#00C2FF] border border-slate-200 dark:border-[#00C2FF]/40 text-xs font-bold transition-all active:scale-95"
                       >
                         <Plus className="w-3 h-3" />
                         <span>ដាក់ចូល</span>
@@ -253,7 +253,7 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
                       <button
                         type="button"
                         onClick={(e) => handleDelete(sfx.id, e)}
-                        className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-white/[0.04] transition-colors"
+                        className="p-1.5 rounded-lg text-zinc-500 hover:text-blue-600 dark:text-red-400 hover:bg-slate-100 dark:bg-white/[0.04] transition-colors"
                         title="លុបចេញ"
                       >
                         <Trash2 className="w-3 h-3" />
@@ -267,14 +267,14 @@ export const SfxLibraryModal: React.FC<SfxLibraryModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 bg-[#181818] border-t border-white/[0.08]">
-          <span className="text-xs text-zinc-400">
+        <div className="flex items-center justify-between px-5 py-3 bg-white dark:bg-[#181818] border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
+          <span className="text-xs text-slate-600 dark:text-zinc-400">
             {sfxList.length} បែបផែនសំឡេងនៅក្នុងបញ្ជី
           </span>
           <button
             type="button"
             onClick={handleClose}
-            className="px-4 py-1.5 rounded-lg bg-[#222226] hover:bg-[#2A2A30] text-zinc-300 text-xs font-semibold transition-all border border-white/[0.06]"
+            className="px-4 py-1.5 rounded-lg bg-white dark:bg-[#222226] hover:bg-white dark:bg-[#2A2A30] text-slate-700 dark:text-zinc-300 text-xs font-semibold transition-all border border-white/[0.06]"
           >
             បិទ (Close)
           </button>

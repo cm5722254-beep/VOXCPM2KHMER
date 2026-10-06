@@ -17,7 +17,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
   onTranscribeClick,
 }) => {
   return (
-    <div className="h-14 bg-[#0d1219] border-b border-sky-500/10 flex items-center justify-between px-4 shadow-lg">
+    <div className="h-14 bg-white dark:bg-[#0d1219] border-b border-sky-500/10 flex items-center justify-between px-4 shadow-lg">
       {/* Left: Project Name & Language */}
       <div className="flex items-center gap-4">
         {/* Project Name */}
@@ -25,18 +25,18 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
           <span className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
             DIALOGUE
           </span>
-          <h1 className="text-lg font-bold text-white">
+          <h1 className="text-lg font-bold text-slate-800 dark:text-white">
             {projectName}
           </h1>
         </div>
 
         {/* Language Selector */}
-        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/[0.04] border border-white/[0.08] hover:bg-white/[0.08] transition-all cursor-pointer">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:bg-slate-200 dark:bg-white/[0.08] transition-all cursor-pointer">
           <Globe className="w-4 h-4 text-sky-400" />
           <select
             value={language}
             onChange={(e) => onLanguageChange?.(e.target.value)}
-            className="bg-transparent text-sm text-slate-300 outline-none cursor-pointer"
+            className="bg-transparent text-sm text-slate-600 dark:text-slate-300 outline-none cursor-pointer"
           >
             <option value="Khmer (Cambodia)">Khmer (Cambodia)</option>
             <option value="Chinese (Simplified)">Chinese (Simplified)</option>
@@ -50,7 +50,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
       <div className="flex items-center gap-3">
         {/* Save Button */}
         <button
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-sm font-medium transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white text-sm font-medium transition-all"
           title="Save Project"
         >
           <Save className="w-4 h-4" />
@@ -60,7 +60,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         {/* Settings Button */}
         <button
           onClick={onSettingsClick}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-sm font-medium transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white text-sm font-medium transition-all"
           title="Settings"
         >
           <Settings className="w-4 h-4" />
@@ -70,7 +70,7 @@ export const TopNavBar: React.FC<TopNavBarProps> = ({
         {/* Transcribe Button (Primary) */}
         <button
           onClick={onTranscribeClick}
-          className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-white font-bold text-sm transition-all shadow-lg shadow-sky-600/30 active:scale-95"
+          className="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-sky-500 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-sm transition-all shadow-lg shadow-sky-600/30 active:scale-95"
           title="Transcribe Audio"
         >
           <Sparkles className="w-4 h-4" />

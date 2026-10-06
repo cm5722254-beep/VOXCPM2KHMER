@@ -1,7 +1,7 @@
 {
-  "name": "ai-voice-clone-dubbing-studio",
-  "version": "2.1.0",
-  "description": "Chinese to Khmer AI Voice Cloning and Video Dubbing Studio",
+  "name": "dragon-dabber-pro",
+  "version": "3.0.0",
+  "description": "🐉 Dragon Dabber Pro - Professional AI Khmer Dubbing Studio & Localization Platform",
   "main": "server.js",
   "scripts": {
     "start": ".venv\\Scripts\\python.exe server.py",

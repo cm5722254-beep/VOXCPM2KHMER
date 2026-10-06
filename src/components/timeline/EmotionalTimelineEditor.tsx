@@ -64,11 +64,11 @@ export const EmotionalTimelineEditor: React.FC<EmotionalTimelineEditorProps> = (
 
   const getEmotionIcon = (emotion?: string) => {
     switch (emotion) {
-      case 'happy': return <Smile className="w-3.5 h-3.5 text-yellow-400" />;
+      case 'happy': return <Smile className="w-3.5 h-3.5 text-cyan-600 dark:text-yellow-400" />;
       case 'sad': return <Frown className="w-3.5 h-3.5 text-blue-400" />;
-      case 'angry': return <Flame className="w-3.5 h-3.5 text-red-400" />;
+      case 'angry': return <Flame className="w-3.5 h-3.5 text-blue-600 dark:text-red-400" />;
       case 'excited': return <Heart className="w-3.5 h-3.5 text-pink-400 animate-pulse" />;
-      default: return <Volume2 className="w-3.5 h-3.5 text-slate-400" />;
+      default: return <Volume2 className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />;
     }
   };
 
@@ -77,7 +77,7 @@ export const EmotionalTimelineEditor: React.FC<EmotionalTimelineEditorProps> = (
       {segments.map((segment, index) => (
         <div
           key={index}
-          className="bg-[#0c0f1e]/90 border border-white/[0.08] rounded-lg p-4 hover:border-sky-500/30 transition-all"
+          className="bg-white dark:bg-[#0c0f1e]/90 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg p-4 hover:border-sky-500/30 transition-all"
         >
           <div className="flex items-start justify-between gap-4">
             {/* Segment Info */}
@@ -86,7 +86,7 @@ export const EmotionalTimelineEditor: React.FC<EmotionalTimelineEditorProps> = (
                 <span className="text-xs font-mono font-bold px-2 py-0.5 rounded bg-sky-500/15 text-sky-400">
                   #{index + 1}
                 </span>
-                <span className="text-xs text-slate-400 font-mono">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-mono">
                   {segment.start_time.toFixed(1)}s - {segment.end_time.toFixed(1)}s
                 </span>
                 {segment.emotion && (
@@ -97,7 +97,7 @@ export const EmotionalTimelineEditor: React.FC<EmotionalTimelineEditorProps> = (
                 )}
               </div>
 
-              <p className="text-sm font-semibold text-white leading-relaxed">
+              <p className="text-sm font-semibold text-slate-800 dark:text-white leading-relaxed">
                 {segment.khmer_translation || segment.chinese_text}
               </p>
 

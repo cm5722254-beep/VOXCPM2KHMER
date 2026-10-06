@@ -175,13 +175,13 @@ export const Step5Generating: React.FC<Step5GeneratingProps> = ({
                   <div
                     className={`w-6 h-6 rounded-lg flex items-center justify-center font-bold text-[11px] shrink-0 ${
                       isCurrent
-                        ? 'bg-sky-500 text-white animate-pulse'
+                        ? 'bg-sky-500 text-slate-800 dark:text-white animate-pulse'
                         : isPassed
-                        ? 'bg-emerald-500 text-white'
+                        ? 'bg-emerald-500 text-slate-800 dark:text-white'
                         : 'bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-400'
                     }`}
                   >
-                    {isPassed ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : isCurrent ? <Loader2 className="w-3.5 h-3.5 animate-spin text-white" /> : stg.id}
+                    {isPassed ? <Check className="w-3.5 h-3.5 stroke-[3]" /> : isCurrent ? <Loader2 className="w-3.5 h-3.5 animate-spin text-slate-800 dark:text-white" /> : stg.id}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold truncate text-[11.5px]">{stg.icon} {stg.title}</div>
@@ -193,7 +193,7 @@ export const Step5Generating: React.FC<Step5GeneratingProps> = ({
           </div>
 
           {/* Project Summary Telemetry Cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-slate-200 dark:border-white/[0.08]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-4 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
             <div className="flex flex-col items-center text-center p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.05] shadow-2xs">
               <Film className="w-4 h-4 text-sky-600 dark:text-sky-400 mb-1" />
               <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider">Video Source</span>
@@ -225,7 +225,7 @@ export const Step5Generating: React.FC<Step5GeneratingProps> = ({
           {hasDubbedOutput && (
             <button
               onClick={onNext}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
+              className="w-full py-3 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/25 transition-all active:scale-95"
             >
               <span>ចូលមើលលទ្ធផលក្នុង Studio (View Results)</span>
               <ArrowRight className="w-4 h-4 stroke-[3]" />

@@ -189,6 +189,8 @@ export const api = {
 
   getOutputStats: () => request<{ count: number; totalBytes: number; formattedSize: string }>('/api/outputs/stats'),
 
+  getOutputsList: () => request<{ success: boolean; count: number; files: Array<{ filename: string; size: number; formattedSize: string; type: 'audio' | 'video'; created: number; url: string }> }>('/api/outputs/list'),
+
 
   clearOutputs: () => request<{ success: boolean; count: number; formattedFreed: string }>('/api/outputs/clear', { method: 'POST' }),
 
@@ -665,6 +667,276 @@ export const api = {
       results?: any;
       result?: any;
     }>(`/api/video-tools/jobs/${jobId}`),
+
+  // ── Sponsor Studio Endpoints ──
+  validateSponsorMedia: (mediaPath: string) =>
+    request<{
+      success: boolean;
+      info: {
+        is_valid: boolean;
+        media_type: 'video' | 'image';
+        width: number;
+        height: number;
+        duration: number;
+        has_audio: boolean;
+        extension: string;
+        filesize_mb: number;
+      };
+      message?: string;
+    }>('/api/sponsor/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mediaPath }),
+    }),
+
+  renderSponsorVideo: (body: { videoPath: string; sponsors: any[]; outputFilename?: string }) =>
+    request<{
+      success: boolean;
+      filename: string;
+      url: string;
+      message: string;
+    }>('/api/sponsor/render', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  // ── Batch Dubbing Studio Endpoints ──
+  createBatchJob: (body: {
+    title?: string;
+    episodes: any[];
+    characterMemory?: Record<string, any>;
+    translationMemory?: any[];
+    maxConcurrency?: number;
+  }) =>
+    request<{
+      success: boolean;
+      batch_id: string;
+      total_episodes: number;
+      message: string;
+    }>('/api/batch/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  getBatchStatus: (batchId: string) =>
+    request<{
+      success: boolean;
+      batch: any;
+    }>(`/api/batch/status/${batchId}`),
+
+  executeBatchAction: (body: {
+    batchId: string;
+    action: 'pause' | 'resume' | 'cancel' | 'retry_failed' | 'retry_episode';
+    episodeIndex?: number;
+  }) =>
+    request<{
+      success: boolean;
+      message: string;
+    }>('/api/batch/action', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  exportBatchZip: (batchId: string) =>
+    request<{
+      success: boolean;
+      zip_url: string;
+      filename: string;
+      message: string;
+    }>(`/api/batch/export-zip/${batchId}`),
+
+  // ── Smart Scene Intelligence & Smart Cut Endpoints ──
+  analyzeScenes: (body: { videoPath: string }) =>
+    request<{
+      success: boolean;
+      scenes: any[];
+      total_scenes: number;
+    }>('/api/scene/analyze', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  applySmartCut: (body: { videoPath: string; cutScenes: any[]; outputName?: string }) =>
+    request<{
+      success: boolean;
+      original_duration: number;
+      cut_duration: number;
+      removed_seconds: number;
+      segments_count: number;
+      output_path: string;
+      url: string;
+      filename: string;
+      original_preserved: boolean;
+    }>('/api/scene/smart-cut', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    }),
+
+  // ──────────────────────────────────────────────────────────────────
+  // 🐲 DRAGON HARDWARE & RESOURCE MANAGER
+  // ──────────────────────────────────────────────────────────────────
+
+  /** Full hardware detection: CPU/RAM/GPU/VRAM/Disk with performance tier and AI recommendation */
+  getFullHardwareProfile: () =>
+    request<{
+      cpuName: string;
+      cpuCores: number;
+      cpuFreqGhz: number;
+      ramTotalGb: number;
+      ramAvailableGb: number;
+      ramUsedPercent: number;
+      gpuName: string;
+      vramTotalGb: number;
+      vramFreeGb: number;
+      isNvidiaGpu: boolean;
+      diskTotalGb: number;
+      diskFreeGb: number;
+      diskUsedPercent: number;
+      diskType: string;
+      os: string;
+      osVersion: string;
+      architecture: string;
+      videoEncoder: string;
+      encoderLabel: string;
+      isGpuAccelerated: boolean;
+      performanceTier: string;
+      performanceTierLabel: string;
+      turboConcurrency: number;
+      safeBatchConcurrency: number;
+      recommendedPreset: string;
+      aiRecommendation: string;
+      aiRecommendationReason: string;
+    }>('/api/system/hardware'),
+
+  /** Real-time resource monitoring: CPU/RAM/GPU/VRAM/Disk with Safe/Moderate/High/Critical levels */
+  getResourceStatus: () =>
+    request<{
+      cpu: { percent: number; level: string };
+      ram: { percent: number; availableGb: number; level: string };
+      gpu: { percent: number | null; level: string };
+      vram: { percent: number | null; usedMb: number | null; totalMb: number | null; level: string };
+      disk: { percent: number; freeGb: number; level: string };
+      overallHealth: string;
+      safeConcurrency: number;
+      timestamp: number;
+    }>('/api/resource/status'),
+
+  /** Check disk space before heavy operation */
+  checkStorage: (operation: string = 'render', duration: number = 60) =>
+    request<{
+      ok: boolean;
+      freeGb: number;
+      requiredGb: number;
+      needAdditionalGb: number;
+      message: string;
+    }>(`/api/storage/check?operation=${operation}&duration=${duration}`),
+
+  /** Check if hardware can run a specific AI model */
+  checkAiHardware: (model: string) =>
+    request<{
+      model: string;
+      modelLabel: string;
+      status: string;
+      statusLabel: string;
+      reason: string;
+      currentHardware: { ramAvailableGb: number; vramGb: number; cpuCores: number };
+      requirements: { ram_gb: number; vram_gb: number; cpu_cores: number };
+      alternatives: Array<{ model: string; label: string; reason: string }>;
+      canRun: boolean;
+    }>(`/api/ai/hardware-check?model=${encodeURIComponent(model)}`),
+
+  /** Get AI provider recommendation based on hardware */
+  getAiRecommendation: () =>
+    request<{
+      overallMode: string;
+      overallLabel: string;
+      voiceRecommendation: any;
+      translationRecommendation: any;
+      hardwareSummary: any;
+      apiKeysConfigured: any;
+      message: string;
+    }>('/api/ai/recommend'),
+
+  /** Get current performance preset */
+  getPerformancePreset: () =>
+    request<{
+      current: string;
+      currentConfig: any;
+      allPresets: Record<string, any>;
+    }>('/api/performance/preset'),
+
+  /** Set performance preset */
+  setPerformancePreset: (preset: 'fast' | 'balanced' | 'safe' | 'quality') =>
+    request<{ success: boolean; preset: string; config: any; message: string }>('/api/performance/preset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ preset }),
+    }),
+
+  /** Run full Dragon Diagnostics */
+  runDiagnostics: () =>
+    request<{
+      overallStatus: string;
+      totalChecks: number;
+      healthy: number;
+      warnings: number;
+      errors: number;
+      checks: Array<{
+        component: string;
+        status: 'healthy' | 'warning' | 'error';
+        detail: string;
+        message: string;
+        fix?: string;
+      }>;
+      timestamp: string;
+    }>('/api/diagnostics'),
+
+  /** Get all render jobs (for crash recovery) */
+  getRenderJobs: () =>
+    request<{ jobs: any[]; incomplete: any[] }>('/api/render-jobs'),
+
+  /** Get incomplete render jobs (for crash recovery prompt) */
+  getIncompleteRenderJobs: () =>
+    request<{ hasIncomplete: boolean; count: number; jobs: any[]; message: string }>('/api/render-jobs/incomplete'),
+
+  /** Retry a failed render job */
+  retryRenderJob: (jobId: string) =>
+    request<{ success: boolean; job: any }>(`/api/render-jobs/${jobId}/retry`, {
+      method: 'POST',
+    }),
+
+  /** Delete a render job */
+  deleteRenderJob: (jobId: string) =>
+    request<{ success: boolean }>(`/api/render-jobs/${jobId}`, {
+      method: 'DELETE',
+    }),
+
+  // ════════════════════════════════════════════════════════════════
+  // 🚀 NEXT VERSION: ADVANCED AI DUBBING ENGINE API
+  // ════════════════════════════════════════════════════════════════
+  getNextVersionRoadmap: () =>
+    request<import('../types').NextVersionRoadmap>('/api/next-version/roadmap'),
+
+  getHardwareDiagnostic: () =>
+    request<import('../types').HardwareDiagnostic>('/api/hardware/diagnostic'),
+
+  getPipelineProviders: () =>
+    request<Record<string, import('../types').ProviderCapabilityItem[]>>('/api/pipeline/providers'),
+
+  getFeatureFlags: () =>
+    request<{ flags: Array<{ flag_key: string; is_enabled: number; plan_level: string; description: string; updated_at: string }> }>('/api/feature-flags'),
+
+  toggleFeatureFlag: (flag_key: string, is_enabled: boolean) =>
+    request<{ success: boolean; flag_key: string; is_enabled: boolean }>('/api/admin/feature-flags/toggle', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ flag_key, is_enabled }),
+    }),
 };
 
 

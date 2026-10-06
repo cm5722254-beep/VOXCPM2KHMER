@@ -330,23 +330,23 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full bg-[#0D0D11] text-slate-100 overflow-y-auto select-none font-khmer p-3 sm:p-5 lg:p-6 space-y-5">
+    <div className="flex-1 flex flex-col h-full bg-white dark:bg-slate-50 dark:bg-[#0D0D11] text-slate-800 dark:text-slate-100 overflow-y-auto select-none font-khmer p-3 sm:p-5 lg:p-6 space-y-5">
       {/* ── Top Header Banner ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#16161D] via-[#1A1A24] to-[#16161D] border border-white/[0.08] shadow-xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-[#16161D] via-[#1A1A24] to-[#16161D] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-xl">
         <div className="flex items-center gap-3.5">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-cyan-500/20 to-indigo-600/30 border border-emerald-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,242,173,0.3)] shrink-0">
-            <Scissors className="w-6 h-6 text-emerald-400 drop-shadow-[0_0_10px_rgba(0,242,173,0.8)]" />
+            <Scissors className="w-6 h-6 text-emerald-600 dark:text-emerald-400 drop-shadow-[0_0_10px_rgba(0,242,173,0.8)]" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-lg sm:text-xl font-black text-white tracking-wide">
+              <h1 className="text-lg sm:text-xl font-black text-slate-800 dark:text-white tracking-wide">
                 កាត់ត & បញ្ចូលវីដេអូភាគ PRO
               </h1>
               <span className="px-2 py-0.5 rounded-full bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-black tracking-wider uppercase">
                 1H - 5H Engine
               </span>
             </div>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            <p className="text-xs text-slate-600 dark:text-zinc-400 mt-0.5">
               Auto Split វីដេអូវែង 1H - 5H ជាច្រើនភាគស្មើគ្នា & Merge វីដេអូខ្លីៗបញ្ចូលគ្នាជាវីដេអូវែង លឿន និងគុណភាពខ្ពស់
             </p>
           </div>
@@ -359,8 +359,8 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
             onClick={() => setActiveSubTab('split')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
               activeSubTab === 'split'
-                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-lg shadow-emerald-500/30'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-800 dark:text-white shadow-lg shadow-emerald-500/30'
+                : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
             }`}
           >
             <Scissors className="w-3.5 h-3.5" />
@@ -371,8 +371,8 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
             onClick={() => setActiveSubTab('merge')}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-bold transition-all ${
               activeSubTab === 'merge'
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30'
-                : 'text-zinc-400 hover:text-white'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-800 dark:text-white shadow-lg shadow-cyan-500/30'
+                : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -389,14 +389,14 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
           {/* Left Column: Upload & Video Preview (7 cols) */}
           <div className="lg:col-span-7 flex flex-col gap-4">
             {/* Upload Box or Video Player */}
-            <div className="rounded-2xl bg-[#141418] border border-white/[0.08] overflow-hidden shadow-xl p-4 flex flex-col gap-4">
+            <div className="rounded-2xl bg-white dark:bg-white dark:bg-[#141418] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] overflow-hidden shadow-xl p-4 flex flex-col gap-4">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-zinc-300 flex items-center gap-1.5">
-                  <Film className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 flex items-center gap-1.5">
+                  <Film className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   វីដេអូដើម (ប្រវែង 1H - 5H)
                 </span>
                 {videoDuration > 0 && (
-                  <span className="text-xs font-mono font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
                     ⏱️ {formatSec(videoDuration)}
                   </span>
                 )}
@@ -416,7 +416,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                   onClick={() => fileInputRef.current?.click()}
                   className="border-2 border-dashed border-white/15 hover:border-emerald-400/50 rounded-2xl p-8 sm:p-12 flex flex-col items-center justify-center gap-3 cursor-pointer bg-black/20 hover:bg-black/30 transition-all text-center group"
                 >
-                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-110 transition-transform">
                     {isUploadingSplit ? (
                       <Loader2 className="w-8 h-8 animate-spin" />
                     ) : (
@@ -424,10 +424,10 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm font-bold text-slate-800 dark:text-white">
                       ចុច ឬទម្លាក់វីដេអូវែង (1 ម៉ោង ដល់ 5 ម៉ោង) ចូលទីនេះ
                     </p>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
                       ទ្រទ្រង់ MP4, MKV, MOV, AVI, WEBM គ្មានកំណត់ទំហំ (High Speed 10GB+)
                     </p>
                   </div>
@@ -450,9 +450,9 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 border border-white/10 text-xs font-semibold text-zinc-300 hover:text-white flex items-center gap-1.5 transition-all"
+                  className="px-3 py-1.5 rounded-xl bg-white/[0.05] hover:bg-white/10 border border-white/10 text-xs font-semibold text-slate-700 dark:text-zinc-300 hover:text-slate-800 dark:text-white flex items-center gap-1.5 transition-all"
                 >
-                  <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                  <Upload className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>{splitVideoUrl ? 'ប្ដូរវីដេអូផ្សេង' : 'ជ្រើសរើសវីដេអូ'}</span>
                 </button>
 
@@ -465,7 +465,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                         key={i}
                         type="button"
                         onClick={() => handleSelectRecentFile(rf)}
-                        className="px-2 py-1 rounded-lg bg-black/40 hover:bg-white/10 border border-white/5 text-[11px] text-zinc-300 truncate max-w-[130px]"
+                        className="px-2 py-1 rounded-lg bg-black/40 hover:bg-white/10 border border-white/5 text-[11px] text-slate-700 dark:text-zinc-300 truncate max-w-[130px]"
                         title={rf.originalName || rf.filename}
                       >
                         {rf.originalName || rf.filename}
@@ -479,27 +479,27 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
             {/* Video Specs Card */}
             {videoMetadata && (
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div className="p-3 rounded-xl bg-[#141418] border border-white/[0.06] flex flex-col">
-                  <span className="text-[10px] text-zinc-400">ប្រវែងសរុប</span>
-                  <span className="text-xs font-mono font-bold text-white mt-1">
+                <div className="p-3 rounded-xl bg-white dark:bg-white dark:bg-[#141418] border border-white/[0.06] flex flex-col">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">ប្រវែងសរុប</span>
+                  <span className="text-xs font-mono font-bold text-slate-800 dark:text-white mt-1">
                     {formatSec(videoMetadata.duration)}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-[#141418] border border-white/[0.06] flex flex-col">
-                  <span className="text-[10px] text-zinc-400">កម្រិតរូបភាព</span>
-                  <span className="text-xs font-mono font-bold text-white mt-1">
+                <div className="p-3 rounded-xl bg-white dark:bg-white dark:bg-[#141418] border border-white/[0.06] flex flex-col">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">កម្រិតរូបភាព</span>
+                  <span className="text-xs font-mono font-bold text-slate-800 dark:text-white mt-1">
                     {videoMetadata.width} × {videoMetadata.height} ({videoMetadata.fps} fps)
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-[#141418] border border-white/[0.06] flex flex-col">
-                  <span className="text-[10px] text-zinc-400">ទំហំឯកសារ</span>
-                  <span className="text-xs font-mono font-bold text-white mt-1">
+                <div className="p-3 rounded-xl bg-white dark:bg-white dark:bg-[#141418] border border-white/[0.06] flex flex-col">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">ទំហំឯកសារ</span>
+                  <span className="text-xs font-mono font-bold text-slate-800 dark:text-white mt-1">
                     {formatBytes(videoMetadata.size_bytes)}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-[#141418] border border-white/[0.06] flex flex-col">
-                  <span className="text-[10px] text-zinc-400">កូដិកវីដេអូ</span>
-                  <span className="text-xs font-mono font-bold text-emerald-400 mt-1 uppercase">
+                <div className="p-3 rounded-xl bg-white dark:bg-white dark:bg-[#141418] border border-white/[0.06] flex flex-col">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">កូដិកវីដេអូ</span>
+                  <span className="text-xs font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-1 uppercase">
                     {videoMetadata.video_codec} / {videoMetadata.audio_codec}
                   </span>
                 </div>
@@ -509,9 +509,9 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
 
           {/* Right Column: Split Settings & Execute (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-4">
-            <div className="p-5 rounded-2xl bg-[#141418] border border-white/[0.08] shadow-xl space-y-4">
-              <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
-                <Zap className="w-4 h-4 text-emerald-400" />
+            <div className="p-5 rounded-2xl bg-white dark:bg-white dark:bg-[#141418] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-xl space-y-4">
+              <h2 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
+                <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 ការកំណត់កាត់ភាគ (Split Settings)
               </h2>
 
@@ -523,7 +523,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                   className={`py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                     splitMode === 'duration'
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   ⏱️ តាមចំនួននាទី/ភាគ
@@ -534,7 +534,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                   className={`py-2 px-3 rounded-lg text-xs font-bold transition-all ${
                     splitMode === 'parts'
                       ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   🔢 តាមចំនួនភាគស្មើគ្នា
@@ -544,7 +544,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
               {/* Setting details based on mode */}
               {splitMode === 'duration' ? (
                 <div className="space-y-3">
-                  <label className="text-xs font-bold text-zinc-300">
+                  <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                     ជ្រើសរើសចំនួននាទីក្នុង ១ ភាគ៖
                   </label>
                   <div className="grid grid-cols-2 gap-1.5">
@@ -556,7 +556,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                         className={`py-2 px-2.5 rounded-xl text-[11px] font-bold text-left transition-all border ${
                           minutesPerPart === p.value
                             ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
-                            : 'bg-black/30 border-white/10 text-zinc-300 hover:bg-white/5'
+                            : 'bg-black/30 border-white/10 text-slate-700 dark:text-zinc-300 hover:bg-white/5'
                         }`}
                       >
                         {p.label}
@@ -566,25 +566,25 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
 
                   {/* Custom minutes input */}
                   <div className="flex items-center gap-2 pt-1">
-                    <span className="text-xs text-zinc-400">ឬកំណត់នាទីផ្ទាល់ខ្លួន៖</span>
+                    <span className="text-xs text-slate-600 dark:text-zinc-400">ឬកំណត់នាទីផ្ទាល់ខ្លួន៖</span>
                     <input
                       type="number"
                       min={1}
                       max={300}
                       value={minutesPerPart}
                       onChange={(e) => setMinutesPerPart(Math.max(1, parseInt(e.target.value, 10) || 1))}
-                      className="w-20 px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-center font-mono font-bold text-white text-xs outline-none focus:border-emerald-400"
+                      className="w-20 px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-center font-mono font-bold text-slate-800 dark:text-white text-xs outline-none focus:border-emerald-400"
                     />
-                    <span className="text-xs text-zinc-300 font-semibold">នាទី/ភាគ</span>
+                    <span className="text-xs text-slate-700 dark:text-zinc-300 font-semibold">នាទី/ភាគ</span>
                   </div>
                 </div>
               ) : (
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <label className="text-xs font-bold text-zinc-300">
+                    <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                       ចំនួនភាគដែលចង់ចែកស្មើគ្នា៖
                     </label>
-                    <span className="text-sm font-mono font-bold text-emerald-400">
+                    <span className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400">
                       {numParts} ភាគ
                     </span>
                   </div>
@@ -609,13 +609,13 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
               {/* Naming Prefix & Engine Settings */}
               <div className="space-y-2 pt-2 border-t border-white/[0.06]">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-zinc-300 font-semibold">បុព្វបទឈ្មោះភាគ៖</span>
+                  <span className="text-xs text-slate-700 dark:text-zinc-300 font-semibold">បុព្វបទឈ្មោះភាគ៖</span>
                   <input
                     type="text"
                     value={namingPrefix}
                     onChange={(e) => setNamingPrefix(e.target.value)}
                     placeholder="ភាគ"
-                    className="w-28 px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-xs text-white font-khmer outline-none focus:border-emerald-400 text-center"
+                    className="w-28 px-2.5 py-1 rounded-lg bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white font-khmer outline-none focus:border-emerald-400 text-center"
                   />
                 </div>
 
@@ -624,11 +624,11 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                   onClick={() => setIsLossless(!isLossless)}
                 >
                   <div className="flex flex-col">
-                    <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                      <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                    <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-cyan-600 dark:text-yellow-400" />
                       Ultra-Fast Stream Copy (គ្មានការធ្លាក់ចុះគុណភាព)
                     </span>
-                    <span className="text-[10px] text-zinc-400">
+                    <span className="text-[10px] text-slate-600 dark:text-zinc-400">
                       កាត់ត្រឹម 2-5 វិនាទីក្នុង 1 ភាគ ដោយរក្សាគុណភាពដើម 100%
                     </span>
                   </div>
@@ -648,11 +648,11 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                     <span className="text-xs font-bold text-emerald-300">
                       ការគណនាស្វ័យប្រវត្តិ៖
                     </span>
-                    <span className="text-[11px] text-zinc-300">
-                      វីដេអូនេះនឹងត្រូវកាត់ចេញជា <strong className="text-emerald-400">{calculatedPartsCount()} ភាគ</strong>
+                    <span className="text-[11px] text-slate-700 dark:text-zinc-300">
+                      វីដេអូនេះនឹងត្រូវកាត់ចេញជា <strong className="text-emerald-600 dark:text-emerald-400">{calculatedPartsCount()} ភាគ</strong>
                     </span>
                   </div>
-                  <span className="text-xl font-black text-emerald-400 font-mono">
+                  <span className="text-xl font-black text-emerald-600 dark:text-emerald-400 font-mono">
                     {calculatedPartsCount()} ភាគ
                   </span>
                 </div>
@@ -663,7 +663,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-bold text-emerald-300">
                     <span className="flex items-center gap-1.5">
-                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-400" />
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-emerald-600 dark:text-emerald-400" />
                       {splitProgressMsg || 'កំពុងដំណើរការកាត់...'}
                     </span>
                     <span className="font-mono">{splitProgress}%</span>
@@ -682,7 +682,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 type="button"
                 onClick={handleStartSplit}
                 disabled={isSplitting || !splitFilename}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-extrabold text-sm shadow-[0_0_25px_rgba(0,242,173,0.4)] transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-slate-800 dark:text-white font-extrabold text-sm shadow-[0_0_25px_rgba(0,242,173,0.4)] transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isSplitting ? (
                   <>
@@ -705,17 +705,17 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
 
           {/* Bottom Results: Generated Episode Parts Cards */}
           {splitResults.length > 0 && (
-            <div className="lg:col-span-12 p-5 rounded-2xl bg-[#141418] border border-white/[0.08] shadow-2xl space-y-4">
-              <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-white/[0.08]">
+            <div className="lg:col-span-12 p-5 rounded-2xl bg-white dark:bg-white dark:bg-[#141418] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl space-y-4">
+              <div className="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <div className="flex items-center gap-2">
                   <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center">
-                    <Check className="w-4 h-4 text-emerald-400" />
+                    <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-extrabold text-white">
+                    <h3 className="text-sm font-extrabold text-slate-800 dark:text-white">
                       លទ្ធផលកាត់វីដេអូបានសម្រេច ({splitResults.length} ភាគ)
                     </h3>
-                    <p className="text-xs text-zinc-400">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400">
                       អ្នកអាចទាញយកភាគនីមួយៗ ឬចាក់ទស្សនាសាកល្បងបានភ្លាមៗ
                     </p>
                   </div>
@@ -739,22 +739,22 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 {splitResults.map((part) => (
                   <div
                     key={part.part_index}
-                    className="p-3.5 rounded-xl bg-[#1C1C24] border border-white/10 hover:border-emerald-400/40 transition-all flex flex-col justify-between gap-3 group shadow-md"
+                    className="p-3.5 rounded-xl bg-white dark:bg-white dark:bg-[#1C1C24] border border-white/10 hover:border-emerald-400/40 transition-all flex flex-col justify-between gap-3 group shadow-md"
                   >
                     <div>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/30 text-emerald-300 text-xs font-mono font-bold">
                           ភាគ {part.part_index}
                         </span>
-                        <span className="text-[11px] font-mono text-zinc-400">
+                        <span className="text-[11px] font-mono text-slate-600 dark:text-zinc-400">
                           {formatBytes(part.size_bytes)}
                         </span>
                       </div>
-                      <p className="text-xs font-bold text-white truncate" title={part.filename}>
+                      <p className="text-xs font-bold text-slate-800 dark:text-white truncate" title={part.filename}>
                         {part.filename}
                       </p>
-                      <p className="text-[11px] font-mono text-zinc-400 mt-1 flex items-center gap-1">
-                        <Clock className="w-3 h-3 text-emerald-400" />
+                      <p className="text-[11px] font-mono text-slate-600 dark:text-zinc-400 mt-1 flex items-center gap-1">
+                        <Clock className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                         {part.formatted_time} ({formatSec(part.duration)})
                       </p>
                     </div>
@@ -763,9 +763,9 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                       <button
                         type="button"
                         onClick={() => setPreviewingPartUrl(part.url)}
-                        className="flex-1 py-1.5 px-2 rounded-lg bg-black/40 hover:bg-white/10 border border-white/10 text-xs font-bold text-zinc-200 hover:text-white flex items-center justify-center gap-1 transition-all"
+                        className="flex-1 py-1.5 px-2 rounded-lg bg-black/40 hover:bg-white/10 border border-white/10 text-xs font-bold text-zinc-200 hover:text-slate-800 dark:text-white flex items-center justify-center gap-1 transition-all"
                       >
-                        <Play className="w-3 h-3 fill-emerald-400 text-emerald-400" />
+                        <Play className="w-3 h-3 fill-emerald-400 text-emerald-600 dark:text-emerald-400" />
                         <span>មើល</span>
                       </button>
                       <a
@@ -792,14 +792,14 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
           {/* Left Column: Clips List to Merge (7 cols) */}
           <div className="lg:col-span-7 flex flex-col gap-4">
-            <div className="p-5 rounded-2xl bg-[#141418] border border-white/[0.08] shadow-xl space-y-4">
+            <div className="p-5 rounded-2xl bg-white dark:bg-white dark:bg-[#141418] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+                  <h2 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
                     <Layers className="w-4 h-4 text-cyan-400" />
                     បញ្ជីឃ្លីបវីដេអូដែលត្រូវបញ្ចូលគ្នា ({mergeClips.length})
                   </h2>
-                  <p className="text-xs text-zinc-400">
+                  <p className="text-xs text-slate-600 dark:text-zinc-400">
                     ទម្លាក់វីដេអូខ្លីៗជាច្រើនចូលគ្នា—ប្រព័ន្ធនឹងតម្រៀប និងបញ្ចូលជា ១ វីដេអូវែង
                   </p>
                 </div>
@@ -837,10 +837,10 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                     )}
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-white">
+                    <p className="text-sm font-bold text-slate-800 dark:text-white">
                       ចុច ឬទម្លាក់វីដេអូច្រើនឃ្លីបចូលទីនេះ
                     </p>
-                    <p className="text-xs text-zinc-400 mt-1">
+                    <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1">
                       អាចជ្រើសរើសវីដេអូខ្លីៗរាប់សិបឃ្លីបក្នុងពេលតែមួយ (Batch Import)
                     </p>
                   </div>
@@ -850,17 +850,17 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                   {mergeClips.map((clip, idx) => (
                     <div
                       key={clip.id}
-                      className="p-3 rounded-xl bg-[#1B1B22] border border-white/10 hover:border-cyan-400/30 flex items-center justify-between gap-3 transition-all"
+                      className="p-3 rounded-xl bg-white dark:bg-white dark:bg-[#1B1B22] border border-white/10 hover:border-cyan-400/30 flex items-center justify-between gap-3 transition-all"
                     >
                       <div className="flex items-center gap-3 min-w-0">
                         <span className="w-6 h-6 rounded-lg bg-black/40 border border-white/10 text-cyan-400 font-mono text-xs font-bold flex items-center justify-center shrink-0">
                           {idx + 1}
                         </span>
                         <div className="min-w-0">
-                          <p className="text-xs font-bold text-white truncate max-w-xs sm:max-w-md">
+                          <p className="text-xs font-bold text-slate-800 dark:text-white truncate max-w-xs sm:max-w-md">
                             {clip.file?.name || clip.filename}
                           </p>
-                          <p className="text-[10px] text-zinc-400 font-mono mt-0.5">
+                          <p className="text-[10px] text-slate-600 dark:text-zinc-400 font-mono mt-0.5">
                             ⏱️ {formatSec(clip.duration)} | {formatBytes(clip.size)}
                           </p>
                         </div>
@@ -871,7 +871,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                           type="button"
                           onClick={() => handleMoveClip(idx, 'up')}
                           disabled={idx === 0}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white disabled:opacity-30"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white disabled:opacity-30"
                           title="រំកិលឡើងលើ"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -880,7 +880,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                           type="button"
                           onClick={() => handleMoveClip(idx, 'down')}
                           disabled={idx === mergeClips.length - 1}
-                          className="p-1.5 rounded-lg hover:bg-white/10 text-zinc-400 hover:text-white disabled:opacity-30"
+                          className="p-1.5 rounded-lg hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white disabled:opacity-30"
                           title="រំកិលចុះក្រោម"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -903,8 +903,8 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
 
           {/* Right Column: Merger Settings & Action (5 cols) */}
           <div className="lg:col-span-5 flex flex-col gap-4">
-            <div className="p-5 rounded-2xl bg-[#141418] border border-white/[0.08] shadow-xl space-y-4">
-              <h2 className="text-sm font-extrabold text-white flex items-center gap-2">
+            <div className="p-5 rounded-2xl bg-white dark:bg-white dark:bg-[#141418] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-xl space-y-4">
+              <h2 className="text-sm font-extrabold text-slate-800 dark:text-white flex items-center gap-2">
                 <Zap className="w-4 h-4 text-cyan-400" />
                 ការកំណត់បញ្ចូលវីដេអូ (Merger Options)
               </h2>
@@ -912,14 +912,14 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
               {/* Summary Stats */}
               <div className="grid grid-cols-2 gap-2.5">
                 <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <span className="text-[10px] text-zinc-400">ចំនួនឃ្លីប</span>
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">ចំនួនឃ្លីប</span>
                   <p className="text-sm font-mono font-bold text-cyan-400 mt-1">
                     {mergeClips.length} វីដេអូ
                   </p>
                 </div>
                 <div className="p-3 rounded-xl bg-black/40 border border-white/5">
-                  <span className="text-[10px] text-zinc-400">ប្រវែងវីដេអូសម្រេចសរុប</span>
-                  <p className="text-sm font-mono font-bold text-emerald-400 mt-1">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">ប្រវែងវីដេអូសម្រេចសរុប</span>
+                  <p className="text-sm font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-1">
                     {formatSec(totalMergeDuration)}
                   </p>
                 </div>
@@ -927,26 +927,26 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
 
               {/* Output Name */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">
+                <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                   ឈ្មោះឯកសារសម្រេច (Output Name)៖
                 </label>
                 <input
                   type="text"
                   value={mergedOutputName}
                   onChange={(e) => setMergedOutputName(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-cyan-400 font-khmer"
+                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-cyan-400 font-khmer"
                 />
               </div>
 
               {/* Resolution options */}
               <div className="space-y-1.5">
-                <label className="text-xs font-bold text-zinc-300">
+                <label className="text-xs font-bold text-slate-700 dark:text-zinc-300">
                   កម្រិតរូបភាពសម្រេច (Output Resolution)៖
                 </label>
                 <select
                   value={mergeResolution}
                   onChange={(e) => setMergeResolution(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-white outline-none focus:border-cyan-400 font-sans"
+                  className="w-full px-3 py-2 rounded-xl bg-black/60 border border-white/15 text-xs text-slate-800 dark:text-white outline-none focus:border-cyan-400 font-sans"
                 >
                   <option value="auto">ស្វ័យប្រវត្តិ Auto (តាមទំហំដើម)</option>
                   <option value="1080p">1080p Full HD (1920 × 1080)</option>
@@ -960,11 +960,11 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 onClick={() => setMergeLossless(!mergeLossless)}
               >
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                    <Zap className="w-3.5 h-3.5 text-yellow-400" />
+                  <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                    <Zap className="w-3.5 h-3.5 text-cyan-600 dark:text-yellow-400" />
                     Ultra-Fast Lossless Stream Concat
                   </span>
-                  <span className="text-[10px] text-zinc-400">
+                  <span className="text-[10px] text-slate-600 dark:text-zinc-400">
                     បញ្ចូលភ្លាមៗក្នុងរយៈពេលប៉ុន្មានវិនាទី (បើកូដិកដូចគ្នា)
                   </span>
                 </div>
@@ -1000,7 +1000,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 type="button"
                 onClick={handleStartMerge}
                 disabled={isMerging || mergeClips.length < 2}
-                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-extrabold text-sm shadow-[0_0_25px_rgba(0,194,255,0.4)] transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-800 dark:text-white font-extrabold text-sm shadow-[0_0_25px_rgba(0,194,255,0.4)] transition-all active:scale-98 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
               >
                 {isMerging ? (
                   <>
@@ -1022,11 +1022,11 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
             {mergedResult && (
               <div className="p-4 rounded-2xl bg-gradient-to-br from-emerald-500/10 via-cyan-500/10 to-transparent border border-emerald-400/30 shadow-xl space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                  <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
                     <Check className="w-4 h-4" />
                     វីដេអូសម្រេចបានរួចរាល់!
                   </span>
-                  <span className="text-xs font-mono font-bold text-white">
+                  <span className="text-xs font-mono font-bold text-slate-800 dark:text-white">
                     {formatSec(mergedResult.duration)}
                   </span>
                 </div>
@@ -1038,7 +1038,7 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
                 <a
                   href={mergedResult.url}
                   download={mergedResult.filename}
-                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
+                  className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-800 dark:text-white font-bold text-xs flex items-center justify-center gap-2 shadow-lg transition-all"
                 >
                   <Download className="w-4 h-4" />
                   <span>ទាញយកវីដេអូសម្រេច ({formatBytes(mergedResult.size_bytes)})</span>
@@ -1052,15 +1052,15 @@ export const VideoCutterPage: React.FC<VideoCutterPageProps> = ({
       {/* Part Video Preview Modal */}
       {previewingPartUrl && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="w-full max-w-3xl rounded-2xl bg-[#16161D] border border-white/15 overflow-hidden shadow-2xl p-4 flex flex-col gap-3">
+          <div className="w-full max-w-3xl rounded-2xl bg-white dark:bg-white dark:bg-[#16161D] border border-white/15 overflow-hidden shadow-2xl p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <span className="text-sm font-bold text-white font-khmer">
+              <span className="text-sm font-bold text-slate-800 dark:text-white font-khmer">
                 ទស្សនាសាកល្បងភាគវីដេអូ
               </span>
               <button
                 type="button"
                 onClick={() => setPreviewingPartUrl(null)}
-                className="p-1 rounded-lg text-zinc-400 hover:text-white"
+                className="p-1 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white"
               >
                 ✕
               </button>

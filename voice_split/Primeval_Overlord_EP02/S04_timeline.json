@@ -1,0 +1,116 @@
+[
+ {
+  "id": 4,
+  "orig_start": 19.1,
+  "orig_end": 20.03,
+  "new_start": 0.0
+ },
+ {
+  "id": 25,
+  "orig_start": 93.16,
+  "orig_end": 93.87,
+  "new_start": 1.18
+ },
+ {
+  "id": 43,
+  "orig_start": 151.42,
+  "orig_end": 152.08,
+  "new_start": 2.14
+ },
+ {
+  "id": 47,
+  "orig_start": 162.72,
+  "orig_end": 165.71,
+  "new_start": 3.05
+ },
+ {
+  "id": 49,
+  "orig_start": 169.52,
+  "orig_end": 171.82,
+  "new_start": 6.29
+ },
+ {
+  "id": 52,
+  "orig_start": 178.28,
+  "orig_end": 180.6,
+  "new_start": 8.84
+ },
+ {
+  "id": 55,
+  "orig_start": 186.1,
+  "orig_end": 186.76,
+  "new_start": 11.41
+ },
+ {
+  "id": 56,
+  "orig_start": 187.8,
+  "orig_end": 189.72,
+  "new_start": 12.32
+ },
+ {
+  "id": 57,
+  "orig_start": 190.03,
+  "orig_end": 191.36,
+  "new_start": 14.49
+ },
+ {
+  "id": 64,
+  "orig_start": 204.44,
+  "orig_end": 205.68,
+  "new_start": 16.07
+ },
+ {
+  "id": 65,
+  "orig_start": 206.04,
+  "orig_end": 206.72,
+  "new_start": 17.56
+ },
+ {
+  "id": 66,
+  "orig_start": 207.65,
+  "orig_end": 209.17,
+  "new_start": 18.49
+ },
+ {
+  "id": 93,
+  "orig_start": 274.0,
+  "orig_end": 275.48,
+  "new_start": 20.26
+ },
+ {
+  "id": 118,
+  "orig_start": 320.11,
+  "orig_end": 320.51,
+  "new_start": 21.99
+ },
+ {
+  "id": 121,
+  "orig_start": 324.58,
+  "orig_end": 325.02,
+  "new_start": 22.64
+ },
+ {
+  "id": 124,
+  "orig_start": 330.3,
+  "orig_end": 332.89,
+  "new_start": 23.33
+ },
+ {
+  "id": 173,
+  "orig_start": 456.24,
+  "orig_end": 458.13,
+  "new_start": 26.17
+ },
+ {
+  "id": 184,
+  "orig_start": 486.39,
+  "orig_end": 487.33,
+  "new_start": 28.31
+ },
+ {
+  "id": 208,
+  "orig_start": 539.48,
+  "orig_end": 539.93,
+  "new_start": 29.5
+ }
+]

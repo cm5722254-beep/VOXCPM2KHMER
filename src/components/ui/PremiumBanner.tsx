@@ -55,7 +55,7 @@ export const PremiumBanner: React.FC<PremiumBannerProps> = ({ className = '' }) 
             {/* Khmer Text + 4 FREE */}
             <div>
               <div className="flex items-center gap-3">
-                <h3 className="text-4xl font-black text-white tracking-tight" style={{ 
+                <h3 className="text-4xl font-black text-slate-800 dark:text-white tracking-tight" style={{ 
                   fontFamily: 'Battambang, Noto Sans Khmer, sans-serif',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
                 }}>
@@ -80,7 +80,7 @@ export const PremiumBanner: React.FC<PremiumBannerProps> = ({ className = '' }) 
         </div>
 
         {/* Center Plus Icon */}
-        <div className="text-white/30 flex-shrink-0">
+        <div className="text-slate-800 dark:text-white/30 flex-shrink-0">
           <svg width="50" height="50" viewBox="0 0 100 100">
             <path d="M50,20 L50,80 M20,50 L80,50" stroke="currentColor" strokeWidth="14" strokeLinecap="round"/>
           </svg>
@@ -102,8 +102,8 @@ export const PremiumBanner: React.FC<PremiumBannerProps> = ({ className = '' }) 
                   className={`flex items-center gap-2 px-4 py-1.5 rounded-full bg-gradient-to-r ${item.gradient} shadow-lg transform hover:scale-105 transition-transform`}
                   style={{ animation: `float 3s ease-in-out infinite ${i * 0.2}s` }}
                 >
-                  <Icon className="w-4 h-4 text-white flex-shrink-0" />
-                  <span className="text-sm font-black text-white whitespace-nowrap" style={{ 
+                  <Icon className="w-4 h-4 text-slate-800 dark:text-white flex-shrink-0" />
+                  <span className="text-sm font-black text-slate-800 dark:text-white whitespace-nowrap" style={{ 
                     fontFamily: 'Battambang, sans-serif',
                   }}>
                     ✓ {item.text}
@@ -122,7 +122,7 @@ export const PremiumBanner: React.FC<PremiumBannerProps> = ({ className = '' }) 
             }}
           >
             <Crown className="w-12 h-12 text-cyan-300 mb-1" />
-            <span className="text-xl font-black text-white" style={{ 
+            <span className="text-xl font-black text-slate-800 dark:text-white" style={{ 
               fontFamily: 'Impact, Arial Black, sans-serif',
               textShadow: '2px 2px 4px rgba(0,0,0,0.5)',
             }}>

@@ -313,14 +313,14 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
   // ── Render ──
   return (
     <div
-      className="flex-1 overflow-hidden flex flex-col gap-0 select-none bg-[#05070c]"
+      className="flex-1 overflow-hidden flex flex-col gap-0 select-none bg-white dark:bg-[#05070c]"
       style={{ paddingBottom: '80px' /* space for floating toolbar */ }}
     >
 
       {/* ════════════════════════════════════════
           SECTION 1 — Professional Editor Header
           ════════════════════════════════════════ */}
-      <div className="bg-[#0b0e1a] border-b border-white/[0.07] px-4 md:px-6 py-3 flex flex-col gap-3 flex-shrink-0">
+      <div className="bg-white dark:bg-[#0b0e1a] border-b border-white/[0.07] px-4 md:px-6 py-3 flex flex-col gap-3 flex-shrink-0">
 
         {/* Top Row: Brand + Actions */}
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
@@ -331,18 +331,18 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
             </div>
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <h3 className="text-sm font-extrabold text-white font-ui leading-tight">
+                <h3 className="text-sm font-extrabold text-slate-800 dark:text-white font-ui leading-tight">
                   PRO SRT Studio — Subtitle &amp; Dubbing Editor
                 </h3>
                 <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/25 tracking-wider uppercase">
                   KHMER CINEMA
                 </span>
                 {/* Subtitle count badge */}
-                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-slate-300 border border-white/[0.1]">
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white/[0.06] text-slate-600 dark:text-slate-300 border border-white/[0.1]">
                   {totalLines} ឃ្លា
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-0.5">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
                 ស្លាក <span className="text-sky-300 font-semibold">[M]</span>{' '}
                 <span className="text-rose-300 font-semibold">[F]</span>{' '}
                 <span className="text-purple-300 font-semibold">[M_THINK]</span>{' '}
@@ -358,7 +358,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                 id="btn-generate-video-from-cast"
                 onClick={onGenerateCustomVideo}
                 disabled={isGenerating}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 hover:brightness-110 text-white font-extrabold text-xs transition-all shadow-[0_0_18px_rgba(52,211,153,0.3)] hover:scale-[1.02] active:scale-[0.97] disabled:opacity-60 cursor-pointer border border-emerald-300/30"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 hover:brightness-110 text-slate-800 dark:text-white font-extrabold text-xs transition-all shadow-[0_0_18px_rgba(52,211,153,0.3)] hover:scale-[1.02] active:scale-[0.97] disabled:opacity-60 cursor-pointer border border-emerald-300/30"
               >
                 {isGenerating ? (
                   <>
@@ -376,15 +376,15 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
 
             <button
               onClick={handleCopySrt}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] border border-white/[0.1] hover:bg-white/[0.09] text-slate-200 text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] border border-white/[0.1] hover:bg-white/[0.09] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
-              <Copy className="w-3.5 h-3.5 text-amber-400" />
+              <Copy className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
               <span>ចម្លង SRT</span>
             </button>
 
             <button
               onClick={handleExportSrt}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-[0_0_14px_rgba(56,189,248,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs transition-all shadow-[0_0_14px_rgba(56,189,248,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export .SRT</span>
@@ -392,7 +392,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
 
             <button
               onClick={onOpenExportModal}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-[0_0_14px_rgba(52,211,153,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs transition-all shadow-[0_0_14px_rgba(52,211,153,0.2)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer"
             >
               <Film className="w-3.5 h-3.5" />
               <span>Export វីដេអូ</span>
@@ -405,18 +405,18 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
           {/* Stat chips */}
           <div className="flex items-center gap-1.5 text-[11px]">
             <Hash className="w-3 h-3 text-slate-500" />
-            <span className="text-slate-400">សរុប</span>
-            <span className="font-bold text-white">{totalLines}</span>
+            <span className="text-slate-500 dark:text-slate-400">សរុប</span>
+            <span className="font-bold text-slate-800 dark:text-white">{totalLines}</span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-            <span className="text-slate-400">បានបកប្រែ</span>
+            <span className="text-slate-500 dark:text-slate-400">បានបកប្រែ</span>
             <span className="font-bold text-amber-300">{translatedCount}</span>
             <span className="text-slate-600 text-[10px]">({translatedPct}%)</span>
           </div>
           <div className="flex items-center gap-1.5 text-[11px]">
             <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" />
-            <span className="text-slate-400">មានសំឡេង</span>
+            <span className="text-slate-500 dark:text-slate-400">មានសំឡេង</span>
             <span className="font-bold text-emerald-300">{synthesizedCount}</span>
             <span className="text-slate-600 text-[10px]">({synthesizedPct}%)</span>
           </div>
@@ -431,7 +431,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                   style={{ width: `${translatedPct}%` }}
                 />
               </div>
-              <span className="text-[9px] text-amber-400 font-mono w-8 text-right">{translatedPct}%</span>
+              <span className="text-[9px] text-sky-600 dark:text-amber-400 font-mono w-8 text-right">{translatedPct}%</span>
             </div>
             {/* Synthesized progress */}
             <div className="flex items-center gap-2">
@@ -441,7 +441,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                   style={{ width: `${synthesizedPct}%` }}
                 />
               </div>
-              <span className="text-[9px] text-emerald-400 font-mono w-8 text-right">{synthesizedPct}%</span>
+              <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-mono w-8 text-right">{synthesizedPct}%</span>
             </div>
           </div>
         </div>
@@ -450,7 +450,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
       {/* ════════════════════════════════════════
           SECTION 2 — Filter & Search Bar
           ════════════════════════════════════════ */}
-      <div className="bg-[#0d1020] border-b border-white/[0.06] px-4 md:px-6 py-2.5 flex flex-col sm:flex-row items-center gap-2.5 flex-shrink-0">
+      <div className="bg-white dark:bg-[#0d1020] border-b border-white/[0.06] px-4 md:px-6 py-2.5 flex flex-col sm:flex-row items-center gap-2.5 flex-shrink-0">
         {/* Search Input */}
         <div className="relative flex-1 w-full">
           <Search className="w-3.5 h-3.5 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -459,12 +459,12 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="ស្វែងរក — អក្សររត់, អត្ថបទដើម, ឬឈ្មោះតួអង្គ…"
-            className="w-full bg-[#070a14] border border-white/[0.08] focus:border-sky-500/50 rounded-xl pl-9 pr-8 py-2 text-[12px] text-slate-200 placeholder-slate-600 outline-none transition-all focus:shadow-[0_0_14px_rgba(56,189,248,0.12)] font-medium"
+            className="w-full bg-white dark:bg-[#070a14] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] focus:border-sky-500/50 rounded-xl pl-9 pr-8 py-2 text-[12px] text-slate-700 dark:text-slate-200 placeholder-slate-600 outline-none transition-all focus:shadow-[0_0_14px_rgba(56,189,248,0.12)] font-medium"
           />
           {search && (
             <button
               onClick={() => setSearch('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white transition-colors"
             >
               <X className="w-3.5 h-3.5" />
             </button>
@@ -472,7 +472,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
         </div>
 
         {/* Pill Tabs */}
-        <div className="flex items-center gap-1 bg-[#070a14] p-1 rounded-xl border border-white/[0.07] overflow-x-auto flex-shrink-0">
+        <div className="flex items-center gap-1 bg-white dark:bg-[#070a14] p-1 rounded-xl border border-white/[0.07] overflow-x-auto flex-shrink-0">
           {[
             { id: 'all',   label: `ទាំងអស់`, count: segments.length },
             { id: 'm',     label: '👑 [M]',   count: segments.filter(s => s.gender === 'male').length },
@@ -488,7 +488,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                 className={`flex items-center gap-1 px-3 py-1.5 rounded-lg text-[11px] font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   active
                     ? 'bg-sky-500/20 text-sky-300 border border-sky-400/40 shadow-sm'
-                    : 'text-slate-500 hover:text-slate-200 hover:bg-white/[0.04]'
+                    : 'text-slate-500 hover:text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:bg-white/[0.04]'
                 }`}
               >
                 {tab.label}
@@ -504,7 +504,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
         <button
           onClick={handleExpertAiTranslate}
           disabled={isTranslatingWithAi || segments.length === 0}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 hover:brightness-110 text-white font-bold text-[11px] transition-all shadow-[0_0_14px_rgba(168,85,247,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 flex-shrink-0"
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-sky-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-[11px] transition-all shadow-[0_0_14px_rgba(168,85,247,0.25)] hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-50 flex-shrink-0"
           title="Expert Subtitler AI — ៦ ច្បាប់"
         >
           {isTranslatingWithAi ? (
@@ -528,7 +528,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
             <Subtitles className="w-10 h-10 text-slate-700" />
-            <p className="text-sm font-semibold text-slate-400">មិនទាន់មានទិន្នន័យអក្សររត់ឡើយ</p>
+            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">មិនទាន់មានទិន្នន័យអក្សររត់ឡើយ</p>
             <p className="text-xs text-slate-600">សូមស្កេនវីដេអូ ឬបន្ថែមឃ្លាសន្ទនាជាមុនសិន។</p>
           </div>
         ) : (
@@ -558,8 +558,8 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                 }}
                 className={`relative rounded-2xl border transition-all duration-200 group ${
                   isFocused
-                    ? 'border-sky-500/60 bg-[#0e1628] shadow-[0_0_24px_rgba(56,189,248,0.12)] scale-[1.002]'
-                    : 'border-white/[0.07] bg-[#0b0e1a] hover:border-white/[0.13] hover:bg-[#0d1020]'
+                    ? 'border-sky-500/60 bg-white dark:bg-[#0e1628] shadow-[0_0_24px_rgba(56,189,248,0.12)] scale-[1.002]'
+                    : 'border-white/[0.07] bg-white dark:bg-[#0b0e1a] hover:border-white/[0.13] hover:bg-white dark:bg-[#0d1020]'
                 }`}
               >
                 {/* ── Card Body ── */}
@@ -573,7 +573,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                         className={`w-2 h-2 rounded-full flex-shrink-0 ${STATUS_DOT[status].bg}`}
                         title={STATUS_DOT[status].label}
                       />
-                      <span className="text-[10px] font-bold text-slate-400 font-mono">
+                      <span className="text-[10px] font-bold text-slate-500 dark:text-slate-400 font-mono">
                         #{String(originalIdx + 1).padStart(3, '0')}
                       </span>
                     </div>
@@ -584,15 +584,15 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                         {formatTimecode(seg.start_time).split(',')[0]}
                       </span>
                       <span className="text-[9px] text-slate-600">↓</span>
-                      <span className="text-[10px] font-mono text-slate-400 leading-tight">
+                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 leading-tight">
                         {formatTimecode(seg.end_time).split(',')[0]}
                       </span>
                     </div>
 
                     {/* Duration pill */}
-                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-white/[0.08]">
+                    <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-white/[0.05] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                       <Clock className="w-2.5 h-2.5 text-slate-500" />
-                      <span className="text-[9px] font-mono text-slate-400">{duration}</span>
+                      <span className="text-[9px] font-mono text-slate-500 dark:text-slate-400">{duration}</span>
                     </div>
                   </div>
 
@@ -614,7 +614,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                       }}
                       rows={2}
                       placeholder="បញ្ចូលអត្ថបទសន្ទនាភាសាខ្មែរ…"
-                      className="w-full bg-[#070a14] border border-white/[0.08] focus:border-sky-500/50 rounded-xl px-3 py-2.5 text-slate-100 placeholder-slate-600 outline-none text-[13px] font-medium leading-relaxed resize-none transition-all focus:shadow-[0_0_12px_rgba(56,189,248,0.1)] overflow-hidden"
+                      className="w-full bg-white dark:bg-[#070a14] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] focus:border-sky-500/50 rounded-xl px-3 py-2.5 text-slate-800 dark:text-slate-100 placeholder-slate-600 outline-none text-[13px] font-medium leading-relaxed resize-none transition-all focus:shadow-[0_0_12px_rgba(56,189,248,0.1)] overflow-hidden"
                       style={{ minHeight: '52px' }}
                     />
 
@@ -655,7 +655,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                           type="button"
                           onClick={() => handleAppendParticle(originalIdx, text, p)}
                           title={`+ ${p}`}
-                          className="px-1.5 py-0.5 rounded-md text-[10px] bg-white/[0.04] border border-white/[0.08] text-slate-400 hover:text-slate-100 hover:bg-white/[0.09] hover:border-white/[0.15] transition-all cursor-pointer"
+                          className="px-1.5 py-0.5 rounded-md text-[10px] bg-slate-100 dark:bg-white/[0.04] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 hover:bg-white/[0.09] hover:border-white/[0.15] transition-all cursor-pointer"
                         >
                           +{p}
                         </button>
@@ -681,7 +681,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                           </>
                         ) : hasAudio ? (
                           <>
-                            <CheckCircle className="w-3.5 h-3.5 text-emerald-400" />
+                            <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                             <span>Re-Synth</span>
                           </>
                         ) : (
@@ -721,7 +721,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                         <span className="text-base leading-none flex-shrink-0">
                           {voiceChar ? getCharacterAvatar(voiceChar) : (seg.gender === 'female' ? '🌸' : '👑')}
                         </span>
-                        <span className="text-[10px] text-slate-400 truncate font-medium">
+                        <span className="text-[10px] text-slate-500 dark:text-slate-400 truncate font-medium">
                           {seg.speaker_name || 'Character…'}
                         </span>
                       </div>
@@ -730,7 +730,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                         <select
                           value={seg.voiceId || (seg.gender === 'female' ? 'voxcpm:vp_character_1_female.mp3' : 'voxcpm:vp_character_2_male.mp3')}
                           onChange={(e) => handleVoiceChange(originalIdx, e.target.value)}
-                          className="w-full bg-[#070a14] border border-white/[0.1] hover:border-sky-500/40 rounded-lg pl-2.5 pr-6 py-1.5 text-[11px] text-white focus:outline-none focus:border-sky-400 font-medium appearance-none cursor-pointer transition-all"
+                          className="w-full bg-white dark:bg-[#070a14] border border-white/[0.1] hover:border-sky-500/40 rounded-lg pl-2.5 pr-6 py-1.5 text-[11px] text-slate-800 dark:text-white focus:outline-none focus:border-sky-400 font-medium appearance-none cursor-pointer transition-all"
                         >
                           <optgroup label="🌸 Female Clones">
                             {activeCharacters.filter(c => c.gender === 'female').map(c => (
@@ -750,8 +750,8 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
                     {/* Synthesized indicator */}
                     {hasAudio && (
                       <div className="flex items-center gap-1 px-2 py-1 rounded-lg bg-emerald-500/10 border border-emerald-500/30 mt-auto self-start">
-                        <CheckCircle className="w-3 h-3 text-emerald-400 flex-shrink-0" />
-                        <span className="text-[9px] text-emerald-400 font-bold whitespace-nowrap">AUDIO ✓</span>
+                        <CheckCircle className="w-3 h-3 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
+                        <span className="text-[9px] text-emerald-600 dark:text-emerald-400 font-bold whitespace-nowrap">AUDIO ✓</span>
                       </div>
                     )}
 
@@ -805,12 +805,12 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
       {/* ════════════════════════════════════════
           SECTION 4 — Fixed Floating Bottom Toolbar
           ════════════════════════════════════════ */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-2.5 px-4 py-3 bg-[#080b16]/90 border-t border-white/[0.08] backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
+      <div className="fixed bottom-0 left-0 right-0 z-50 flex items-center justify-center gap-2.5 px-4 py-3 bg-white dark:bg-[#080b16]/90 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] backdrop-blur-xl shadow-[0_-8px_32px_rgba(0,0,0,0.5)]">
         {/* Generate All Audio */}
         <button
           onClick={handleGenerateAll}
           disabled={generatingAll || synthesizingIdx !== null || segments.length === 0}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-[0_0_18px_rgba(56,189,248,0.25)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50 border border-sky-400/20"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs transition-all shadow-[0_0_18px_rgba(56,189,248,0.25)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50 border border-sky-400/20"
         >
           {generatingAll || synthesizingIdx !== null ? (
             <>
@@ -831,7 +831,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
         <button
           onClick={handleExportSrt}
           disabled={segments.length === 0}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-[#0e1424] border border-white/[0.1] hover:bg-white/[0.07] text-slate-200 font-bold text-xs transition-all hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white dark:bg-[#0e1424] border border-white/[0.1] hover:bg-white/[0.07] text-slate-700 dark:text-slate-200 font-bold text-xs transition-all hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50"
         >
           <Download className="w-4 h-4 text-sky-400" />
           <span>Export SRT</span>
@@ -840,7 +840,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
         {/* Export Video */}
         <button
           onClick={onOpenExportModal}
-          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-[0_0_16px_rgba(52,211,153,0.2)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-emerald-400/20"
+          className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs transition-all shadow-[0_0_16px_rgba(52,211,153,0.2)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-emerald-400/20"
         >
           <Film className="w-4 h-4" />
           <span>Export Video</span>
@@ -852,7 +852,7 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
             <button
               onClick={onGenerateCustomVideo}
               disabled={isGenerating}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white font-bold text-xs transition-all shadow-[0_0_16px_rgba(168,85,247,0.2)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50 border border-purple-400/20"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white font-bold text-xs transition-all shadow-[0_0_16px_rgba(168,85,247,0.2)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer disabled:opacity-50 border border-purple-400/20"
             >
               {isGenerating ? (
                 <>
@@ -874,11 +874,11 @@ export const SubtitleStudio: React.FC<SubtitleProps> = ({
           <span className="text-slate-500">{filtered.length}/{totalLines} ឃ្លា</span>
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-            <span className="text-slate-400">{translatedCount} បកប្រែ</span>
+            <span className="text-slate-500 dark:text-slate-400">{translatedCount} បកប្រែ</span>
           </span>
           <span className="flex items-center gap-1">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-            <span className="text-slate-400">{synthesizedCount} សំឡេង</span>
+            <span className="text-slate-500 dark:text-slate-400">{synthesizedCount} សំឡេង</span>
           </span>
         </div>
       </div>

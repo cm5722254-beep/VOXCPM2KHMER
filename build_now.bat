@@ -28,6 +28,14 @@ if not exist "!PIP!" (
         set "PIP=pip"
     )
 )
+echo [0/3] Deep Cleaning Project (Removing logs, temp slices, __pycache__)...
+if exist ".venv\Scripts\python.exe" (
+    .venv\Scripts\python.exe scripts\clean_project.py
+) else (
+    python scripts\clean_project.py
+)
+echo Clean done.
+echo.
 
 echo [1/3] Upgrading PyInstaller...
 "!PIP!" install -q --upgrade pyinstaller pyinstaller-hooks-contrib
@@ -45,7 +53,15 @@ echo.
 "!PYINST!" animeclone.spec --noconfirm --clean
 echo.
 
-if exist "dist\SDACH_ATITEB_PRO.exe" (
+if exist "dist\Dragon_Dabber_Pro.exe" (
+    copy /y "dist\Dragon_Dabber_Pro.exe" "Dragon_Dabber_Pro.exe" >nul
+    copy /y "dist\Dragon_Dabber_Pro.exe" "SDACH_ATITEB_PRO.exe" >nul
+    echo ===============================================================================
+    echo  BUILD SUCCESS! File: Dragon_Dabber_Pro.exe & SDACH_ATITEB_PRO.exe
+    echo  Works on Windows 7/8/10/11 - No Python needed!
+    echo ===============================================================================
+) else if exist "dist\SDACH_ATITEB_PRO.exe" (
+    copy /y "dist\SDACH_ATITEB_PRO.exe" "Dragon_Dabber_Pro.exe" >nul
     copy /y "dist\SDACH_ATITEB_PRO.exe" "SDACH_ATITEB_PRO.exe" >nul
     echo ===============================================================================
     echo  BUILD SUCCESS! File: SDACH_ATITEB_PRO.exe

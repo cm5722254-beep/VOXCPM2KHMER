@@ -60,29 +60,93 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-# Cross-platform Device detection (CUDA on PC/Linux, Metal/MPS on Apple Silicon Mac, or CPU)
-force_cpu = os.getenv("FORCE_CPU", "").lower() in ("1", "true", "yes") or "--cpu" in sys.argv or os.getenv("VOXCPM_DEVICE", "").lower() == "cpu"
+# ─────────────────────────────────────────────────────────────────────────────
+# Cross-platform GPU Device Selection
+# Priority: CUDA > Apple MPS > AMD DirectML > CPU
+# AMD Vega 64 on Windows uses torch-directml (DirectX 12 ML backend).
+# ─────────────────────────────────────────────────────────────────────────────
+force_cpu = (
+    os.getenv("FORCE_CPU", "").lower() in ("1", "true", "yes")
+    or "--cpu" in sys.argv
+    or os.getenv("VOXCPM_DEVICE", "").lower() == "cpu"
+)
+force_amd = (
+    os.getenv("VOXCPM_AMD", "").lower() in ("1", "true", "yes")
+    or "--amd" in sys.argv
+    or os.getenv("VOXCPM_DEVICE", "").lower() == "amd"
+)
 
 if not force_cpu and torch.cuda.is_available():
     device = "cuda"
     gpu_name = torch.cuda.get_device_name(0)
+    print(f"✅ NVIDIA CUDA GPU: {gpu_name}")
+
 elif not force_cpu and hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
     device = "mps"
     gpu_name = "Apple Silicon GPU (Metal / MPS)"
+    print(f"🍎 Apple Silicon MPS: {gpu_name}")
+
+elif not force_cpu and (force_amd or os.getenv("VOXCPM_DEVICE", "").lower() == "amd"):
+    # Explicit AMD mode: use torch-directml on Windows
+    try:
+        import torch_directml
+        dml_device_index = int(os.getenv("DML_VISIBLE_DEVICES", "0"))
+        device = torch_directml.device(dml_device_index)
+        gpu_name = f"AMD GPU (DirectML device:{dml_device_index})"
+        print(f"✅ AMD DirectML GPU: {gpu_name}")
+    except ImportError:
+        print("⚠️  torch-directml not installed — falling back to CPU.")
+        print("   Install with: pip install torch-directml")
+        device = "cpu"
+        gpu_name = "CPU (torch-directml missing)"
+
+elif not force_cpu:
+    # Auto-detect AMD via gpu_detect even without explicit --amd flag
+    _dml_detected = False
+    try:
+        _gpu_detect_path = os.path.join(BASE_DIR, "services", "gpu_detect.py")
+        if os.path.exists(_gpu_detect_path):
+            import importlib.util as _ilu
+            _spec = _ilu.spec_from_file_location("gpu_detect", _gpu_detect_path)
+            _gd = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_gd)
+            _sys_gpus = _gd.detect_gpus()
+            _primary = _sys_gpus.primary
+            if _primary and _primary.vendor == "amd" and _primary.has_directml:
+                import torch_directml
+                device = torch_directml.device(0)
+                gpu_name = f"AMD DirectML — {_primary.name} ({_primary.vram_gb}GB)"
+                print(f"✅ AMD GPU auto-detected: {gpu_name}")
+                _dml_detected = True
+    except Exception as _e:
+        pass  # fall through to CPU
+
+    if not _dml_detected:
+        device = "cpu"
+        gpu_name = "Local Computer (CPU Mode)"
+        # Optimise CPU multi-threading — Intel Xeon and Ryzen tuning
+        try:
+            cpu_threads = min(16, max(4, (os.cpu_count() or 4) // 2 if (os.cpu_count() or 4) > 8 else (os.cpu_count() or 4)))
+            torch.set_num_threads(cpu_threads)
+            os.environ["OMP_NUM_THREADS"] = str(cpu_threads)
+            os.environ["MKL_NUM_THREADS"] = str(cpu_threads)
+            print(f"⚡ CPU Multi-Threading active: {cpu_threads} worker threads")
+        except Exception:
+            pass
+
 else:
     device = "cpu"
-    gpu_name = "Local Computer (CPU Mode)"
-    # Optimize CPU multi-threading for Intel Xeon multi-core
+    gpu_name = "CPU Mode (forced)"
     try:
-        # Intel Xeon E5-2680 v3 has 12 physical cores, 24 logical threads
-        # Using 12-16 threads provides peak AVX2 matrix throughput without SMT cache thrashing
         cpu_threads = min(16, max(4, (os.cpu_count() or 4) // 2 if (os.cpu_count() or 4) > 8 else (os.cpu_count() or 4)))
         torch.set_num_threads(cpu_threads)
         os.environ["OMP_NUM_THREADS"] = str(cpu_threads)
         os.environ["MKL_NUM_THREADS"] = str(cpu_threads)
-        print(f"⚡ CPU Multi-Threading active: {cpu_threads} worker threads allocated for Intel Xeon")
+        print(f"⚡ CPU Multi-Threading active: {cpu_threads} worker threads")
     except Exception:
         pass
+
+print(f"🔧 Active Device: {device}  |  GPU: {gpu_name}")
 
 model = None
 model_loading = False

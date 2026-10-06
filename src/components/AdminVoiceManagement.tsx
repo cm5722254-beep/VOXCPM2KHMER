@@ -91,11 +91,11 @@ export default function AdminVoiceManagement() {
       <GlassCard className="p-6">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center">
-            <Shield className="w-6 h-6 text-white" />
+            <Shield className="w-6 h-6 text-slate-800 dark:text-white" />
           </div>
           <div>
             <h2 className="text-xl font-bold gradient-text">Voice Library Management</h2>
-            <p className="text-sm text-slate-400">គ្រប់គ្រងសំឡេង និងសិទ្ធិប្រើប្រាស់</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400">គ្រប់គ្រងសំឡេង និងសិទ្ធិប្រើប្រាស់</p>
           </div>
         </div>
       </GlassCard>
@@ -108,11 +108,11 @@ export default function AdminVoiceManagement() {
             <div className="flex items-start justify-between">
               <div className="flex items-start gap-3 flex-1">
                 <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center flex-shrink-0">
-                  <Volume2 className="w-5 h-5 text-white" />
+                  <Volume2 className="w-5 h-5 text-slate-800 dark:text-white" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h3 className="text-sm font-bold text-slate-200 mb-1">{voice.voice_label}</h3>
-                  <p className="text-xs text-slate-400 mb-2">{voice.voice_name}</p>
+                  <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200 mb-1">{voice.voice_label}</h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mb-2">{voice.voice_name}</p>
                   <div className="flex flex-wrap gap-1.5">
                     <GlassBadge
                       variant={voice.gender === 'male' ? 'sky' : voice.gender === 'female' ? 'violet' : 'emerald'}
@@ -141,11 +141,11 @@ export default function AdminVoiceManagement() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {voice.enabled_for_free === 1 ? (
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   ) : (
-                    <XCircle className="w-4 h-4 text-red-400" />
+                    <XCircle className="w-4 h-4 text-blue-600 dark:text-red-400" />
                   )}
-                  <span className="text-xs text-slate-400">Free Users</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Free Users</span>
                 </div>
                 <button
                   onClick={() => toggleVoiceAccess(voice.voice_id, 'enabled_for_free', voice.enabled_for_free)}
@@ -167,11 +167,11 @@ export default function AdminVoiceManagement() {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {voice.is_premium === 1 ? (
-                    <Lock className="w-4 h-4 text-amber-400" />
+                    <Lock className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                   ) : (
-                    <Unlock className="w-4 h-4 text-slate-400" />
+                    <Unlock className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                   )}
-                  <span className="text-xs text-slate-400">Premium Only</span>
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Premium Only</span>
                 </div>
                 <button
                   onClick={() => toggleVoiceAccess(voice.voice_id, 'is_premium', voice.is_premium)}
@@ -192,8 +192,8 @@ export default function AdminVoiceManagement() {
               {/* Admin Only */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Shield className={`w-4 h-4 ${voice.is_admin_only === 1 ? 'text-red-400' : 'text-slate-400'}`} />
-                  <span className="text-xs text-slate-400">Admin Only</span>
+                  <Shield className={`w-4 h-4 ${voice.is_admin_only === 1 ? 'text-blue-600 dark:text-red-400' : 'text-slate-500 dark:text-slate-400'}`} />
+                  <span className="text-xs text-slate-500 dark:text-slate-400">Admin Only</span>
                 </div>
                 <button
                   onClick={() => toggleVoiceAccess(voice.voice_id, 'is_admin_only', voice.is_admin_only)}
@@ -237,7 +237,7 @@ export default function AdminVoiceManagement() {
         size="md"
       >
         <div className="space-y-4">
-          <p className="text-sm text-slate-400">
+          <p className="text-sm text-slate-500 dark:text-slate-400">
             ជ្រើសរើស User ដែលអ្នកចង់ផ្តល់សិទ្ធិប្រើសំឡេងនេះ
           </p>
 
@@ -253,12 +253,12 @@ export default function AdminVoiceManagement() {
                 >
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-sm font-semibold text-slate-200">{user.username}</div>
-                      <div className="text-xs text-slate-400 mt-1">
+                      <div className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user.username}</div>
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                         Tier: <span className="text-sky-400">{user.tier}</span>
                       </div>
                     </div>
-                    <Plus className="w-5 h-5 text-emerald-400" />
+                    <Plus className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   </div>
                 </button>
               ))}

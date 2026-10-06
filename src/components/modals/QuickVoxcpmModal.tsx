@@ -94,9 +94,9 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#18181C] border border-white/[0.08] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#18181C] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col animate-in fade-in zoom-in-95 duration-150">
         {/* Header with real app logo */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#141417]">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-slate-100 dark:bg-[#141417]">
           <div className="flex items-center gap-2.5">
             <img
               src="/logo.png"
@@ -104,14 +104,14 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
               className="w-7 h-7 rounded-lg border border-emerald-400/40 shadow-[0_0_10px_rgba(0,242,173,0.4)] object-cover"
             />
             <div>
-              <h3 className="text-sm font-bold text-white flex items-center gap-1.5 font-ui">
-                <Zap className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-1.5 font-ui">
+                <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>Option 2: ភ្ជាប់ម៉ាស៊ីន VoxCPM2 Cloud GPU</span>
               </h3>
-              <p className="text-[10px] text-zinc-400">Google Colab & Kaggle Cloudflare Tunnel (ឥតគិតថ្លៃ)</p>
+              <p className="text-[10px] text-slate-600 dark:text-zinc-400">Google Colab & Kaggle Cloudflare Tunnel (ឥតគិតថ្លៃ)</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-zinc-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.05]">
+          <button onClick={onClose} className="text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white p-1 rounded-lg hover:bg-white/[0.05]">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -127,7 +127,7 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 placeholder="https://xxxx.trycloudflare.com"
-                className="flex-1 bg-[#121214] border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-zinc-100 outline-none focus:border-emerald-400 font-mono text-xs transition-colors"
+                className="flex-1 bg-white dark:bg-[#121214] border border-white/[0.1] rounded-xl px-3.5 py-2.5 text-zinc-100 outline-none focus:border-emerald-400 font-mono text-xs transition-colors"
               />
               <button
                 type="button"
@@ -135,7 +135,7 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
                 className="px-3 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-zinc-200 border border-white/[0.1] flex items-center gap-1.5 shrink-0 transition-colors"
                 title="Paste ពី Clipboard"
               >
-                <Clipboard className="w-3.5 h-3.5 text-emerald-400" />
+                <Clipboard className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 <span>Paste</span>
               </button>
             </div>
@@ -160,21 +160,21 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
               <Sparkles className="w-3.5 h-3.5 text-sky-400" />
               <span>ជម្រើសជំនួសល្បឿនលឿន (Zero-Wait Alternatives):</span>
             </div>
-            <p className="text-slate-300 text-[11px] leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 text-[11px] leading-relaxed">
               • ប្រសិនបើ Colab ដំណើរការយឺត ឬជាប់រវល់ អ្នកអាចចុចប្តូរទៅ <strong>🎙️ ElevenLabs AI</strong> (Voice Clone គុណភាពខ្ពស់ មិនបាច់ប្រើ GPU) ឬ <strong>⚡ Offline Neural</strong> លើរបារខាងលើបានភ្លាមៗ!
             </p>
           </div>
         </div>
 
         {/* Footer Actions */}
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#141417] flex items-center justify-between">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-slate-100 dark:bg-[#141417] flex items-center justify-between">
           <button
             type="button"
             onClick={handleTestConnection}
             disabled={isTesting}
-            className="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs flex items-center gap-1.5 border border-white/[0.08] transition-colors disabled:opacity-50"
+            className="px-3.5 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-200 text-xs flex items-center gap-1.5 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] transition-colors disabled:opacity-50"
           >
-            <RefreshCw className={`w-3.5 h-3.5 text-emerald-400 ${isTesting ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 ${isTesting ? 'animate-spin' : ''}`} />
             <span>{isTesting ? 'កំពុងតេស្ត...' : 'តេស្តការតភ្ជាប់'}</span>
           </button>
 
@@ -182,7 +182,7 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-zinc-300 text-xs font-medium transition-colors"
+              className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-slate-700 dark:text-zinc-300 text-xs font-medium transition-colors"
             >
               បោះបង់
             </button>
@@ -190,7 +190,7 @@ export const QuickVoxcpmModal: React.FC<QuickVoxcpmModalProps> = ({
               type="button"
               onClick={handleSave}
               disabled={isLoading || !url.trim()}
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs shadow-lg shadow-emerald-500/30 transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 disabled:opacity-50 text-slate-800 dark:text-white font-bold text-xs shadow-lg shadow-emerald-500/30 transition-all active:scale-95"
             >
               <Check className="w-4 h-4" />
               <span>{isLoading ? 'កំពុងរក្សា...' : 'រក្សាទុក & ភ្ជាប់'}</span>

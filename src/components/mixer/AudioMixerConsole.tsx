@@ -217,7 +217,7 @@ export const AudioMixerConsole: React.FC<AudioMixerProps> = ({
               boxShadow: '0 0 16px #06b6d440',
             }}
           >
-            <Sliders className="w-5 h-5 text-white" />
+            <Sliders className="w-5 h-5 text-slate-800 dark:text-white" />
           </div>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

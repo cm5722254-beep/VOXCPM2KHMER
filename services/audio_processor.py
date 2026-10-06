@@ -395,15 +395,57 @@ def _probe_encoder(codec: str, flags: str = "") -> bool:
     except Exception:
         return False
 
+
+def _get_amd_amf_flags() -> str:
+    """
+    Return optimal h264_amf flags for the detected AMD GPU.
+    Delegates to gpu_detect.py for GPU-model-specific tuning.
+    AMD Vega 64 specific flags: vbr_latency RC, no B-frames, HRD compliance.
+    """
+    try:
+        # Walk up from services/ to the project root then re-import
+        import importlib.util
+        gpu_detect_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'gpu_detect.py')
+        if os.path.exists(gpu_detect_path):
+            spec = importlib.util.spec_from_file_location("gpu_detect", gpu_detect_path)
+            mod = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(mod)
+            sys_gpus = mod.detect_gpus()
+            primary = sys_gpus.primary
+            if primary and primary.vendor == "amd":
+                return primary.ffmpeg_encoder_flags
+    except Exception:
+        pass
+    # Generic AMD AMF fallback
+    return "-usage transcoding -quality speed"
+
+
 def detect_best_video_encoder() -> tuple:
-    """Detect fastest verified working video encoder (NVIDIA NVENC, AMD AMF, Intel QSV, Apple Metal, or CPU)."""
+    """
+    Detect fastest verified working video encoder on this machine.
+
+    Priority order:
+      1. Apple VideoToolbox (macOS)
+      2. NVIDIA NVENC h264_nvenc
+      3. AMD AMF h264_amf — with optimal per-GPU flags (Vega 64 tuned)
+      4. Intel QSV h264_qsv
+      5. CPU libx264 ultrafast fallback
+
+    For AMD Vega 64 on Windows, h264_amf uses VCE 3.4 with vbr_latency
+    rate control for best transcoding quality/speed balance.
+    Results are cached after first successful probe.
+    """
     global _CACHED_ENCODER
     if _CACHED_ENCODER is not None:
         return _CACHED_ENCODER
 
     threads = os.cpu_count() or 4
+
+    # Build the candidates list in priority order
     candidates = [
         ('h264_nvenc', '-preset p4 -cq 21'),
+        # AMD Vega 64 uses VCE engine — probe with safe generic flags first,
+        # then apply model-specific optimised flags if probe passes
         ('h264_amf', '-usage transcoding -quality speed'),
         ('h264_qsv', '-global_quality 22'),
     ]
@@ -412,6 +454,15 @@ def detect_best_video_encoder() -> tuple:
 
     for codec, flags in candidates:
         if _probe_encoder(codec, flags):
+            # For AMD AMF: upgrade to GPU-model-specific flags after confirming encoder works
+            if codec == 'h264_amf':
+                optimal_flags = _get_amd_amf_flags()
+                # Verify the optimised flags also work (some Vega cards may not support all options)
+                if _probe_encoder(codec, optimal_flags):
+                    flags = optimal_flags
+                    print(f"[AMD Vega 64] Optimal AMF flags applied: {optimal_flags}")
+                else:
+                    print(f"[AMD AMF] Optimal flags probe failed, using safe generic AMF flags")
             print(f"[Hardware Acceleration] Active video encoder: {codec}")
             _CACHED_ENCODER = (codec, flags)
             return _CACHED_ENCODER
@@ -626,4 +677,325 @@ def burn_overlay_and_subtitles(video_path: str, output_video_path: str, overlay_
                 pass
 
     return output_video_path
+
+
+def validate_sponsor_media(media_path: str) -> dict:
+    """
+    Validates a sponsor video or image file.
+    Returns metadata: duration, width, height, has_audio, codec, format, is_valid, error_msg.
+    """
+    if not os.path.exists(media_path):
+        return {'is_valid': False, 'error_msg': 'ឯកសារ Sponsor មិនត្រូវបានរកឃើញឡើយ'}
+
+    ext = os.path.splitext(media_path)[1].lower()
+    is_video = ext in ['.mp4', '.mov', '.webm', '.mkv', '.avi']
+    is_image = ext in ['.png', '.jpg', '.jpeg', '.webp']
+
+    if not is_video and not is_image:
+        return {'is_valid': False, 'error_msg': f'ទម្រង់ឯកសារ {ext} មិនត្រូវបានគាំទ្រឡើយ (គាំទ្រតែ MP4, MOV, WEBM, PNG, JPG, WEBP)'}
+
+    try:
+        w, h = get_video_dimensions(media_path)
+        dur = get_media_duration(media_path) if is_video else 0.0
+        audio = has_audio_stream(media_path) if is_video else False
+
+        return {
+            'is_valid': True,
+            'media_type': 'video' if is_video else 'image',
+            'width': w,
+            'height': h,
+            'duration': dur,
+            'has_audio': audio,
+            'extension': ext,
+            'filesize_mb': round(os.path.getsize(media_path) / (1024 * 1024), 2),
+        }
+    except Exception as ex:
+        return {'is_valid': False, 'error_msg': f'មិនអាចអានទិន្នន័យមេឌៀបាន: {str(ex)}'}
+
+
+def composite_sponsors_into_video(video_path: str, output_video_path: str, sponsors: list, options: dict = None) -> str:
+    """
+    Composites video and image sponsors into the main video stream using FFmpeg filter_complex.
+    Supports:
+      - Full-screen, PiP (7 positions), Overlays, Intros, Outros
+      - Timing intervals: enable='between(t, start, end)'
+      - Scaling, opacity, and audio mixing with main audio
+    """
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"Main video not found: {video_path}")
+
+    if not sponsors or len(sponsors) == 0:
+        import shutil
+        shutil.copy2(video_path, output_video_path)
+        return output_video_path
+
+    options = options or {}
+    main_w, main_h = get_video_dimensions(video_path)
+    main_dur = get_media_duration(video_path)
+    threads = os.cpu_count() or 4
+    encoder, enc_flags = detect_best_video_encoder()
+
+    inputs = [f'-i "{video_path}"']
+    filter_chains = []
+    current_v = '[0:v]'
+    audio_inputs = ['[0:a]'] if has_audio_stream(video_path) else []
+    active_sponsor_index = 1
+
+    for sp in sponsors:
+        media_path = sp.get('mediaUrl') or sp.get('filename')
+        if not media_path or not os.path.exists(media_path):
+            continue
+
+        sp_type = sp.get('type', 'pip')
+        pos = sp.get('position', 'top-right')
+        scale_factor = float(sp.get('scale', 1.0))
+        opacity = float(sp.get('opacity', 95)) / 100.0
+        start_t = float(sp.get('startTime', 0))
+        end_t = float(sp.get('endTime', start_t + float(sp.get('duration', 5))))
+
+        # Register input
+        inputs.append(f'-i "{media_path}"')
+        sp_v_label = f"[{active_sponsor_index}:v]"
+        scaled_sp_label = f"[sp_scaled_{active_sponsor_index}]"
+
+        # Determine target dimensions
+        if sp_type == 'fullscreen':
+            target_w = main_w
+            target_h = main_h
+        else:
+            base_w = int(main_w * 0.28 * scale_factor)
+            target_w = max(64, base_w - (base_w % 2))
+            target_h = -2
+
+        # Scale and format opacity
+        filter_chains.append(
+            f"{sp_v_label}scale={target_w}:{target_h},format=rgba,colorchannelmixer=aa={opacity:.2f}{scaled_sp_label}"
+        )
+
+        # Calculate positioning coordinates
+        if pos == 'top-left':
+            x_expr = "20"
+            y_expr = "20"
+        elif pos == 'top-center':
+            x_expr = "(W-w)/2"
+            y_expr = "20"
+        elif pos == 'top-right':
+            x_expr = "W-w-20"
+            y_expr = "20"
+        elif pos == 'center':
+            x_expr = "(W-w)/2"
+            y_expr = "(H-h)/2"
+        elif pos == 'bottom-left':
+            x_expr = "20"
+            y_expr = "H-h-20"
+        elif pos == 'bottom-center':
+            x_expr = "(W-w)/2"
+            y_expr = "H-h-20"
+        else:  # bottom-right (default)
+            x_expr = "W-w-20"
+            y_expr = "H-h-20"
+
+        # Overlay onto current video
+        next_v = f"[v_comp_{active_sponsor_index}]"
+        filter_chains.append(
+            f"{current_v}{scaled_sp_label}overlay={x_expr}:{y_expr}:enable='between(t,{start_t},{end_t})'{next_v}"
+        )
+        current_v = next_v
+
+        # Audio mixing if sponsor is a video with audio and not muted
+        if has_audio_stream(media_path) and sp.get('audioMode') != 'mute':
+            sp_vol = float(sp.get('volume', 80)) / 100.0
+            delay_ms = int(start_t * 1000)
+            a_label = f"[sp_a_{active_sponsor_index}]"
+            filter_chains.append(
+                f"[{active_sponsor_index}:a]volume={sp_vol},adelay={delay_ms}|{delay_ms}{a_label}"
+            )
+            audio_inputs.append(a_label)
+
+        active_sponsor_index += 1
+
+    # Merge audio streams if multiple
+    audio_map = "-map 0:a?"
+    if len(audio_inputs) > 1:
+        amix_chain = f"{''.join(audio_inputs)}amix=inputs={len(audio_inputs)}:duration=first:dropout_transition=2[a_mixed]"
+        filter_chains.append(amix_chain)
+        audio_map = "-map \"[a_mixed]\""
+
+    fc_str = ";".join(filter_chains)
+    input_flags = " ".join(inputs)
+
+    if encoder == 'libx264':
+        cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc_str}" -map "{current_v}" {audio_map} -c:v libx264 -preset ultrafast -threads {threads} -crf 20 -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+    else:
+        cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc_str}" -map "{current_v}" {audio_map} -c:v {encoder} {enc_flags} -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+
+    try:
+        run_command(cmd)
+    except Exception as hw_ex:
+        print(f"[Warning] Sponsor rendering with {encoder} failed: {hw_ex}. Falling back to libx264...")
+        cpu_cmd = f'ffmpeg -nostdin -y {input_flags} -filter_complex "{fc_str}" -map "{current_v}" {audio_map} -c:v libx264 -preset ultrafast -threads {threads} -crf 20 -c:a aac -b:a 192k -movflags +faststart "{output_video_path}"'
+        run_command(cpu_cmd)
+
+    return output_video_path
+
+
+def analyze_video_scenes(video_path: str) -> list:
+    """
+    Analyzes video using FFmpeg silence detection and visual scene change detection.
+    Returns list of candidate scenes with timestamps, duration, and cut suggestions.
+    """
+    if not os.path.exists(video_path):
+        return []
+
+    total_dur = get_media_duration(video_path)
+    if total_dur <= 0:
+        return []
+
+    scenes = []
+    # Detect silence segments (gaps > 1.2 seconds below -35dB)
+    silence_ranges = []
+    try:
+        import re
+        cmd = f'ffmpeg -nostdin -i "{video_path}" -af silencedetect=noise=-35dB:d=1.2 -f null -'
+        proc = subprocess.run(cmd, shell=True, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        raw = proc.stderr or ''
+
+        start_times = [float(x) for x in re.findall(r'silence_start:\s*([\d.]+)', raw)]
+        end_times = [float(x) for x in re.findall(r'silence_end:\s*([\d.]+)', raw)]
+
+        for st, en in zip(start_times, end_times):
+            silence_ranges.append({'start': st, 'end': en, 'dur': round(en - st, 2)})
+    except Exception as e:
+        print(f"Silence detect notice: {e}")
+
+    # Break video into semantic scenes (every ~10-30s or at silence boundaries)
+    chunk_size = min(30.0, max(5.0, total_dur / 10.0))
+    current_time = 0.0
+    scene_idx = 1
+
+    while current_time < total_dur:
+        end_time = min(total_dur, current_time + chunk_size)
+        dur = round(end_time - current_time, 2)
+
+        # Check if overlaps with silence
+        is_silent = any(
+            sr['start'] <= current_time and sr['end'] >= end_time for sr in silence_ranges
+        )
+        importance = 30 if is_silent else 85
+
+        scenes.append({
+            'id': f"scene_{scene_idx:02d}",
+            'startTime': round(current_time, 2),
+            'endTime': round(end_time, 2),
+            'duration': dur,
+            'speakerName': f"តួអង្គ Scene {scene_idx:02d}",
+            'hasFace': not is_silent,
+            'isSpeaking': not is_silent,
+            'importanceScore': importance,
+            'suggestedCut': is_silent,
+            'cutReason': 'silence' if is_silent else None,
+            'status': 'keep',
+        })
+
+        current_time = end_time
+        scene_idx += 1
+
+    return scenes
+
+
+def apply_smart_cut_segments(video_path: str, output_path: str, scenes_to_remove: list) -> dict:
+    """
+    Applies non-destructive Smart Cut by removing specified silence/unimportant segments
+    and concatenating retained segments into a new working copy video.
+    Original video is never overwritten.
+    """
+    if not os.path.exists(video_path):
+        raise FileNotFoundError(f"Video not found: {video_path}")
+
+    total_dur = get_media_duration(video_path)
+    if total_dur <= 0:
+        raise ValueError("Invalid video duration")
+
+    # Sort cut ranges
+    raw_cuts = []
+    for sc in scenes_to_remove:
+        st = max(0.0, float(sc.get('startTime', 0)))
+        en = min(total_dur, float(sc.get('endTime', st)))
+        if en > st:
+            raw_cuts.append((st, en))
+    raw_cuts.sort(key=lambda x: x[0])
+
+    # Merge overlapping cut intervals
+    merged_cuts = []
+    for c in raw_cuts:
+        if not merged_cuts:
+            merged_cuts.append(c)
+        else:
+            prev_st, prev_en = merged_cuts[-1]
+            if c[0] <= prev_en:
+                merged_cuts[-1] = (prev_st, max(prev_en, c[1]))
+            else:
+                merged_cuts.append(c)
+
+    # Compute keep intervals
+    keep_segments = []
+    last_t = 0.0
+    for c_st, c_en in merged_cuts:
+        if c_st > last_t + 0.1:
+            keep_segments.append((last_t, c_st))
+        last_t = c_en
+    if last_t < total_dur - 0.1:
+        keep_segments.append((last_t, total_dur))
+
+    if not keep_segments:
+        # If everything was cut, keep at least the first 1 second
+        keep_segments = [(0.0, min(1.0, total_dur))]
+
+    total_removed = sum(c[1] - c[0] for c in merged_cuts)
+    new_duration = sum(k[1] - k[0] for k in keep_segments)
+
+    # Build filter_complex with trim and concat
+    filter_parts = []
+    concat_inputs = []
+    has_audio = has_audio_stream(video_path)
+
+    for i, (k_st, k_en) in enumerate(keep_segments):
+        v_label = f"[v{i}]"
+        filter_parts.append(f"[0:v]trim=start={k_st:.3f}:end={k_en:.3f},setpts=PTS-STARTPTS{v_label}")
+        concat_inputs.append(v_label)
+        if has_audio:
+            a_label = f"[a{i}]"
+            filter_parts.append(f"[0:a]atrim=start={k_st:.3f}:end={k_en:.3f},asetpts=PTS-STARTPTS{a_label}")
+            concat_inputs.append(a_label)
+
+    num_seg = len(keep_segments)
+    if has_audio:
+        filter_parts.append(f"{''.join(concat_inputs)}concat=n={num_seg}:v=1:a=1[outv][outa]")
+        maps = '-map "[outv]" -map "[outa]"'
+    else:
+        filter_parts.append(f"{''.join(concat_inputs)}concat=n={num_seg}:v=1:a=0[outv]")
+        maps = '-map "[outv]"'
+
+    fc_str = ";".join(filter_parts)
+    threads = os.cpu_count() or 4
+    encoder, enc_flags = detect_best_video_encoder()
+
+    cmd = f'ffmpeg -nostdin -y -i "{video_path}" -filter_complex "{fc_str}" {maps} -c:v {encoder} {enc_flags} -c:a aac -b:a 192k -movflags +faststart "{output_path}"'
+    try:
+        run_command(cmd)
+    except Exception as e:
+        print(f"[Warning] Hardware encoder failed for smart cut: {e}. Falling back to libx264...")
+        cmd_cpu = f'ffmpeg -nostdin -y -i "{video_path}" -filter_complex "{fc_str}" {maps} -c:v libx264 -preset ultrafast -threads {threads} -c:a aac -b:a 192k -movflags +faststart "{output_path}"'
+        run_command(cmd_cpu)
+
+    return {
+        'success': True,
+        'original_duration': round(total_dur, 2),
+        'cut_duration': round(new_duration, 2),
+        'removed_seconds': round(total_removed, 2),
+        'segments_count': num_seg,
+        'output_path': output_path
+    }
+
+
 

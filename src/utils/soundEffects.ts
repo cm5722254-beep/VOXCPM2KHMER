@@ -1,5 +1,5 @@
 /**
- * Web Audio API Sound Effects Engine for ATITEBDABBER AI Dubbing Studio
+ * Web Audio API Sound Effects Engine for DRAGON DABBER PRO AI Dubbing Studio
  * Provides tactile, crisp, modern audio feedback when clicking options, buttons, and switches.
  * Zero external audio files required - 100% reliable with zero network latency.
  */

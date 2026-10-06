@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { CheckCircle2, AlertCircle, AlertTriangle, Info, X } from 'lucide-react';
 
 export interface ToastMessage {
@@ -12,103 +12,159 @@ interface ToastProps {
   onDismiss: (id: string) => void;
 }
 
-const TOAST_DURATION = 3800;
+const TOAST_DURATION = 4000;
 
-const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void }> = ({ toast, onDismiss }) => {
+// ─── Per-type config ──────────────────────────────────────────────────────────
+const TYPE_CONFIG = {
+  success: {
+    leftBorder: 'border-l-4 border-l-emerald-500',
+    iconColor: 'text-emerald-400',
+    iconGlow: '0 0 12px rgba(52,211,153,0.7)',
+    progressColor: '#34d399',
+    progressGlow: '0 0 6px rgba(52,211,153,0.8)',
+    pulseRing: 'ring-emerald-500/40',
+  },
+  error: {
+    leftBorder: 'border-l-4 border-l-red-500',
+    iconColor: 'text-red-400',
+    iconGlow: '0 0 12px rgba(248,113,113,0.7)',
+    progressColor: '#ef4444',
+    progressGlow: '0 0 6px rgba(239,68,68,0.8)',
+    pulseRing: 'ring-red-500/40',
+  },
+  warning: {
+    leftBorder: 'border-l-4 border-l-amber-500',
+    iconColor: 'text-amber-400',
+    iconGlow: '0 0 12px rgba(251,191,36,0.7)',
+    progressColor: '#f59e0b',
+    progressGlow: '0 0 6px rgba(251,191,36,0.8)',
+    pulseRing: 'ring-amber-500/40',
+  },
+  info: {
+    leftBorder: 'border-l-4 border-l-blue-500',
+    iconColor: 'text-blue-400',
+    iconGlow: '0 0 12px rgba(96,165,250,0.7)',
+    progressColor: '#3b82f6',
+    progressGlow: '0 0 6px rgba(59,130,246,0.8)',
+    pulseRing: 'ring-blue-500/40',
+  },
+} as const;
+
+const ICONS = {
+  success: CheckCircle2,
+  error: AlertCircle,
+  warning: AlertTriangle,
+  info: Info,
+} as const;
+
+// ─── Single Toast Item ────────────────────────────────────────────────────────
+interface ToastItemProps {
+  toast: ToastMessage;
+  onDismiss: (id: string) => void;
+  index: number;
+}
+
+const ToastItem: React.FC<ToastItemProps> = ({ toast, onDismiss, index }) => {
+  // Entry state: starts slid-out, then animates in after mount
+  const [entered, setEntered] = useState(false);
+  const [exiting, setExiting] = useState(false);
   const [progress, setProgress] = useState(100);
 
+  // Trigger entry slide-in on mount
   useEffect(() => {
-    const timer = setTimeout(() => onDismiss(toast.id), TOAST_DURATION);
-    const interval = setInterval(() => {
-      setProgress(p => Math.max(0, p - (100 / (TOAST_DURATION / 50))));
-    }, 50);
-    return () => { clearTimeout(timer); clearInterval(interval); };
+    const enterTimer = setTimeout(() => setEntered(true), 20);
+    return () => clearTimeout(enterTimer);
+  }, []);
+
+  const dismiss = useCallback(() => {
+    setExiting(true);
+    setTimeout(() => onDismiss(toast.id), 320);
   }, [toast.id, onDismiss]);
 
-  const styles = {
-    success: {
-      bg: 'rgba(5,18,10,0.97)',
-      border: 'rgba(52,211,153,0.32)',
-      text: '#a7f3d0',
-      iconColor: '#34d399',
-      progressColor: '#34d399',
-      glow: '0 0 20px rgba(52,211,153,0.12)',
-    },
-    error: {
-      bg: 'rgba(20,5,8,0.97)',
-      border: 'rgba(248,113,113,0.32)',
-      text: '#fecaca',
-      iconColor: '#f87171',
-      progressColor: '#f87171',
-      glow: '0 0 20px rgba(248,113,113,0.12)',
-    },
-    warning: {
-      bg: 'rgba(20,14,3,0.97)',
-      border: 'rgba(251,191,36,0.32)',
-      text: '#fde68a',
-      iconColor: '#fbbf24',
-      progressColor: '#fbbf24',
-      glow: '0 0 20px rgba(251,191,36,0.12)',
-    },
-    info: {
-      bg: 'rgba(5,10,22,0.97)',
-      border: 'rgba(56,189,248,0.28)',
-      text: '#bae6fd',
-      iconColor: '#38bdf8',
-      progressColor: '#38bdf8',
-      glow: '0 0 20px rgba(56,189,248,0.1)',
-    },
-  }[toast.type];
+  // Auto-dismiss + progress drain
+  useEffect(() => {
+    const dismissTimer = setTimeout(dismiss, TOAST_DURATION);
 
-  const Icon = {
-    success: CheckCircle2,
-    error: AlertCircle,
-    warning: AlertTriangle,
-    info: Info,
-  }[toast.type];
+    // Drain progress bar over TOAST_DURATION
+    const step = 50;
+    const decrement = (100 / TOAST_DURATION) * step;
+    const intervalId = setInterval(() => {
+      setProgress(p => {
+        const next = p - decrement;
+        return next < 0 ? 0 : next;
+      });
+    }, step);
+
+    return () => {
+      clearTimeout(dismissTimer);
+      clearInterval(intervalId);
+    };
+  }, [dismiss]);
+
+  const config = TYPE_CONFIG[toast.type];
+  const Icon = ICONS[toast.type];
+
+  // Stagger offset so toasts don't land at exactly the same moment
+  const staggerDelay = index * 60;
 
   return (
     <div
-      className="pointer-events-auto flex flex-col rounded-xl overflow-hidden animate-fade-up"
       style={{
-        background: styles.bg,
-        border: `1px solid ${styles.border}`,
-        boxShadow: `0 12px 40px rgba(0,0,0,0.6), ${styles.glow}, inset 0 1px 0 rgba(255,255,255,0.04)`,
-        backdropFilter: 'blur(20px) saturate(180%)',
-        WebkitBackdropFilter: 'blur(20px) saturate(180%)',
+        transform: exiting
+          ? 'translateX(110%) scale(0.95)'
+          : entered
+            ? 'translateX(0) scale(1)'
+            : 'translateX(110%) scale(0.96)',
+        opacity: exiting ? 0 : entered ? 1 : 0,
+        transition: `transform 320ms cubic-bezier(0.34,1.56,0.64,1) ${staggerDelay}ms, opacity 280ms ease ${staggerDelay}ms`,
+        willChange: 'transform, opacity',
       }}
+      className={`
+        pointer-events-auto relative flex flex-col rounded-xl overflow-hidden w-full max-w-sm
+        bg-[#1C0F14]/95 backdrop-blur-2xl border border-red-950/60
+        shadow-[0_12px_40px_rgba(0,0,0,0.7),0_2px_8px_rgba(0,0,0,0.4)]
+        ${config.leftBorder}
+      `}
     >
-      <div className="flex items-start justify-between gap-3 px-3.5 py-2.5">
-        <div className="flex items-start gap-2.5 overflow-hidden flex-1">
-          <Icon
-            className="w-4 h-4 shrink-0 mt-0.5"
-            style={{ color: styles.iconColor }}
-          />
+      {/* Body */}
+      <div className="flex items-start justify-between gap-3 px-3.5 py-3">
+        {/* Icon with animated pulse ring */}
+        <div className="relative shrink-0 mt-0.5">
+          {/* Pulse ring */}
           <span
-            className="text-xs font-medium leading-relaxed break-words"
-            style={{ color: styles.text }}
-          >
-            {toast.message}
-          </span>
+            className={`absolute inset-0 rounded-full ring-2 ${config.pulseRing} animate-ping`}
+            style={{ animationDuration: '1.8s' }}
+          />
+          <Icon
+            className={`relative w-4 h-4 ${config.iconColor}`}
+            style={{ filter: `drop-shadow(${config.iconGlow})` }}
+          />
         </div>
+
+        {/* Message */}
+        <p className="flex-1 text-xs font-medium leading-relaxed text-white/90 break-words">
+          {toast.message}
+        </p>
+
+        {/* Close button */}
         <button
-          onClick={() => onDismiss(toast.id)}
-          className="text-slate-500 hover:text-white p-1 rounded-lg hover:bg-white/[0.08] transition-colors shrink-0"
-          title="បិទ"
+          onClick={dismiss}
+          aria-label="Close notification"
+          className="shrink-0 p-1 rounded-md text-white/40 hover:text-white/80 hover:bg-white/10 transition-colors duration-150"
         >
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
-      {/* Progress bar */}
-      <div style={{ height: '2px', background: 'rgba(255,255,255,0.04)' }}>
+      {/* Progress bar – drains left-to-right */}
+      <div className="h-[2px] bg-white/[0.06]">
         <div
           style={{
-            height: '100%',
             width: `${progress}%`,
-            background: styles.progressColor,
-            boxShadow: `0 0 6px ${styles.progressColor}`,
+            background: config.progressColor,
+            boxShadow: config.progressGlow,
             transition: 'width 50ms linear',
+            height: '100%',
             borderRadius: '0 2px 2px 0',
           }}
         />
@@ -117,13 +173,25 @@ const ToastItem: React.FC<{ toast: ToastMessage; onDismiss: (id: string) => void
   );
 };
 
+// ─── Toast Container ──────────────────────────────────────────────────────────
 export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
-  const visibleToasts = toasts.slice(-4);
+  // Cap at 5 most recent
+  const visible = toasts.slice(-5);
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none max-w-md w-full">
-      {visibleToasts.map(toast => (
-        <ToastItem key={toast.id} toast={toast} onDismiss={onDismiss} />
+    <div
+      aria-live="polite"
+      aria-label="Notifications"
+      className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none items-end"
+      style={{ width: 'min(360px, calc(100vw - 2.5rem))' }}
+    >
+      {visible.map((toast, i) => (
+        <ToastItem
+          key={toast.id}
+          toast={toast}
+          onDismiss={onDismiss}
+          index={i}
+        />
       ))}
     </div>
   );

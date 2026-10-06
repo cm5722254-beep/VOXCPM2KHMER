@@ -75,25 +75,25 @@ export const AIToolsModal: React.FC<AIToolsModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-4xl rounded-xl bg-[#141414] border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
+        className="w-full max-w-4xl rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#181818] border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-[#181818] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#222226] border border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#222226] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
               <Sparkles className="w-4 h-4 text-[#00C2FF]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-wide">
+                <h2 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   ឧបករណ៍ AI ជំនួយការផលិត (AI TOOLS SUITE)
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-[#00C2FF]/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-slate-200 dark:border-[#00C2FF]/30">
                   13 NEURAL MODELS
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400">
                 ឧបករណ៍ឆ្លាតវៃ AI ទាំង ១៣ សម្រាប់ផលិតភាពយន្ត និងបញ្ចូលសំឡេងកម្រិតអាជីព
               </p>
             </div>
@@ -101,7 +101,7 @@ export const AIToolsModal: React.FC<AIToolsModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -116,27 +116,27 @@ export const AIToolsModal: React.FC<AIToolsModalProps> = ({
             return (
               <div
                 key={t.id}
-                className="flex flex-col justify-between p-3.5 rounded-lg bg-[#181818] border border-white/[0.06] hover:border-[#00C2FF]/40 transition-all group"
+                className="flex flex-col justify-between p-3.5 rounded-lg bg-white dark:bg-[#181818] border border-white/[0.06] hover:border-slate-200 dark:border-[#00C2FF]/40 transition-all group"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <div className="w-7 h-7 rounded-lg bg-[#222226] border border-white/[0.08] flex items-center justify-center text-[#00C2FF] group-hover:scale-105 transition-all">
+                    <div className="w-7 h-7 rounded-lg bg-white dark:bg-[#222226] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-[#00C2FF] group-hover:scale-105 transition-all">
                       <Icon className="w-3.5 h-3.5" />
                     </div>
                     {t.badge && (
-                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/[0.06] text-zinc-300 font-mono">
+                      <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-white/[0.06] text-slate-700 dark:text-zinc-300 font-mono">
                         {t.badge}
                       </span>
                     )}
                   </div>
 
-                  <h3 className="text-xs font-bold text-white group-hover:text-[#00C2FF] transition-colors">
+                  <h3 className="text-xs font-bold text-slate-800 dark:text-white group-hover:text-[#00C2FF] transition-colors">
                     {t.name}
                   </h3>
-                  <div className="text-[11px] font-medium text-emerald-400 mb-1">
+                  <div className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 mb-1">
                     {t.khmer}
                   </div>
-                  <p className="text-[11px] text-zinc-400 leading-snug line-clamp-2">
+                  <p className="text-[11px] text-slate-600 dark:text-zinc-400 leading-snug line-clamp-2">
                     {t.description}
                   </p>
                 </div>
@@ -146,7 +146,7 @@ export const AIToolsModal: React.FC<AIToolsModalProps> = ({
                     type="button"
                     onClick={() => handleRunTool(t)}
                     disabled={Boolean(runningToolId)}
-                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#00C2FF]/15 hover:bg-[#00C2FF]/25 border border-[#00C2FF]/30 text-[#00C2FF] text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-[#00C2FF]/15 hover:bg-[#00C2FF]/25 border border-slate-200 dark:border-[#00C2FF]/30 text-[#00C2FF] text-xs font-semibold transition-all active:scale-95 disabled:opacity-50"
                   >
                     {isRunning ? (
                       <>
@@ -167,14 +167,14 @@ export const AIToolsModal: React.FC<AIToolsModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-5 py-3 bg-[#181818] border-t border-white/[0.08]">
-          <span className="text-xs text-zinc-400">
+        <div className="flex items-center justify-between px-5 py-3 bg-white dark:bg-[#181818] border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
+          <span className="text-xs text-slate-600 dark:text-zinc-400">
             Powered by multi-provider neural pipeline (Gemini, ElevenLabs, OpenAI, NVIDIA).
           </span>
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-[#222226] hover:bg-[#2A2A30] text-zinc-300 text-xs font-semibold transition-all border border-white/[0.06]"
+            className="px-4 py-1.5 rounded-lg bg-white dark:bg-[#222226] hover:bg-white dark:bg-[#2A2A30] text-slate-700 dark:text-zinc-300 text-xs font-semibold transition-all border border-white/[0.06]"
           >
             បិទ (Close)
           </button>

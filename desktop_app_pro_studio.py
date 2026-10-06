@@ -70,7 +70,7 @@ def main():
     # 1. Single instance mutex check
     if sys.platform == 'win32':
         import ctypes
-        _app_mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\ATITEBDABBER_PRO_STUDIO_SingleInstance")
+        _app_mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\DRAGONDABBER_PRO_STUDIO_SingleInstance")
         if ctypes.windll.kernel32.GetLastError() == 183:
             import webbrowser
             webbrowser.open('http://127.0.0.1:3000')
@@ -85,7 +85,7 @@ def main():
     # 3. Create Clean Modern Studio Desktop Window
     try:
         window = webview.create_window(
-            title='🎬 ស្ដេចអាទិទេព PRO STUDIO — AI Khmer Dubbing',
+            title='🐉 DRAGON DABBER PRO | AI Khmer Dubbing Studio',
             url='http://127.0.0.1:3000',
             width=1440,
             height=920,

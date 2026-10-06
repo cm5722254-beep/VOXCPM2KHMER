@@ -81,7 +81,7 @@ def main():
     # 1. Windows single instance check: if already running, focus/open browser and exit
     if sys.platform == 'win32':
         import ctypes
-        _app_mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\ATITEBDABBERPRO_SingleInstance")
+        _app_mutex = ctypes.windll.kernel32.CreateMutexW(None, False, "Local\\DRAGONDABBERPRO_SingleInstance")
         if ctypes.windll.kernel32.GetLastError() == 183:  # ERROR_ALREADY_EXISTS
             import webbrowser
             webbrowser.open('http://127.0.0.1:3000')
@@ -110,7 +110,7 @@ def main():
     # 5. Launch Native Desktop Window (Edge WebView2 on Windows) with browser fallback
     try:
         window = webview.create_window(
-            title='🎬 ស្ទូឌីយោសម្រាយរឿង AI & Khmer Dubbing PRO',
+            title='🐉 DRAGON DABBER PRO | AI Khmer Dubbing Studio',
             url='http://127.0.0.1:3000',
             width=1440,
             height=900,

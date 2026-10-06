@@ -74,7 +74,7 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
           className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 hover:bg-amber-500/20 text-[11px] font-bold font-khmer transition-all select-none shadow-sm"
           title="ត្រូវការ Key License ពី Admin ដើម្បីប្រើប្រាស់ VoxCPM2"
         >
-          <Lock className="w-3.5 h-3.5 text-amber-400" />
+          <Lock className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
           <span>Key VoxCPM2</span>
         </button>
       );
@@ -103,7 +103,7 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
           className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all duration-300 disabled:opacity-70 active:scale-95 select-none ${
             isOnline
               ? 'bg-cyan-500/25 text-cyan-200 border border-cyan-400/50 shadow-[0_0_12px_rgba(0,240,255,0.25)]'
-              : 'bg-slate-800/80 text-slate-300 border border-slate-700 hover:bg-slate-700/80'
+              : 'bg-slate-800/80 text-slate-600 dark:text-slate-300 border border-slate-700 hover:bg-slate-700/80'
           }`}
         >
           {isSwitching ? (
@@ -135,7 +135,7 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
             id="voxcpm2-config-btn-compact"
             onClick={onOpenVoxModal}
             title="កំណត់ Link Server (Colab / Kaggle)"
-            className="p-1 rounded-lg text-slate-400 hover:text-cyan-400 hover:bg-white/[0.08] transition-colors"
+            className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-cyan-400 hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
           >
             <Globe className="w-3.5 h-3.5" />
           </button>
@@ -184,7 +184,7 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
         /* Lock Banner for unlicensed users */
         <div className="p-3 rounded-xl bg-amber-50 dark:bg-amber-500/10 border border-amber-200 dark:border-amber-500/20 flex items-center justify-between gap-2">
           <div className="flex items-center gap-2">
-            <Lock className="w-4 h-4 text-amber-500 dark:text-amber-400 flex-shrink-0" />
+            <Lock className="w-4 h-4 text-sky-700 dark:text-amber-500 dark:text-amber-400 flex-shrink-0" />
             <div className="text-[11px] text-amber-900 dark:text-amber-200">
               User ធម្មតាត្រូវដាក់ Key License ពី Admin ទើបប្រើបាន
             </div>
@@ -208,12 +208,12 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
             className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col gap-1 ${
               !isOnline
                 ? 'bg-violet-50 dark:bg-violet-500/20 border-violet-300 dark:border-violet-400 text-violet-950 dark:text-white shadow-xs dark:shadow-[0_0_12px_rgba(139,92,246,0.3)] ring-1 ring-violet-300 dark:ring-violet-400/50'
-                : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
+                : 'bg-white dark:bg-black/30 border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-100 dark:bg-white/[0.04]'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 font-bold text-xs">
-                <Laptop className={`w-3.5 h-3.5 ${!isOnline ? 'text-violet-600 dark:text-violet-400' : 'text-slate-400 dark:text-slate-500'}`} />
+                <Laptop className={`w-3.5 h-3.5 ${!isOnline ? 'text-violet-600 dark:text-violet-400' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`} />
                 <span>ម៉ាស៊ីនផ្ទាល់</span>
               </div>
               {!isOnline && <Check className="w-3 h-3 text-violet-600 dark:text-violet-300" />}
@@ -228,12 +228,12 @@ export const VoxCPM2OnlineToggle: React.FC<VoxCPM2OnlineToggleProps> = ({
             className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col gap-1 ${
               isOnline
                 ? 'bg-sky-50 dark:bg-cyan-500/20 border-sky-400 dark:border-cyan-400 text-sky-950 dark:text-white shadow-xs dark:shadow-[0_0_12px_rgba(0,240,255,0.3)] ring-1 ring-sky-300 dark:ring-cyan-400/50'
-                : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
+                : 'bg-white dark:bg-black/30 border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-100 dark:bg-white/[0.04]'
             }`}
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5 font-bold text-xs">
-                <CloudLightning className={`w-3.5 h-3.5 ${isOnline ? 'text-sky-600 dark:text-cyan-400 animate-pulse' : 'text-slate-400 dark:text-slate-500'}`} />
+                <CloudLightning className={`w-3.5 h-3.5 ${isOnline ? 'text-sky-600 dark:text-cyan-400 animate-pulse' : 'text-slate-500 dark:text-slate-400 dark:text-slate-500'}`} />
                 <span>Cloud GPU</span>
               </div>
               {isOnline && <Check className="w-3 h-3 text-sky-600 dark:text-cyan-300" />}

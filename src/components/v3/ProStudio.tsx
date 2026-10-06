@@ -1,9 +1,9 @@
 /**
- * CHEATZ DABBER PRO v3 - Professional AI Dubbing Studio
+ * DRAGON DABBER PRO - Professional AI Khmer Dubbing Studio
  * Main Application Shell
  * 
- * This component implements the complete v3 UI redesign while preserving
- * all existing functionality from the current application.
+ * This component implements the complete Dragon Studio shell while preserving
+ * all existing functionality.
  */
 
 import React, { useState } from 'react';
@@ -24,15 +24,15 @@ export const ProStudio: React.FC<ProStudioProps> = ({ children }) => {
   const [activeSection, setActiveSection] = useState('dubbing');
 
   return (
-    <div className="flex flex-col h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] overflow-hidden">
+    <div className="flex flex-col h-screen bg-slate-50 dark:bg-[#070A12] text-[#F8FAFC] overflow-hidden">
       {/* Top Bar */}
-      <div className="h-14 bg-[var(--bg-surface)] border-b border-[var(--border-subtle)] flex items-center justify-between px-4 flex-shrink-0">
+      <div className="h-14 bg-white dark:bg-[#101925] border-b border-slate-200 dark:border-[#203244] flex items-center justify-between px-4 flex-shrink-0">
         {/* Left: Branding & Project */}
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2">
-            <Film className="w-5 h-5 text-[var(--accent)]" />
-            <span className="font-bold text-sm">CHEATZ DABBER</span>
-            <span className="text-xs text-[var(--accent)] font-semibold">PRO v3</span>
+            <span className="text-lg"><img src="/dragon_logo.png" alt="Dragon" className="w-1em h-1em inline-block rounded-sm object-cover shadow-sm" style={{ width: "1em", height: "1em" }} /></span>
+            <span className="font-black text-sm font-cinzel text-slate-800 dark:text-white">DRAGON DABBER</span>
+            <span className="text-xs text-[#16D9FF] font-bold font-mono">PRO</span>
           </div>
           <div className="h-4 w-px bg-[var(--border-default)]" />
           <div className="text-sm text-[var(--text-secondary)]">
@@ -55,7 +55,7 @@ export const ProStudio: React.FC<ProStudioProps> = ({ children }) => {
             <RotateCw className="w-4 h-4" />
           </button>
           <div className="h-4 w-px bg-[var(--border-default)] mx-1" />
-          <button className="px-4 py-1.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white rounded-md text-sm font-medium transition-colors flex items-center gap-2">
+          <button className="px-4 py-1.5 bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-slate-800 dark:text-white rounded-md text-sm font-medium transition-colors flex items-center gap-2">
             <Zap className="w-4 h-4" />
             Export
           </button>
@@ -123,7 +123,7 @@ export const ProStudio: React.FC<ProStudioProps> = ({ children }) => {
               <div className="text-center">
                 <Upload className="w-16 h-16 mx-auto mb-4 text-[var(--text-muted)]" />
                 <p className="text-[var(--text-secondary)]">Upload a video to start dubbing</p>
-                <button className="mt-4 px-6 py-2 bg-[var(--accent)] text-white rounded-md hover:bg-[var(--accent-hover)] transition-colors">
+                <button className="mt-4 px-6 py-2 bg-[var(--accent)] text-slate-800 dark:text-white rounded-md hover:bg-[var(--accent-hover)] transition-colors">
                   Upload Video
                 </button>
               </div>

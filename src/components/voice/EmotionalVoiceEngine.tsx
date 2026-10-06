@@ -77,8 +77,8 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
     <div className="space-y-6">
       {/* Emotion Selector */}
       <div>
-        <h3 className="text-sm font-bold text-white mb-3 flex items-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-400" />
+        <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-3 flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-sky-600 dark:text-amber-400" />
           ជ្រើសរើសអារម្មណ៍សំឡេង (Voice Emotion)
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
@@ -94,10 +94,10 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
                 className={`flex flex-col items-center gap-2 p-3 rounded-lg border transition-all ${
                   isActive
                     ? 'bg-sky-500/20 border-sky-500/50 text-sky-300 scale-105'
-                    : 'bg-white/[0.02] border-white/[0.08] text-slate-400 hover:bg-white/[0.05] hover:border-sky-500/30'
+                    : 'bg-white/[0.02] border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:bg-white/[0.05] hover:border-sky-500/30'
                 }`}
               >
-                <EmotionIcon className={`w-5 h-5 ${isActive ? 'text-sky-400' : 'text-slate-400'}`} />
+                <EmotionIcon className={`w-5 h-5 ${isActive ? 'text-sky-400' : 'text-slate-500 dark:text-slate-400'}`} />
                 <span className="text-[10px] font-semibold text-center leading-tight">
                   {emotionLabel}
                 </span>
@@ -109,14 +109,14 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
       {/* Advanced Controls */}
       <div className="space-y-4">
-        <h3 className="text-sm font-bold text-white flex items-center gap-2">
+        <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
           <Mic className="w-4 h-4 text-indigo-400" />
           ការកែសម្រួលលម្អិត (Advanced Controls)
         </h3>
 
         {/* Intensity */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-orange-400" />
               កម្រិតអារម្មណ៍ (Intensity)
@@ -135,7 +135,7 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Volume */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Volume2 className="w-3.5 h-3.5 text-green-400" />
               កម្រិតសំឡេង (Volume)
@@ -154,9 +154,9 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Speed */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-yellow-400" />
+              <Zap className="w-3.5 h-3.5 text-cyan-600 dark:text-yellow-400" />
               ល្បឿននិយាយ (Speed)
             </span>
             <span className="text-sky-400 font-mono">{config.speed.toFixed(2)}x</span>
@@ -174,7 +174,7 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Pitch */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               {config.pitch >= 0 ? (
                 <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
@@ -200,7 +200,7 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Breathiness */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Wind className="w-3.5 h-3.5 text-cyan-400" />
               សំឡេងដង្ហើម (Breathiness)
@@ -219,9 +219,9 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Raspiness */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
-              <Droplet className="w-3.5 h-3.5 text-red-400" />
+              <Droplet className="w-3.5 h-3.5 text-blue-600 dark:text-red-400" />
               សំឡេងរ៉ាម៉ាត់ (Raspiness)
             </span>
             <span className="text-sky-400 font-mono">{config.raspiness}%</span>
@@ -238,7 +238,7 @@ export const EmotionalVoiceEngine: React.FC<EmotionalVoiceEngineProps> = ({
 
         {/* Vibrato */}
         <div>
-          <label className="text-xs font-semibold text-slate-300 mb-2 flex items-center justify-between">
+          <label className="text-xs font-semibold text-slate-600 dark:text-slate-300 mb-2 flex items-center justify-between">
             <span className="flex items-center gap-1.5">
               <Heart className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
               ញ័រសំឡេង (Vibrato)

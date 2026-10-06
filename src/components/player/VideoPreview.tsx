@@ -742,7 +742,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
       onClick={showControls}
     >
       {/* ── Ambient Glow ────────────────────────────────────────────── */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[420px] bg-gradient-to-tr from-cyan-500/10 via-violet-600/10 to-indigo-500/5 blur-3xl pointer-events-none rounded-full" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[720px] h-[420px] bg-gradient-to-tr from-red-600/15 via-rose-900/10 to-amber-600/5 blur-3xl pointer-events-none rounded-full" />
 
       {/* ── Video Canvas ─────────────────────────────────────────────── */}
       <div className="flex-1 w-full min-h-0 flex items-center justify-center relative p-1">
@@ -779,9 +779,9 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               ) : socialCanvas.backgroundType === 'neon_glow' ? (
                 <div className="w-full h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-900/40 via-purple-900/30 to-black" />
               ) : socialCanvas.backgroundType === 'cyber_mesh' ? (
-                <div className="w-full h-full bg-[#0a0f1d] bg-[linear-gradient(to_right,#1e293b22_1px,transparent_1px),linear-gradient(to_bottom,#1e293b22_1px,transparent_1px)] bg-[size:20px_20px]" />
+                <div className="w-full h-full bg-white dark:bg-[#0a0f1d] bg-[linear-gradient(to_right,#1e293b22_1px,transparent_1px),linear-gradient(to_bottom,#1e293b22_1px,transparent_1px)] bg-[size:20px_20px]" />
               ) : (
-                <div className="w-full h-full bg-[#07090e]" />
+                <div className="w-full h-full bg-white dark:bg-[#07090e]" />
               )}
             </div>
           )}
@@ -835,25 +835,25 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               </div>
             ) : (
               /* ── No-Video Placeholder ─────────────────────────────── */
-              <div className="relative w-full h-full flex flex-col items-center justify-center bg-[#0a0a0c] text-zinc-500 gap-4 select-none">
+              <div className="relative w-full h-full flex flex-col items-center justify-center bg-white dark:bg-[#0a0a0c] text-zinc-500 gap-4 select-none">
                 <div className="relative">
-                  <div className="w-20 h-20 rounded-3xl bg-zinc-900/80 border border-white/[0.08] flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-3xl bg-zinc-900/80 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center">
                     <Film className="w-9 h-9 text-zinc-500 stroke-[1.5] animate-pulse" style={{ animationDuration: '2.5s' }} />
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-emerald-500/20 border border-emerald-400/30 flex items-center justify-center">
-                    <Plus className="w-3.5 h-3.5 text-emerald-400" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 rounded-full bg-blue-50 dark:bg-red-500/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 flex items-center justify-center">
+                    <Plus className="w-3.5 h-3.5 text-blue-600 dark:text-red-400" />
                   </div>
                 </div>
                 <div className="text-center space-y-1.5">
-                  <p className="text-sm font-semibold text-zinc-300 font-khmer">គ្មានវីដេអូត្រូវបានជ្រើសរើស</p>
-                  <p className="text-xs text-zinc-500 font-khmer">សូម Upload ឬជ្រើសរើសវីដេអូដើម្បីចាប់ផ្តើម</p>
+                  <p className="text-sm font-semibold text-zinc-200 font-khmer">គ្មានវីដេអូត្រូវបានជ្រើសរើស</p>
+                  <p className="text-xs text-slate-600 dark:text-zinc-400 font-khmer">សូមជ្រើសរើស ឬទម្លាក់ឯកសារវីដេអូដើម្បីចាប់ផ្តើម</p>
                 </div>
                 {onUploadFile && (
                   <label className="cursor-pointer group/upload">
                     <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && onUploadFile) onUploadFile(f); }} />
-                    <div className="px-4 py-2 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-400/30 hover:border-emerald-400/60 text-emerald-300 text-xs font-semibold flex items-center gap-2 transition-all">
-                      <Download className="w-3.5 h-3.5" />
-                      <span>ជ្រើសរើសឯកសារ</span>
+                    <div className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-red-600 to-rose-700 hover:from-red-500 hover:to-rose-600 text-slate-800 dark:text-white shadow-[0_0_20px_rgba(220,38,38,0.4)] text-xs font-bold flex items-center gap-2 transition-all transform hover:scale-105 active:scale-95">
+                      <Download className="w-4 h-4 text-slate-800 dark:text-white" />
+                      <span>បញ្ចូលវីដេអូ</span>
                     </div>
                   </label>
                 )}
@@ -878,10 +878,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 className="absolute inset-0 flex items-center justify-center cursor-pointer z-[15] group/playbtn"
               >
                 <div
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-white flex items-center justify-center shadow-[0_0_40px_rgba(52,211,153,0.5)] transform group-hover/playbtn:scale-110 active:scale-95 transition-all"
-                  style={{ boxShadow: '0 0 40px rgba(52,211,153,0.5), 0 0 80px rgba(52,211,153,0.2)' }}
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-rose-600 to-amber-600 text-slate-800 dark:text-white flex items-center justify-center shadow-[0_0_40px_rgba(220,38,38,0.7)] transform group-hover/playbtn:scale-110 active:scale-95 transition-all border border-amber-400/40"
+                  style={{ boxShadow: '0 0 40px rgba(220,38,38,0.7), 0 0 80px rgba(245,158,11,0.3)' }}
                 >
-                  <Play className="w-7 h-7 fill-white text-white translate-x-0.5" />
+                  <Play className="w-7 h-7 fill-white text-slate-800 dark:text-white translate-x-0.5 drop-shadow-md" />
                 </div>
               </div>
             )}
@@ -982,21 +982,21 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     <div className="h-3 w-[1px] bg-white/20" />
                     <button type="button" onClick={handleCycleWmStyle} className="px-2 py-0.5 rounded-lg bg-fuchsia-500/20 hover:bg-fuchsia-500/30 text-fuchsia-300 text-[10px] font-bold flex items-center gap-1 transition-colors" title="ចុចដើម្បីប្តូរម៉ូដ Style បន្ទាប់"><Palette className="w-3 h-3" /><span>{wmPreset.label.split(' ')[1] || 'ម៉ូដ'}</span></button>
                     <div className="h-3 w-[1px] bg-white/20" />
-                    <button type="button" onClick={() => handleScaleWmDelta(2)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"><Plus className="w-3 h-3" /></button>
-                    <button type="button" onClick={() => handleScaleWmDelta(-2)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"><Minus className="w-3 h-3" /></button>
+                    <button type="button" onClick={() => handleScaleWmDelta(2)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white transition-colors"><Plus className="w-3 h-3" /></button>
+                    <button type="button" onClick={() => handleScaleWmDelta(-2)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white transition-colors"><Minus className="w-3 h-3" /></button>
                     <div className="h-3 w-[1px] bg-white/20" />
-                    <button type="button" onClick={handleToggleWmBadge} className={`px-2 py-0.5 rounded-lg text-[9.5px] font-bold transition-colors ${wm.showBadge ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40' : 'bg-white/10 text-slate-300'}`}>{wm.showBadge ? 'Badge' : 'Text'}</button>
+                    <button type="button" onClick={handleToggleWmBadge} className={`px-2 py-0.5 rounded-lg text-[9.5px] font-bold transition-colors ${wm.showBadge ? 'bg-amber-500/25 text-amber-300 border border-amber-500/40' : 'bg-white/10 text-slate-600 dark:text-slate-300'}`}>{wm.showBadge ? 'Badge' : 'Text'}</button>
                   </div>
-                  <div onMouseDown={handleMouseDownWmResize} className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-white shadow-lg flex items-center justify-center cursor-nwse-resize hover:scale-125 transition-transform z-30 opacity-0 group-hover/wm:opacity-100"><Move className="w-2.5 h-2.5 rotate-45" /></div>
+                  <div onMouseDown={handleMouseDownWmResize} className="absolute -bottom-2 -right-2 w-5 h-5 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 text-slate-800 dark:text-white shadow-lg flex items-center justify-center cursor-nwse-resize hover:scale-125 transition-transform z-30 opacity-0 group-hover/wm:opacity-100"><Move className="w-2.5 h-2.5 rotate-45" /></div>
                   {isEditingWatermarkInline ? (
                     <div onMouseDown={(e) => e.stopPropagation()} className="flex items-center gap-1.5 p-1 bg-black/90 rounded-lg border border-amber-400 shadow-2xl z-40">
-                      <input type="text" value={inlineWatermarkText} onChange={(e) => setInlineWatermarkText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSaveInlineWmEdit(); if (e.key === 'Escape') setIsEditingWatermarkInline(false); }} autoFocus className="px-2 py-0.5 text-xs bg-slate-900 border border-white/20 rounded text-white focus:outline-none focus:border-amber-400 w-44" />
+                      <input type="text" value={inlineWatermarkText} onChange={(e) => setInlineWatermarkText(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') handleSaveInlineWmEdit(); if (e.key === 'Escape') setIsEditingWatermarkInline(false); }} autoFocus className="px-2 py-0.5 text-xs bg-slate-900 border border-white/20 rounded text-slate-800 dark:text-white focus:outline-none focus:border-amber-400 w-44" />
                       <button type="button" onClick={handleSaveInlineWmEdit} className="p-1 rounded bg-amber-500 text-black hover:bg-amber-400"><Check className="w-3 h-3" /></button>
-                      <button type="button" onClick={() => setIsEditingWatermarkInline(false)} className="p-1 rounded bg-white/10 text-white hover:bg-white/20"><X className="w-3 h-3" /></button>
+                      <button type="button" onClick={() => setIsEditingWatermarkInline(false)} className="p-1 rounded bg-white/10 text-slate-800 dark:text-white hover:bg-white/20"><X className="w-3 h-3" /></button>
                     </div>
                   ) : wm.showBadge ? (
                     <div
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md transition-all shadow-lg text-white"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full backdrop-blur-md transition-all shadow-lg text-slate-800 dark:text-white"
                       style={{
                         background: wmPreset.badgeBg,
                         border: wmPreset.badgeBorder,
@@ -1065,19 +1065,19 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   <div onMouseDown={(e) => e.stopPropagation()} className="absolute -top-11 left-0 flex items-center gap-1.5 p-1 rounded-xl bg-black/90 backdrop-blur-md border border-white/20 shadow-2xl opacity-0 group-hover/styletext:opacity-100 transition-opacity z-30 pointer-events-auto">
                     <button type="button" onClick={() => setIsEditingInline(true)} className="px-2 py-1 rounded-lg bg-sky-500/20 hover:bg-sky-500/30 text-sky-300 text-[10.5px] font-bold flex items-center gap-1 transition-colors"><Edit3 className="w-3 h-3" /><span>កែអក្សរ</span></button>
                     <div className="h-3 w-[1px] bg-white/20" />
-                    <button type="button" onClick={() => handleScaleDelta(3)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"><Plus className="w-3.5 h-3.5" /></button>
-                    <button type="button" onClick={() => handleScaleDelta(-3)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"><Minus className="w-3.5 h-3.5" /></button>
+                    <button type="button" onClick={() => handleScaleDelta(3)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white transition-colors"><Plus className="w-3.5 h-3.5" /></button>
+                    <button type="button" onClick={() => handleScaleDelta(-3)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white transition-colors"><Minus className="w-3.5 h-3.5" /></button>
                     <div className="h-3 w-[1px] bg-white/20" />
                     <button type="button" onClick={() => handleRotateDelta(5)} className="p-1 rounded-lg bg-white/10 hover:bg-white/20 text-amber-300 transition-colors"><RotateCw className="w-3.5 h-3.5" /></button>
-                    <button type="button" onClick={handleToggleBanner} className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors ${st.showBanner ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-white/10 text-slate-400'}`}>Card</button>
+                    <button type="button" onClick={handleToggleBanner} className={`px-2 py-0.5 rounded-lg text-[10px] font-bold transition-colors ${st.showBanner ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-white/10 text-slate-500 dark:text-slate-400'}`}>Card</button>
                   </div>
-                  <div onMouseDown={handleMouseDownResize} className="absolute -bottom-2.5 -right-2.5 w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-white shadow-lg flex items-center justify-center cursor-nwse-resize hover:scale-125 transition-transform z-30 opacity-0 group-hover/styletext:opacity-100"><Move className="w-3 h-3 rotate-45" /></div>
+                  <div onMouseDown={handleMouseDownResize} className="absolute -bottom-2.5 -right-2.5 w-6 h-6 rounded-full bg-gradient-to-br from-sky-400 to-indigo-600 text-slate-800 dark:text-white shadow-lg flex items-center justify-center cursor-nwse-resize hover:scale-125 transition-transform z-30 opacity-0 group-hover/styletext:opacity-100"><Move className="w-3 h-3 rotate-45" /></div>
                   {st.badge && (
-                    <span className="inline-block px-2.5 py-0.5 mb-1.5 rounded-md bg-gradient-to-r from-rose-600 to-amber-600 text-white font-mono font-bold text-[10.5px] shadow-md border border-white/20">{st.badge}</span>
+                    <span className="inline-block px-2.5 py-0.5 mb-1.5 rounded-md bg-gradient-to-r from-rose-600 to-amber-600 text-slate-800 dark:text-white font-mono font-bold text-[10.5px] shadow-md border border-white/20">{st.badge}</span>
                   )}
                   <h2 className={`font-bold tracking-wide leading-tight ${(() => {
                     const p = st.stylePreset;
-                    if (p === 'gold3d' || p === '3d_text_gold3d') return 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-amber-300 to-amber-600 drop-shadow-[0_4px_8px_rgba(0,0,0,0.95)]';
+                    if (p === 'gold3d' || p === '3d_text_gold3d') return 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-100 via-sky-500 dark:via-sky-500 dark:via-sky-500 dark:via-amber-300 to-amber-600 drop-shadow-[0_4px_8px_rgba(0,0,0,0.95)]';
                     if (p === 'cyberpunk' || p === '3d_text_cyberpunk') return 'text-transparent bg-clip-text bg-gradient-to-r from-sky-300 via-pink-400 to-purple-400 drop-shadow-[0_0_14px_#38bdf8]';
                     if (p === 'silver_blade' || p === '3d_text_silver_blade') return 'text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-200 to-slate-400 drop-shadow-[0_4px_10px_rgba(148,163,184,0.8)]';
                     if (p === 'fire' || p === '3d_text_lava_dragon') return 'text-transparent bg-clip-text bg-gradient-to-b from-yellow-200 via-orange-500 to-red-600 drop-shadow-[0_4px_14px_rgba(234,88,12,0.9)]';
@@ -1090,29 +1090,29 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     if (p === 'synthwave_80s' || p === '3d_text_synthwave_80s') return 'text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-purple-400 to-cyan-400 drop-shadow-[0_0_12px_#e879f9]';
                     if (p === 'khmer_royal' || p === '3d_text_khmer_royal') return 'text-transparent bg-clip-text bg-gradient-to-b from-amber-100 via-yellow-400 to-amber-700 drop-shadow-[0_4px_10px_rgba(180,83,9,0.9)]';
                     if (p === 'sapphire' || p === '3d_text_ocean_wave') return 'text-transparent bg-clip-text bg-gradient-to-b from-blue-100 via-sky-400 to-blue-700 drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]';
-                    if (p === 'glass' || p === '3d_text_glass_frost') return 'text-white/95 backdrop-blur-md drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]';
+                    if (p === 'glass' || p === '3d_text_glass_frost') return 'text-slate-800 dark:text-white/95 backdrop-blur-md drop-shadow-[0_4px_12px_rgba(255,255,255,0.4)]';
                     if (p === 'anime') return 'text-amber-300 drop-shadow-[0_0_14px_rgba(245,158,11,0.9)]';
-                    if (p === 'cinema' || p === '3d_text_hollywood_bold') return 'text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.95)]';
-                    return 'text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]';
+                    if (p === 'cinema' || p === '3d_text_hollywood_bold') return 'text-slate-800 dark:text-white drop-shadow-[0_4px_10px_rgba(0,0,0,0.95)]';
+                    return 'text-slate-800 dark:text-white drop-shadow-[0_4px_8px_rgba(0,0,0,0.9)]';
                   })()}`}
                     style={{ fontSize: `${st.fontSize || 28}px`, fontFamily: st.fontFamily || 'Koulen', textShadow: st.stylePreset === 'gold3d' ? '0 3px 6px rgba(0,0,0,0.9),0 0 12px rgba(245,158,11,0.6)' : st.stylePreset === 'fire' ? '0 3px 6px rgba(0,0,0,0.9),0 0 16px #ea580c' : st.stylePreset === 'neon' ? '0 0 16px #06b6d4,0 0 30px #0ea5e9' : '0 3px 8px rgba(0,0,0,0.95)' }}
                   >
                     {st.title}
                   </h2>
-                  {st.subtitle && <p className="text-slate-100 text-xs mt-1 drop-shadow-md">{st.subtitle}</p>}
+                  {st.subtitle && <p className="text-slate-800 dark:text-slate-100 text-xs mt-1 drop-shadow-md">{st.subtitle}</p>}
                 </div>
                 {isEditingInline && (
-                  <div onMouseDown={(e) => e.stopPropagation()} className="absolute z-50 top-full mt-3 left-0 w-80 bg-[#0e1322]/95 backdrop-blur-xl border border-sky-500/40 rounded-2xl p-4 shadow-2xl flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-150 text-xs">
+                  <div onMouseDown={(e) => e.stopPropagation()} className="absolute z-50 top-full mt-3 left-0 w-80 bg-white dark:bg-[#0e1322]/95 backdrop-blur-xl border border-sky-500/40 rounded-2xl p-4 shadow-2xl flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-150 text-xs">
                     <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                      <span className="font-bold text-white flex items-center gap-1.5"><Edit3 className="w-3.5 h-3.5 text-sky-400" /><span>កែប្រែអក្សរ 3D</span></span>
-                      <button onClick={() => setIsEditingInline(false)} className="p-1 rounded-lg text-slate-400 hover:text-white"><X className="w-3.5 h-3.5" /></button>
+                      <span className="font-bold text-slate-800 dark:text-white flex items-center gap-1.5"><Edit3 className="w-3.5 h-3.5 text-sky-400" /><span>កែប្រែអក្សរ 3D</span></span>
+                      <button onClick={() => setIsEditingInline(false)} className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"><X className="w-3.5 h-3.5" /></button>
                     </div>
-                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-300">ចំណងជើងធំ</label><input type="text" value={inlineTitle} onChange={(e) => setInlineTitle(e.target.value)} placeholder="ឧ. សង្គ្រាម អាទិទេព..." className="w-full bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-white font-bold outline-none focus:border-sky-400" /></div>
-                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-300">ចំណងជើងរង</label><input type="text" value={inlineSubtitle} onChange={(e) => setInlineSubtitle(e.target.value)} placeholder="ឧ. បញ្ចូលសំឡេងខ្មែរ..." className="w-full bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-200 outline-none focus:border-sky-400" /></div>
-                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-300">ស្លាកភាគ</label><input type="text" value={inlineBadge} onChange={(e) => setInlineBadge(e.target.value)} placeholder="ឧ. ភាគ ០១..." className="w-full bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono font-bold outline-none focus:border-sky-400" /></div>
+                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-600 dark:text-slate-300">ចំណងជើងធំ</label><input type="text" value={inlineTitle} onChange={(e) => setInlineTitle(e.target.value)} placeholder="ឧ. សង្គ្រាម អាទិទេព..." className="w-full bg-white dark:bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-800 dark:text-white font-bold outline-none focus:border-sky-400" /></div>
+                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-600 dark:text-slate-300">ចំណងជើងរង</label><input type="text" value={inlineSubtitle} onChange={(e) => setInlineSubtitle(e.target.value)} placeholder="ឧ. បញ្ចូលសំឡេងខ្មែរ..." className="w-full bg-white dark:bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400" /></div>
+                    <div className="flex flex-col gap-1"><label className="text-[11px] font-medium text-slate-600 dark:text-slate-300">ស្លាកភាគ</label><input type="text" value={inlineBadge} onChange={(e) => setInlineBadge(e.target.value)} placeholder="ឧ. ភាគ ០១..." className="w-full bg-white dark:bg-[#07090e] border border-white/10 rounded-lg px-2.5 py-1.5 text-amber-300 font-mono font-bold outline-none focus:border-sky-400" /></div>
                     <div className="flex items-center gap-2 pt-1">
-                      <button onClick={handleSaveInlineEdit} className="flex-1 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95"><Check className="w-3.5 h-3.5" /><span>រក្សាទុក</span></button>
-                      <button onClick={() => setIsEditingInline(false)} className="px-3 py-1.5 rounded-xl bg-white/10 text-slate-300 hover:text-white">បោះបង់</button>
+                      <button onClick={handleSaveInlineEdit} className="flex-1 py-1.5 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 text-slate-800 dark:text-white font-bold flex items-center justify-center gap-1.5 shadow-md hover:brightness-110 active:scale-95"><Check className="w-3.5 h-3.5" /><span>រក្សាទុក</span></button>
+                      <button onClick={() => setIsEditingInline(false)} className="px-3 py-1.5 rounded-xl bg-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white">បោះបង់</button>
                     </div>
                   </div>
                 )}
@@ -1137,7 +1137,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* ── 3D Active Badge ──────────────────────────────────────── */}
           {videoEffects?.effect3dEnabled && active3dPreset && (
             <div className="absolute top-12 right-3 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-amber-500/50 text-amber-300 text-[11px] font-bold shadow-xl animate-in fade-in">
-              <Box className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+              <Box className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400 animate-pulse" />
               <span>3D: {active3dPreset.label.split(' ')[1] || active3dPreset.label}</span>
             </div>
           )}
@@ -1173,7 +1173,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   style={{ bottom: controlsVisible ? '68px' : '22px' }}
                 >
                   <div className="px-3.5 py-1 rounded-full bg-black/85 border border-white/20 backdrop-blur-md shadow-xl text-center">
-                    <span className="text-[11px] font-bold text-white tracking-wide">
+                    <span className="text-[11px] font-bold text-slate-800 dark:text-white tracking-wide">
                       {videoEffects.socialCanvasStyle.bottomSubtitle}
                     </span>
                   </div>
@@ -1221,8 +1221,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     bg: 'bg-gradient-to-r from-red-950/95 via-rose-900/90 to-black/90',
                     border: 'border-red-500/80',
                     shadow: 'shadow-[0_0_20px_rgba(239,68,68,0.4)]',
-                    titleColor: 'text-white',
-                    tagColor: 'text-red-200 bg-red-600/30 border-red-500/40',
+                    titleColor: 'text-slate-800 dark:text-white',
+                    tagColor: 'text-red-200 bg-red-600/30 border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40',
                     badgeIconColor: '#ef4444',
                   };
                 case 'glass_blur':
@@ -1230,8 +1230,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     bg: 'bg-slate-900/80 backdrop-blur-xl',
                     border: 'border-white/25',
                     shadow: 'shadow-2xl',
-                    titleColor: 'text-white',
-                    tagColor: 'text-slate-300 bg-white/10 border-white/20',
+                    titleColor: 'text-slate-800 dark:text-white',
+                    tagColor: 'text-slate-600 dark:text-slate-300 bg-white/10 border-white/20',
                     badgeIconColor: '#ffffff',
                   };
                 case 'royal_purple':
@@ -1249,7 +1249,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     border: 'border-amber-500/80',
                     shadow: 'shadow-[0_0_20px_rgba(245,158,11,0.4)]',
                     titleColor: 'text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-orange-300 to-white',
-                    tagColor: 'text-amber-300 bg-amber-500/20 border-amber-400/30',
+                    tagColor: 'text-amber-300 bg-amber-500/20 border-sky-300 dark:border-sky-300 dark:border-sky-300 dark:border-amber-400/30',
                     badgeIconColor: '#f59e0b',
                   };
                 case 'theatrical_gold':
@@ -1258,7 +1258,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                     bg: 'bg-gradient-to-r from-yellow-950/90 via-black/90 to-amber-950/90',
                     border: 'border-amber-400/80',
                     shadow: 'shadow-[0_0_25px_rgba(234,179,8,0.4)]',
-                    titleColor: 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-amber-300 to-yellow-500',
+                    titleColor: 'text-transparent bg-clip-text bg-gradient-to-r from-yellow-100 via-sky-500 dark:via-sky-500 dark:via-sky-500 dark:via-amber-300 to-yellow-500',
                     tagColor: 'text-amber-300 bg-amber-500/20 border-amber-400/40',
                     badgeIconColor: '#eab308',
                   };
@@ -1300,7 +1300,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                         )}
                       </div>
                       {sp.contactInfo && (
-                        <p className="text-[10px] text-slate-300 truncate font-mono mt-0.5">
+                        <p className="text-[10px] text-slate-600 dark:text-slate-300 truncate font-mono mt-0.5">
                           {sp.contactInfo}
                         </p>
                       )}
@@ -1335,7 +1335,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
                 }}
               >
-                <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-red-600 to-rose-700 text-white font-extrabold text-[10.5px] shrink-0 z-10 shadow-md">
+                <div className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-red-600 to-rose-700 text-slate-800 dark:text-white font-extrabold text-[10.5px] shrink-0 z-10 shadow-md">
                   <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
                   <span className="tracking-wider uppercase">{tk.newsBadgeText || 'BREAKING'}</span>
                 </div>
@@ -1388,14 +1388,14 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
             {/* Left: filename + episode info */}
             <div className="flex items-center gap-2 min-w-0">
               <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/60 backdrop-blur-md border border-white/10">
-                <Film className="w-3 h-3 text-emerald-400 shrink-0" />
-                <span className="text-white text-[11px] font-semibold truncate max-w-[180px] sm:max-w-xs" title={displayFilename || ''}>
-                  {displayFilename || 'No video'}
+                <Film className="w-3 h-3 text-blue-600 dark:text-red-400 shrink-0" />
+                <span className="text-slate-800 dark:text-white text-[11px] font-semibold truncate max-w-[180px] sm:max-w-xs" title={displayFilename || ''}>
+                  {displayFilename || 'គ្មានវីដេអូ'}
                 </span>
               </div>
               {videoSourceMode === 'dubbed' && (
-                <div className="px-2 py-0.5 rounded-md bg-emerald-500/20 border border-emerald-400/40 text-emerald-300 text-[10px] font-bold">
-                  DUBBED
+                <div className="px-2 py-0.5 rounded-md bg-red-600/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 text-red-300 text-[10px] font-bold">
+                  ដាក់សំឡេងរួច
                 </div>
               )}
             </div>
@@ -1417,8 +1417,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   onClick={handleToggleFitCover}
                   className={`px-2 py-1 rounded text-[11px] font-bold flex items-center gap-1 transition-all ${
                     localFitMode === 'cover'
-                      ? 'bg-emerald-500/25 text-emerald-300 border border-emerald-500/40 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-                      : 'text-slate-300 hover:text-white hover:bg-white/10'
+                      ? 'bg-red-500/25 text-red-300 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 shadow-[0_0_8px_rgba(220,38,38,0.3)]'
+                      : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white hover:bg-white/10'
                   }`}
                   title={localFitMode === 'cover' ? 'ប្ដូរមកធម្មតា (Fit)' : 'ពង្រីកពេញអេក្រង់បំបាត់គែមខ្មៅ (Fill Screen)'}
                 >
@@ -1432,7 +1432,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 <button
                   type="button"
                   onClick={() => updateZoom(localZoomScale - 0.25, 'contain')}
-                  className="p-1 rounded text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+                  className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-all"
                   title="ពង្រួម Zoom Out (-)"
                 >
                   <Minus className="w-3 h-3" />
@@ -1443,7 +1443,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   <button
                     type="button"
                     onClick={() => setShowZoomMenu(!showZoomMenu)}
-                    className="px-1.5 py-0.5 font-mono text-[11px] font-bold text-white/90 hover:text-emerald-300 transition-colors"
+                    className="px-1.5 py-0.5 font-mono text-[11px] font-bold text-slate-800 dark:text-white/90 hover:text-red-300 transition-colors"
                     title="ជ្រើសរើសទំហំពង្រីក Zoom"
                   >
                     {localFitMode === 'cover' ? 'Fill' : `${Math.round(localZoomScale * 100)}%`}
@@ -1451,7 +1451,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
 
                   {showZoomMenu && (
                     <div className="absolute right-0 top-full mt-1.5 py-1 px-1 rounded-xl bg-black/95 backdrop-blur-md border border-white/20 shadow-2xl z-50 min-w-[130px] flex flex-col gap-0.5">
-                      <div className="px-2 py-1 text-[9.5px] font-bold text-slate-400 border-b border-white/10">កម្រិតពង្រីក Zoom</div>
+                      <div className="px-2 py-1 text-[9.5px] font-bold text-slate-500 dark:text-slate-400 border-b border-white/10">កម្រិតពង្រីក Zoom</div>
                       {[
                         { label: 'សមល្មម (Fit 100%)', scale: 1.0, fit: 'contain' as const },
                         { label: 'លាតពេញ (Fill / Crop)', scale: 1.0, fit: 'cover' as const },
@@ -1469,12 +1469,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                           }}
                           className={`px-2 py-1 text-left text-xs rounded-lg transition-colors flex items-center justify-between ${
                             localZoomScale === item.scale && localFitMode === item.fit
-                              ? 'bg-emerald-500/20 text-emerald-300 font-bold'
-                              : 'text-slate-300 hover:bg-white/10'
+                              ? 'bg-blue-50 dark:bg-red-500/20 text-red-300 font-bold'
+                              : 'text-slate-600 dark:text-slate-300 hover:bg-white/10'
                           }`}
                         >
                           <span>{item.label}</span>
-                          {localZoomScale === item.scale && localFitMode === item.fit && <Check className="w-3 h-3 text-emerald-400" />}
+                          {localZoomScale === item.scale && localFitMode === item.fit && <Check className="w-3 h-3 text-blue-600 dark:text-red-400" />}
                         </button>
                       ))}
                     </div>
@@ -1485,7 +1485,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 <button
                   type="button"
                   onClick={() => updateZoom(localZoomScale + 0.25, 'contain')}
-                  className="p-1 rounded text-slate-300 hover:text-white hover:bg-white/10 transition-all"
+                  className="p-1 rounded text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-all"
                   title="ពង្រីក Zoom In (+)"
                 >
                   <Plus className="w-3 h-3" />
@@ -1507,7 +1507,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               {/* Subtitle Toggle */}
               {onToggleSubtitles && (
                 <button onClick={onToggleSubtitles}
-                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold backdrop-blur-md border transition-all ${showSubtitles ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300' : 'bg-black/60 border-white/[0.1] text-slate-400 hover:text-white'}`}
+                  className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold backdrop-blur-md border transition-all ${showSubtitles ? 'bg-red-600/25 border-red-500/50 text-red-300' : 'bg-black/60 border-white/[0.1] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'}`}
                   title="បើក/បិទ អក្សររត់"
                 >
                   {showSubtitles ? 'ស. រ. បើក' : 'ស.រ. បិទ'}
@@ -1516,7 +1516,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               {/* Camera / Snapshot */}
               <button
                 onClick={handleInstantSnapshot}
-                className={`p-1.5 rounded-lg backdrop-blur-md border transition-all ${capturedFeedback ? 'bg-emerald-500/20 border-emerald-400/50 text-emerald-300' : 'bg-black/60 border-white/10 text-slate-300 hover:text-white hover:bg-white/10'}`}
+                className={`p-1.5 rounded-lg backdrop-blur-md border transition-all ${capturedFeedback ? 'bg-blue-50 dark:bg-red-500/20 border-red-400/50 text-red-300' : 'bg-black/60 border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white hover:bg-white/10'}`}
                 title="ថតរូបភាព Frame (Snapshot)"
               >
                 <Camera className="w-3.5 h-3.5" />
@@ -1524,7 +1524,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               {/* Upload/Change Video */}
               <label className="cursor-pointer">
                 <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f && onUploadFile) onUploadFile(f); }} />
-                <div className="px-2.5 py-1 rounded-lg bg-black/60 hover:bg-white/10 border border-white/10 text-slate-300 hover:text-white font-mono text-[10.5px] font-bold flex items-center gap-1 transition-all backdrop-blur-md cursor-pointer">
+                <div className="px-2.5 py-1 rounded-lg bg-black/60 hover:bg-white/10 border border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white font-mono text-[10.5px] font-bold flex items-center gap-1 transition-all backdrop-blur-md cursor-pointer">
                   <Download className="w-3 h-3" />
                   <span className="hidden sm:inline">ប្តូរ</span>
                 </div>
@@ -1535,10 +1535,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
           {/* ── Zoom HUD Notification ─────────────────────────────── */}
           {zoomToastText && (
             <div className="absolute top-14 left-1/2 -translate-x-1/2 z-[35] pointer-events-none animate-in fade-in zoom-in-95 duration-150">
-              <div className="px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-xs font-bold shadow-2xl flex items-center gap-1.5">
+              <div className="px-3.5 py-1.5 rounded-full bg-black/85 backdrop-blur-md border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 text-red-300 text-xs font-bold shadow-2xl flex items-center gap-1.5">
                 <span>{zoomToastText}</span>
                 {(localZoomScale > 1.05 || localFitMode === 'cover') && (
-                  <span className="text-[10.5px] text-slate-400 font-normal">• អូសដើម្បីរំកិល (Drag to Pan)</span>
+                  <span className="text-[10.5px] text-slate-500 dark:text-slate-400 font-normal">• អូសដើម្បីរំកិល (Drag to Pan)</span>
                 )}
               </div>
             </div>
@@ -1551,7 +1551,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               style={{ bottom: controlsVisible ? '88px' : '12px' }}
             >
               <div
-                className={`inline-flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl shadow-2xl max-w-[85%] mx-auto ${(subtitleStyle as any)?.boxEnabled !== false ? 'border border-[#00C2FF]/20 backdrop-blur-md' : ''}`}
+                className={`inline-flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl shadow-2xl max-w-[85%] mx-auto ${(subtitleStyle as any)?.boxEnabled !== false ? 'border border-slate-200 dark:border-[#00C2FF]/20 backdrop-blur-md' : ''}`}
                 style={{ backgroundColor: (subtitleStyle as any)?.boxEnabled !== false ? (subtitleStyle?.backgroundColor || 'rgba(0,0,0,0.75)') : 'transparent' }}
               >
                 <p className="font-bold leading-relaxed tracking-wide select-none"
@@ -1584,12 +1584,12 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                       />
                     </svg>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <span className="text-white font-mono font-bold text-sm">{uploadProgress}%</span>
+                      <span className="text-slate-800 dark:text-white font-mono font-bold text-sm">{uploadProgress}%</span>
                     </div>
                   </div>
                   <div className="text-center">
-                    <p className="text-white text-sm font-semibold">កំពុង Upload...</p>
-                    {uploadInfo && <p className="text-zinc-400 text-xs mt-1">{uploadInfo.loadedMb} / {uploadInfo.totalMb} MB</p>}
+                    <p className="text-slate-800 dark:text-white text-sm font-semibold">កំពុង Upload...</p>
+                    {uploadInfo && <p className="text-slate-600 dark:text-zinc-400 text-xs mt-1">{uploadInfo.loadedMb} / {uploadInfo.totalMb} MB</p>}
                   </div>
                 </div>
               ) : (
@@ -1601,7 +1601,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                       />
                     ))}
                   </div>
-                  <p className="text-white/70 text-xs font-medium">Buffering...</p>
+                  <p className="text-slate-800 dark:text-white/70 text-xs font-medium">Buffering...</p>
                 </div>
               )}
             </div>
@@ -1636,19 +1636,19 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   className="absolute inset-y-0 left-0 rounded-full transition-all"
                   style={{
                     width: `${playedPct}%`,
-                    background: 'linear-gradient(to right, #059669, #10b981, #34d399)',
-                    boxShadow: '0 0 8px rgba(52,211,153,0.6)',
+                    background: 'linear-gradient(to right, #7F1D1D, #DC2626, #EF4444)',
+                    boxShadow: '0 0 10px rgba(220,38,38,0.7)',
                   }}
                 />
                 {/* Drag Handle */}
                 <div
-                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 border-emerald-300 bg-white opacity-0 group-hover/bar:opacity-100 transition-all shadow-[0_0_8px_rgba(52,211,153,0.9)] pointer-events-none"
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full border-2 border-amber-400 bg-white opacity-0 group-hover/bar:opacity-100 transition-all shadow-[0_0_10px_rgba(220,38,38,0.9)] pointer-events-none"
                   style={{ left: `${playedPct}%` }}
                 />
                 {/* Hover Tooltip */}
                 {hoverProgress !== null && (
                   <div
-                    className="absolute -top-8 -translate-x-1/2 px-2 py-0.5 rounded-md bg-black/90 backdrop-blur-md border border-white/20 text-white text-[11px] font-mono font-bold shadow-lg pointer-events-none z-10"
+                    className="absolute -top-8 -translate-x-1/2 px-2 py-0.5 rounded-md bg-black/90 backdrop-blur-md border border-white/20 text-slate-800 dark:text-white text-[11px] font-mono font-bold shadow-lg pointer-events-none z-10"
                     style={{ left: hoverProgressX }}
                   >
                     {formatTimecode(hoverProgress)}
@@ -1663,14 +1663,14 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
               <div className="flex items-center gap-1.5 flex-shrink-0">
                 {/* Step -10s */}
                 <button onClick={() => onStep?.(-10)}
-                  className="hidden sm:flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[10px] font-bold transition-all border border-white/10"
+                  className="hidden sm:flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white text-[10px] font-bold transition-all border border-white/10"
                   title="ថយក្រោយ 10 វិនាទី"
                 >
                   <ChevronLeft className="w-3 h-3" />10s
                 </button>
                 {/* Step -5s */}
                 <button onClick={() => onStep?.(-5)}
-                  className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[10px] font-bold transition-all border border-white/10"
+                  className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white text-[10px] font-bold transition-all border border-white/10"
                   title="ថយក្រោយ 5 វិនាទី"
                 >
                   <ChevronLeft className="w-3 h-3" />5s
@@ -1681,41 +1681,41 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   onClick={handlePlayPause}
                   className="relative w-12 h-12 rounded-full flex items-center justify-center transition-all active:scale-95 shrink-0"
                   style={{
-                    background: 'linear-gradient(135deg, #059669, #10b981)',
+                    background: 'linear-gradient(135deg, #DC2626, #991B1B)',
                     boxShadow: isPlaying
-                      ? '0 0 0 0 rgba(16,185,129,0.4), 0 0 20px rgba(16,185,129,0.6), 0 0 40px rgba(16,185,129,0.2)'
-                      : '0 0 15px rgba(16,185,129,0.3)',
+                      ? '0 0 0 0 rgba(220,38,38,0.4), 0 0 22px rgba(220,38,38,0.8), 0 0 40px rgba(245,158,11,0.3)'
+                      : '0 0 18px rgba(220,38,38,0.5)',
                     animation: isPlaying ? 'playPulse 2s ease-in-out infinite' : 'none',
                   }}
                   title="ចាក់ / ផ្អាក (Space)"
                 >
-                  <style>{`@keyframes playPulse{0%,100%{box-shadow:0 0 0 0 rgba(16,185,129,0.4),0 0 20px rgba(16,185,129,0.6),0 0 40px rgba(16,185,129,0.2)}50%{box-shadow:0 0 0 6px rgba(16,185,129,0.1),0 0 25px rgba(16,185,129,0.8),0 0 50px rgba(16,185,129,0.3)}}`}</style>
+                  <style>{`@keyframes playPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,38,38,0.4),0 0 22px rgba(220,38,38,0.8),0 0 40px rgba(245,158,11,0.3)}50%{box-shadow:0 0 0 6px rgba(220,38,38,0.15),0 0 28px rgba(220,38,38,0.9),0 0 50px rgba(245,158,11,0.4)}}`}</style>
                   {isPlaying
-                    ? <Pause className="w-5 h-5 fill-white text-white" />
-                    : <Play className="w-5 h-5 fill-white text-white translate-x-0.5" />
+                    ? <Pause className="w-5 h-5 fill-white text-slate-800 dark:text-white" />
+                    : <Play className="w-5 h-5 fill-white text-slate-800 dark:text-white translate-x-0.5" />
                   }
                 </button>
 
                 {/* Step +5s */}
                 <button onClick={() => onStep?.(5)}
-                  className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[10px] font-bold transition-all border border-white/10"
+                  className="flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white text-[10px] font-bold transition-all border border-white/10"
                   title="ទៅមុខ 5 វិនាទី"
                 >
                   5s<ChevronRight className="w-3 h-3" />
                 </button>
                 {/* Step +10s */}
                 <button onClick={() => onStep?.(10)}
-                  className="hidden sm:flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-white/70 hover:text-white text-[10px] font-bold transition-all border border-white/10"
+                  className="hidden sm:flex items-center gap-0.5 px-2 py-1 rounded-full bg-white/10 hover:bg-white/20 text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white text-[10px] font-bold transition-all border border-white/10"
                   title="ទៅមុខ 10 វិនាទី"
                 >
                   10s<ChevronRight className="w-3 h-3" />
                 </button>
 
                 {/* Time Display */}
-                <div className="font-mono text-xs font-semibold text-white/90 tabular-nums select-none ml-1 hidden sm:block">
-                  <span className="text-emerald-400">{formatTimecode(currentTime)}</span>
-                  <span className="text-white/40 mx-1">/</span>
-                  <span className="text-white/60">{formatTimecode(duration)}</span>
+                <div className="font-mono text-xs font-semibold text-slate-800 dark:text-white/90 tabular-nums select-none ml-1 hidden sm:block">
+                  <span className="text-blue-600 dark:text-red-400 font-bold">{formatTimecode(currentTime)}</span>
+                  <span className="text-slate-800 dark:text-white/40 mx-1">/</span>
+                  <span className="text-slate-800 dark:text-white/60">{formatTimecode(duration)}</span>
                 </div>
               </div>
 
@@ -1725,10 +1725,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 <div className="relative flex items-center" onMouseEnter={handleVolumeEnter} onMouseLeave={handleVolumeLeave}>
                   <button
                     onClick={handleMuteToggle}
-                    className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                    className="p-1.5 rounded-lg text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-all"
                     title="បិទ/បើក សំឡេង"
                   >
-                    {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-emerald-400" />}
+                    {isMuted || volume === 0 ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4 text-blue-600 dark:text-red-400" />}
                   </button>
                   {showVolumeSlider && (
                     <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 flex flex-col items-center gap-1 p-2 rounded-xl bg-black/90 backdrop-blur-md border border-white/15 shadow-2xl z-50"
@@ -1737,10 +1737,10 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                       <input
                         type="range" min={0} max={1} step={0.02} value={isMuted ? 0 : volume}
                         onChange={(e) => { const v = parseFloat(e.target.value); setVolume(v); if (v > 0 && isMuted) handleMuteToggle(); }}
-                        className="h-20 cursor-pointer accent-emerald-400"
+                        className="h-20 cursor-pointer accent-red-500"
                         style={{ writingMode: 'vertical-lr', direction: 'rtl', WebkitAppearance: 'slider-vertical' }}
                       />
-                      <span className="text-white/60 text-[10px] font-mono">{Math.round((isMuted ? 0 : volume) * 100)}%</span>
+                      <span className="text-slate-800 dark:text-white/60 text-[10px] font-mono">{Math.round((isMuted ? 0 : volume) * 100)}%</span>
                     </div>
                   )}
                 </div>
@@ -1749,7 +1749,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 <select
                   value={playbackRate}
                   onChange={(e) => handleRateChange(parseFloat(e.target.value))}
-                  className="bg-black/60 border border-white/15 text-white/80 text-[10px] rounded-lg px-1.5 py-1 font-mono cursor-pointer outline-none focus:border-emerald-400 backdrop-blur-md hover:bg-white/10 transition-all"
+                  className="bg-black/60 border border-white/15 text-slate-800 dark:text-white/80 text-[10px] rounded-lg px-1.5 py-1 font-mono cursor-pointer outline-none focus:border-emerald-400 backdrop-blur-md hover:bg-white/10 transition-all"
                   title="ល្បឿនចាក់"
                 >
                   <option value="0.5">0.5×</option>
@@ -1763,7 +1763,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 {/* Subtitles Toggle Icon */}
                 {onToggleSubtitles && (
                   <button onClick={onToggleSubtitles}
-                    className={`p-1.5 rounded-lg transition-all ${showSubtitles ? 'text-cyan-300 bg-cyan-500/15 border border-cyan-400/30' : 'text-white/50 hover:text-white hover:bg-white/10'}`}
+                    className={`p-1.5 rounded-lg transition-all ${showSubtitles ? 'text-red-300 bg-red-600/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40' : 'text-slate-800 dark:text-white/50 hover:text-slate-800 dark:text-white hover:bg-white/10'}`}
                     title="បើក/បិទ អក្សររត់"
                   >
                     <Subtitles className="w-4 h-4" />
@@ -1773,8 +1773,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 {/* Screenshot / Thumbnail Studio */}
                 <button
                   onClick={() => onOpenThumbnailStudio?.()}
-                  className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
-                  title="Thumbnail Studio"
+                  className="p-1.5 rounded-lg text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-all"
+                  title="ស្ទូឌីយោរូបក្រប (Thumbnail)"
                 >
                   <Camera className="w-4 h-4" />
                 </button>
@@ -1785,8 +1785,8 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   onClick={handleToggleFitCover}
                   className={`p-1.5 rounded-lg transition-all ${
                     localFitMode === 'cover' || localZoomScale > 1.0
-                      ? 'text-emerald-300 bg-emerald-500/20 border border-emerald-400/40 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
-                      : 'text-white/70 hover:text-white hover:bg-white/10'
+                      ? 'text-red-300 bg-red-600/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 shadow-[0_0_10px_rgba(220,38,38,0.2)]'
+                      : 'text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white hover:bg-white/10'
                   }`}
                   title={localFitMode === 'cover' ? 'លាតពេញ (ចុចដើម្បីមក Fit ធម្មតា)' : 'ពង្រីកពេញអេក្រង់ (Fill / Crop)'}
                 >
@@ -1796,7 +1796,7 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                 {/* Fullscreen */}
                 <button
                   onClick={handleFullscreen}
-                  className="p-1.5 rounded-lg text-white/70 hover:text-white hover:bg-white/10 transition-all"
+                  className="p-1.5 rounded-lg text-slate-800 dark:text-white/70 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-all"
                   title="ពេញអេក្រង់ (F)"
                 >
                   <Maximize className="w-4 h-4" />

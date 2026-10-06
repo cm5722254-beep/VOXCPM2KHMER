@@ -208,11 +208,11 @@ export default function CharacterVoiceAssignment({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center">
-            <Users className="w-5 h-5 text-white" />
+            <Users className="w-5 h-5 text-slate-800 dark:text-white" />
           </div>
           <div>
-            <h3 className="text-base md:text-lg font-bold text-slate-200">តួអង្គ & សំឡេង</h3>
-            <p className="text-xs text-slate-400">ស្កេននិងរៀបចំសំឡេងតួអង្គ</p>
+            <h3 className="text-base md:text-lg font-bold text-slate-700 dark:text-slate-200">តួអង្គ & សំឡេង</h3>
+            <p className="text-xs text-slate-500 dark:text-slate-400">ស្កេននិងរៀបចំសំឡេងតួអង្គ</p>
           </div>
         </div>
 
@@ -230,9 +230,9 @@ export default function CharacterVoiceAssignment({
 
       {/* Error */}
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-xs text-red-400">{error}</p>
+        <div className="p-3 rounded-lg bg-red-500/10 border border-blue-200 dark:border-blue-200 dark:border-blue-200 dark:border-red-500/20 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-blue-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-600 dark:text-red-400">{error}</p>
         </div>
       )}
 
@@ -240,7 +240,7 @@ export default function CharacterVoiceAssignment({
       {characters.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-semibold text-slate-300">
+            <span className="text-sm font-semibold text-slate-600 dark:text-slate-300">
               រកឃើញ {characters.length} តួអង្គ
             </span>
             <GlassBadge variant="emerald">
@@ -263,14 +263,14 @@ export default function CharacterVoiceAssignment({
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-bold text-slate-200">{char.name}</span>
+                        <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{char.name}</span>
                         <GlassBadge variant={getGenderColor(char.gender) as any} className="text-[9px]">
                           {char.gender === 'male' ? 'ប្រុស' :
                            char.gender === 'female' ? 'ស្រី' :
                            char.gender === 'child' ? 'ក្មេង' : 'ចាស់'}
                         </GlassBadge>
                       </div>
-                      <div className="text-xs text-slate-400 mb-2">
+                      <div className="text-xs text-slate-500 dark:text-slate-400 mb-2">
                         {char.lineCount} ឃ្លា
                       </div>
                       {char.sampleText && (
@@ -284,7 +284,7 @@ export default function CharacterVoiceAssignment({
 
                 {/* Voice Selection */}
                 <div className="space-y-2">
-                  <label className="text-xs text-slate-400 block">សំឡេងដែលបានជ្រើសរើស:</label>
+                  <label className="text-xs text-slate-500 dark:text-slate-400 block">សំឡេងដែលបានជ្រើសរើស:</label>
                   <select
                     value={char.assignedVoice}
                     onChange={(e) => changeVoice(char.id, e.target.value)}
@@ -300,7 +300,7 @@ export default function CharacterVoiceAssignment({
                       ))}
                   </select>
                   {char.voiceLabel && (
-                    <div className="text-xs text-emerald-400 flex items-center gap-1">
+                    <div className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-1">
                       <CheckCircle2 className="w-3 h-3" />
                       <span>{char.voiceLabel}</span>
                     </div>
@@ -311,7 +311,7 @@ export default function CharacterVoiceAssignment({
           </div>
 
           {/* Info */}
-          <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-slate-400 space-y-1">
+          <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs text-slate-500 dark:text-slate-400 space-y-1">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="w-3 h-3 text-blue-400" />
               <span>រៀបចំតួអង្គស្វ័យប្រវត្តិតាមភេទ</span>

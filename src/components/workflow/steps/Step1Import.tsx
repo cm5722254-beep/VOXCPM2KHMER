@@ -139,7 +139,7 @@ export const Step1Import: React.FC<Step1ImportProps> = ({
                 <button
                   type="button"
                   onClick={(e) => { e.stopPropagation(); fileInputRef.current?.click(); }}
-                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold transition-all active:scale-95 shadow-sm"
+                  className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-slate-800 dark:text-white text-sm font-semibold transition-all active:scale-95 shadow-sm"
                 >
                   ជ្រើសរើសវីដេអូ
                 </button>
@@ -198,7 +198,7 @@ export const Step1Import: React.FC<Step1ImportProps> = ({
 
                 <button
                   onClick={onRemoveFile}
-                  className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
+                  className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all"
                   title="ជ្រើសវីដេអូមួយផ្សេងទៀត"
                 >
                   <X className="w-4 h-4" />
@@ -272,7 +272,7 @@ export const Step1Import: React.FC<Step1ImportProps> = ({
                       className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
                         clipPreset === sec
                           ? 'bg-amber-500 text-slate-950 shadow-[0_0_12px_rgba(245,158,11,0.4)]'
-                          : 'bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-white'
+                          : 'bg-white dark:bg-white/5 border border-slate-200 dark:border-transparent text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/10 hover:text-slate-900 dark:hover:text-slate-800 dark:text-white'
                       }`}
                     >
                       {sec}s
@@ -385,8 +385,8 @@ export const Step1Import: React.FC<Step1ImportProps> = ({
             disabled={!canProceed}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${
               canProceed
-                ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-white shadow-lg shadow-indigo-500/25'
-                : 'bg-slate-200 dark:bg-white/5 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-indigo-600 to-sky-600 hover:from-indigo-500 hover:to-sky-500 text-slate-800 dark:text-white shadow-lg shadow-indigo-500/25'
+                : 'bg-slate-200 dark:bg-white/5 text-slate-500 dark:text-slate-400 dark:text-slate-600 cursor-not-allowed'
             }`}
           >
             <span>បន្ត</span>

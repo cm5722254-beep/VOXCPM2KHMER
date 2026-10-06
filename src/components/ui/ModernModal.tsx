@@ -23,8 +23,8 @@ const sizeClasses = {
 };
 
 const glowColors = {
-  cyan: 'rgba(56, 189, 248, 0.08)',
-  purple: 'rgba(139, 92, 246, 0.08)',
+  cyan: 'rgba(230, 49, 99, 0.09)',
+  purple: 'rgba(140, 97, 196, 0.09)',
   emerald: 'rgba(16, 185, 129, 0.08)',
   amber: 'rgba(245, 158, 11, 0.08)',
   rose: 'rgba(244, 63, 94, 0.08)',
@@ -129,9 +129,9 @@ export const ModernModal: React.FC<ModernModalProps> = ({
             maxHeight: '90vh',
             display: 'flex',
             flexDirection: 'column',
-            background: 'linear-gradient(180deg, #111827 0%, #0f1623 100%)',
-            border: '1px solid rgba(255, 255, 255, 0.12)',
-            borderRadius: '16px',
+            background: 'linear-gradient(180deg, #1b242e 0%, #151b22 100%)',
+            border: '1px solid rgba(182, 198, 213, 0.17)',
+            borderRadius: '10px',
             boxShadow: `
               0 24px 48px rgba(0, 0, 0, 0.8),
               0 0 0 1px rgba(255, 255, 255, 0.05) inset,
@@ -179,9 +179,9 @@ export const ModernModal: React.FC<ModernModalProps> = ({
                     alignItems: 'center',
                     justifyContent: 'center',
                     borderRadius: '10px',
-                    background: 'rgba(56, 189, 248, 0.1)',
-                    border: '1px solid rgba(56, 189, 248, 0.2)',
-                    color: '#38bdf8',
+                  background: 'rgba(230, 49, 99, 0.12)',
+                  border: '1px solid rgba(230, 49, 99, 0.24)',
+                  color: '#ff6f91',
                   }}
                 >
                   {icon}
@@ -316,9 +316,9 @@ export const ModernButton: React.FC<ModernButtonProps> = ({
 
   const variants = {
     primary: {
-      background: 'linear-gradient(135deg, #0ea5e9, #3b82f6)',
+      background: 'linear-gradient(105deg, #10b981, #06b6d4)',
       color: '#fff',
-      border: '1px solid rgba(14, 165, 233, 0.5)',
+      border: '1px solid rgba(103, 232, 249, 0.3)',
       boxShadow: '0 4px 12px rgba(14, 165, 233, 0.3)',
       hoverShadow: '0 6px 20px rgba(14, 165, 233, 0.4)',
     },

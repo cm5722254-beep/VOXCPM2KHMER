@@ -107,11 +107,11 @@ export default function QuickTranslate({ videoFile, onTranslated }: QuickTransla
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 flex items-center justify-center">
-          <Languages className="w-5 h-5 text-white" />
+          <Languages className="w-5 h-5 text-slate-800 dark:text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="text-sm font-bold text-slate-200">បកប្រែភ្លាមៗ (Quick Translate)</h3>
-          <p className="text-xs text-slate-400">បកប្រែពី ចិន → ខ្មែរ ស្វ័យប្រវត្តិ</p>
+          <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">បកប្រែភ្លាមៗ (Quick Translate)</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">បកប្រែពី ចិន → ខ្មែរ ស្វ័យប្រវត្តិ</p>
         </div>
       </div>
 
@@ -132,7 +132,7 @@ export default function QuickTranslate({ videoFile, onTranslated }: QuickTransla
       {isTranslating && (
         <div className="space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-400">កំពុងបកប្រែ...</span>
+            <span className="text-slate-500 dark:text-slate-400">កំពុងបកប្រែ...</span>
             <span className="text-sky-400 font-bold">{Math.round(progress)}%</span>
           </div>
           <div className="progress-bar h-2">
@@ -141,7 +141,7 @@ export default function QuickTranslate({ videoFile, onTranslated }: QuickTransla
               style={{ width: `${progress}%` }}
             />
           </div>
-          <div className="flex items-center justify-center gap-2 text-sm text-slate-400">
+          <div className="flex items-center justify-center gap-2 text-sm text-slate-500 dark:text-slate-400">
             <Loader2 className="w-4 h-4 animate-spin" />
             <span>សូមរង់ចាំបន្តិច...</span>
           </div>
@@ -150,10 +150,10 @@ export default function QuickTranslate({ videoFile, onTranslated }: QuickTransla
 
       {/* Error */}
       {error && (
-        <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-2">
-          <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="p-3 rounded-lg bg-red-500/10 border border-blue-200 dark:border-blue-200 dark:border-blue-200 dark:border-red-500/20 flex items-start gap-2">
+          <AlertCircle className="w-4 h-4 text-blue-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-xs text-red-400">{error}</p>
+            <p className="text-xs text-blue-600 dark:text-red-400">{error}</p>
           </div>
         </div>
       )}
@@ -162,8 +162,8 @@ export default function QuickTranslate({ videoFile, onTranslated }: QuickTransla
       {result && (
         <div className="space-y-3">
           <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <span className="text-sm text-emerald-400 font-bold">បានបកប្រែជោគជ័យ! 🎉</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">បានបកប្រែជោគជ័យ! 🎉</span>
           </div>
 
           {result.outputVideo && (

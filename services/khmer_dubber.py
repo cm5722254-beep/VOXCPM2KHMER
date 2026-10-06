@@ -716,9 +716,9 @@ class KhmerDubber:
         if not api_key:
             return []
 
-        active_choice = preferred_model or os.getenv('GEMINI_MODEL', 'gemini-3.5-flash-lite')
+        active_choice = preferred_model or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
         candidate_models = [active_choice]
-        for m in ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash', 'gemini-3.1-flash-lite']:
+        for m in ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro']:
             if m not in candidate_models:
                 candidate_models.append(m)
 
@@ -834,7 +834,7 @@ class KhmerDubber:
                         if not khmer or not any('\u1780' <= c <= '\u17FF' for c in khmer):
                             if chinese:
                                 try:
-                                    t_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key={api_key}"
+                                    t_url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}"
                                     t_resp = requests.post(t_url, json={"contents": [{"parts": [{"text": f"Translate this dialogue line to natural Cambodian Khmer: {chinese}"}]}]}, timeout=12)
                                     if t_resp.status_code == 200:
                                         t_raw = t_resp.json().get('candidates', [{}])[0].get('content', {}).get('parts', [{}])[0].get('text', '')
@@ -1018,6 +1018,24 @@ class KhmerDubber:
             else:
                 best_line = max(lines, key=lambda l: (l.get('end_time', 0) - l.get('start_time', 0)))
 
+            # Priority 1: Check if Voice Split has high-fidelity clustered sample for this speaker
+            voice_split_sample = None
+            voice_split_dir = os.path.join(os.path.dirname(__file__), '..', 'voice_split')
+            if os.path.exists(voice_split_dir):
+                for ep_d in os.listdir(voice_split_dir):
+                    ep_dp = os.path.join(voice_split_dir, ep_d)
+                    if os.path.isdir(ep_dp):
+                        for c_cand in [f"{speaker_id}_best.wav", f"{first_line.get('speaker_id', '')}_best.wav"]:
+                            cand_s = os.path.join(ep_dp, c_cand)
+                            if os.path.exists(cand_s):
+                                voice_split_sample = cand_s
+                                break
+                    if voice_split_sample: break
+            if voice_split_sample and os.path.exists(voice_split_sample):
+                character_voice_map[speaker_id] = voice_split_sample
+                print(f"🎯 Using authentic Voice Split sample for {speaker_id}: {voice_split_sample}")
+                continue
+
             st = max(0.0, best_line.get('start_time', 0.0) - 0.1)
             raw_dur = max(2.5, best_line.get('end_time', 0.0) - best_line.get('start_time', 0.0) + 0.2)
             dur = min(8.0, raw_dur)
@@ -1145,7 +1163,7 @@ class KhmerDubber:
         casting_safety_mode = options.get('castingSafetyMode', 'safe_curated')
         user_voice_map = options.get('characterVoiceMap', {})
 
-        gemini_model = options.get('geminiModel') or os.getenv('GEMINI_MODEL', 'gemini-3.5-flash')
+        gemini_model = options.get('geminiModel') or os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest')
 
         video_duration = audio_processor.get_media_duration(video_path)
 
@@ -1158,10 +1176,10 @@ class KhmerDubber:
             dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model=gemini_model)
 
         if not dialogue_segments:
-            # Second pass: retry with verified ultra-fast gemini-3.5-flash-lite
-            print("Retrying dialogue timeline extraction with gemini-3.5-flash-lite...")
+            # Second pass: retry with stable Gemini 1.5 Flash 001
+            print("Retrying dialogue timeline extraction with gemini-1.5-flash-001...")
             if on_progress: on_progress(25, 'AI កំពុងវិភាគស្វែងរកសម្លេងសន្ទនាជុំវិញឈុតសកម្មភាព (Second Pass)...')
-            dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model='gemini-3.5-flash-lite')
+            dialogue_segments = await self.extract_dialogue_timeline(extracted_audio_path, video_duration, scope, on_progress, preferred_model='gemini-1.5-flash-001')
 
         # 🎯 USER REQUIREMENT: លុបសំឡេងដើម ទុកតែភ្លេង (AI Vocal Separation)
         if on_progress: on_progress(35, '⚡ AI កំពុងលុបសំឡេងចិនដើម (Vocal Removal) — រក្សាទុកតែភ្លេងកំដរ BGM & សំឡេងបែបផែន (SFX)...')

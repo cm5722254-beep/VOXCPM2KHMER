@@ -297,27 +297,27 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
     <div className="relative flex flex-col items-center justify-center w-full h-full p-2 sm:p-4 select-none overflow-hidden">
       {/* Top Floating Control Bar */}
       <div className="absolute top-4 left-4 right-4 z-30 flex items-center justify-between gap-2 pointer-events-none">
-        <div className="flex items-center gap-2 pointer-events-auto bg-[#12131a]/85 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/10 shadow-lg text-xs">
-          <span className="font-bold text-white tracking-wide">សមាមាត្រ {aspectObj.id}</span>
-          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wide ${!project.activeImageUrl ? 'bg-slate-700/70 text-slate-200' : project.activeImageUrl.startsWith('data:') ? 'bg-sky-500/20 text-sky-200' : project.activeImageUrl.includes('pollinations.ai') ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-100'}`}>
+        <div className="flex items-center gap-2 pointer-events-auto bg-white dark:bg-[#12131a]/85 backdrop-blur-md px-3 py-1.5 rounded-2xl border border-white/10 shadow-lg text-xs">
+          <span className="font-bold text-slate-800 dark:text-white tracking-wide">សមាមាត្រ {aspectObj.id}</span>
+          <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold tracking-wide ${!project.activeImageUrl ? 'bg-slate-700/70 text-slate-700 dark:text-slate-200' : project.activeImageUrl.startsWith('data:') ? 'bg-sky-500/20 text-sky-200' : project.activeImageUrl.includes('pollinations.ai') ? 'bg-emerald-500/20 text-emerald-200' : 'bg-amber-500/20 text-amber-100'}`}>
             {!project.activeImageUrl ? 'ផ្ទាំងទទេ' : project.activeImageUrl.startsWith('data:') ? 'រូបបានបញ្ចូល' : project.activeImageUrl.includes('pollinations.ai') ? 'រូបពី AI' : 'រូបគំរូ'}
           </span>
         </div>
 
-        <div className="flex items-center gap-2 pointer-events-auto bg-[#12131a]/85 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-white/10 shadow-lg">
+        <div className="flex items-center gap-2 pointer-events-auto bg-white dark:bg-[#12131a]/85 backdrop-blur-md px-2 py-1.5 rounded-2xl border border-white/10 shadow-lg">
           <button
             onClick={() => setZoomLevel((z) => Math.max(0.6, z - 0.1))}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            className="p-1.5 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white rounded-lg hover:bg-white/10 transition-colors"
             title="Zoom Out"
           >
             <ZoomOut className="w-3.5 h-3.5" />
           </button>
-          <span className="text-[11px] font-mono font-bold text-zinc-300 w-10 text-center">
+          <span className="text-[11px] font-mono font-bold text-slate-700 dark:text-zinc-300 w-10 text-center">
             {Math.round(zoomLevel * 100)}%
           </span>
           <button
             onClick={() => setZoomLevel((z) => Math.min(1.6, z + 0.1))}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            className="p-1.5 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white rounded-lg hover:bg-white/10 transition-colors"
             title="Zoom In"
           >
             <ZoomIn className="w-3.5 h-3.5" />
@@ -325,7 +325,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
           <div className="w-[1px] h-4 bg-white/10 mx-0.5" />
           <button
             onClick={() => setZoomLevel(1)}
-            className="p-1.5 text-zinc-400 hover:text-white rounded-lg hover:bg-white/10 transition-colors"
+            className="p-1.5 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white rounded-lg hover:bg-white/10 transition-colors"
             title="Reset Zoom"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -342,7 +342,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
           transform: `scale(${zoomLevel})`,
           transition: 'transform 0.15s ease-out',
         }}
-        className="relative max-h-[75vh] w-auto max-w-[92%] rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.85)] border-2 border-white/10 bg-[#07090e] group cursor-default"
+        className="relative max-h-[75vh] w-auto max-w-[92%] rounded-2xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.85)] border-2 border-white/10 bg-white dark:bg-[#07090e] group cursor-default"
       >
         {/* 1. Master Artwork Image */}
         {project.activeImageUrl ? (
@@ -356,8 +356,8 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
         ) : (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[radial-gradient(ellipse_at_center,_#132b45_0%,_#07090e_70%)] text-center px-8">
             <Sparkles className="w-9 h-9 text-cyan-300/70" />
-            <p className="text-sm font-semibold text-slate-200">ចាប់ផ្ដើមបង្កើត Poster នៅទីនេះ</p>
-            <p className="max-w-xs text-xs leading-relaxed text-slate-300">សរសេរពិពណ៌នារូប រួចបង្កើតដោយ AI បញ្ចូលរូបផ្ទាល់ខ្លួន ឬជ្រើសរើសរូបគំរូ។</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">ចាប់ផ្ដើមបង្កើត Poster នៅទីនេះ</p>
+            <p className="max-w-xs text-xs leading-relaxed text-slate-600 dark:text-slate-300">សរសេរពិពណ៌នារូប រួចបង្កើតដោយ AI បញ្ចូលរូបផ្ទាល់ខ្លួន ឬជ្រើសរើសរូបគំរូ។</p>
           </div>
         )}
 
@@ -424,7 +424,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
           title="ចុចអូស (Drag) ដើម្បីផ្លាស់ប្តូរទីតាំងអក្សរ"
         >
           {/* Visual Safe Area & Drag Handle indicator on hover */}
-          <div className="absolute -top-3.5 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-400/30 text-[9px] font-bold opacity-0 group-hover/title:opacity-100 transition-opacity flex items-center gap-1 shadow-md">
+          <div className="absolute -top-3.5 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-400/30 text-[9px] font-bold opacity-0 group-hover/title:opacity-100 transition-opacity flex items-center gap-1 shadow-md">
             <Move className="w-2.5 h-2.5" />
             <span>អូសទីតាំង</span>
           </div>
@@ -501,7 +501,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
 
           {/* Tagline */}
           {project.typography.tagline && (
-            <p className="mt-1 text-[10px] text-zinc-300 font-medium tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] max-w-xs text-center z-10">
+            <p className="mt-1 text-[10px] text-slate-700 dark:text-zinc-300 font-medium tracking-wide drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] max-w-xs text-center z-10">
               {project.typography.tagline}
             </p>
           )}
@@ -510,7 +510,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
         {/* 6. Branding & Watermark Layer */}
         {project.activeImageUrl && project.branding.watermarkText && (
           <div
-            className={`absolute z-20 text-[10px] font-semibold tracking-wider text-white/80 pointer-events-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] ${
+            className={`absolute z-20 text-[10px] font-semibold tracking-wider text-slate-800 dark:text-white/80 pointer-events-none drop-shadow-[0_1px_3px_rgba(0,0,0,0.9)] ${
               project.branding.watermarkPosition === 'top_left'
                 ? 'top-4 left-4'
                 : project.branding.watermarkPosition === 'top_right'
@@ -532,12 +532,12 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
           <div className="absolute inset-0 z-40 bg-black/75 backdrop-blur-md flex flex-col items-center justify-center gap-3 animate-in fade-in">
             <div className="relative">
               <div className="w-14 h-14 rounded-full border-2 border-emerald-400/20 border-t-emerald-400 animate-spin" />
-              <Sparkles className="w-6 h-6 text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
+              <Sparkles className="w-6 h-6 text-sky-600 dark:text-amber-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse" />
             </div>
-            <span className="text-sm font-bold text-white tracking-wide">
+            <span className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
               កំពុងបង្កើត Poster ភាពយន្តកម្រិតខ្ពស់...
             </span>
-            <span className="text-xs text-zinc-400">
+            <span className="text-xs text-slate-600 dark:text-zinc-400">
               AI កំពុងរៀបចំ Composition, ភ្លើង និងបរិយាកាស
             </span>
           </div>
@@ -549,7 +549,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
         <button
           onClick={() => handleDownloadCompositePoster('png', '2k')}
           disabled={isExporting || !project.activeImageUrl}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-slate-800 dark:text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 active:scale-95 shadow-lg shadow-emerald-500/20 transition-all border border-emerald-400/30"
           title="ទាញយក Poster រួមទាំង 3D Khmer Typography កម្រិត 2K QHD"
         >
           <Download className="w-3.5 h-3.5" />
@@ -562,7 +562,7 @@ export const PosterPreviewCanvas: React.FC<PosterPreviewCanvasProps> = ({
           className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold text-amber-300 bg-gradient-to-r from-amber-500/20 to-yellow-500/10 hover:bg-amber-500/30 active:scale-95 border border-amber-400/40 transition-all shadow-md"
           title="ទាញយក Poster កម្រិត 4K Ultra HD Theatrical Quality"
         >
-          <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+          <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
           <span>✨ ទាញយក 4K UHD</span>
         </button>
       </div>

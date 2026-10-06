@@ -133,31 +133,26 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#07090e]/95 backdrop-blur-2xl p-4 select-none font-khmer overflow-y-auto">
-      {/* Dynamic Background Glow Elements */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[350px] bg-gradient-to-tr from-cyan-600/20 via-blue-600/15 to-purple-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[350px] h-[250px] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none" />
-
-      {/* Main Lock Card */}
-      <div className="relative w-full max-w-lg rounded-3xl bg-[#0e131f]/90 border border-cyan-500/30 shadow-[0_0_60px_rgba(6,182,212,0.2)] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
+    <div className="dragon-license-gate fixed inset-0 z-[100] flex items-center justify-center bg-white dark:bg-[#120e0d]/95 backdrop-blur-2xl p-4 select-none font-khmer overflow-y-auto">
+      <div className="relative w-full max-w-lg rounded-xl bg-white dark:bg-[#1a1412] border border-amber-500/30 shadow-[0_20px_70px_rgba(0,0,0,0.55)] overflow-hidden my-auto animate-in fade-in zoom-in-95 duration-200">
         
         {/* Top Header Glow Bar */}
-        <div className="h-1.5 w-full bg-gradient-to-r from-cyan-500 via-blue-500 to-indigo-500" />
+        <div className="h-1 w-full bg-gradient-to-r from-rose-800 via-red-500 to-amber-400" />
 
         <div className="p-6 sm:p-8 space-y-6">
           {/* Lock Icon & Branding */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className="relative">
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500/20 to-blue-600/20 border border-cyan-400/40 flex items-center justify-center text-cyan-400 shadow-[0_0_30px_rgba(6,182,212,0.35)] ring-4 ring-cyan-500/10">
-                <Lock className="w-8 h-8 text-cyan-300" />
+              <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-rose-700/25 to-amber-500/15 border border-amber-400/40 flex items-center justify-center text-sky-600 dark:text-amber-400 shadow-[0_0_30px_rgba(190,48,51,0.25)] ring-4 ring-rose-500/10">
+                <Lock className="w-8 h-8 text-amber-300" />
               </div>
-              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-500 border-2 border-[#0e131f] flex items-center justify-center">
+              <span className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-amber-500 border-2 border-slate-200 dark:border-[#0e131f] flex items-center justify-center">
                 <Key className="w-2.5 h-2.5 text-black" />
               </span>
             </div>
 
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white tracking-wide">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-800 dark:text-white tracking-wide">
                 ចាក់សោសុវត្ថិភាពស្ទូឌីយោ
               </h2>
               <p className="text-xs sm:text-sm text-cyan-300/80 font-medium mt-1">
@@ -165,22 +160,22 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
               </p>
             </div>
 
-            <p className="text-xs text-slate-300/80 max-w-md leading-relaxed">
+            <p className="text-xs text-slate-600 dark:text-slate-300/80 max-w-md leading-relaxed">
               ឧបករណ៍នេះតម្រូវឱ្យមាន <span className="text-cyan-300 font-bold">Key License សកម្ម</span> ដើម្បីចូលប្រើប្រាស់។ សូមបញ្ចូល Key របស់អ្នកខាងក្រោមដើម្បីដោះសោដំណើរការ។
             </p>
           </div>
 
           {/* Machine ID Box (Click to copy for admin) */}
-          <div className="p-3.5 rounded-2xl bg-black/40 border border-white/[0.08] flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-2xl bg-black/40 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0 text-slate-400">
-                <ShieldAlert className="w-4 h-4 text-cyan-400" />
+              <div className="w-8 h-8 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center shrink-0 text-slate-500 dark:text-slate-400">
+                <ShieldAlert className="w-4 h-4 text-sky-600 dark:text-amber-400" />
               </div>
               <div className="min-w-0">
-                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                <div className="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase tracking-wider">
                   Hardware Machine ID ម៉ាស៊ីននេះ
                 </div>
-                <div className="text-xs text-cyan-300 font-mono font-bold truncate">
+                <div className="text-xs text-amber-300 font-mono font-bold truncate">
                   {machineId}
                 </div>
               </div>
@@ -192,13 +187,13 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
               className={`shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-semibold transition-all active:scale-95 ${
                 copiedId
                   ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-300'
-                  : 'bg-white/[0.06] hover:bg-white/[0.12] border-white/10 text-slate-200'
+                  : 'bg-white/[0.06] hover:bg-white/[0.12] border-white/10 text-slate-700 dark:text-slate-200'
               }`}
               title="ចម្លង Machine ID ផ្ញើទៅកាន់ Admin"
             >
               {copiedId ? (
                 <>
-                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>បានចម្លង</span>
                 </>
               ) : (
@@ -221,19 +216,19 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
           {/* Activation Form */}
           <form onSubmit={handleActivate} className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-200 mb-2">
+              <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">
                 បញ្ចូលលេខកូដអាជ្ញាប័ណ្ណ (Key License)
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
-                  <Key className="w-4 h-4 text-cyan-400" />
+                <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-500 dark:text-slate-400">
+                  <Key className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                 </div>
                 <input
                   type="text"
                   placeholder="VOX-XXXX-XXXX-XXXX"
                   value={keyCode}
                   onChange={(e) => setKeyCode(e.target.value)}
-                  className="w-full pl-10 pr-4 py-3 bg-black/60 border border-cyan-500/40 focus:border-cyan-400 rounded-2xl text-sm font-mono text-white placeholder-slate-500 uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition-all shadow-inner"
+                  className="w-full pl-10 pr-4 py-3 bg-white dark:bg-[#100c0b] border border-amber-500/35 focus:border-amber-400 rounded-lg text-sm font-mono text-slate-800 dark:text-white placeholder-slate-500 uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-rose-500/25 transition-all shadow-inner"
                   autoFocus
                   disabled={isLoading}
                 />
@@ -244,7 +239,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
               <button
                 type="submit"
                 disabled={isLoading || !keyCode.trim()}
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-2xl bg-gradient-to-r from-cyan-500 via-blue-600 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-bold text-sm shadow-[0_0_25px_rgba(6,182,212,0.35)] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-5 rounded-lg bg-gradient-to-r from-rose-800 via-red-600 to-amber-600 hover:from-rose-700 hover:to-amber-500 text-slate-800 dark:text-white font-bold text-sm shadow-[0_0_25px_rgba(190,48,51,0.25)] disabled:opacity-50 disabled:cursor-not-allowed transition-all active:scale-[0.98]"
               >
                 {isLoading ? (
                   <>
@@ -253,7 +248,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4 text-cyan-200" />
+                    <Sparkles className="w-4 h-4 text-amber-200" />
                     <span>ដំណើរការ Key ដោះសោរ Tool</span>
                   </>
                 )}
@@ -264,7 +259,7 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
                   type="button"
                   onClick={handleManualRefresh}
                   disabled={isRefreshing}
-                  className="px-3.5 py-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-slate-300 hover:text-white transition-all active:scale-95"
+                  className="px-3.5 py-3 rounded-2xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white transition-all active:scale-95"
                   title="ត្រួតពិនិត្យអាជ្ញាប័ណ្ណម៉ាស៊ីនឡើងវិញ"
                 >
                   <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin text-cyan-400' : ''}`} />
@@ -274,8 +269,8 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
           </form>
 
           {/* Supported Plans Section */}
-          <div className="pt-2 border-t border-white/[0.08] space-y-2.5">
-            <div className="flex items-center justify-between text-xs text-slate-300 font-bold">
+          <div className="pt-2 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] space-y-2.5">
+            <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 font-bold">
               <span>កញ្ចប់ Key License ដែលគាំទ្រ:</span>
               <span className="text-[11px] text-cyan-400 font-normal">សុពលភាពច្បាស់លាស់</span>
             </div>
@@ -284,29 +279,29 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-2">
                 <Clock className="w-3.5 h-3.5 text-sky-400 shrink-0" />
                 <div>
-                  <div className="font-bold text-slate-200 text-[11px]">សាកល្បង ៧ ថ្ងៃ</div>
-                  <div className="text-[9px] text-slate-400">Trial Period</div>
+                  <div className="font-bold text-slate-700 dark:text-slate-200 text-[11px]">សាកល្បង ៧ ថ្ងៃ</div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Trial Period</div>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 text-blue-400 shrink-0" />
                 <div>
-                  <div className="font-bold text-slate-200 text-[11px]">១ ខែ (30 ថ្ងៃ)</div>
-                  <div className="text-[9px] text-slate-400">Monthly Plan</div>
+                  <div className="font-bold text-slate-700 dark:text-slate-200 text-[11px]">១ ខែ (30 ថ្ងៃ)</div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Monthly Plan</div>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.06] flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 text-purple-400 shrink-0" />
                 <div>
-                  <div className="font-bold text-slate-200 text-[11px]">១ ឆ្នាំ (365 ថ្ងៃ)</div>
-                  <div className="text-[9px] text-slate-400">Yearly Plan</div>
+                  <div className="font-bold text-slate-700 dark:text-slate-200 text-[11px]">១ ឆ្នាំ (365 ថ្ងៃ)</div>
+                  <div className="text-[9px] text-slate-500 dark:text-slate-400">Yearly Plan</div>
                 </div>
               </div>
 
               <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center gap-2">
-                <Crown className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                <Crown className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400 shrink-0" />
                 <div>
                   <div className="font-bold text-amber-300 text-[11px]">ពេញមួយជីវិត</div>
                   <div className="text-[9px] text-amber-300/70 font-bold">VIP Lifetime</div>
@@ -317,9 +312,9 @@ export const LicenseGate: React.FC<LicenseGateProps> = ({
         </div>
 
         {/* Card Footer with Telegram Purchase Link */}
-        <div className="p-4 px-6 sm:px-8 bg-black/60 border-t border-white/[0.08] flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 text-xs text-slate-300">
-            <HelpCircle className="w-4 h-4 text-cyan-400 shrink-0" />
+        <div className="p-4 px-6 sm:px-8 bg-black/60 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300">
+            <HelpCircle className="w-4 h-4 text-sky-600 dark:text-amber-400 shrink-0" />
             <span>មិនទាន់មាន Key?</span>
           </div>
 

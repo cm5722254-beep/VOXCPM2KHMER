@@ -89,7 +89,7 @@ const GradientSlider: React.FC<GradientSliderProps> = ({
       {/* Tooltip */}
       {dragging && (
         <div
-          className="absolute -top-7 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold text-white shadow-lg pointer-events-none z-10 -translate-x-1/2"
+          className="absolute -top-7 px-2 py-0.5 rounded-md text-[11px] font-mono font-bold text-slate-800 dark:text-white shadow-lg pointer-events-none z-10 -translate-x-1/2"
           style={{
             left: `${pct}%`,
             background: `linear-gradient(135deg, ${accentFrom}, ${accentTo})`,
@@ -100,7 +100,7 @@ const GradientSlider: React.FC<GradientSliderProps> = ({
       )}
 
       {/* Track background */}
-      <div className="w-full h-2 rounded-full bg-[#1a1d28] relative overflow-hidden">
+      <div className="w-full h-2 rounded-full bg-white dark:bg-[#1a1d28] relative overflow-hidden">
         {/* Filled portion */}
         <div
           className="absolute left-0 top-0 h-full rounded-full transition-[width] duration-75"
@@ -161,7 +161,7 @@ const CollapsibleCard: React.FC<CollapsibleCardProps> = ({
   const [open, setOpen] = useState(defaultOpen);
 
   return (
-    <div className="rounded-xl border border-white/[0.07] overflow-hidden bg-[#0b0e1a]">
+    <div className="rounded-xl border border-white/[0.07] overflow-hidden bg-white dark:bg-[#0b0e1a]">
       <button
         type="button"
         onClick={() => setOpen((p) => !p)}
@@ -169,7 +169,7 @@ const CollapsibleCard: React.FC<CollapsibleCardProps> = ({
       >
         <div className="flex items-center gap-2">
           <span style={{ color: accentColor }}>{icon}</span>
-          <span className="text-xs font-bold text-slate-200">{title}</span>
+          <span className="text-xs font-bold text-slate-700 dark:text-slate-200">{title}</span>
           {badge && (
             <span
               className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border"
@@ -205,12 +205,18 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
   onShowToast,
   onClose,
 }) => {
-  const [activeTab, setActiveTab] = useState<'video' | 'social' | 'sponsor' | 'ticker' | 'watermark' | 'styletext' | 'subtitles' | 'audio'>('video');
+  const [activeTab, setActiveTab] = useState<'video' | 'social' | 'sponsor' | 'ticker' | 'watermark' | 'styletext' | 'subtitles' | 'audio' | 'poster'>('video');
   const [filterSearch, setFilterSearch] = useState('');
   const [subSearch, setSubSearch] = useState('');
   const [audioSearch, setAudioSearch] = useState('');
   const [selectedLutCategory, setSelectedLutCategory] = useState<string>('All');
   const [selectedSubCategory, setSelectedSubCategory] = useState<string>('All');
+
+  // Poster Template states
+  const [posterTemplates, setPosterTemplates] = useState<{ filename: string; url: string }[]>([]);
+  const [posterLoading, setPosterLoading] = useState(false);
+  const [posterSearch, setPosterSearch] = useState('');
+  const [posterLoadError, setPosterLoadError] = useState<string | null>(null);
 
   // 3D Text style presets
   const text3dPresets = [
@@ -290,6 +296,23 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // Load poster templates when poster tab is opened
+  useEffect(() => {
+    if (activeTab !== 'poster' || posterTemplates.length > 0) return;
+    setPosterLoading(true);
+    setPosterLoadError(null);
+    fetch('/api/posterstyle-templates')
+      .then((r) => r.json())
+      .then((data) => {
+        setPosterTemplates(data.templates || []);
+        setPosterLoading(false);
+      })
+      .catch(() => {
+        setPosterLoadError('មិនអាចភ្ជាប់ server បាន — សូមពិនិត្យ connection');
+        setPosterLoading(false);
+      });
+  }, [activeTab]);
+
   const aspectRatios = [
     { id: '16:9', label: '16:9', desc: 'YouTube' },
     { id: '9:16', label: '9:16', desc: 'Shorts' },
@@ -343,7 +366,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
   // ── Sponsor In Video ──────────────────────────────────────────────
   const currentSponsor: InVideoSponsorConfig = effects.sponsorInVideo || {
     enabled: false,
-    sponsorName: 'DABBER PRO STUDIO',
+    sponsorName: 'DRAGON DABBER STUDIO',
     tagline: 'ឧបត្ថម្ភធំផ្តាច់មុខ',
     contactInfo: 'Telegram: @dabberpro • Tel: 012 345 678',
     position: 'bottom_banner',
@@ -420,57 +443,64 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
       id: 'video' as const,
       icon: <Sliders className="w-4 h-4" />,
       label: 'LUTs & វីដេអូ',
-      gradient: 'from-[#00C2FF] to-[#0070FF]',
-      accent: '#00C2FF',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'social' as const,
       icon: <Smartphone className="w-4 h-4" />,
       label: 'TikTok & FB',
-      gradient: 'from-pink-500 via-rose-500 to-purple-600',
-      accent: '#ec4899',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'sponsor' as const,
       icon: <Award className="w-4 h-4" />,
       label: 'ឧបត្ថម្ភ Sponsor',
-      gradient: 'from-amber-400 to-yellow-500',
-      accent: '#eab308',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'ticker' as const,
       icon: <Megaphone className="w-4 h-4" />,
       label: 'អក្សររត់ Marquee',
-      gradient: 'from-red-500 to-orange-500',
-      accent: '#ef4444',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'watermark' as const,
       icon: <Shield className="w-4 h-4" />,
       label: 'Watermark',
-      gradient: 'from-amber-400 to-orange-500',
-      accent: '#f59e0b',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'styletext' as const,
       icon: <Sparkles className="w-4 h-4" />,
       label: 'អក្សរ Style',
-      gradient: 'from-rose-500 to-pink-600',
-      accent: '#f43f5e',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'subtitles' as const,
       icon: <Type className="w-4 h-4" />,
       label: 'Subtitles',
-      gradient: 'from-purple-500 to-violet-600',
-      accent: '#a855f7',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
     },
     {
       id: 'audio' as const,
       icon: <Volume2 className="w-4 h-4" />,
       label: 'Audio FX',
-      gradient: 'from-emerald-500 to-teal-500',
-      accent: '#10b981',
+      gradient: 'from-[#DC2626] to-[#F59E0B]',
+      accent: '#DC2626',
+    },
+    {
+      id: 'poster' as const,
+      icon: <ImageIcon className="w-4 h-4" />,
+      label: 'Poster Style',
+      gradient: 'from-[#7C3AED] to-[#EC4899]',
+      accent: '#a855f7',
     },
   ];
 
@@ -478,15 +508,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
   return (
     <div
-      className="bg-[#10121e] border border-white/[0.08] rounded-2xl flex overflow-hidden select-none font-khmer text-zinc-200 shadow-2xl"
+      className="bg-white dark:bg-[#10121e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl flex overflow-hidden select-none font-khmer text-zinc-200 shadow-2xl"
       style={{ maxHeight: '90vh', height: '780px' }}
     >
       {/* ══════════════════════════════════════════════════════════════════
           LEFT SIDEBAR — Vertical Tab Navigation
       ══════════════════════════════════════════════════════════════════ */}
-      <div className="w-[72px] flex flex-col items-center py-4 gap-1.5 bg-[#0b0d17] border-r border-white/[0.07] shrink-0">
+      <div className="w-[72px] flex flex-col items-center py-4 gap-1.5 bg-slate-50 dark:bg-[#0b0d17] border-r border-white/[0.07] shrink-0">
         {/* Logo mark */}
-        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00C2FF]/20 to-blue-600/20 border border-[#00C2FF]/30 flex items-center justify-center mb-2">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#00C2FF]/20 to-blue-600/20 border border-slate-200 dark:border-[#00C2FF]/30 flex items-center justify-center mb-2">
           <Wand2 className="w-4 h-4 text-[#00C2FF]" />
         </div>
 
@@ -500,8 +530,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               title={tab.label}
               className={`relative w-12 flex flex-col items-center gap-1 py-2.5 px-1 rounded-xl transition-all duration-200 group ${
                 isActive
-                  ? 'bg-white/[0.08]'
-                  : 'hover:bg-white/[0.04]'
+                  ? 'bg-slate-200 dark:bg-white/[0.08]'
+                  : 'hover:bg-slate-100 dark:bg-white/[0.04]'
               }`}
             >
               {/* Active left-edge indicator */}
@@ -514,7 +544,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
               {/* Icon */}
               <div
-                className={`transition-colors ${isActive ? '' : 'text-slate-500 group-hover:text-slate-300'}`}
+                className={`transition-colors ${isActive ? '' : 'text-slate-500 group-hover:text-slate-600 dark:text-slate-300'}`}
                 style={isActive ? { color: tab.accent } : undefined}
               >
                 {tab.icon}
@@ -523,7 +553,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               {/* Label (rotated, tiny) */}
               <span
                 className={`text-[9px] font-bold text-center leading-tight transition-colors ${
-                  isActive ? 'text-white' : 'text-slate-600 group-hover:text-slate-400'
+                  isActive ? 'text-slate-800 dark:text-white' : 'text-slate-600 group-hover:text-slate-500 dark:text-slate-400'
                 }`}
               >
                 {tab.label.split(' ')[0]}
@@ -538,7 +568,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-white/[0.04] hover:bg-red-500/20 text-slate-500 hover:text-red-400 flex items-center justify-center transition-all border border-white/[0.06]"
+            className="w-9 h-9 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-blue-50 dark:bg-red-500/20 text-slate-500 hover:text-blue-600 dark:text-red-400 flex items-center justify-center transition-all border border-white/[0.06]"
             title="បិទ (Esc)"
           >
             <X className="w-4 h-4" />
@@ -551,7 +581,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
       ══════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Panel Header */}
-        <div className="px-5 py-3.5 border-b border-white/[0.07] flex items-center justify-between shrink-0 bg-[#0d101c]">
+        <div className="px-5 py-3.5 border-b border-white/[0.07] flex items-center justify-between shrink-0 bg-slate-100 dark:bg-[#0d101c]">
           <div className="flex items-center gap-2.5">
             <div
               className="w-7 h-7 rounded-lg flex items-center justify-center"
@@ -560,10 +590,10 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <span style={{ color: activeTabData.accent }}>{activeTabData.icon}</span>
             </div>
             <div>
-              <h3 className="text-sm font-black text-white tracking-wide leading-tight">
+              <h3 className="text-sm font-black text-slate-800 dark:text-white tracking-wide leading-tight">
                 VIDEO STYLING & COLOR STUDIO
               </h3>
-              <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
+              <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight mt-0.5">
                 {activeTabData.label} — បែបផែនពណ៌ភាពយន្ត
               </p>
             </div>
@@ -582,7 +612,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 else if (activeTab === 'subtitles') resetSubtitleStyle();
                 else if (activeTab === 'styletext') reset3DEffects();
               }}
-              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.08] text-xs text-slate-300 hover:text-white transition-colors"
+              className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.10] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white transition-colors"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -691,8 +721,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         borderColor: effects.zoomFitMode !== 'cover' && (!effects.zoomScale || effects.zoomScale === 1) ? '#10b98180' : 'rgba(255,255,255,0.07)',
                       }}
                     >
-                      <div className="text-xs font-bold text-slate-200">សមល្មម (Fit 100%)</div>
-                      <div className="text-[9.5px] text-slate-400">បង្ហាញរូបភាពពេញទំហំដើម</div>
+                      <div className="text-xs font-bold text-slate-700 dark:text-slate-200">សមល្មម (Fit 100%)</div>
+                      <div className="text-[9.5px] text-slate-500 dark:text-slate-400">បង្ហាញរូបភាពពេញទំហំដើម</div>
                     </button>
                     <button
                       type="button"
@@ -704,7 +734,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                       }}
                     >
                       <div className="text-xs font-bold text-emerald-300">លាតពេញ (Fill / Crop)</div>
-                      <div className="text-[9.5px] text-slate-400">ពង្រីកបំបាត់គែមខ្មៅ (Appflix style)</div>
+                      <div className="text-[9.5px] text-slate-500 dark:text-slate-400">ពង្រីកបំបាត់គែមខ្មៅ (Appflix style)</div>
                     </button>
                   </div>
 
@@ -726,7 +756,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           className={`flex-1 py-1 text-[11px] font-mono font-bold rounded-md border transition-all ${
                             isActive
                               ? 'bg-emerald-500/20 border-emerald-400 text-emerald-300 shadow-[0_0_8px_rgba(16,185,129,0.3)]'
-                              : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                              : 'bg-white/5 border-white/10 text-slate-600 dark:text-slate-300 hover:bg-white/10'
                           }`}
                         >
                           {p.label}
@@ -738,8 +768,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   {/* Zoom Slider */}
                   <div className="space-y-1">
                     <div className="flex items-center justify-between text-xs">
-                      <span className="text-slate-400">ទំហំពង្រីក Zoom Slider:</span>
-                      <span className="text-emerald-400 font-mono font-bold">{Math.round((effects.zoomScale || 1) * 100)}%</span>
+                      <span className="text-slate-500 dark:text-slate-400">ទំហំពង្រីក Zoom Slider:</span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-mono font-bold">{Math.round((effects.zoomScale || 1) * 100)}%</span>
                     </div>
                     <input
                       type="range"
@@ -770,7 +800,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                       placeholder="ស្វែងរក LUT..."
                       value={filterSearch}
                       onChange={(e) => setFilterSearch(e.target.value)}
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-xs text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-[#00C2FF]/60 transition-colors"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-700 dark:text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-slate-200 dark:border-[#00C2FF]/60 transition-colors"
                     />
                   </div>
 
@@ -841,7 +871,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                           </div>
                           <div className="p-2">
-                            <div className="text-[11px] font-bold text-slate-200 truncate group-hover:text-white transition-colors">
+                            <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate group-hover:text-slate-800 dark:text-white transition-colors">
                               {lut.label}
                             </div>
                             <div className="text-[9.5px] text-slate-500 truncate mt-0.5">{lut.description}</div>
@@ -868,7 +898,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   ].map(({ key, label, min, max, unit, from, to }) => (
                     <div key={key}>
                       <div className="flex justify-between items-center mb-2">
-                        <span className="text-[11px] text-slate-400">{label}</span>
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">{label}</span>
                         <span
                           className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md"
                           style={{ background: `${from}20`, color: from }}
@@ -901,9 +931,9 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 accentColor="#f59e0b"
               >
                 <div className="pt-2 space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#0b0d17] border border-white/[0.06]">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0b0d17] border border-white/[0.06]">
                     <div>
-                      <div className="text-xs font-bold text-white">បើក Watermark ការពារ</div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white">បើក Watermark ការពារ</div>
                       <div className="text-[10px] text-slate-500 mt-0.5">ការពារការលួចចម្លង</div>
                     </div>
                     <button
@@ -920,13 +950,13 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
 
                   <div>
-                    <label className="text-[11px] font-semibold text-slate-400 block mb-1">អក្សរ Watermark</label>
+                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1">អក្សរ Watermark</label>
                     <input
                       type="text"
                       value={currentWatermark.text}
                       onChange={(e) => updateWatermark({ text: e.target.value })}
                       placeholder="© DabberPro — ឆានែល HD"
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-xs text-white px-3 py-2 rounded-lg outline-none focus:border-amber-400/60 transition-colors"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-800 dark:text-white px-3 py-2 rounded-lg outline-none focus:border-amber-400/60 transition-colors"
                     />
                   </div>
                 </div>
@@ -958,15 +988,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           className={`p-2.5 rounded-xl border text-left transition-all relative flex flex-col justify-between gap-1.5 overflow-hidden group ${
                             isActive
                               ? 'border-amber-400 ring-2 ring-amber-400/40 shadow-lg'
-                              : 'border-white/10 hover:border-white/25 bg-[#0b0d17]'
+                              : 'border-white/10 hover:border-white/25 bg-slate-50 dark:bg-[#0b0d17]'
                           }`}
                           style={{
                             background: isActive ? 'rgba(245, 158, 11, 0.12)' : undefined,
                           }}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold text-white truncate">{preset.label}</span>
-                            {isActive && <Check className="w-3.5 h-3.5 text-amber-400 shrink-0" />}
+                            <span className="text-xs font-bold text-slate-800 dark:text-white truncate">{preset.label}</span>
+                            {isActive && <Check className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400 shrink-0" />}
                           </div>
 
                           {/* Live mini preview badge */}
@@ -983,7 +1013,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             <span>{currentWatermark.text || 'Watermark'}</span>
                           </div>
 
-                          <div className="text-[9.5px] text-slate-400 line-clamp-1">{preset.description}</div>
+                          <div className="text-[9.5px] text-slate-500 dark:text-slate-400 line-clamp-1">{preset.description}</div>
                         </button>
                       );
                     })}
@@ -991,12 +1021,12 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
                   {/* Icon Selector */}
                   <div className="pt-2 border-t border-white/10">
-                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">រូបតំណាង Icon លើ Watermark</label>
+                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1.5">រូបតំណាង Icon លើ Watermark</label>
                     <div className="grid grid-cols-4 gap-1.5">
                       {[
-                        { id: 'shield', label: 'Shield', icon: <ShieldCheck className="w-3 h-3 text-amber-400" /> },
-                        { id: 'crown', label: 'Crown', icon: <Crown className="w-3 h-3 text-amber-400" /> },
-                        { id: 'star', label: 'Star', icon: <Star className="w-3 h-3 text-amber-400" /> },
+                        { id: 'shield', label: 'Shield', icon: <ShieldCheck className="w-3 h-3 text-sky-600 dark:text-amber-400" /> },
+                        { id: 'crown', label: 'Crown', icon: <Crown className="w-3 h-3 text-sky-600 dark:text-amber-400" /> },
+                        { id: 'star', label: 'Star', icon: <Star className="w-3 h-3 text-sky-600 dark:text-amber-400" /> },
                         { id: 'flame', label: 'Flame', icon: <Flame className="w-3 h-3 text-rose-400" /> },
                         { id: 'sparkle', label: 'Sparkle', icon: <Sparkles className="w-3 h-3 text-purple-400" /> },
                         { id: 'zap', label: 'Zap', icon: <Zap className="w-3 h-3 text-cyan-400" /> },
@@ -1012,7 +1042,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             className={`py-1.5 px-2 rounded-lg border text-xs font-bold flex items-center justify-center gap-1 transition-all ${
                               isIconActive
                                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
-                                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                                : 'bg-white/5 border-white/10 text-slate-600 dark:text-slate-300 hover:bg-white/10'
                             }`}
                           >
                             {item.icon}
@@ -1025,7 +1055,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
                   {/* Font Family Selector */}
                   <div className="pt-2 border-t border-white/10">
-                    <label className="text-[11px] font-semibold text-slate-400 block mb-1.5">ពុម្ពអក្សរ Font Family</label>
+                    <label className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 block mb-1.5">ពុម្ពអក្សរ Font Family</label>
                     <div className="grid grid-cols-3 gap-1.5">
                       {[
                         { id: 'Outfit', label: 'Outfit (English)' },
@@ -1043,7 +1073,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             className={`py-1.5 px-2 rounded-lg border text-xs font-bold text-center transition-all ${
                               isFontActive
                                 ? 'bg-amber-500/20 border-amber-400 text-amber-300 shadow-sm'
-                                : 'bg-white/5 border-white/10 text-slate-300 hover:bg-white/10'
+                                : 'bg-white/5 border-white/10 text-slate-600 dark:text-slate-300 hover:bg-white/10'
                             }`}
                             style={{ fontFamily: f.id }}
                           >
@@ -1062,7 +1092,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 icon={<Move className="w-3.5 h-3.5" />}
                 accentColor="#f59e0b"
               >
-                <div className="grid grid-cols-3 gap-1.5 pt-2 bg-[#0b0d17] p-2 rounded-xl border border-white/[0.06]">
+                <div className="grid grid-cols-3 gap-1.5 pt-2 bg-slate-50 dark:bg-[#0b0d17] p-2 rounded-xl border border-white/[0.06]">
                   {[
                     { id: 'top-left',     label: '↖ លើ ឆ្វេង' },
                     { id: 'center',       label: '⏺ កណ្តាល' },
@@ -1101,8 +1131,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 <div className="space-y-4 pt-3">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">Opacity</span>
-                      <span className="text-[11px] font-mono font-bold text-amber-400">{currentWatermark.opacity}%</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Opacity</span>
+                      <span className="text-[11px] font-mono font-bold text-sky-600 dark:text-amber-400">{currentWatermark.opacity}%</span>
                     </div>
                     <GradientSlider min={20} max={100} value={currentWatermark.opacity}
                       onChange={(v) => updateWatermark({ opacity: v })}
@@ -1110,15 +1140,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">Font Size</span>
-                      <span className="text-[11px] font-mono font-bold text-amber-400">{currentWatermark.fontSize}px</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Font Size</span>
+                      <span className="text-[11px] font-mono font-bold text-sky-600 dark:text-amber-400">{currentWatermark.fontSize}px</span>
                     </div>
                     <GradientSlider min={10} max={30} value={currentWatermark.fontSize}
                       onChange={(v) => updateWatermark({ fontSize: v })}
                       accentFrom="#f59e0b" accentTo="#fbbf24" unit="px" />
                   </div>
                   <div className="flex items-center justify-between pt-1">
-                    <span className="text-xs text-slate-300">Badge Pill</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-300">Badge Pill</span>
                     <input type="checkbox" checked={currentWatermark.showBadge}
                       onChange={(e) => updateWatermark({ showBadge: e.target.checked })}
                       className="accent-amber-400 w-4 h-4 cursor-pointer" />
@@ -1140,9 +1170,9 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 accentColor="#f43f5e"
               >
                 <div className="pt-2 space-y-3">
-                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#0b0d17] border border-white/[0.06]">
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-slate-50 dark:bg-[#0b0d17] border border-white/[0.06]">
                     <div>
-                      <div className="text-xs font-bold text-white">បើក Style Text</div>
+                      <div className="text-xs font-bold text-slate-800 dark:text-white">បើក Style Text</div>
                       <div className="text-[10px] text-slate-500 mt-0.5">3D Cinematic Title Overlay</div>
                     </div>
                     <button
@@ -1192,7 +1222,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         if (!synced) updateStyleText({ enabled: true, title: 'ពិភពស្ដេចអមតៈ', stylePreset: 'gold3d', fontFamily: 'Koulen', fontSize: 32, position: 'free', posX: 10, posY: 82, textAlign: 'left', showBanner: true });
                         onShowToast('បានចម្លង Style ពី Poster!', 'success');
                       }}
-                      className="w-full py-1.5 rounded-lg text-xs font-bold text-white transition-all active:scale-95"
+                      className="w-full py-1.5 rounded-lg text-xs font-bold text-slate-800 dark:text-white transition-all active:scale-95"
                       style={{ background: 'linear-gradient(135deg,#f59e0b,#ec4899)' }}
                     >
                       យក Style ដូច Poster
@@ -1205,8 +1235,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <CollapsibleCard title="ចំណងជើង & Badge" icon={<Edit3 className="w-3.5 h-3.5" />} accentColor="#f43f5e">
                 <div className="space-y-2.5 pt-2">
                   {[
-                    { key: 'title',    label: 'Main Title',       ph: 'សង្គ្រាមអាទិទេព',     cls: 'text-white font-semibold' },
-                    { key: 'subtitle', label: 'Subtitle Tagline', ph: 'AI Dubbing Studio',  cls: 'text-slate-300' },
+                    { key: 'title',    label: 'Main Title',       ph: 'សង្គ្រាមអាទិទេព',     cls: 'text-slate-800 dark:text-white font-semibold' },
+                    { key: 'subtitle', label: 'Subtitle Tagline', ph: 'AI Dubbing Studio',  cls: 'text-slate-600 dark:text-slate-300' },
                     { key: 'badge',    label: 'Episode Badge',    ph: 'ភាគ ០១ - ចប់',       cls: 'text-rose-300 font-mono' },
                   ].map(({ key, label, ph, cls }) => (
                     <div key={key}>
@@ -1215,7 +1245,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         value={(currentStyleText as any)[key] || ''}
                         onChange={(e) => updateStyleText({ [key]: e.target.value })}
                         placeholder={ph}
-                        className={`w-full bg-[#0b0d17] border border-white/[0.08] text-xs px-3 py-2 rounded-lg outline-none focus:border-rose-400/60 transition-colors ${cls}`}
+                        className={`w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs px-3 py-2 rounded-lg outline-none focus:border-rose-400/60 transition-colors ${cls}`}
                       />
                     </div>
                   ))}
@@ -1266,8 +1296,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 <div className="space-y-4 pt-3">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">↔️ Horizontal X</span>
-                      <span className="text-[11px] font-mono text-amber-400">{currentStyleText.posX ?? 10}%</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">↔️ Horizontal X</span>
+                      <span className="text-[11px] font-mono text-sky-600 dark:text-amber-400">{currentStyleText.posX ?? 10}%</span>
                     </div>
                     <GradientSlider min={2} max={98} value={currentStyleText.posX ?? 10}
                       onChange={(v) => updateStyleText({ position: 'free', posX: v })}
@@ -1275,8 +1305,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">↕️ Vertical Y</span>
-                      <span className="text-[11px] font-mono text-amber-400">{currentStyleText.posY ?? 82}%</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">↕️ Vertical Y</span>
+                      <span className="text-[11px] font-mono text-sky-600 dark:text-amber-400">{currentStyleText.posY ?? 82}%</span>
                     </div>
                     <GradientSlider min={5} max={95} value={currentStyleText.posY ?? 82}
                       onChange={(v) => updateStyleText({ position: 'free', posY: v })}
@@ -1284,7 +1314,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">📐 Font Size</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">📐 Font Size</span>
                       <span className="text-[11px] font-mono text-rose-400">{currentStyleText.fontSize || 28}px</span>
                     </div>
                     <GradientSlider min={16} max={60} value={currentStyleText.fontSize || 28}
@@ -1293,7 +1323,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">🔄 Rotation</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">🔄 Rotation</span>
                       <span className="text-[11px] font-mono text-sky-400">{currentStyleText.rotationAngle || 0}°</span>
                     </div>
                     <GradientSlider min={-25} max={25} value={currentStyleText.rotationAngle || 0}
@@ -1301,7 +1331,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                       accentFrom="#38bdf8" accentTo="#6366f1" unit="°" />
                   </div>
                   <div className="flex items-center justify-between pt-1 border-t border-white/[0.06]">
-                    <span className="text-xs text-slate-300">Glass Banner</span>
+                    <span className="text-xs text-slate-600 dark:text-slate-300">Glass Banner</span>
                     <input type="checkbox" checked={currentStyleText.showBanner}
                       onChange={(e) => updateStyleText({ showBanner: e.target.checked })}
                       className="accent-amber-500 w-4 h-4 cursor-pointer" />
@@ -1327,7 +1357,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                     <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" />
                     <input type="text" placeholder="ស្វែងរក Subtitle Style..."
                       value={subSearch} onChange={(e) => setSubSearch(e.target.value)}
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-xs text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-purple-400/60 transition-colors" />
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-700 dark:text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-purple-400/60 transition-colors" />
                   </div>
 
                   <div className="flex items-center gap-1 overflow-x-auto pb-1 -mx-1 px-1">
@@ -1359,7 +1389,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           });
                           onShowToast(`Subtitle: ${sub.label}`, 'success');
                         }}
-                        className="rounded-xl overflow-hidden border border-white/[0.06] hover:border-purple-400/40 bg-[#0b0d17] hover:bg-purple-500/[0.06] transition-all group text-left"
+                        className="rounded-xl overflow-hidden border border-white/[0.06] hover:border-purple-400/40 bg-slate-50 dark:bg-[#0b0d17] hover:bg-purple-500/[0.06] transition-all group text-left"
                       >
                         {/* Font/color preview strip */}
                         <div
@@ -1378,7 +1408,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           </span>
                         </div>
                         <div className="px-2 py-1.5">
-                          <div className="text-[11px] font-bold text-slate-200 group-hover:text-purple-300 truncate transition-colors">
+                          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-purple-300 truncate transition-colors">
                             {sub.label}
                           </div>
                           <div className="text-[9px] text-slate-600 truncate mt-0.5">{sub.description}</div>
@@ -1394,7 +1424,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 <div className="space-y-4 pt-3">
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">Font Size</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Font Size</span>
                       <span className="text-[11px] font-mono text-purple-400">{subtitleStyle.fontSize}px</span>
                     </div>
                     <GradientSlider min={14} max={36} value={subtitleStyle.fontSize}
@@ -1403,7 +1433,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">Stroke Width</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">Stroke Width</span>
                       <span className="text-[11px] font-mono text-purple-400">{subtitleStyle.strokeWidth}px</span>
                     </div>
                     <GradientSlider min={0} max={8} value={subtitleStyle.strokeWidth}
@@ -1421,17 +1451,17 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
           {activeTab === 'social' && (
             <div className="space-y-4">
               {/* Header Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-[#0b0e1a] border border-white/[0.08]">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#0b0e1a] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500/20 to-purple-600/20 border border-pink-500/30 flex items-center justify-center">
                     <Smartphone className="w-5 h-5 text-pink-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <div className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                       <span>ស្ទាយផ្ទៃក្រោយសម្រាប់ TikTok & Facebook Page</span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-pink-500/20 text-pink-300 border border-pink-500/30">CANVAS</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       ប្តូរទំហំ 9:16 / 4:5 ជាមួយផ្ទៃវីដេអូព្រិល (Blur Background) និងដាក់ចំណងជើងទាក់ទាញ
                     </p>
                   </div>
@@ -1469,15 +1499,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         }}
                         className={`p-3 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? 'bg-pink-500/20 border-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]'
-                            : 'bg-[#0b0d17] border-white/[0.06] text-slate-300 hover:border-white/20'
+                            ? 'bg-pink-500/20 border-pink-500 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(236,72,153,0.3)]'
+                            : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-white/20'
                         }`}
                       >
                         <div className="font-bold text-xs flex items-center justify-between">
                           <span>{r.label}</span>
                           {isSelected && <Check className="w-3 h-3 text-pink-400" />}
                         </div>
-                        <div className="text-[10px] text-slate-400 mt-1">{r.sub}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-1">{r.sub}</div>
                       </button>
                     );
                   })}
@@ -1506,15 +1536,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           }}
                           className={`p-3 rounded-xl border text-left transition-all ${
                             isSelected
-                              ? 'bg-purple-500/20 border-purple-400 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
-                              : 'bg-[#0b0d17] border-white/[0.06] text-slate-300 hover:border-white/20'
+                              ? 'bg-purple-500/20 border-purple-400 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(168,85,247,0.3)]'
+                              : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-white/20'
                           }`}
                         >
                           <div className="font-bold text-xs flex items-center justify-between">
                             <span>{bg.label}</span>
                             {isSelected && <Check className="w-3 h-3 text-purple-400" />}
                           </div>
-                          <div className="text-[10px] text-slate-400 mt-0.5">{bg.sub}</div>
+                          <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{bg.sub}</div>
                         </button>
                       );
                     })}
@@ -1522,7 +1552,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">កម្រិតព្រិល (Blur Amount)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">កម្រិតព្រិល (Blur Amount)</span>
                       <span className="text-[11px] font-mono text-pink-400">{currentSocialCanvas.blurAmount || 20}px</span>
                     </div>
                     <GradientSlider
@@ -1542,29 +1572,29 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <CollapsibleCard title="ចំណងជើងលើ & ក្រោម (Header & Caption)" icon={<Type className="w-3.5 h-3.5" />} accentColor="#38bdf8">
                 <div className="space-y-3 pt-2 text-xs">
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1.5 font-bold">ចំណងជើងធំខាងលើ (Top Headline)</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1.5 font-bold">ចំណងជើងធំខាងលើ (Top Headline)</label>
                     <input
                       type="text"
                       value={currentSocialCanvas.topTitle || ''}
                       onChange={(e) => updateSocialCanvas({ topTitle: e.target.value })}
                       placeholder="ឧ. 🔥 សម្រាយរឿងថ្មីពិសេស - ភាគ ០១..."
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-pink-500 font-bold"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-pink-500 font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1.5 font-bold">សារលើកទឹកចិត្តខាងក្រោម (Bottom Caption)</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1.5 font-bold">សារលើកទឹកចិត្តខាងក្រោម (Bottom Caption)</label>
                     <input
                       type="text"
                       value={currentSocialCanvas.bottomSubtitle || ''}
                       onChange={(e) => updateSocialCanvas({ bottomSubtitle: e.target.value })}
                       placeholder="ឧ. 👉 សូមចុច Like & Follow ដើម្បីទស្សនាភាគបន្ត! ❤️"
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-pink-500"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-pink-500"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1.5">គែមស៊ុមវីដេអូ (Frame Border Color)</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1.5">គែមស៊ុមវីដេអូ (Frame Border Color)</label>
                     <div className="flex items-center gap-2 flex-wrap">
                       {[
                         { label: 'Cyan Glow', color: '#38bdf8' },
@@ -1580,8 +1610,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                           onClick={() => updateSocialCanvas({ frameBorderColor: b.color })}
                           className={`px-3 py-1.5 rounded-lg border text-xs font-bold transition-all flex items-center gap-1.5 ${
                             currentSocialCanvas.frameBorderColor === b.color
-                              ? 'border-pink-500 bg-pink-500/20 text-white'
-                              : 'border-white/10 bg-[#0b0d17] text-slate-300'
+                              ? 'border-pink-500 bg-pink-500/20 text-slate-800 dark:text-white'
+                              : 'border-white/10 bg-slate-50 dark:bg-[#0b0d17] text-slate-600 dark:text-slate-300'
                           }`}
                         >
                           <span className="w-2.5 h-2.5 rounded-full" style={{ background: b.color === 'transparent' ? '#475569' : b.color }} />
@@ -1601,17 +1631,17 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
           {activeTab === 'sponsor' && (
             <div className="space-y-4">
               {/* Header Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-[#0b0e1a] border border-white/[0.08]">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#0b0e1a] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/20 to-yellow-500/20 border border-amber-500/30 flex items-center justify-center">
-                    <Award className="w-5 h-5 text-amber-400" />
+                    <Award className="w-5 h-5 text-sky-600 dark:text-amber-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <div className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                       <span>បន្ថែមផ្ទាំងឧបត្ថម្ភ (Add Sponsor In Video)</span>
                       <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">SPONSOR</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       ដាក់ឈ្មោះម៉ាកយីហោ ឡូហ្គោ ពាក្យស្លោក និងលេខទំនាក់ទំនងលើវីដេអូ
                     </p>
                   </div>
@@ -1633,35 +1663,35 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <CollapsibleCard title="ព័ត៌មាន Sponsor (Brand Info)" icon={<Edit3 className="w-3.5 h-3.5" />} accentColor="#eab308">
                 <div className="space-y-3 pt-2 text-xs">
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1 font-bold">ឈ្មោះ Sponsor / ក្រុមហ៊ុន</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1 font-bold">ឈ្មោះ Sponsor / ក្រុមហ៊ុន</label>
                     <input
                       type="text"
                       value={currentSponsor.sponsorName || ''}
                       onChange={(e) => updateSponsor({ sponsorName: e.target.value, enabled: true })}
-                      placeholder="ឧ. DABBER PRO STUDIO..."
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-white px-3 py-2 rounded-xl outline-none focus:border-amber-400 font-bold"
+                      placeholder="ឧ. DRAGON DABBER STUDIO..."
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-white px-3 py-2 rounded-xl outline-none focus:border-amber-400 font-bold"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
-                      <label className="text-[11px] text-slate-400 block mb-1 font-bold">ពាក្យស្លោក (Tagline)</label>
+                      <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1 font-bold">ពាក្យស្លោក (Tagline)</label>
                       <input
                         type="text"
                         value={currentSponsor.tagline || ''}
                         onChange={(e) => updateSponsor({ tagline: e.target.value })}
                         placeholder="ឧ. ឧបត្ថម្ភធំផ្តាច់មុខ..."
-                        className="w-full bg-[#0b0d17] border border-white/[0.08] text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-amber-400"
+                        className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-amber-400"
                       />
                     </div>
                     <div>
-                      <label className="text-[11px] text-slate-400 block mb-1 font-bold">ទំនាក់ទំនង (Contact / Telegram)</label>
+                      <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1 font-bold">ទំនាក់ទំនង (Contact / Telegram)</label>
                       <input
                         type="text"
                         value={currentSponsor.contactInfo || ''}
                         onChange={(e) => updateSponsor({ contactInfo: e.target.value })}
                         placeholder="ឧ. Telegram: @brand • 012 345 678"
-                        className="w-full bg-[#0b0d17] border border-white/[0.08] text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-amber-400"
+                        className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-700 dark:text-slate-200 px-3 py-2 rounded-xl outline-none focus:border-amber-400"
                       />
                     </div>
                   </div>
@@ -1690,15 +1720,15 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         }}
                         className={`p-2.5 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? 'bg-amber-500/20 border-amber-400 text-white shadow-[0_0_12px_rgba(245,158,11,0.3)]'
-                            : 'bg-[#0b0d17] border-white/[0.06] text-slate-300 hover:border-white/20'
+                            ? 'bg-amber-500/20 border-amber-400 text-slate-800 dark:text-white shadow-[0_0_12px_rgba(245,158,11,0.3)]'
+                            : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-white/20'
                         }`}
                       >
                         <div className="font-bold text-xs flex items-center justify-between">
                           <span>{pos.label}</span>
-                          {isSelected && <Check className="w-3 h-3 text-amber-400" />}
+                          {isSelected && <Check className="w-3 h-3 text-sky-600 dark:text-amber-400" />}
                         </div>
-                        <div className="text-[10px] text-slate-400 mt-0.5">{pos.desc}</div>
+                        <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{pos.desc}</div>
                       </button>
                     );
                   })}
@@ -1727,8 +1757,8 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                         }}
                         className={`p-2.5 rounded-xl border text-left transition-all ${
                           isSelected
-                            ? 'bg-amber-500/20 border-amber-400 text-white'
-                            : 'bg-[#0b0d17] border-white/[0.06] text-slate-300 hover:border-white/20'
+                            ? 'bg-amber-500/20 border-amber-400 text-slate-800 dark:text-white'
+                            : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-white/20'
                         }`}
                       >
                         <div className="font-bold text-xs truncate">{preset.label}</div>
@@ -1747,17 +1777,17 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
           {activeTab === 'ticker' && (
             <div className="space-y-4">
               {/* Header Toggle */}
-              <div className="flex items-center justify-between p-4 rounded-xl bg-[#0b0e1a] border border-white/[0.08]">
+              <div className="flex items-center justify-between p-4 rounded-xl bg-white dark:bg-[#0b0e1a] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-red-500/30 flex items-center justify-center">
-                    <Megaphone className="w-5 h-5 text-red-400" />
+                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500/10 dark:from-blue-500/10 dark:from-blue-500/10 dark:from-red-500/20 to-orange-500/20 border border-red-500/30 flex items-center justify-center">
+                    <Megaphone className="w-5 h-5 text-blue-600 dark:text-red-400" />
                   </div>
                   <div>
-                    <div className="text-sm font-bold text-white flex items-center gap-2">
+                    <div className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2">
                       <span>អក្សររត់លើវីដេអូ (Running Ticker / Marquee)</span>
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">NEWS TICKER</span>
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-red-500/20 text-red-300 border border-red-500/30">NEWS TICKER</span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-0.5">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
                       អក្សររត់ផ្ដេកបន្តបន្ទាប់ (60fps continuous marquee) សម្រាប់ព័ត៌មានទាន់ហេតុការណ៍ ឬផ្សាយពាណិជ្ជកម្ម
                     </p>
                   </div>
@@ -1779,24 +1809,24 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <CollapsibleCard title="ខ្លឹមសារអក្សររត់ (Ticker Content)" icon={<Type className="w-3.5 h-3.5" />} accentColor="#ef4444">
                 <div className="space-y-3 pt-2 text-xs">
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1 font-bold">ស្លាកក្បាលអក្សរ (Badge Tag)</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1 font-bold">ស្លាកក្បាលអក្សរ (Badge Tag)</label>
                     <input
                       type="text"
                       value={currentTicker.newsBadgeText || ''}
                       onChange={(e) => updateTicker({ newsBadgeText: e.target.value })}
                       placeholder="ឧ. 🔴 BREAKING, 📢 ដំណឹង, 🔥 HOT NEWS..."
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-white px-3 py-2 rounded-xl outline-none focus:border-red-400 font-bold"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-white px-3 py-2 rounded-xl outline-none focus:border-red-400 font-bold"
                     />
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1 font-bold">អត្ថបទអក្សររត់ (Marquee Running Text)</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1 font-bold">អត្ថបទអក្សររត់ (Marquee Running Text)</label>
                     <textarea
                       rows={3}
                       value={currentTicker.text || ''}
                       onChange={(e) => updateTicker({ text: e.target.value, enabled: true })}
                       placeholder="សរសេរអក្សរដែលត្រូវរត់នៅទីនេះ... ឧ. ទំនាក់ទំនងផ្សាយពាណិជ្ជកម្មតាមរយៈ Telegram: @channel • ទូរស័ព្ទលេខ: 012 345 678..."
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-white px-3 py-2 rounded-xl outline-none focus:border-red-400 leading-relaxed"
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-800 dark:text-white px-3 py-2 rounded-xl outline-none focus:border-red-400 leading-relaxed"
                     />
                   </div>
                 </div>
@@ -1806,7 +1836,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <CollapsibleCard title="ទីតាំង & ល្បឿនរត់ (Position & Speed)" icon={<Zap className="w-3.5 h-3.5" />} accentColor="#f97316">
                 <div className="space-y-3 pt-2 text-xs">
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1.5 font-bold">ទីតាំងនៅលើវីដេអូ</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1.5 font-bold">ទីតាំងនៅលើវីដេអូ</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'bottom', label: 'ខាងក្រោម', desc: 'Bottom of Screen' },
@@ -1821,12 +1851,12 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             onClick={() => updateTicker({ position: p.id as any, enabled: true })}
                             className={`p-2.5 rounded-xl border text-left transition-all ${
                               isSelected
-                                ? 'bg-red-500/20 border-red-500 text-white'
-                                : 'bg-[#0b0d17] border-white/[0.06] text-slate-300'
+                                ? 'bg-blue-50 dark:bg-red-500/20 border-red-500 text-slate-800 dark:text-white'
+                                : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300'
                             }`}
                           >
                             <div className="font-bold">{p.label}</div>
-                            <div className="text-[10px] text-slate-400 mt-0.5">{p.desc}</div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">{p.desc}</div>
                           </button>
                         );
                       })}
@@ -1834,7 +1864,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                   </div>
 
                   <div>
-                    <label className="text-[11px] text-slate-400 block mb-1.5 font-bold">ល្បឿនអក្សររត់</label>
+                    <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1.5 font-bold">ល្បឿនអក្សររត់</label>
                     <div className="grid grid-cols-3 gap-2">
                       {[
                         { id: 'slow', label: 'យឺតស្រួលអាន', dur: '25s' },
@@ -1849,12 +1879,12 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                             onClick={() => updateTicker({ speed: s.id as any })}
                             className={`p-2 rounded-xl border text-center transition-all ${
                               isSelected
-                                ? 'bg-orange-500/20 border-orange-400 text-white font-bold'
-                                : 'bg-[#0b0d17] border-white/[0.06] text-slate-300'
+                                ? 'bg-orange-500/20 border-orange-400 text-slate-800 dark:text-white font-bold'
+                                : 'bg-slate-50 dark:bg-[#0b0d17] border-white/[0.06] text-slate-600 dark:text-slate-300'
                             }`}
                           >
                             <div>{s.label}</div>
-                            <div className="text-[10px] text-slate-400">{s.dur}</div>
+                            <div className="text-[10px] text-slate-500 dark:text-slate-400">{s.dur}</div>
                           </button>
                         );
                       })}
@@ -1863,7 +1893,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
 
                   <div>
                     <div className="flex justify-between mb-2">
-                      <span className="text-[11px] text-slate-400">ទំហំអក្សរ (Font Size)</span>
+                      <span className="text-[11px] text-slate-500 dark:text-slate-400">ទំហំអក្សរ (Font Size)</span>
                       <span className="text-[11px] font-mono text-orange-400">{currentTicker.fontSize || 16}px</span>
                     </div>
                     <GradientSlider
@@ -1896,7 +1926,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                     <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" />
                     <input type="text" placeholder="ស្វែងរក Audio FX..."
                       value={audioSearch} onChange={(e) => setAudioSearch(e.target.value)}
-                      className="w-full bg-[#0b0d17] border border-white/[0.08] text-xs text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-emerald-400/60 transition-colors" />
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-700 dark:text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-emerald-400/60 transition-colors" />
                   </div>
 
                   <div className="grid grid-cols-1 gap-1.5 max-h-72 overflow-y-auto pr-1">
@@ -1904,13 +1934,13 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                       <button
                         key={aud.id}
                         onClick={() => onShowToast(`Audio FX: ${aud.label}`, 'success')}
-                        className="p-2.5 rounded-xl border border-white/[0.06] bg-[#0b0d17] hover:border-emerald-400/40 hover:bg-emerald-500/[0.06] transition-all group text-left flex items-center gap-3"
+                        className="p-2.5 rounded-xl border border-white/[0.06] bg-slate-50 dark:bg-[#0b0d17] hover:border-emerald-400/40 hover:bg-emerald-500/[0.06] transition-all group text-left flex items-center gap-3"
                       >
                         <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center shrink-0">
-                          <Volume2 className="w-3.5 h-3.5 text-emerald-400" />
+                          <Volume2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         </div>
                         <div className="min-w-0">
-                          <div className="text-[11px] font-bold text-slate-200 group-hover:text-emerald-300 transition-colors truncate">
+                          <div className="text-[11px] font-bold text-slate-700 dark:text-slate-200 group-hover:text-emerald-300 transition-colors truncate">
                             {aud.label}
                           </div>
                           <div className="text-[9.5px] text-slate-500 truncate mt-0.5">{aud.description}</div>
@@ -1922,12 +1952,209 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               </CollapsibleCard>
             </div>
           )}
+
+          {/* ============================
+              TAB: POSTER TEMPLATE
+          ============================ */}
+          {activeTab === 'poster' && (
+            <div className="space-y-4">
+              <CollapsibleCard
+                title="🖼️ Poster Style Templates"
+                icon={<ImageIcon className="w-3.5 h-3.5" />}
+                accentColor="#a855f7"
+                badge={posterTemplates.length > 0 ? `${posterTemplates.length} templates` : undefined}
+                defaultOpen
+              >
+                <div className="space-y-3 pt-2">
+                  {/* Search */}
+                  <div className="relative">
+                    <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5 pointer-events-none" />
+                    <input
+                      type="text"
+                      placeholder="ស្វែងរក Poster Template..."
+                      value={posterSearch}
+                      onChange={(e) => setPosterSearch(e.target.value)}
+                      className="w-full bg-slate-50 dark:bg-[#0b0d17] border border-slate-200 dark:border-white/[0.08] text-xs text-slate-700 dark:text-slate-200 pl-8 pr-3 py-2 rounded-lg outline-none focus:border-purple-400/60 transition-colors"
+                    />
+                  </div>
+
+                  {/* Loading State */}
+                  {posterLoading && (
+                    <div className="flex items-center justify-center py-10 gap-2 text-slate-400">
+                      <div className="w-4 h-4 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                      <span className="text-xs">កំពុង​ load templates...</span>
+                    </div>
+                  )}
+
+                  {/* Error State */}
+                  {posterLoadError && !posterLoading && (
+                    <div className="text-center py-8 space-y-2">
+                      <div className="text-2xl">⚠️</div>
+                      <div className="text-xs text-red-400">{posterLoadError}</div>
+                      <button
+                        type="button"
+                        onClick={() => { setPosterTemplates([]); setPosterLoadError(null); setPosterLoading(true);
+                          fetch('/api/posterstyle-templates').then(r=>r.json()).then(d=>{setPosterTemplates(d.templates||[]);setPosterLoading(false);}).catch(()=>{setPosterLoadError('Error');setPosterLoading(false);}); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/40 hover:bg-purple-500/30 transition-colors"
+                      >
+                        ព្យាយាមម្ដងទៀត
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Empty State */}
+                  {!posterLoading && !posterLoadError && posterTemplates.length === 0 && (
+                    <div className="text-center py-10 space-y-2">
+                      <div className="text-3xl">📂</div>
+                      <div className="text-xs text-slate-400 font-semibold">មិនទាន់មាន Poster Templates</div>
+                      <div className="text-[11px] text-slate-500">ដាក់​ images ចូលក្នុង folder <code className="bg-slate-800/50 px-1 rounded text-purple-300">posterstyle/</code></div>
+                    </div>
+                  )}
+
+                  {/* Template Grid */}
+                  {!posterLoading && !posterLoadError && posterTemplates.length > 0 && (() => {
+                    const filtered = posterTemplates.filter(t =>
+                      !posterSearch || t.filename.toLowerCase().includes(posterSearch.toLowerCase())
+                    );
+                    return (
+                      <>
+                        {filtered.length === 0 ? (
+                          <div className="text-center py-6 text-xs text-slate-500">មិនមាន template ត្រូវ​នឹង "{posterSearch}"</div>
+                        ) : (
+                          <div className="grid grid-cols-3 gap-2 max-h-[420px] overflow-y-auto pr-1">
+                            {/* None option */}
+                            <button
+                              type="button"
+                              onClick={() => { onChangeEffects({ ...effects, posterTemplate: undefined }); onShowToast('បានលុប Poster Template', 'info'); }}
+                              className={`relative aspect-[9/16] rounded-xl border-2 overflow-hidden flex flex-col items-center justify-center transition-all group ${
+                                !effects.posterTemplate
+                                  ? 'border-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.5)]'
+                                  : 'border-white/10 hover:border-white/30'
+                              }`}
+                              style={{ background: 'rgba(15,15,30,0.8)' }}
+                            >
+                              <div className="text-xl mb-1">🚫</div>
+                              <span className="text-[9px] font-bold text-slate-400">គ្មាន</span>
+                              {!effects.posterTemplate && (
+                                <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center">
+                                  <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                                </div>
+                              )}
+                            </button>
+
+                            {filtered.map((tpl) => {
+                              const isSelected = effects.posterTemplate === tpl.url;
+                              return (
+                                <button
+                                  key={tpl.filename}
+                                  type="button"
+                                  onClick={() => {
+                                    onChangeEffects({ ...effects, posterTemplate: tpl.url, posterTemplateOpacity: effects.posterTemplateOpacity ?? 85 });
+                                    onShowToast(`Poster: ${tpl.filename}`, 'success');
+                                  }}
+                                  className={`relative aspect-[9/16] rounded-xl border-2 overflow-hidden transition-all group ${
+                                    isSelected
+                                      ? 'border-purple-400 shadow-[0_0_14px_rgba(168,85,247,0.6)] scale-[1.02]'
+                                      : 'border-white/10 hover:border-purple-400/50 hover:scale-[1.01]'
+                                  }`}
+                                  title={tpl.filename}
+                                >
+                                  <img
+                                    src={tpl.url}
+                                    alt={tpl.filename}
+                                    className="absolute inset-0 w-full h-full object-cover"
+                                    loading="lazy"
+                                  />
+                                  {/* Hover overlay */}
+                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end pb-1.5 justify-center">
+                                    <span className="text-[8px] font-bold text-white bg-black/60 px-1.5 py-0.5 rounded-full truncate max-w-[90%]">
+                                      {tpl.filename.replace(/\.[^.]+$/, '')}
+                                    </span>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-purple-500 flex items-center justify-center shadow-lg">
+                                      <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />
+                                    </div>
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </CollapsibleCard>
+
+              {/* Opacity & Blend Mode settings (show only if a template is selected) */}
+              {effects.posterTemplate && (
+                <CollapsibleCard
+                  title="ការ​កំណត់ Poster Overlay"
+                  icon={<Layers className="w-3.5 h-3.5" />}
+                  accentColor="#a855f7"
+                  defaultOpen
+                >
+                  <div className="space-y-4 pt-2">
+                    {/* Opacity */}
+                    <div>
+                      <div className="flex justify-between mb-2">
+                        <span className="text-[11px] text-slate-500 dark:text-slate-400">តម្លាភាព (Opacity)</span>
+                        <span className="text-[11px] font-mono text-purple-400">{effects.posterTemplateOpacity ?? 85}%</span>
+                      </div>
+                      <GradientSlider
+                        min={10}
+                        max={100}
+                        value={effects.posterTemplateOpacity ?? 85}
+                        onChange={(v) => onChangeEffects({ ...effects, posterTemplateOpacity: v })}
+                        accentFrom="#a855f7"
+                        accentTo="#ec4899"
+                        unit="%"
+                      />
+                    </div>
+
+                    {/* Blend Mode */}
+                    <div>
+                      <label className="text-[11px] text-slate-500 dark:text-slate-400 block mb-2 font-bold">Blend Mode</label>
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {(['normal', 'multiply', 'screen', 'overlay', 'soft-light'] as const).map((mode) => (
+                          <button
+                            key={mode}
+                            type="button"
+                            onClick={() => onChangeEffects({ ...effects, posterTemplateBlendMode: mode })}
+                            className="py-1.5 px-1 rounded-lg text-[10px] font-semibold border text-center transition-all capitalize"
+                            style={
+                              (effects.posterTemplateBlendMode ?? 'normal') === mode
+                                ? { background: '#a855f720', borderColor: '#a855f760', color: '#a855f7' }
+                                : { background: 'rgba(255,255,255,0.02)', borderColor: 'rgba(255,255,255,0.07)', color: '#64748b' }
+                            }
+                          >
+                            {mode}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      onClick={() => { onChangeEffects({ ...effects, posterTemplate: undefined }); onShowToast('បានដក Poster Template', 'info'); }}
+                      className="w-full py-2 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-semibold hover:bg-red-500/20 transition-colors flex items-center justify-center gap-1.5"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>លុប Poster Template</span>
+                    </button>
+                  </div>
+                </CollapsibleCard>
+              )}
+            </div>
+          )}
         </div>
 
         {/* ══════════════════════════════════════════════════════════════
             STICKY FOOTER — Apply / Reset always visible
         ══════════════════════════════════════════════════════════════ */}
-        <div className="shrink-0 px-5 py-3 border-t border-white/[0.07] bg-[#0d101c] flex items-center justify-between gap-3">
+        <div className="shrink-0 px-5 py-3 border-t border-white/[0.07] bg-slate-100 dark:bg-[#0d101c] flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-[11px] text-slate-500">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
             <span>Auto-Saved</span>
@@ -1941,7 +2168,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
                 else if (activeTab === 'subtitles') resetSubtitleStyle();
                 else if (activeTab === 'styletext') reset3DEffects();
               }}
-              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.10] border border-white/[0.08] text-xs text-slate-300 hover:text-white transition-all active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.10] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white transition-all active:scale-95"
             >
               <RotateCcw className="w-3 h-3" />
               <span>Reset</span>
@@ -1951,7 +2178,7 @@ export const VideoEffectsPanel: React.FC<VideoEffectsPanelProps> = ({
               <button
                 type="button"
                 onClick={onClose}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-white text-xs font-bold transition-all active:scale-95 shadow-lg"
+                className="flex items-center gap-1.5 px-5 py-2 rounded-xl text-slate-800 dark:text-white text-xs font-bold transition-all active:scale-95 shadow-lg"
                 style={{ background: 'linear-gradient(135deg,#00C2FF,#0070FF)', boxShadow: '0 4px 16px rgba(0,194,255,0.3)' }}
               >
                 <Check className="w-3.5 h-3.5" strokeWidth={2.5} />

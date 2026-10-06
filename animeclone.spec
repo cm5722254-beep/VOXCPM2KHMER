@@ -1,10 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 # =============================================================================
-#  កូននាគសម្រាយរឿង — PyInstaller Build Spec (Single Standalone Executable)
-#  App Name : កូននាគសម្រាយរឿង (KounNeak SamraiRoeung)
+#  🐉 DRAGON DABBER PRO — PyInstaller Build Spec (Single Standalone Executable)
+#  App Name : DRAGON DABBER PRO (កូននាគអាទិទេព AI)
 #  ✅ Bundles ALL libraries & dependencies
 #  ✅ Supports Windows 7 / 8 / 10 / 11 (x64)
-#  Produces: dist/KounNeak_SamraiRoeung.exe
+#  Produces: dist/Dragon_Dabber_Pro.exe
 # =============================================================================
 import os, sys
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
@@ -17,7 +17,7 @@ HERE = os.path.abspath(os.path.dirname(SPEC))
 datas = []
 
 # Core asset directories
-for dir_name in ['public', 'services', 'samples', 'data', 'patches', 'updates']:
+for dir_name in ['public', 'services', 'samples', 'data', 'patches', 'updates', 'voice_split']:
     full = os.path.join(HERE, dir_name)
     if os.path.exists(full):
         datas.append((full, dir_name))
@@ -145,6 +145,10 @@ hiddenimports = [
     'services.unified_db', 'services.auto_updater',
     'services.progress_tracker', 'services.checkpoint_manager',
     'services.video_cutter_service', 'services.vocal_separator',
+    'services.ai_pipeline', 'services.ai_pipeline.base_providers',
+    'services.ai_pipeline.adapters', 'services.ai_pipeline.orchestrator',
+    'services.voice_split_engine',
+    'numpy', 'scipy', 'scipy.signal', 'scipy.ndimage', 'scipy.spatial', 'scipy.cluster.hierarchy', 'scipy.fft',
 ]
 
 # Auto-collect all submodules

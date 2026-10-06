@@ -16,7 +16,7 @@ import {
 export const POSTER_TYPES: PosterTypeItem[] = [
   { id: 'anime', labelKhmer: 'Anime ភាពយន្តតុក្កតា', labelEn: 'Anime Poster', icon: '🎨', defaultAspectRatio: '2:3', promptKeyword: 'masterpiece anime theatrical poster, vibrant cel-shaded anime aesthetic, high-end animation studio style, Makoto Shinkai and Ufotable cinematic anime lighting', category: 'fiction' },
   { id: 'donghua', labelKhmer: 'Donghua គំនូរជីវចលចិន 3D', labelEn: 'Donghua 3D Poster', icon: '✨', defaultAspectRatio: '2:3', promptKeyword: 'Chinese 3D Donghua cinematic animation movie poster, Sparkly Key and Tencent video quality, ultra-detailed CGI character modeling, silk physics, ornate Taoist accessories', category: 'fiction' },
-  { id: 'xianxia', labelKhmer: 'Xianxia ទេវកថា & អាទិទេព', labelEn: 'Xianxia Poster', icon: '🐉', defaultAspectRatio: '2:3', promptKeyword: 'Immortal Xianxia fantasy movie poster, celestial floating mountains, golden swirling cloud dragons, Taoist immortal robe with gold embroidery, spiritual energy aura, heavenly palace in clouds', category: 'fiction' },
+  { id: 'xianxia', labelKhmer: 'Xianxia ទេវកថា & អាទិទេព', labelEn: 'Xianxia Poster', icon: '🐲', defaultAspectRatio: '2:3', promptKeyword: 'Immortal Xianxia fantasy movie poster, celestial floating mountains, golden swirling cloud dragons, Taoist immortal robe with gold embroidery, spiritual energy aura, heavenly palace in clouds', category: 'fiction' },
   { id: 'wuxia', labelKhmer: 'Wuxia យុទ្ធសិល្ប៍បុរាណ', labelEn: 'Wuxia Poster', icon: '⚔️', defaultAspectRatio: '2:3', promptKeyword: 'Wuxia martial arts epic poster, flying swordsmen, bamboo forest battle, flowing ancient hanfu garments, dynamic sword stance, cinematic wind effects', category: 'fiction' },
   { id: 'fantasy', labelKhmer: 'Epic Fantasy វេទមន្ត', labelEn: 'Epic Fantasy Poster', icon: '🔮', defaultAspectRatio: '2:3', promptKeyword: 'High epic fantasy theatrical poster, glowing magical runes, mythical creatures, castle in the clouds, ethereal atmosphere, volumetric spellcasting light', category: 'fiction' },
   { id: 'action', labelKhmer: 'Action កំពូលសកម្មភាព', labelEn: 'Action Poster', icon: '💥', defaultAspectRatio: '2:3', promptKeyword: 'Explosive high-octane Hollywood action blockbuster poster, debris and sparks, cinematic smoke, intense dynamic motion, IMAX poster composition', category: 'cinema' },
@@ -382,7 +382,7 @@ export const TYPOGRAPHY_EFFECTS: {
 
 // ── 8. SMART OVERLAYS ──
 export const DEFAULT_OVERLAYS: PosterSmartOverlay[] = [
-  { id: 'ov_dragon', type: 'dragon', name: '🐉 នាគរាជមាស (Golden Dragon)', visible: false, opacity: 90, blendMode: 'screen', scale: 100, posX: 50, posY: 30 },
+  { id: 'ov_dragon', type: 'dragon', name: '🐲 នាគរាជមាស (Golden Dragon)', visible: false, opacity: 90, blendMode: 'screen', scale: 100, posX: 50, posY: 30 },
   { id: 'ov_sword', type: 'sword', name: '⚔️ ដាវពន្លឺពិសិដ្ឋ (Divine Sword)', visible: false, opacity: 85, blendMode: 'color-dodge', scale: 80, posX: 50, posY: 60 },
   { id: 'ov_magic', type: 'magic_energy', name: '🔮 រង្វង់ថាមពលវេទមន្ត (Magic Aura)', visible: true, opacity: 80, blendMode: 'screen', scale: 100, posX: 50, posY: 75 },
   { id: 'ov_lightning', type: 'lightning', name: '⚡ រន្ទះបាញ់ (Lightning Arcs)', visible: false, opacity: 75, blendMode: 'screen', scale: 90, posX: 50, posY: 20 },

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+﻿import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   X,
   Sparkles,
@@ -43,59 +43,59 @@ interface GuideSlide3D {
 const GUIDE_SLIDES: GuideSlide3D[] = [
   {
     id: 1,
-    title: 'ជម្រើសទាំង ៣ (3 ENGINE OPTIONS)',
-    badge: 'ជម្រើសស្នូល CORE 3',
+    title: 'áž‡áž˜áŸ’ážšáž¾ážŸáž‘áž¶áŸ†áž„ áŸ£ (3 ENGINE OPTIONS)',
+    badge: 'áž‡áž˜áŸ’ážšáž¾ážŸážŸáŸ’áž“áž¼áž› CORE 3',
     category: 'STUDIO ARCHITECTURE',
     icon: <Cpu className="w-6 h-6 text-cyan-400" />,
     accentHex: '#06b6d4',
     gradient: 'from-cyan-500/25 via-blue-600/20 to-slate-950/95',
     glowColor: 'rgba(6,182,212,0.45)',
-    summary: 'ស្ថាបត្យកម្មដំណើរការសំឡេង AI ទាំង ៣ បម្រើគ្រប់តម្រូវការ',
+    summary: 'ážŸáŸ’ážáž¶áž”ážáŸ’áž™áž€áž˜áŸ’áž˜ážŠáŸ†ážŽáž¾ážšáž€áž¶ážšážŸáŸ†áž¡áŸáž„ AI áž‘áž¶áŸ†áž„ áŸ£ áž”áž˜áŸ’ážšáž¾áž‚áŸ’ážšáž”áŸ‹ážáž˜áŸ’ážšáž¼ážœáž€áž¶ážš',
     points: [
-      'Option 1 [VOXCPM2 COMPUTER]៖ ម៉ាស៊ីនក្លូនសំឡេង AI ក្នុងម៉ាស៊ីនផ្ទាល់ (ត្រូវការ Key License និងកាត VGA RTX) សម្រាប់គុណភាពកម្រិតស្ទូឌីយោភាពយន្ត។',
-      'Option 2 [VOXCPM2 CLAUDE]៖ ម៉ាស៊ីនក្លូនសំឡេង Cloud Server AI (ត្រូវការ Key License) ដំណើរការលឿនតាម Server GPU មិនបាច់ប្រើ Hardware ធ្ងន់។',
-      'Option 3 [KHMER OFFLINE]៖ ម៉ាស៊ីនសំឡេងខ្មែរឥតគិតថ្លៃ (Free សម្រាប់គណនីទើបបង្កើត) រត់លឿនបំផុត អាចធ្វើបានម្ដងពី ១ ដល់ ២០ ភាគ ឬរឿងពេញ។',
+      'Option 1 [VOXCPM2 COMPUTER]áŸ– áž˜áŸ‰áž¶ážŸáŸŠáž¸áž“áž€áŸ’áž›áž¼áž“ážŸáŸ†áž¡áŸáž„ AI áž€áŸ’áž“áž»áž„áž˜áŸ‰áž¶ážŸáŸŠáž¸áž“áž•áŸ’áž‘áž¶áž›áŸ‹ (ážáŸ’ážšáž¼ážœáž€áž¶ážš Key License áž“áž·áž„áž€áž¶áž VGA RTX) ážŸáž˜áŸ’ážšáž¶áž”áŸ‹áž‚áž»ážŽáž—áž¶áž–áž€áž˜áŸ’ážšáž·ážážŸáŸ’áž‘áž¼ážŒáž¸áž™áŸ„áž—áž¶áž–áž™áž“áŸ’ážáŸ”',
+      'Option 2 [VOXCPM2 CLAUDE]áŸ– áž˜áŸ‰áž¶ážŸáŸŠáž¸áž“áž€áŸ’áž›áž¼áž“ážŸáŸ†áž¡áŸáž„ Cloud Server AI (ážáŸ’ážšáž¼ážœáž€áž¶ážš Key License) ážŠáŸ†ážŽáž¾ážšáž€áž¶ážšáž›áž¿áž“ážáž¶áž˜ Server GPU áž˜áž·áž“áž”áž¶áž…áŸ‹áž”áŸ’ážšáž¾ Hardware áž’áŸ’áž„áž“áŸ‹áŸ”',
+      'Option 3 [KHMER OFFLINE]áŸ– áž˜áŸ‰áž¶ážŸáŸŠáž¸áž“ážŸáŸ†áž¡áŸáž„ážáŸ’áž˜áŸ‚ážšáž¥ážáž‚áž·ážážáŸ’áž›áŸƒ (Free ážŸáž˜áŸ’ážšáž¶áž”áŸ‹áž‚ážŽáž“áž¸áž‘áž¾áž”áž”áž„áŸ’áž€áž¾áž) ážšážáŸ‹áž›áž¿áž“áž”áŸ†áž•áž»áž áž¢áž¶áž…áž’áŸ’ážœáž¾áž”áž¶áž“áž˜áŸ’ážŠáž„áž–áž¸ áŸ¡ ážŠáž›áŸ‹ áŸ¢áŸ  áž—áž¶áž‚ áž¬ážšáž¿áž„áž–áŸáž‰áŸ”',
     ],
-    tips: '💡 គណនីទើបបង្កើតអាចប្រើ Option 3 បានភ្លាមៗដោយសេរី។ ដើម្បីបើក Option 1 & 2 សូមទិញ Key License ពី Admin!',
-    actionText: '🔑 ដំណើរការ Key License',
+    tips: 'ðŸ’¡ áž‚ážŽáž“áž¸áž‘áž¾áž”áž”áž„áŸ’áž€áž¾ážáž¢áž¶áž…áž”áŸ’ážšáž¾ Option 3 áž”áž¶áž“áž—áŸ’áž›áž¶áž˜áŸ—ážŠáŸ„áž™ážŸáŸážšáž¸áŸ” ážŠáž¾áž˜áŸ’áž”áž¸áž”áž¾áž€ Option 1 & 2 ážŸáž¼áž˜áž‘áž·áž‰ Key License áž–áž¸ Admin!',
+    actionText: 'ðŸ”‘ ážŠáŸ†ážŽáž¾ážšáž€áž¶ážš Key License',
     actionType: 'license',
   },
   {
     id: 2,
-    title: 'KHMER OFFLINE (១ ដល់ ២០ ភាគ)',
+    title: 'KHMER OFFLINE (áŸ¡ ážŠáž›áŸ‹ áŸ¢áŸ  áž—áž¶áž‚)',
     badge: 'ULTRA FAST BATCH',
     category: 'OFFLINE PRODUCTION',
-    icon: <Zap className="w-6 h-6 text-emerald-400" />,
+    icon: <Zap className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />,
     accentHex: '#10b981',
     gradient: 'from-emerald-500/25 via-teal-600/20 to-slate-950/95',
     glowColor: 'rgba(16,185,129,0.45)',
-    summary: 'ផលិតវីដេអូបញ្ចូលសំឡេងរឿងភាគក្នុងល្បឿនផ្លេកបន្ទោរតាមកម្លាំង Hardware',
+    summary: 'áž•áž›áž·ážážœáž¸ážŠáŸáž¢áž¼áž”áž‰áŸ’áž…áž¼áž›ážŸáŸ†áž¡áŸáž„ážšáž¿áž„áž—áž¶áž‚áž€áŸ’áž“áž»áž„áž›áŸ’áž”áž¿áž“áž•áŸ’áž›áŸáž€áž”áž“áŸ’áž‘áŸ„ážšážáž¶áž˜áž€áž˜áŸ’áž›áž¶áŸ†áž„ Hardware',
     points: [
-      'រើសចំនួនភាគ៖ អាចរើសពី ១ ភាគ ដល់ ២០ ភាគក្នុងពេលតែមួយ (Batch Queue) ស្របតាមកម្លាំង CPU/RAM នៃកុំព្យូទ័ររបស់អ្នក។',
-      'ជម្រើសរឿងពេញ (Full Movie)៖ ចុចបើក "ភ្ជាប់ជារឿងពេញ" ប្រព័ន្ធនឹងបញ្ចូលសំឡេងរឿងវែងៗជាប់គ្នាមិនដាច់។',
-      'Hardware Multi-Threads៖ បង្កើនល្បឿន Render ជាមួយ Multi-threading 2x, 4x, 8x ឬ 16x Max Speed ជួយសន្សំសំចៃពេលវេលា។',
+      'ážšáž¾ážŸáž…áŸ†áž“áž½áž“áž—áž¶áž‚áŸ– áž¢áž¶áž…ážšáž¾ážŸáž–áž¸ áŸ¡ áž—áž¶áž‚ ážŠáž›áŸ‹ áŸ¢áŸ  áž—áž¶áž‚áž€áŸ’áž“áž»áž„áž–áŸáž›ážáŸ‚áž˜áž½áž™ (Batch Queue) ážŸáŸ’ážšáž”ážáž¶áž˜áž€áž˜áŸ’áž›áž¶áŸ†áž„ CPU/RAM áž“áŸƒáž€áž»áŸ†áž–áŸ’áž™áž¼áž‘áŸážšážšáž”ážŸáŸ‹áž¢áŸ’áž“áž€áŸ”',
+      'áž‡áž˜áŸ’ážšáž¾ážŸážšáž¿áž„áž–áŸáž‰ (Full Movie)áŸ– áž…áž»áž…áž”áž¾áž€ "áž—áŸ’áž‡áž¶áž”áŸ‹áž‡áž¶ážšáž¿áž„áž–áŸáž‰" áž”áŸ’ážšáž–áŸáž“áŸ’áž’áž“áž¹áž„áž”áž‰áŸ’áž…áž¼áž›ážŸáŸ†áž¡áŸáž„ážšáž¿áž„ážœáŸ‚áž„áŸ—áž‡áž¶áž”áŸ‹áž‚áŸ’áž“áž¶áž˜áž·áž“ážŠáž¶áž…áŸ‹áŸ”',
+      'Hardware Multi-ThreadsáŸ– áž”áž„áŸ’áž€áž¾áž“áž›áŸ’áž”áž¿áž“ Render áž‡áž¶áž˜áž½áž™ Multi-threading 2x, 4x, 8x áž¬ 16x Max Speed áž‡áž½áž™ážŸáž“áŸ’ážŸáŸ†ážŸáŸ†áž…áŸƒáž–áŸáž›ážœáŸáž›áž¶áŸ”',
     ],
-    tips: '💡 សម្រាប់កុំព្យូទ័រធម្មតា សូមជ្រើសរើសចន្លោះ 1 ដល់ 5 ភាគម្ដង។ ចំពោះកុំព្យូទ័រខ្លាំង (Core i7/i9) អាចដាក់ 10 ដល់ 20 ភាគបានយ៉ាងរលូន!',
-    actionText: '⚡ បើក KHMER OFFLINE (1-20 ភាគ)',
+    tips: 'ðŸ’¡ ážŸáž˜áŸ’ážšáž¶áž”áŸ‹áž€áž»áŸ†áž–áŸ’áž™áž¼áž‘áŸážšáž’áž˜áŸ’áž˜ážáž¶ ážŸáž¼áž˜áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸáž…áž“áŸ’áž›áŸ„áŸ‡ 1 ážŠáž›áŸ‹ 5 áž—áž¶áž‚áž˜áŸ’ážŠáž„áŸ” áž…áŸ†áž–áŸ„áŸ‡áž€áž»áŸ†áž–áŸ’áž™áž¼áž‘áŸážšážáŸ’áž›áž¶áŸ†áž„ (Core i7/i9) áž¢áž¶áž…ážŠáž¶áž€áŸ‹ 10 ážŠáž›áŸ‹ 20 áž—áž¶áž‚áž”áž¶áž“áž™áŸ‰áž¶áž„ážšáž›áž¼áž“!',
+    actionText: 'âš¡ áž”áž¾áž€ KHMER OFFLINE (1-20 áž—áž¶áž‚)',
     actionType: 'offline',
   },
   {
     id: 3,
-    title: 'កាត់ត CAPCUT & NOSTALGIC VOICE',
+    title: 'áž€áž¶ážáŸ‹áž CAPCUT & NOSTALGIC VOICE',
     badge: 'PRO TOOLS',
     category: 'VIDEO EDITING',
     icon: <Scissors className="w-6 h-6 text-pink-400" />,
     accentHex: '#ec4899',
     gradient: 'from-pink-500/25 via-rose-600/20 to-slate-950/95',
     glowColor: 'rgba(236,72,153,0.45)',
-    summary: 'ឧបករណ៍កាត់តវីដេអូ និងបែបផែនសំឡេងស្រមើលស្រមៃអតីតកាល',
+    summary: 'áž§áž”áž€ážšážŽáŸáž€áž¶ážáŸ‹ážážœáž¸ážŠáŸáž¢áž¼ áž“áž·áž„áž”áŸ‚áž”áž•áŸ‚áž“ážŸáŸ†áž¡áŸáž„ážŸáŸ’ážšáž˜áž¾áž›ážŸáŸ’ážšáž˜áŸƒáž¢ážáž¸ážáž€áž¶áž›',
     points: [
-      'CapCut Video Trimmer៖ កាត់តវីដេអូវែងៗដោយកំណត់ In-Point [I] និង Out-Point [O] កាត់យកតែឈុតសំខាន់ៗដែលចង់បញ្ចូលសំឡេង។',
-      'សំឡេងស្រមើលស្រមៃ (Nostalgic Voice)៖ បែបផែនសំឡេងនឹកគិត Echo + Deep Dream Reverb ល្អបំផុតសម្រាប់ឈុតតួអង្គនឹកស្រមៃអតីតកាល។',
-      'Voice Volume Gain HUD៖ បង្កើនបន្ថយសំឡេងនិយាយពី 0% ដល់ 200% និងទម្លាក់សំឡេងភ្លេង BGM ដោយស្វ័យប្រវត្ត (Audio Ducking)។',
+      'CapCut Video TrimmeráŸ– áž€áž¶ážáŸ‹ážážœáž¸ážŠáŸáž¢áž¼ážœáŸ‚áž„áŸ—ážŠáŸ„áž™áž€áŸ†ážŽážáŸ‹ In-Point [I] áž“áž·áž„ Out-Point [O] áž€áž¶ážáŸ‹áž™áž€ážáŸ‚ážˆáž»ážážŸáŸ†ážáž¶áž“áŸ‹áŸ—ážŠáŸ‚áž›áž…áž„áŸ‹áž”áž‰áŸ’áž…áž¼áž›ážŸáŸ†áž¡áŸáž„áŸ”',
+      'ážŸáŸ†áž¡áŸáž„ážŸáŸ’ážšáž˜áž¾áž›ážŸáŸ’ážšáž˜áŸƒ (Nostalgic Voice)áŸ– áž”áŸ‚áž”áž•áŸ‚áž“ážŸáŸ†áž¡áŸáž„áž“áž¹áž€áž‚áž·áž Echo + Deep Dream Reverb áž›áŸ’áž¢áž”áŸ†áž•áž»ážážŸáž˜áŸ’ážšáž¶áž”áŸ‹ážˆáž»ážážáž½áž¢áž„áŸ’áž‚áž“áž¹áž€ážŸáŸ’ážšáž˜áŸƒáž¢ážáž¸ážáž€áž¶áž›áŸ”',
+      'Voice Volume Gain HUDáŸ– áž”áž„áŸ’áž€áž¾áž“áž”áž“áŸ’ážáž™ážŸáŸ†áž¡áŸáž„áž“áž·áž™áž¶áž™áž–áž¸ 0% ážŠáž›áŸ‹ 200% áž“áž·áž„áž‘áž˜áŸ’áž›áž¶áž€áŸ‹ážŸáŸ†áž¡áŸáž„áž—áŸ’áž›áŸáž„ BGM ážŠáŸ„áž™ážŸáŸ’ážœáŸáž™áž”áŸ’ážšážœážáŸ’áž (Audio Ducking)áŸ”',
     ],
-    tips: '💡 អាចចុច Shortcut [I] និង [O] លើ Keyboard ដើម្បី Mark ឈុតកាត់តវីដេអូបានលឿនដូចកម្មវិធីកាត់តអាជីព!',
-    actionText: '✂️ បើក CapCut Video Trimmer',
+    tips: 'ðŸ’¡ áž¢áž¶áž…áž…áž»áž… Shortcut [I] áž“áž·áž„ [O] áž›áž¾ Keyboard ážŠáž¾áž˜áŸ’áž”áž¸ Mark ážˆáž»ážáž€áž¶ážáŸ‹ážážœáž¸ážŠáŸáž¢áž¼áž”áž¶áž“áž›áž¿áž“ážŠáž¼áž…áž€áž˜áŸ’áž˜ážœáž·áž’áž¸áž€áž¶ážáŸ‹ážáž¢áž¶áž‡áž¸áž–!',
+    actionText: 'âœ‚ï¸ áž”áž¾áž€ CapCut Video Trimmer',
     actionType: 'trimmer',
   },
   {
@@ -103,18 +103,18 @@ const GUIDE_SLIDES: GuideSlide3D[] = [
     title: '3D EFFECTS & VIDEO STYLING (105+)',
     badge: 'CINEMATIC FX',
     category: 'VISUAL FX & TEXT',
-    icon: <Sparkles className="w-6 h-6 text-amber-400" />,
+    icon: <Sparkles className="w-6 h-6 text-sky-600 dark:text-amber-400" />,
     accentHex: '#f59e0b',
     gradient: 'from-amber-500/25 via-orange-600/20 to-slate-950/95',
     glowColor: 'rgba(245,158,11,0.45)',
-    summary: '១០៥+ បែបផែនភាពយន្ត 3D, អក្សររត់ Subtitles, Watermark និងតម្រងសំឡេង',
+    summary: 'áŸ¡áŸ áŸ¥+ áž”áŸ‚áž”áž•áŸ‚áž“áž—áž¶áž–áž™áž“áŸ’áž 3D, áž¢áž€áŸ’ážŸážšážšážáŸ‹ Subtitles, Watermark áž“áž·áž„ážáž˜áŸ’ážšáž„ážŸáŸ†áž¡áŸáž„',
     points: [
-      '3D Titles & Typography៖ អក្សរចំណងជើង 3D Gold, Flame, Neon, Sapphire, Silver ដិតច្បាស់អណ្តែតលើវីដេអូ។',
-      'Cinematic LUTs & Filters៖ កែពណ៌ភាពយន្តបែប Cyberpunk, Retro 35mm Grain, VHS Scanlines, Cinema Letterbox។',
-      'Subtitles & Watermark៖ កែពុម្ពអក្សរខ្មែរស្រស់ស្អាត (Kantumruy Pro, Moul, Battambang) ជាមួយ Logo Watermark ការពារកម្មសិទ្ធិ។',
+      '3D Titles & TypographyáŸ– áž¢áž€áŸ’ážŸážšáž…áŸ†ážŽáž„áž‡áž¾áž„ 3D Gold, Flame, Neon, Sapphire, Silver ážŠáž·ážáž…áŸ’áž”áž¶ážŸáŸ‹áž¢ážŽáŸ’ážáŸ‚ážáž›áž¾ážœáž¸ážŠáŸáž¢áž¼áŸ”',
+      'Cinematic LUTs & FiltersáŸ– áž€áŸ‚áž–ážŽáŸŒáž—áž¶áž–áž™áž“áŸ’ážáž”áŸ‚áž” Cyberpunk, Retro 35mm Grain, VHS Scanlines, Cinema LetterboxáŸ”',
+      'Subtitles & WatermarkáŸ– áž€áŸ‚áž–áž»áž˜áŸ’áž–áž¢áž€áŸ’ážŸážšážáŸ’áž˜áŸ‚ážšážŸáŸ’ážšážŸáŸ‹ážŸáŸ’áž¢áž¶áž (Kantumruy Pro, Moul, Battambang) áž‡áž¶áž˜áž½áž™ Logo Watermark áž€áž¶ážšáž–áž¶ážšáž€áž˜áŸ’áž˜ážŸáž·áž‘áŸ’áž’áž·áŸ”',
     ],
-    tips: '💡 ផ្ទាំង 3D Effects មានប៊ូតុងបិទ [X], ប៊ូតុងរួចរាល់ [Done & Exit] និងអាចចុច Escape ដើម្បីចេញវិញបានគ្រប់ពេល!',
-    actionText: '✨ ចូលទៅកាន់ Dubbing Studio',
+    tips: 'ðŸ’¡ áž•áŸ’áž‘áž¶áŸ†áž„ 3D Effects áž˜áž¶áž“áž”áŸŠáž¼ážáž»áž„áž”áž·áž‘ [X], áž”áŸŠáž¼ážáž»áž„ážšáž½áž…ážšáž¶áž›áŸ‹ [Done & Exit] áž“áž·áž„áž¢áž¶áž…áž…áž»áž… Escape ážŠáž¾áž˜áŸ’áž”áž¸áž…áŸáž‰ážœáž·áž‰áž”áž¶áž“áž‚áŸ’ážšáž”áŸ‹áž–áŸáž›!',
+    actionText: 'âœ¨ áž…áž¼áž›áž‘áŸ…áž€áž¶áž“áŸ‹ Dubbing Studio',
   },
   {
     id: 5,
@@ -125,33 +125,33 @@ const GUIDE_SLIDES: GuideSlide3D[] = [
     accentHex: '#a855f7',
     gradient: 'from-purple-500/25 via-violet-600/20 to-slate-950/95',
     glowColor: 'rgba(168,85,247,0.45)',
-    summary: 'ប្ដូរពណ៌ផ្ទៃខាងក្រោយពណ៌សស្អាត (Clean White) និង Wallpaper 4K ត្រជាក់ភ្នែក',
+    summary: 'áž”áŸ’ážŠáž¼ážšáž–ážŽáŸŒáž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶áž (Clean White) áž“áž·áž„ Wallpaper 4K ážáŸ’ážšáž‡áž¶áž€áŸ‹áž—áŸ’áž“áŸ‚áž€',
     points: [
-      'ពណ៌ផ្ទៃខាងក្រោយពណ៌សស្អាត (Clean White Studio)៖ ជ្រើសរើសពណ៌សសុទ្ធ ពណ៌សគុជខ្យង ឬពណ៌ផ្ទាល់ខ្លួន ភ្លឺច្បាស់ ងាយស្រួលយល់ និងអានអក្សរ។',
-      'Background Wallpapers 4K៖ ជ្រើសរើសរូបភាពគំរូ 4K (Cyberpunk City, Anime Tokyo Sky, Midnight Purple) ឬ Upload ពីកុំព្យូទ័រផ្ទាល់ខ្លួន។',
-      '៧ កញ្ចក់ពណ៌ Color Glass៖ កញ្ចក់រលើបរលោង Glacier Ice, Cyan Crystal, Sakura Purple, Amber Gold និង Floating Stickers។',
+      'áž–ážŽáŸŒáž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶áž (Clean White Studio)áŸ– áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸáž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’ áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ áž¬áž–ážŽáŸŒáž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“ áž—áŸ’áž›ážºáž…áŸ’áž”áž¶ážŸáŸ‹ áž„áž¶áž™ážŸáŸ’ážšáž½áž›áž™áž›áŸ‹ áž“áž·áž„áž¢áž¶áž“áž¢áž€áŸ’ážŸážšáŸ”',
+      'Background Wallpapers 4KáŸ– áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸážšáž¼áž”áž—áž¶áž–áž‚áŸ†ážšáž¼ 4K (Cyberpunk City, Anime Tokyo Sky, Midnight Purple) áž¬ Upload áž–áž¸áž€áž»áŸ†áž–áŸ’áž™áž¼áž‘áŸážšáž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“áŸ”',
+      'áŸ§ áž€áž‰áŸ’áž…áž€áŸ‹áž–ážŽáŸŒ Color GlassáŸ– áž€áž‰áŸ’áž…áž€áŸ‹ážšáž›áž¾áž”ážšáž›áŸ„áž„ Glacier Ice, Cyan Crystal, Sakura Purple, Amber Gold áž“áž·áž„ Floating StickersáŸ”',
     ],
-    tips: '💡 ចុចប៊ូតុង "🎨 ពណ៌ & Wallpaper" នៅលើ Header ខាងលើ ឬក្នុង Sidebar ដើម្បីប្ដូរពណ៌សស្អាតសុទ្ធ ឬ Wallpaper ភ្លាមៗ!',
-    actionText: '🎨 ប្ដូរពណ៌ & Wallpaper',
+    tips: 'ðŸ’¡ áž…áž»áž…áž”áŸŠáž¼ážáž»áž„ "ðŸŽ¨ áž–ážŽáŸŒ & Wallpaper" áž“áŸ…áž›áž¾ Header ážáž¶áž„áž›áž¾ áž¬áž€áŸ’áž“áž»áž„ Sidebar ážŠáž¾áž˜áŸ’áž”áž¸áž”áŸ’ážŠáž¼ážšáž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶ážážŸáž»áž‘áŸ’áž’ áž¬ Wallpaper áž—áŸ’áž›áž¶áž˜áŸ—!',
+    actionText: 'ðŸŽ¨ áž”áŸ’ážŠáž¼ážšáž–ážŽáŸŒ & Wallpaper',
     actionType: 'theme',
   },
   {
     id: 6,
-    title: 'KEY LICENSE & ទាក់ទង ADMIN',
+    title: 'KEY LICENSE & áž‘áž¶áž€áŸ‹áž‘áž„ ADMIN',
     badge: 'OFFICIAL SUPPORT',
     category: 'LICENSING & CONTACT',
     icon: <Key className="w-6 h-6 text-sky-400" />,
     accentHex: '#38bdf8',
     gradient: 'from-sky-500/25 via-blue-600/20 to-slate-950/95',
     glowColor: 'rgba(56,189,248,0.45)',
-    summary: 'ទំនាក់ទំនង Admin ផ្លូវការដើម្បីទិញ Key License និងដោះស្រាយបច្ចេកទេស',
+    summary: 'áž‘áŸ†áž“áž¶áž€áŸ‹áž‘áŸ†áž“áž„ Admin áž•áŸ’áž›áž¼ážœáž€áž¶ážšážŠáž¾áž˜áŸ’áž”áž¸áž‘áž·áž‰ Key License áž“áž·áž„ážŠáŸ„áŸ‡ážŸáŸ’ážšáž¶áž™áž”áž…áŸ’áž…áŸáž€áž‘áŸážŸ',
     points: [
-      '៤ កញ្ចប់ Key License គាំទ្រ៖ Trial ៧ ថ្ងៃ, ១ ខែ (30 ថ្ងៃ), ១ ឆ្នាំ (365 ថ្ងៃ), និងជារៀងរហូត (Lifetime VIP)។',
-      'Telegram Admin ផ្ទាល់៖ អាចចុចទាក់ទង Admin តាម Telegram: https://t.me/BongCheatz_IT គ្រប់ពេល។',
-      'គណនី Admin ផ្លូវការ៖ Master Admin ផ្តាច់មុខគឺ cm5722254@gmail.com គ្រប់គ្រងប្រព័ន្ធសុវត្ថិភាពទាំងមូល។',
+      'áŸ¤ áž€áž‰áŸ’áž…áž”áŸ‹ Key License áž‚áž¶áŸ†áž‘áŸ’ážšáŸ– Trial áŸ§ ážáŸ’áž„áŸƒ, áŸ¡ ážáŸ‚ (30 ážáŸ’áž„áŸƒ), áŸ¡ áž†áŸ’áž“áž¶áŸ† (365 ážáŸ’áž„áŸƒ), áž“áž·áž„áž‡áž¶ážšáŸ€áž„ážšáž áž¼áž (Lifetime VIP)áŸ”',
+      'Telegram Admin áž•áŸ’áž‘áž¶áž›áŸ‹áŸ– áž¢áž¶áž…áž…áž»áž…áž‘áž¶áž€áŸ‹áž‘áž„ Admin ážáž¶áž˜ Telegram: https://t.me/BongCheatz_IT áž‚áŸ’ážšáž”áŸ‹áž–áŸáž›áŸ”',
+      'áž‚ážŽáž“áž¸ Admin áž•áŸ’áž›áž¼ážœáž€áž¶ážšáŸ– Master Admin áž•áŸ’ážáž¶áž…áŸ‹áž˜áž»ážáž‚ážº cm5722254@gmail.com áž‚áŸ’ážšáž”áŸ‹áž‚áŸ’ážšáž„áž”áŸ’ážšáž–áŸáž“áŸ’áž’ážŸáž»ážœážáŸ’ážáž·áž—áž¶áž–áž‘áž¶áŸ†áž„áž˜áž¼áž›áŸ”',
     ],
-    tips: '💡 រាល់ចម្ងល់ ឬតម្រូវការទិញ Key License សូមចុចប៊ូតុង Telegram ខាងក្រោមដើម្បីឆាតទៅកាន់ Admin ផ្ទាល់!',
-    actionText: '✈️ ឆាតទៅកាន់ Telegram Admin',
+    tips: 'ðŸ’¡ ážšáž¶áž›áŸ‹áž…áž˜áŸ’áž„áž›áŸ‹ áž¬ážáž˜áŸ’ážšáž¼ážœáž€áž¶ážšáž‘áž·áž‰ Key License ážŸáž¼áž˜áž…áž»áž…áž”áŸŠáž¼ážáž»áž„ Telegram ážáž¶áž„áž€áŸ’ážšáŸ„áž˜ážŠáž¾áž˜áŸ’áž”áž¸áž†áž¶ážáž‘áŸ…áž€áž¶áž“áŸ‹ Admin áž•áŸ’áž‘áž¶áž›áŸ‹!',
+    actionText: 'âœˆï¸ áž†áž¶ážáž‘áŸ…áž€áž¶áž“áŸ‹ Telegram Admin',
     actionType: 'telegram',
   },
 ];
@@ -303,26 +303,26 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-[#070b14]/98 border border-cyan-500/30 rounded-3xl w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden relative shadow-[0_0_80px_rgba(6,182,212,0.25)]"
+        className="bg-white dark:bg-[#070b14]/98 border border-cyan-500/30 rounded-3xl w-full max-w-5xl max-h-[94vh] flex flex-col overflow-hidden relative shadow-[0_0_80px_rgba(6,182,212,0.25)]"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* ── Top Header Bar ── */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#080e1a] shrink-0">
+        {/* â”€â”€ Top Header Bar â”€â”€ */}
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#080e1a] shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-cyan-500 via-sky-500 to-indigo-600 flex items-center justify-center text-slate-800 dark:text-white shadow-lg shadow-cyan-500/30 border border-cyan-400/40">
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm sm:text-base font-black text-white tracking-wide flex items-center gap-2">
-                  <span>មគ្គុទ្ទេសក៍របៀបប្រើប្រាស់ ANIMESTUDIO</span>
+                <h3 className="text-sm sm:text-base font-black text-slate-800 dark:text-white tracking-wide flex items-center gap-2">
+                  <span>áž˜áž‚áŸ’áž‚áž»áž‘áŸ’áž‘áŸážŸáž€áŸážšáž”áŸ€áž”áž”áŸ’ážšáž¾áž”áŸ’ážšáž¶ážŸáŸ‹ Dragon Dabber Pro</span>
                   <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
                     3D SLIDES
                   </span>
                 </h3>
               </div>
-              <p className="text-xs text-slate-400 mt-0.5">
-                Drag បង្វិល 3D ស្លាយ ឬចុចប៊ូតុងខាងក្រោមដើម្បីស្វែងយល់មុខងារទាំងអស់
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                Drag áž”áž„áŸ’ážœáž·áž› 3D ážŸáŸ’áž›áž¶áž™ áž¬áž…áž»áž…áž”áŸŠáž¼ážáž»áž„ážáž¶áž„áž€áŸ’ážšáŸ„áž˜ážŠáž¾áž˜áŸ’áž”áž¸ážŸáŸ’ážœáŸ‚áž„áž™áž›áŸ‹áž˜áž»ážáž„áž¶ážšáž‘áž¶áŸ†áž„áž¢ážŸáŸ‹
               </p>
             </div>
           </div>
@@ -336,29 +336,29 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                 isAutoRotating
                   ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]'
-                  : 'bg-white/[0.04] text-slate-400 hover:text-white border border-white/[0.08]'
+                  : 'bg-slate-100 dark:bg-white/[0.04] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]'
               }`}
-              title="បង្វិល 3D Carousel ដោយស្វ័យប្រវត្តិ"
+              title="áž”áž„áŸ’ážœáž·áž› 3D Carousel ážŠáŸ„áž™ážŸáŸ’ážœáŸáž™áž”áŸ’ážšážœážáŸ’ážáž·"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isAutoRotating ? 'animate-spin' : ''}`} />
               <span className="hidden sm:inline">
-                {isAutoRotating ? 'កំពុងបង្វិល 3D' : 'បង្វិល Auto'}
+                {isAutoRotating ? 'áž€áŸ†áž–áž»áž„áž”áž„áŸ’ážœáž·áž› 3D' : 'áž”áž„áŸ’ážœáž·áž› Auto'}
               </span>
             </button>
 
             {/* View Mode Switcher */}
-            <div className="hidden sm:flex items-center bg-black/40 p-0.5 rounded-xl border border-white/[0.08]">
+            <div className="hidden sm:flex items-center bg-black/40 p-0.5 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
               <button
                 type="button"
                 onClick={() => setViewMode('3d-coverflow')}
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === '3d-coverflow'
                     ? 'bg-cyan-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                 }`}
                 title="3D Coverflow"
               >
-                🗂️ 3D Coverflow
+                ðŸ—‚ï¸ 3D Coverflow
               </button>
               <button
                 type="button"
@@ -366,11 +366,11 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === '3d-cylinder'
                     ? 'bg-cyan-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                 }`}
-                title="3D ស៊ីឡាំង"
+                title="3D ážŸáŸŠáž¸áž¡áž¶áŸ†áž„"
               >
-                🌐 3D ស៊ីឡាំង
+                ðŸŒ 3D ážŸáŸŠáž¸áž¡áž¶áŸ†áž„
               </button>
               <button
                 type="button"
@@ -378,26 +378,26 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                 className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                   viewMode === 'flat'
                     ? 'bg-cyan-500 text-slate-950 shadow-md'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                 }`}
-                title="ទម្រង់រាបស្មើ"
+                title="áž‘áž˜áŸ’ážšáž„áŸ‹ážšáž¶áž”ážŸáŸ’áž˜áž¾"
               >
-                📐 រាបស្មើ
+                ðŸ“ ážšáž¶áž”ážŸáŸ’áž˜áž¾
               </button>
             </div>
 
             {/* Exit Close Button */}
             <button
               onClick={onClose}
-              className="w-9 h-9 rounded-xl bg-white/[0.06] hover:bg-red-500/20 hover:text-red-400 border border-white/[0.08] hover:border-red-500/40 text-slate-300 flex items-center justify-center transition-all active:scale-95 shadow-sm"
-              title="បិទផ្ទាំង (Escape)"
+              className="w-9 h-9 rounded-xl bg-white/[0.06] hover:bg-blue-50 dark:bg-red-500/20 hover:text-blue-600 dark:text-red-400 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all active:scale-95 shadow-sm"
+              title="áž”áž·áž‘áž•áŸ’áž‘áž¶áŸ†áž„ (Escape)"
             >
               <X className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
         </div>
 
-        {/* ── Slide Navigation Step Pills (#1 to #6) ── */}
+        {/* â”€â”€ Slide Navigation Step Pills (#1 to #6) â”€â”€ */}
         <div className="px-6 py-2.5 bg-black/50 border-b border-white/[0.06] flex items-center justify-between gap-2 overflow-x-auto shrink-0">
           <div className="flex items-center gap-2">
             {GUIDE_SLIDES.map((s, idx) => {
@@ -409,7 +409,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                   className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
                     isActive
                       ? 'bg-cyan-500/25 text-cyan-300 border border-cyan-400/60 shadow-[0_0_15px_rgba(6,182,212,0.3)]'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.04] border border-transparent'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/[0.04] border border-transparent'
                   }`}
                 >
                   <span
@@ -426,12 +426,12 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
 
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-[11px] font-mono text-cyan-400 font-bold px-2.5 py-1 rounded-lg bg-cyan-500/10 border border-cyan-500/25">
-              ស្លាយ {activeSlideIndex + 1} / {totalSlides}
+              ážŸáŸ’áž›áž¶áž™ {activeSlideIndex + 1} / {totalSlides}
             </span>
           </div>
         </div>
 
-        {/* ── 3D Viewport / Rotating Stage ── */}
+        {/* â”€â”€ 3D Viewport / Rotating Stage â”€â”€ */}
         {viewMode !== 'flat' ? (
           <div
             className="flex-1 overflow-hidden relative flex flex-col items-center justify-center p-3 select-none cursor-grab active:cursor-grabbing min-h-[440px]"
@@ -464,7 +464,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
               <div className="absolute inset-8 rounded-full border border-dashed border-white/10" />
             </div>
 
-            {/* ── 3D COVERFLOW & CYLINDER STAGE (NO REVERSED MIRRORED TEXT) ── */}
+            {/* â”€â”€ 3D COVERFLOW & CYLINDER STAGE (NO REVERSED MIRRORED TEXT) â”€â”€ */}
             <div
               className="w-full max-w-4xl h-[360px] sm:h-[380px] relative flex items-center justify-center"
               style={{
@@ -516,7 +516,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                     }}
                   >
                     {/* Card Top Banner */}
-                    <div className="flex items-start justify-between gap-3 border-b border-white/[0.08] pb-3">
+                    <div className="flex items-start justify-between gap-3 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] pb-3">
                       <div className="flex items-center gap-3">
                         <div
                           className="w-11 h-11 rounded-2xl flex items-center justify-center border shadow-lg shrink-0"
@@ -541,7 +541,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                               {slide.badge}
                             </span>
                           </div>
-                          <h4 className="text-sm sm:text-base font-black text-white mt-1 leading-snug">
+                          <h4 className="text-sm sm:text-base font-black text-slate-800 dark:text-white mt-1 leading-snug">
                             {slide.title}
                           </h4>
                         </div>
@@ -551,7 +551,7 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                     {/* Card Points */}
                     <div className="space-y-2 py-2.5 flex-1 overflow-y-auto custom-scrollbar text-xs">
                       {slide.points.map((pt, pIdx) => (
-                        <div key={pIdx} className="flex items-start gap-2 text-slate-300 leading-relaxed">
+                        <div key={pIdx} className="flex items-start gap-2 text-slate-600 dark:text-slate-300 leading-relaxed">
                           <span
                             className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                             style={{ backgroundColor: slide.accentHex }}
@@ -562,8 +562,8 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                     </div>
 
                     {/* Card Bottom Action */}
-                    <div className="pt-2.5 border-t border-white/[0.08] flex items-center justify-between gap-2">
-                      <span className="text-[10px] text-slate-400 font-mono">
+                    <div className="pt-2.5 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-2">
+                      <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                         #{idx + 1} / {totalSlides}
                       </span>
 
@@ -581,11 +581,11 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                             boxShadow: `0 0 15px ${slide.glowColor}`,
                           }}
                         >
-                          <span>{slide.actionText || '✓ មើលមុខងារនេះ'}</span>
+                          <span>{slide.actionText || 'âœ“ áž˜áž¾áž›áž˜áž»ážáž„áž¶ážšáž“áŸáŸ‡'}</span>
                         </button>
                       ) : (
                         <span className="text-[11px] font-bold text-cyan-400">
-                          ចុចដើម្បីបង្វិលមកមុខ
+                          áž…áž»áž…ážŠáž¾áž˜áŸ’áž”áž¸áž”áž„áŸ’ážœáž·áž›áž˜áž€áž˜áž»áž
                         </span>
                       )}
                     </div>
@@ -597,22 +597,22 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
             {/* Left / Right 3D Stepper Floating Buttons */}
             <button
               onClick={rotatePrev}
-              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-black/70 hover:bg-cyan-500/25 border border-white/15 hover:border-cyan-400/50 text-white flex items-center justify-center shadow-2xl transition-all active:scale-95 z-40 backdrop-blur-md"
-              title="បង្វិលថយក្រោយ [Arrow Left]"
+              className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-black/70 hover:bg-cyan-500/25 border border-white/15 hover:border-cyan-400/50 text-slate-800 dark:text-white flex items-center justify-center shadow-2xl transition-all active:scale-95 z-40 backdrop-blur-md"
+              title="áž”áž„áŸ’ážœáž·áž›ážáž™áž€áŸ’ážšáŸ„áž™ [Arrow Left]"
             >
               <ChevronLeft className="w-6 h-6 text-cyan-400" />
             </button>
 
             <button
               onClick={rotateNext}
-              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-black/70 hover:bg-cyan-500/25 border border-white/15 hover:border-cyan-400/50 text-white flex items-center justify-center shadow-2xl transition-all active:scale-95 z-40 backdrop-blur-md"
-              title="បង្វិលទៅមុខ [Arrow Right]"
+              className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-2xl bg-black/70 hover:bg-cyan-500/25 border border-white/15 hover:border-cyan-400/50 text-slate-800 dark:text-white flex items-center justify-center shadow-2xl transition-all active:scale-95 z-40 backdrop-blur-md"
+              title="áž”áž„áŸ’ážœáž·áž›áž‘áŸ…áž˜áž»áž [Arrow Right]"
             >
               <ChevronRight className="w-6 h-6 text-cyan-400" />
             </button>
           </div>
         ) : (
-          /* ── Flat List View ── */
+          /* â”€â”€ Flat List View â”€â”€ */
           <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-4 custom-scrollbar">
             <div
               className={`p-4 rounded-2xl bg-gradient-to-r border flex items-start gap-4 ${currentSlide.gradient}`}
@@ -625,28 +625,28 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
                 <div className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-black/30 border border-white/10 inline-block mb-1">
                   {currentSlide.badge}
                 </div>
-                <h4 className="text-base font-bold text-white tracking-wide">
+                <h4 className="text-base font-bold text-slate-800 dark:text-white tracking-wide">
                   {currentSlide.title}
                 </h4>
-                <p className="text-xs text-slate-300 mt-1">{currentSlide.summary}</p>
+                <p className="text-xs text-slate-600 dark:text-slate-300 mt-1">{currentSlide.summary}</p>
               </div>
               <button
                 onClick={() => handleActionClick(currentSlide)}
                 className="px-4 py-2 rounded-xl font-bold text-xs shadow-md shrink-0 self-center"
                 style={{ backgroundColor: currentSlide.accentHex, color: '#070b14' }}
               >
-                {currentSlide.actionText || 'ដំណើរការ'}
+                {currentSlide.actionText || 'ážŠáŸ†ážŽáž¾ážšáž€áž¶ážš'}
               </button>
             </div>
 
-            <div className="bg-white/[0.02] border border-white/[0.08] rounded-2xl p-5 space-y-3">
-              <h5 className="text-xs font-bold text-white flex items-center gap-2">
+            <div className="bg-white/[0.02] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl p-5 space-y-3">
+              <h5 className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-cyan-400" />
-                <span>ចំណុចណែនាំលម្អិត:</span>
+                <span>áž…áŸ†ážŽáž»áž…ážŽáŸ‚áž“áž¶áŸ†áž›áž˜áŸ’áž¢áž·áž:</span>
               </h5>
               <div className="space-y-2.5">
                 {currentSlide.points.map((pt, pIdx) => (
-                  <div key={pIdx} className="flex items-start gap-2 text-xs text-slate-300">
+                  <div key={pIdx} className="flex items-start gap-2 text-xs text-slate-600 dark:text-slate-300">
                     <span
                       className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0"
                       style={{ backgroundColor: currentSlide.accentHex }}
@@ -664,13 +664,13 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
           </div>
         )}
 
-        {/* ── 360° Interactive Angle Scrubber Bar ── */}
+        {/* â”€â”€ 360Â° Interactive Angle Scrubber Bar â”€â”€ */}
         {viewMode !== 'flat' && (
-          <div className="px-6 py-2 bg-black/60 border-t border-white/[0.06] flex items-center justify-between gap-4 text-xs text-slate-400 shrink-0">
+          <div className="px-6 py-2 bg-black/60 border-t border-white/[0.06] flex items-center justify-between gap-4 text-xs text-slate-500 dark:text-slate-400 shrink-0">
             <div className="flex items-center gap-2">
               <Compass className="w-4 h-4 text-cyan-400 animate-spin-slow" />
               <span className="font-mono text-[11px] text-cyan-300 font-bold">
-                {activeSlideIndex * 60}° / 360°
+                {activeSlideIndex * 60}Â° / 360Â°
               </span>
             </div>
 
@@ -682,18 +682,18 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
               value={activeSlideIndex}
               onChange={(e) => setActiveSlideIndex(Number(e.target.value))}
               className="flex-1 h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
-              title="បង្វិលមុំ 3D Carousel"
+              title="áž”áž„áŸ’ážœáž·áž›áž˜áž»áŸ† 3D Carousel"
             />
 
-            <div className="flex items-center gap-2 text-[11px] text-slate-400">
-              <span className="hidden md:inline">👆 Drag បង្វិល | 🖱️ Scroll Wheel | ◀️ ▶️ Keys</span>
+            <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400">
+              <span className="hidden md:inline">ðŸ‘† Drag áž”áž„áŸ’ážœáž·áž› | ðŸ–±ï¸ Scroll Wheel | â—€ï¸ â–¶ï¸ Keys</span>
             </div>
           </div>
         )}
 
-        {/* ── Modal Bottom Action Footer ── */}
-        <div className="p-3.5 px-6 border-t border-white/[0.08] bg-[#070b14] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
-          <div className="flex items-center gap-2 text-xs text-slate-400">
+        {/* â”€â”€ Modal Bottom Action Footer â”€â”€ */}
+        <div className="p-3.5 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#070b14] flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span>
               Telegram Admin: <a href="https://t.me/BongCheatz_IT" target="_blank" rel="noopener noreferrer" className="text-cyan-400 hover:underline font-bold">@BongCheatz_IT</a>
@@ -704,35 +704,35 @@ export const UserGuideModal: React.FC<UserGuideModalProps> = ({
             <button
               type="button"
               onClick={rotatePrev}
-              className="px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-slate-300 transition-colors flex items-center gap-1 active:scale-95"
+              className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1 active:scale-95"
             >
               <ChevronLeft className="w-4 h-4" />
-              <span>មុន</span>
+              <span>áž˜áž»áž“</span>
             </button>
 
             <button
               type="button"
               onClick={rotateNext}
-              className="px-3.5 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-xs text-slate-300 transition-colors flex items-center gap-1 active:scale-95"
+              className="px-3.5 py-1.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs text-slate-600 dark:text-slate-300 transition-colors flex items-center gap-1 active:scale-95"
             >
-              <span>បន្ទាប់</span>
+              <span>áž”áž“áŸ’áž‘áž¶áž”áŸ‹</span>
               <ChevronRight className="w-4 h-4" />
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-slate-300 font-semibold text-xs transition-all active:scale-95 ml-1"
+              className="px-4 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-slate-600 dark:text-slate-300 font-semibold text-xs transition-all active:scale-95 ml-1"
             >
-              ✕ បិទ (Esc)
+              âœ• áž”áž·áž‘ (Esc)
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black text-xs shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
+              className="px-5 py-1.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-800 dark:text-white font-black text-xs shadow-lg shadow-cyan-500/25 transition-all active:scale-95"
             >
-              ✓ ចាប់ផ្ដើមប្រើប្រាស់ TOOL
+              âœ“ áž…áž¶áž”áŸ‹áž•áŸ’ážŠáž¾áž˜áž”áŸ’ážšáž¾áž”áŸ’ážšáž¶ážŸáŸ‹ TOOL
             </button>
           </div>
         </div>

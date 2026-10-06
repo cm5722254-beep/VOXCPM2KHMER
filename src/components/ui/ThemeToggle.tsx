@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Moon, Sun, Monitor } from 'lucide-react';
 
 type ThemeMode = 'light' | 'dark' | 'auto';
@@ -10,7 +10,7 @@ interface ThemeToggleProps {
 
 export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeChange }) => {
   const [mode, setMode] = useState<ThemeMode>(() => {
-    const saved = localStorage.getItem('theme_mode') || localStorage.getItem('animestudio_theme_mode');
+    const saved = localStorage.getItem('theme_mode') || localStorage.getItem('dragon_dabber_theme_mode');
     return (saved as ThemeMode) || 'auto';
   });
 
@@ -40,15 +40,15 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
   };
 
   const getCurrentIcon = () => {
-    if (mode === 'auto') return <Monitor size={15} className="text-emerald-400" />;
+    if (mode === 'auto') return <Monitor size={15} className="text-emerald-600 dark:text-emerald-400" />;
     if (currentTheme === 'dark') return <Moon size={15} className="text-indigo-400" />;
-    return <Sun size={15} className="text-amber-400" />;
+    return <Sun size={15} className="text-sky-600 dark:text-amber-400" />;
   };
 
   const getCurrentLabel = () => {
-    if (mode === 'auto') return 'ស្វ័យប្រវត្តិ';
-    if (currentTheme === 'dark') return 'ងងឹត';
-    return 'ភ្លឺ';
+    if (mode === 'auto') return 'ážŸáŸ’ážœáŸáž™áž”áŸ’ážšážœážáŸ’ážáž·';
+    if (currentTheme === 'dark') return 'áž„áž„áž¹áž';
+    return 'áž—áŸ’áž›ážº';
   };
 
   return (
@@ -59,7 +59,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
         style={{
           color: currentTheme === 'dark' ? '#f1f5f9' : '#1e293b',
         }}
-        title="ប្តូររចនាប័ទ្មពណ៌ (Theme Mode: Light / Dark / Auto)"
+        title="áž”áŸ’ážáž¼ážšážšáž…áž“áž¶áž”áŸáž‘áŸ’áž˜áž–ážŽáŸŒ (Theme Mode: Light / Dark / Auto)"
       >
         {getCurrentIcon()}
         <span className="font-khmer">{getCurrentLabel()}</span>
@@ -138,7 +138,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
               }}
             >
               <Sun size={18} style={{ color: '#f59e0b' }} />
-              <span style={{ flex: 1, textAlign: 'left' }}>Light Mode (ភ្លឺ)</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Light Mode (áž—áŸ’áž›ážº)</span>
               {mode === 'light' && (
                 <div
                   style={{
@@ -193,7 +193,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
               }}
             >
               <Moon size={18} style={{ color: '#818cf8' }} />
-              <span style={{ flex: 1, textAlign: 'left' }}>Dark Mode (ងងឹត)</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Dark Mode (áž„áž„áž¹áž)</span>
               {mode === 'dark' && (
                 <div
                   style={{
@@ -247,7 +247,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
               }}
             >
               <Monitor size={18} style={{ color: '#10b981' }} />
-              <span style={{ flex: 1, textAlign: 'left' }}>Auto (ស្វ័យប្រវត្តិ)</span>
+              <span style={{ flex: 1, textAlign: 'left' }}>Auto (ážŸáŸ’ážœáŸáž™áž”áŸ’ážšážœážáŸ’ážáž·)</span>
               {mode === 'auto' && (
                 <div
                   style={{
@@ -274,9 +274,9 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onThemeC
                 lineHeight: 1.4,
               }}
             >
-              {mode === 'auto' && 'តាមប្រព័ន្ធប្រតិបត្តិការ'}
-              {mode === 'light' && 'ប្រើពណ៌ស និងពណ៌ភ្លឺ'}
-              {mode === 'dark' && 'ប្រើពណ៌ខ្មៅ និងពណ៌ងងឹត'}
+              {mode === 'auto' && 'ážáž¶áž˜áž”áŸ’ážšáž–áŸáž“áŸ’áž’áž”áŸ’ážšážáž·áž”ážáŸ’ážáž·áž€áž¶ážš'}
+              {mode === 'light' && 'áž”áŸ’ážšáž¾áž–ážŽáŸŒážŸ áž“áž·áž„áž–ážŽáŸŒáž—áŸ’áž›ážº'}
+              {mode === 'dark' && 'áž”áŸ’ážšáž¾áž–ážŽáŸŒážáŸ’áž˜áŸ… áž“áž·áž„áž–ážŽáŸŒáž„áž„áž¹áž'}
             </div>
           </div>
 
@@ -311,7 +311,7 @@ export const QuickThemeToggle: React.FC<ThemeToggleProps> = ({ currentTheme, onT
   return (
     <button
       onClick={handleToggle}
-      title={currentTheme === 'dark' ? 'ប្តូរទៅ Light Mode' : 'ប្តូរទៅ Dark Mode'}
+      title={currentTheme === 'dark' ? 'áž”áŸ’ážáž¼ážšáž‘áŸ… Light Mode' : 'áž”áŸ’ážáž¼ážšáž‘áŸ… Dark Mode'}
       style={{
         width: '40px',
         height: '40px',

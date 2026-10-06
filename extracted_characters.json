@@ -1,5 +1,41 @@
 [
   {
+    "id": "voxcpm:primeval_ep02_S01_female.mp3",
+    "filename": "primeval_ep02_S01_female.mp3",
+    "label": "👑 Primeval Overlord - តួឯកស្រី (S01)",
+    "role_key": "female_lead",
+    "gender": "female",
+    "is_curated": true,
+    "words": "សំឡេងតួឯកស្រី Primeval Overlord ភាគ 02 (កម្រិត 229 Hz)"
+  },
+  {
+    "id": "voxcpm:primeval_ep02_S02_female.mp3",
+    "filename": "primeval_ep02_S02_female.mp3",
+    "label": "🌸 Primeval Overlord - តួស្រីទី២ (S02)",
+    "role_key": "female_lead",
+    "gender": "female",
+    "is_curated": true,
+    "words": "សំឡេងតួស្រីទី២ Primeval Overlord ភាគ 02 (កម្រិត 308 Hz)"
+  },
+  {
+    "id": "voxcpm:primeval_ep02_S03_female.mp3",
+    "filename": "primeval_ep02_S03_female.mp3",
+    "label": "🌺 Primeval Overlord - តួស្រីទី៣ (S03)",
+    "role_key": "female_lead",
+    "gender": "female",
+    "is_curated": true,
+    "words": "សំឡេងតួស្រីទី៣ Primeval Overlord ភាគ 02 (កម្រិត 176 Hz)"
+  },
+  {
+    "id": "voxcpm:primeval_ep02_S04_male.mp3",
+    "filename": "primeval_ep02_S04_male.mp3",
+    "label": "⚔️ Primeval Overlord - តួឯកប្រុស (S04)",
+    "role_key": "male_lead",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងតួឯកប្រុស Primeval Overlord ភាគ 02 (កម្រិត 129 Hz)"
+  },
+  {
     "id": "voxcpm:custom_voice_1791124300845.mp3",
     "filename": "custom_voice_1791124300845.mp3",
     "label": "តួប្រុស",
@@ -124,5 +160,185 @@
     "gender": "female",
     "is_curated": true,
     "words": "សំឡេងខ្មែរតួស្រី រស់រវើកមានមន្តស្នេហ៍"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid2.mp3",
+    "filename": "custom_voice_vid2.mp3",
+    "label": "Clone Voice V02 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 2 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid3.mp3",
+    "filename": "custom_voice_vid3.mp3",
+    "label": "Clone Voice V03 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 3 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid4.mp3",
+    "filename": "custom_voice_vid4.mp3",
+    "label": "Clone Voice V04 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 4 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid5.mp3",
+    "filename": "custom_voice_vid5.mp3",
+    "label": "Clone Voice V05 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 5 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid6.mp3",
+    "filename": "custom_voice_vid6.mp3",
+    "label": "Clone Voice V06 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 6 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid7.mp3",
+    "filename": "custom_voice_vid7.mp3",
+    "label": "Clone Voice V07 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 7 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid8.mp3",
+    "filename": "custom_voice_vid8.mp3",
+    "label": "Clone Voice V08 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 8 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid9.mp3",
+    "filename": "custom_voice_vid9.mp3",
+    "label": "Clone Voice V09 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 9 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid10.mp3",
+    "filename": "custom_voice_vid10.mp3",
+    "label": "Clone Voice V10 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 10 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid11.mp3",
+    "filename": "custom_voice_vid11.mp3",
+    "label": "Clone Voice V11 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 11 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid12.mp3",
+    "filename": "custom_voice_vid12.mp3",
+    "label": "Clone Voice V12 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 12 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid13.mp3",
+    "filename": "custom_voice_vid13.mp3",
+    "label": "Clone Voice V13 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 13 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid14.mp3",
+    "filename": "custom_voice_vid14.mp3",
+    "label": "Clone Voice V14 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 14 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid15.mp3",
+    "filename": "custom_voice_vid15.mp3",
+    "label": "Clone Voice V15 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 15 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid18.mp3",
+    "filename": "custom_voice_vid18.mp3",
+    "label": "Clone Voice V18 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 18 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid19.mp3",
+    "filename": "custom_voice_vid19.mp3",
+    "label": "Clone Voice V19 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 19 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid20.mp3",
+    "filename": "custom_voice_vid20.mp3",
+    "label": "Clone Voice V20 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 20 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid21.mp3",
+    "filename": "custom_voice_vid21.mp3",
+    "label": "Clone Voice V21 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 21 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid22.mp3",
+    "filename": "custom_voice_vid22.mp3",
+    "label": "Clone Voice V22 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 22 (20261005)"
+  },
+  {
+    "id": "voxcpm:custom_voice_vid23.mp3",
+    "filename": "custom_voice_vid23.mp3",
+    "label": "Clone Voice V23 - សំឡេងដើម",
+    "role_key": "supporting",
+    "gender": "male",
+    "is_curated": true,
+    "words": "សំឡេងដើមចម្លងពី Video 23 (20261005)"
   }
 ]

@@ -102,30 +102,30 @@ export default function RealtimeProgress({ jobId, onComplete, onError }: Realtim
   const getStatusColor = () => {
     switch (progress.status) {
       case 'completed':
-        return 'text-emerald-400';
+        return 'text-emerald-600 dark:text-emerald-400';
       case 'failed':
-        return 'text-red-400';
+        return 'text-blue-600 dark:text-red-400';
       case 'processing':
       case 'dubbing_khmer':
       case 'extracting':
         return 'text-sky-400';
       default:
-        return 'text-slate-400';
+        return 'text-slate-500 dark:text-slate-400';
     }
   };
 
   const getStatusIcon = () => {
     switch (progress.status) {
       case 'completed':
-        return <CheckCircle2 className="w-5 h-5 text-emerald-400" />;
+        return <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />;
       case 'failed':
-        return <AlertCircle className="w-5 h-5 text-red-400" />;
+        return <AlertCircle className="w-5 h-5 text-blue-600 dark:text-red-400" />;
       case 'processing':
       case 'dubbing_khmer':
       case 'extracting':
         return <Loader2 className="w-5 h-5 text-sky-400 animate-spin" />;
       default:
-        return <Zap className="w-5 h-5 text-slate-400" />;
+        return <Zap className="w-5 h-5 text-slate-500 dark:text-slate-400" />;
     }
   };
 
@@ -136,7 +136,7 @@ export default function RealtimeProgress({ jobId, onComplete, onError }: Realtim
         <div className="flex items-center gap-3">
           {getStatusIcon()}
           <div>
-            <h3 className="text-sm font-bold text-slate-200">Real-time Processing</h3>
+            <h3 className="text-sm font-bold text-slate-700 dark:text-slate-200">Real-time Processing</h3>
             <p className={`text-xs ${getStatusColor()}`}>{progress.message}</p>
           </div>
         </div>
@@ -183,10 +183,10 @@ export default function RealtimeProgress({ jobId, onComplete, onError }: Realtim
 
       {/* Error Display */}
       {progress.error && (
-        <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+        <div className="p-4 rounded-lg bg-red-500/10 border border-blue-200 dark:border-blue-200 dark:border-blue-200 dark:border-red-500/20 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-blue-600 dark:text-red-400 flex-shrink-0 mt-0.5" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm text-red-400 font-medium">កំហុស:</p>
+            <p className="text-sm text-blue-600 dark:text-red-400 font-medium">កំហុស:</p>
             <p className="text-sm text-red-300 mt-1">{progress.error}</p>
           </div>
         </div>
@@ -196,8 +196,8 @@ export default function RealtimeProgress({ jobId, onComplete, onError }: Realtim
       {progress.status === 'completed' && progress.outputVideo && (
         <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-3">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-            <p className="text-sm text-emerald-400 font-bold">ជោគជ័យ 100%!</p>
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <p className="text-sm text-emerald-600 dark:text-emerald-400 font-bold">ជោគជ័យ 100%!</p>
           </div>
           
           <div className="flex items-center gap-3">
@@ -251,7 +251,7 @@ export default function RealtimeProgress({ jobId, onComplete, onError }: Realtim
           <div className="text-xs text-slate-500 mb-1">Connection</div>
           <div className="flex items-center justify-center gap-1">
             <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
-            <span className="text-xs font-bold text-emerald-400">Live</span>
+            <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">Live</span>
           </div>
         </div>
       </div>

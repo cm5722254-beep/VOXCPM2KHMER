@@ -42,8 +42,21 @@ import { KhmerOfflineStudioPage } from './components/offline/KhmerOfflineStudioP
 import { PosterForgeStudio } from './components/posterforge/PosterForgeStudio';
 import { NarratorStudio } from './components/narrator/NarratorStudio';
 import { StudioProgressHUD } from './components/studio/StudioProgressHUD';
+import { DragonVoiceLab } from './components/voice/DragonVoiceLab';
+import { DragonAIAssistantDrawer } from './components/dragon/DragonAIAssistantDrawer';
+import { DragonVIPModal } from './components/modals/DragonVIPModal';
+import { DragonVoiceClonerModal } from './components/voice/DragonVoiceClonerModal';
+import { OneClickDragonDubbingModal } from './components/modals/OneClickDragonDubbingModal';
+import { DragonAIToolsCenter } from './components/ai/DragonAIToolsCenter';
+import { CommandPalette } from './components/global';
+import { NextVersionRoadmapModal } from './components/modals/NextVersionRoadmapModal';
+import { BatchDubbingStudio } from './components/batch/BatchDubbingStudio';
+import { SmartSceneIntelligence } from './components/scenes/SmartSceneIntelligence';
 import { CURATED_CHARACTER_VOICES } from './constants/characterVoices';
 import { getLicenseInfo } from './utils/subscription';
+import { DragonHardwareReport } from './components/dragon/DragonHardwareReport';
+import { DragonDiagnostics } from './components/dragon/DragonDiagnostics';
+import { DragonCrashRecovery } from './components/dragon/DragonCrashRecovery';
 
 import { api } from './services/api';
 import {
@@ -78,6 +91,8 @@ export const App: React.FC = () => {
   const [isShelfOpen, setIsShelfOpen] = useState(false);
   const [isGroupManagerOpen, setIsGroupManagerOpen] = useState(false);
   const [isHardwareTurboOpen, setIsHardwareTurboOpen] = useState(false);
+  const [isHardwareReportOpen, setIsHardwareReportOpen] = useState(false);
+  const [isDiagnosticsOpen, setIsDiagnosticsOpen] = useState(false);
   const [shelfItems, setShelfItems] = useState<VideoShelfItem[]>([]);
   const [projectGroups, setProjectGroups] = useState<ProjectGroup[]>([]);
   const [activeGroupId, setActiveGroupId] = useState<string | null>(null);
@@ -101,6 +116,41 @@ export const App: React.FC = () => {
   const [isCustomizerOpen, setIsCustomizerOpen] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
   const [isAutoDubChoiceOpen, setIsAutoDubChoiceOpen] = useState(false);
+
+  // ── Dragon Fantasy Studio State ──
+  const [isAIAssistantOpen, setIsAIAssistantOpen] = useState(false);
+  const [isVIPModalOpen, setIsVIPModalOpen] = useState(false);
+  const [isRoadmapModalOpen, setIsRoadmapModalOpen] = useState(false);
+  const [isVoiceClonerOpen, setIsVoiceClonerOpen] = useState(false);
+  const [isOneClickDragonDubOpen, setIsOneClickDragonDubOpen] = useState(false);
+  const [dragonTheme, setDragonTheme] = useState<'dragon-crimson' | 'dragon-midnight' | 'dragon-dark' | 'dragon-jade' | 'dragon-purple'>(() => {
+    try {
+      return (localStorage.getItem('dragon_theme') as any) || 'dragon-crimson';
+    } catch {
+      return 'dragon-crimson';
+    }
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.remove('theme-dragon-crimson', 'theme-dragon-midnight', 'theme-dragon-dark', 'theme-dragon-jade', 'theme-dragon-purple');
+    document.documentElement.classList.add(`theme-${dragonTheme}`);
+    localStorage.setItem('dragon_theme', dragonTheme);
+  }, [dragonTheme]);
+
+  // ── Global Command Palette (Ctrl + K) ──
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false);
+
+  useEffect(() => {
+    const handleGlobalShortcuts = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setIsCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalShortcuts);
+    return () => window.removeEventListener('keydown', handleGlobalShortcuts);
+  }, []);
+
   const [versionInfo, setVersionInfo] = useState<{
     current_version: string;
     latest_version: string;
@@ -133,17 +183,23 @@ export const App: React.FC = () => {
 
   const [customUITheme, setCustomUITheme] = useState<StudioCustomUITheme>(() => {
     try {
-      const saved = localStorage.getItem('animestudio_custom_theme');
+      // Support legacy key migration
+      const saved = localStorage.getItem('dragon_dabber_custom_theme')
+        || localStorage.getItem('animestudio_custom_theme');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (localStorage.getItem('animestudio_reference_ui_v2') !== 'capcut_pro_v1') {
-          localStorage.setItem('animestudio_reference_ui_v2', 'capcut_pro_v1');
-          localStorage.setItem('animestudio_theme_mode', 'dark');
+        if (localStorage.getItem('dragon_dabber_reference_ui_v2') !== 'capcut_pro_v1') {
+          localStorage.setItem('dragon_dabber_reference_ui_v2', 'capcut_pro_v1');
+          localStorage.setItem('dragon_dabber_theme_mode', 'dark');
           parsed.bgMode = 'color';
           parsed.backgroundColor = '#121214';
           parsed.backgroundPreset = 'capcut_matte';
           parsed.themeMode = 'dark';
-          localStorage.setItem('animestudio_custom_theme', JSON.stringify(parsed));
+          localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(parsed));
+          // Clean up legacy keys
+          localStorage.removeItem('animestudio_custom_theme');
+          localStorage.removeItem('animestudio_reference_ui_v2');
+          localStorage.removeItem('animestudio_theme_mode');
         }
         return {
           wallpaperUrl: parsed.wallpaperUrl || DEFAULT_ANIME_WALLPAPER,
@@ -162,8 +218,8 @@ export const App: React.FC = () => {
         };
       }
     } catch {}
-    localStorage.setItem('animestudio_reference_ui_v2', 'capcut_pro_v1');
-    localStorage.setItem('animestudio_theme_mode', 'dark');
+    localStorage.setItem('dragon_dabber_reference_ui_v2', 'capcut_pro_v1');
+    localStorage.setItem('dragon_dabber_theme_mode', 'dark');
     return {
       wallpaperUrl: DEFAULT_ANIME_WALLPAPER,
       wallpaperOpacity: 85,
@@ -184,9 +240,11 @@ export const App: React.FC = () => {
   // The studio opens in its cinematic dark workspace; the theme toggle remains available.
   const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
     try {
-      const savedTheme = localStorage.getItem('animestudio_theme_mode');
+      const savedTheme = localStorage.getItem('dragon_dabber_theme_mode')
+        || localStorage.getItem('animestudio_theme_mode');
       if (savedTheme) return savedTheme === 'dark';
-      const customTheme = localStorage.getItem('animestudio_custom_theme');
+      const customTheme = localStorage.getItem('dragon_dabber_custom_theme')
+        || localStorage.getItem('animestudio_custom_theme');
       if (customTheme) {
         const parsed = JSON.parse(customTheme);
         return parsed.themeMode === 'dark' || parsed.backgroundPreset === 'default_dark';
@@ -209,7 +267,7 @@ export const App: React.FC = () => {
   const handleToggleDarkMode = (target?: boolean) => {
     const next = target !== undefined ? target : !isDarkMode;
     setIsDarkMode(next);
-    localStorage.setItem('animestudio_theme_mode', next ? 'dark' : 'light');
+    localStorage.setItem('dragon_dabber_theme_mode', next ? 'dark' : 'light');
     if (next) {
       document.documentElement.classList.add('dark');
       document.documentElement.classList.remove('light');
@@ -234,7 +292,7 @@ export const App: React.FC = () => {
   // Media & Dubbing
   const [uploadedFile, setUploadedFile] = useState<ProjectFile | null>(() => {
     try {
-      const saved = localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
+      const saved = localStorage.getItem('DRAGON_DABBER_PROJECT_STATE') || localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.uploadedFile && parsed.uploadedFile.id !== 'demo_video_2026') {
@@ -321,7 +379,7 @@ export const App: React.FC = () => {
   // Timeline & Segments - strictly REAL data, no fake mock segments!
   const [segments, setSegments] = useState<TimelineSegment[]>(() => {
     try {
-      const saved = localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
+      const saved = localStorage.getItem('DRAGON_DABBER_PROJECT_STATE') || localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
       if (saved) {
         const parsed = JSON.parse(saved);
         if (parsed.segments && parsed.segments.length > 0) {
@@ -518,7 +576,7 @@ export const App: React.FC = () => {
       };
 
       // 1. Instant client-side persistence
-      localStorage.setItem('CHEATAZ_DABBER_PROJECT_STATE', JSON.stringify(projectPayload));
+      localStorage.setItem('DRAGON_DABBER_PROJECT_STATE', JSON.stringify(projectPayload));
 
       // 2. Persistent backend storage
       await api.saveProject(projectPayload).catch(() => {});
@@ -543,7 +601,7 @@ export const App: React.FC = () => {
       let savedData: any = null;
 
       // Check local storage first
-      const localStr = localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
+      const localStr = localStorage.getItem('DRAGON_DABBER_PROJECT_STATE') || localStorage.getItem('CHEATAZ_DABBER_PROJECT_STATE');
       if (localStr) {
         try {
           savedData = JSON.parse(localStr);
@@ -826,6 +884,7 @@ export const App: React.FC = () => {
     showToast(`⚡ បានផ្ទុកវីដេអូលើអេក្រង់ភ្លាមៗ! កំពុងរក្សាទុកក្នុង Server...`, 'info');
 
     try {
+      localStorage.removeItem('DRAGON_DABBER_PROJECT_STATE');
       localStorage.removeItem('CHEATAZ_DABBER_PROJECT_STATE');
     } catch (_) {}
 
@@ -1353,7 +1412,7 @@ export const App: React.FC = () => {
   // 1. Initial Auth / Machine Checking Screen
   if (isAuthChecking) {
     return (
-      <div className="fixed inset-0 bg-[#07090e] flex flex-col items-center justify-center font-khmer select-none text-slate-200 z-[1000]">
+      <div className="fixed inset-0 bg-white dark:bg-[#07090e] flex flex-col items-center justify-center font-khmer select-none text-slate-200 z-[1000]">
         <div className="w-16 h-16 rounded-2xl bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400 mb-4 shadow-[0_0_35px_rgba(6,182,212,0.25)] animate-pulse">
           <Loader2 className="w-8 h-8 animate-spin text-cyan-400" />
         </div>
@@ -1387,7 +1446,7 @@ export const App: React.FC = () => {
 
   return (
     <div
-      className={`app-shell flex flex-col h-screen w-screen overflow-hidden ${isDarkMode ? 'text-slate-100 bg-[#121214]' : 'text-slate-900 bg-[#f8fafc]'} font-khmer studio-enter relative transition-colors duration-300`}
+      className={`app-shell flex flex-col h-screen w-screen overflow-hidden ${isDarkMode ? 'text-slate-100 bg-white dark:bg-[#121214]' : 'text-slate-900 bg-[#f8fafc]'} font-khmer studio-enter relative transition-colors duration-300`}
       style={{
         background: customUITheme.bgMode === 'wallpaper' && customUITheme.wallpaperUrl
           ? undefined
@@ -1467,6 +1526,8 @@ export const App: React.FC = () => {
         shelfCount={shelfItems.length}
         onOpenShelf={() => setIsShelfOpen(true)}
         onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
+        onOpenHardwareReport={() => setIsHardwareReportOpen(true)}
+        onOpenDiagnostics={() => setIsDiagnosticsOpen(true)}
         onOpenGuide={() => setIsGuideOpen(true)}
         onOpenCustomizer={() => setIsCustomizerOpen(true)}
         onOpenUpdateModal={() => setIsUpdateModalOpen(true)}
@@ -1477,7 +1538,11 @@ export const App: React.FC = () => {
         onToggleDarkMode={handleToggleDarkMode}
         bgMode={customUITheme.bgMode || 'color'}
         onToggleMobileMenu={() => setIsMobileMenuOpen((prev) => !prev)}
-        onOneClickDubbing={handleOneClickCinemaDubbing}
+        onOneClickDubbing={() => setIsOneClickDragonDubOpen(true)}
+        onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
+        onOpenVIPModal={() => setIsVIPModalOpen(true)}
+        onOpenSearch={() => setIsCommandPaletteOpen(true)}
+        onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
       />
 
       {/* Main Workspace Layout */}
@@ -1498,6 +1563,7 @@ export const App: React.FC = () => {
             setSegments([]);
             setOutputVideo(null);
             setOutputAudio(null);
+            localStorage.removeItem('DRAGON_DABBER_PROJECT_STATE');
             localStorage.removeItem('CHEATAZ_DABBER_PROJECT_STATE');
             api.clearProject().catch(() => {});
             setActiveTab('tab-workflow');
@@ -1513,9 +1579,14 @@ export const App: React.FC = () => {
           onOpenGroups={() => setIsGroupManagerOpen(true)}
           onOpenHardwareTurbo={() => setIsHardwareTurboOpen(true)}
           onOpenCustomizer={() => setIsCustomizerOpen(true)}
+          onOpenVoiceLab={() => setActiveTab('tab-voicelab')}
+          onOpenVoiceCloning={() => setIsVoiceClonerOpen(true)}
+          onOpenVIPModal={() => setIsVIPModalOpen(true)}
+          onOpenAIAssistant={() => setIsAIAssistantOpen(true)}
           isMobileOpen={isMobileMenuOpen}
           onCloseMobile={() => setIsMobileMenuOpen(false)}
           onOpenSponsor={() => setIsSponsorOpen(true)}
+          onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
         />
 
         {/* Dynamic Studio Views */}
@@ -1536,6 +1607,7 @@ export const App: React.FC = () => {
                 setSegments([]);
                 setOutputVideo(null);
                 setOutputAudio(null);
+                localStorage.removeItem('DRAGON_DABBER_PROJECT_STATE');
                 localStorage.removeItem('CHEATAZ_DABBER_PROJECT_STATE');
                 api.clearProject().catch(() => {});
                 setActiveTab('tab-workflow');
@@ -1681,6 +1753,7 @@ export const App: React.FC = () => {
               onSelectGroup={setActiveGroupId}
               onOpenGroupManager={() => setIsGroupManagerOpen(true)}
               onOneClickDubbing={handleOneClickCinemaDubbing}
+              onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
             />
           </div>
 
@@ -1716,7 +1789,7 @@ export const App: React.FC = () => {
 
           {activeTab === 'tab-manual' && (
             <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4 tab-content-enter">
-              <div className="bg-[#111827] border border-white/[0.08] rounded-xl p-4 flex justify-between items-center">
+              <div className="bg-white dark:bg-[#111827] border border-white/[0.08] rounded-xl p-4 flex justify-between items-center">
                 <div>
                   <h3 className="text-sm font-bold text-white">បន្ទប់កាត់តសំឡេងលម្អិត (Timeline Dialogue Editor)</h3>
                   <p className="text-xs text-slate-400">ស្កេន និងប្តូរសំឡេងតួអង្គនីមួយៗក្នុងរឿង បញ្ចូលសំឡេងផ្ទាល់ ឬបង្កើតសំឡេង AI</p>
@@ -1733,7 +1806,7 @@ export const App: React.FC = () => {
                 {segments.map((seg, idx) => (
                   <div
                     key={idx}
-                    className="bg-[#111827] border border-white/[0.08] rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
+                    className="bg-white dark:bg-[#111827] border border-white/[0.08] rounded-lg p-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4"
                   >
                     <div className="flex items-center gap-3 flex-1">
                       <span className="font-mono text-xs font-semibold px-2 py-0.5 rounded bg-sky-500/15 text-sky-400">
@@ -1757,7 +1830,7 @@ export const App: React.FC = () => {
                                 return copy;
                               });
                             }}
-                            className="bg-[#07090e] border border-white/[0.1] rounded px-2 py-1 text-xs text-sky-300 font-semibold"
+                            className="bg-white dark:bg-[#07090e] border border-white/[0.1] rounded px-2 py-1 text-xs text-sky-300 font-semibold"
                           >
                             <option value="">ជ្រើសរើសសំឡេងតួអង្គ...</option>
                             {characters.map((c) => (
@@ -1967,6 +2040,90 @@ export const App: React.FC = () => {
           {activeTab === 'tab-narrator' && (
             <NarratorStudio onShowToast={showToast} />
           )}
+
+          {activeTab === 'tab-voicelab' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <DragonVoiceLab onShowToast={showToast} />
+            </div>
+          )}
+
+          {activeTab === 'tab-aitools' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <DragonAIToolsCenter
+                onShowToast={showToast}
+                onOpenVoiceCloner={() => setIsVoiceClonerOpen(true)}
+                onOpenOneClickDubbing={() => setIsOneClickDragonDubOpen(true)}
+                onNavigateTab={(tab) => setActiveTab(tab as any)}
+              />
+            </div>
+          )}
+
+          {activeTab === 'tab-sync' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <DubbingStudio
+                uploadedFile={uploadedFile}
+                onUploadFile={handleUploadFile}
+                onRemoveFile={() => {
+                  setUploadedFile(null);
+                  setOutputVideo(null);
+                  setOutputAudio(null);
+                  setCleanBgmUrl(null);
+                  setSegments([]);
+                }}
+                isDubbing={isDubbing}
+                dubbingProgress={dubbingProgress}
+                dubbingMessage={dubbingMessage}
+                onStartDubbing={handleStartDubbing}
+                dubbingOutputVideo={outputVideo}
+                dubbingOutputAudio={outputAudio}
+                voiceVolumeGain={voiceVolumeGain}
+                onChangeVoiceVolumeGain={setVoiceVolumeGain}
+                segments={segments}
+                onChangeSegments={setSegments}
+                videoEffects={videoEffects}
+                onChangeEffects={setVideoEffects}
+                subtitleStyle={subtitleStyle}
+                onChangeSubtitleStyle={setSubtitleStyle}
+                onShowToast={showToast}
+                characters={characters}
+                onOpenExport={() => setIsExportOpen(true)}
+                videoRef={videoRef}
+                onOpenTab={setActiveTab}
+                geminiModel={config?.geminiModel || 'gemini-1.5-flash-latest'}
+                onGeminiModelChange={() => {}}
+                voiceMode="voxcpm"
+                onVoiceModeChange={() => {}}
+                selectedSegmentIndex={0}
+                onSelectSegment={() => {}}
+                onScanTimeline={() => {}}
+                onAssemble={() => {}}
+                onPreviewVoice={() => {}}
+                onOpenThumbnailStudio={() => setActiveTab('tab-thumbnail')}
+              />
+            </div>
+          )}
+
+          {activeTab === 'tab-batchstudio' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden">
+              <BatchDubbingStudio />
+            </div>
+          )}
+
+
+
+
+          {/* 🧠 SMART SCENE INTELLIGENCE + SMART CUT */}
+          {activeTab === 'tab-smartscenes' && (
+            <div className="flex-1 flex flex-col h-full overflow-hidden tab-content-enter">
+              <SmartSceneIntelligence
+                videoPath={uploadedFile?.filename || 'sample_video.mp4'}
+                onApplyWorkingCopy={(newWorkingUrl) => {
+                  setOutputVideo(newWorkingUrl);
+                  showToast('⚡ បានអនុវត្ត Working Copy Smart Cut ដោយជោគជ័យ!', 'success');
+                }}
+              />
+            </div>
+          )}
         </main>
       </div>
 
@@ -2129,6 +2286,23 @@ export const App: React.FC = () => {
         onShowToast={showToast}
       />
 
+      {/* 🐲 Dragon Hardware Report — Full CPU/RAM/GPU/VRAM Khmer Report */}
+      <DragonHardwareReport
+        isOpen={isHardwareReportOpen}
+        onClose={() => setIsHardwareReportOpen(false)}
+        onShowToast={showToast}
+      />
+
+      {/* 🐲 Dragon Diagnostics — Full System Health Check */}
+      <DragonDiagnostics
+        isOpen={isDiagnosticsOpen}
+        onClose={() => setIsDiagnosticsOpen(false)}
+        onShowToast={showToast}
+      />
+
+      {/* 🐲 Dragon Crash Recovery — Incomplete job detection on startup */}
+      <DragonCrashRecovery onShowToast={showToast} />
+
       {/* License Management & Expiration Modal */}
       <LicenseActivationModal
         isOpen={isLicenseModalOpen}
@@ -2234,6 +2408,77 @@ export const App: React.FC = () => {
             videoRef.current.play().catch(() => {});
           }
         }}
+      />
+
+      {/* 🐲 Dragon AI Command Assistant Drawer */}
+      <DragonAIAssistantDrawer
+        isOpen={isAIAssistantOpen}
+        onClose={() => setIsAIAssistantOpen(false)}
+        onShowToast={showToast}
+        onExecuteCommand={(cmd) => {
+          showToast(`🐲 Dragon AI: កំពុងដំណើរការ "${cmd}"`, 'info');
+          if (cmd.includes('បកប្រែ') || cmd.includes('Translate')) {
+            setActiveTab('tab-translator');
+          } else if (cmd.includes('តួអង្គ') || cmd.includes('Voice') || cmd.includes('Assign')) {
+            setActiveTab('tab-character');
+          } else if (cmd.includes('Subtitle')) {
+            setActiveTab('tab-subtitles');
+          } else if (cmd.includes('Export')) {
+            setIsExportOpen(true);
+          } else if (cmd.includes('Sync')) {
+            setActiveTab('tab-dubbing');
+          }
+        }}
+      />
+
+      {/* 👑 Dragon VIP Membership Center */}
+      <DragonVIPModal
+        isOpen={isVIPModalOpen}
+        onClose={() => setIsVIPModalOpen(false)}
+        onShowToast={showToast}
+        onOpenLicenseActivation={() => setIsLicenseModalOpen(true)}
+      />
+
+      {/* 🎙️ Dragon Zero-Shot Voice Cloner Studio */}
+      <DragonVoiceClonerModal
+        isOpen={isVoiceClonerOpen}
+        onClose={() => setIsVoiceClonerOpen(false)}
+        onShowToast={showToast}
+        onVoiceSaved={() => {
+          loadCharacters();
+          showToast('🐲 បានរក្សាទុកសំឡេង Dragon Cloned ថ្មីក្នុង Character Library!', 'success');
+        }}
+      />
+
+      {/* ⚡ 1-Click Dragon Cinema Dubbing Automation */}
+      <OneClickDragonDubbingModal
+        isOpen={isOneClickDragonDubOpen}
+        onClose={() => setIsOneClickDragonDubOpen(false)}
+        onShowToast={showToast}
+        onComplete={() => {
+          setActiveTab('tab-dubbing');
+          showToast('🎉 Dragon 1-Click Dubbing សម្រេចបាន 100%!', 'success');
+        }}
+        videoFile={uploadedFile}
+      />
+
+      {/* 🔍 Global Command Palette (Ctrl + K) */}
+      <CommandPalette
+        isOpen={isCommandPaletteOpen}
+        onClose={() => setIsCommandPaletteOpen(false)}
+        onSelectTab={(tabId) => setActiveTab(tabId as any)}
+        onOpenVoiceCloner={() => setIsVoiceClonerOpen(true)}
+        onOpenOneClickDubbing={() => setIsOneClickDragonDubOpen(true)}
+        onOpenExport={() => setIsExportOpen(true)}
+        onOpenSettings={() => setIsSettingsOpen(true)}
+      />
+
+      {/* 🚀 Next Version Commercial Roadmap Modal */}
+      <NextVersionRoadmapModal
+        isOpen={isRoadmapModalOpen}
+        onClose={() => setIsRoadmapModalOpen(false)}
+        isAdmin={user?.role === 'admin'}
+        onShowToast={showToast}
       />
 
       {/* Toast Notifications */}

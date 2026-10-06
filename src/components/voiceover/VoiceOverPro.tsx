@@ -314,13 +314,13 @@ export const VoiceOverPro: React.FC<VoiceOverProProps> = ({ onShowToast }) => {
             <div className="relative">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #7c3aed 0%, #2563eb 50%, #06b6d4 100%)' }}>
-                <Mic2 size={17} className="text-white" />
+                <Mic2 size={17} className="text-slate-800 dark:text-white" />
               </div>
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#0c0f1a]"
+              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-slate-200 dark:border-[#0c0f1a]"
                 style={{ background: doneCount > 0 ? '#22c55e' : '#f59e0b' }} />
             </div>
             <div>
-              <div className="text-[14px] font-bold text-white tracking-wide">VoiceOver Pro</div>
+              <div className="text-[14px] font-bold text-slate-800 dark:text-white tracking-wide">VoiceOver Pro</div>
               <div className="text-[9.5px] km" style={{ color: '#7c9bcc' }}>ស្ទូឌីយោណារ៉ែតតឺរ · Single Voice Clone</div>
             </div>
           </div>

@@ -41,11 +41,11 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
       {/* Header */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-fuchsia-500 to-pink-500 flex items-center justify-center">
-          <Sliders className="w-5 h-5 text-white" />
+          <Sliders className="w-5 h-5 text-slate-800 dark:text-white" />
         </div>
         <div className="flex-1">
-          <h3 className="text-base md:text-lg font-bold text-slate-200">Audio Mixer</h3>
-          <p className="text-xs text-slate-400">គ្រប់គ្រងសំឡេងដើម និង BGM</p>
+          <h3 className="text-base md:text-lg font-bold text-slate-700 dark:text-slate-200">Audio Mixer</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400">គ្រប់គ្រងសំឡេងដើម និង BGM</p>
         </div>
       </div>
 
@@ -53,10 +53,10 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
       <div className="space-y-2 p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Mic className="w-4 h-4 text-emerald-400" />
-            <span className="text-sm font-semibold text-slate-200">សំឡេងបកប្រែ (Dubbed)</span>
+            <Mic className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">សំឡេងបកប្រែ (Dubbed)</span>
           </div>
-          <span className="text-xs font-bold text-emerald-400">{settings.dubbedVoiceVolume}%</span>
+          <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">{settings.dubbedVoiceVolume}%</span>
         </div>
         <input
           type="range"
@@ -91,7 +91,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Volume2 className={`w-4 h-4 ${settings.originalVoiceEnabled ? 'text-sky-400' : 'text-slate-500'}`} />
-            <span className="text-sm font-semibold text-slate-200">សំឡេងដើម (Original)</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">សំឡេងដើម (Original)</span>
           </div>
           <button
             onClick={() => updateSetting('originalVoiceEnabled', !settings.originalVoiceEnabled)}
@@ -111,7 +111,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
         {settings.originalVoiceEnabled && (
           <div className="space-y-2 animate-fade-down">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">កម្រិតសំឡេង</span>
+              <span className="text-slate-500 dark:text-slate-400">កម្រិតសំឡេង</span>
               <span className="font-bold text-sky-400">{settings.originalVoiceVolume}%</span>
             </div>
             <input
@@ -143,8 +143,8 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
         {/* Remove Vocals Option */}
         <div className="flex items-center justify-between p-2 rounded-lg bg-slate-700/30">
           <div className="flex items-center gap-2">
-            <VolumeX className="w-3.5 h-3.5 text-slate-400" />
-            <span className="text-xs text-slate-400">លុបសំឡេងដើមចេញ</span>
+            <VolumeX className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
+            <span className="text-xs text-slate-500 dark:text-slate-400">លុបសំឡេងដើមចេញ</span>
           </div>
           <button
             onClick={() => updateSetting('removeOriginalVocals', !settings.removeOriginalVocals)}
@@ -167,7 +167,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Music className={`w-4 h-4 ${settings.bgmEnabled ? 'text-violet-400' : 'text-slate-500'}`} />
-            <span className="text-sm font-semibold text-slate-200">តន្រ្តីផ្ទៃខាងក្រោយ (BGM)</span>
+            <span className="text-sm font-semibold text-slate-700 dark:text-slate-200">តន្រ្តីផ្ទៃខាងក្រោយ (BGM)</span>
           </div>
           <button
             onClick={() => updateSetting('bgmEnabled', !settings.bgmEnabled)}
@@ -187,7 +187,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
         {settings.bgmEnabled && (
           <div className="space-y-2 animate-fade-down">
             <div className="flex items-center justify-between text-xs">
-              <span className="text-slate-400">កម្រិតសំឡេង BGM</span>
+              <span className="text-slate-500 dark:text-slate-400">កម្រិតសំឡេង BGM</span>
               <span className="font-bold text-violet-400">{settings.bgmVolume}%</span>
             </div>
             <input
@@ -232,7 +232,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
                 removeOriginalVocals: true
               });
             }}
-            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-300 transition-all"
+            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-600 dark:text-slate-300 transition-all"
           >
             🎬 Standard
           </button>
@@ -247,7 +247,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
                 removeOriginalVocals: false
               });
             }}
-            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-300 transition-all"
+            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-600 dark:text-slate-300 transition-all"
           >
             🎭 Blend
           </button>
@@ -262,7 +262,7 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
                 removeOriginalVocals: true
               });
             }}
-            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-300 transition-all col-span-2 sm:col-span-1"
+            className="px-3 py-2 text-xs rounded-lg bg-slate-700/30 hover:bg-slate-700/50 text-slate-600 dark:text-slate-300 transition-all col-span-2 sm:col-span-1"
           >
             🎤 Voice Only
           </button>
@@ -271,9 +271,9 @@ export default function AudioMixerControls({ onSettingsChange }: AudioMixerContr
 
       {/* Info */}
       <div className="text-xs text-slate-500 space-y-1 pt-2 border-t border-white/5">
-        <p>💡 <span className="text-slate-400">Standard:</span> សំឡេងបកប្រែ + BGM (ល្អបំផុត)</p>
-        <p>💡 <span className="text-slate-400">Blend:</span> លាយសំឡេងដើម + បកប្រែ</p>
-        <p>💡 <span className="text-slate-400">Voice Only:</span> សំឡេងបកប្រែតែម្យ៉ាង</p>
+        <p>💡 <span className="text-slate-500 dark:text-slate-400">Standard:</span> សំឡេងបកប្រែ + BGM (ល្អបំផុត)</p>
+        <p>💡 <span className="text-slate-500 dark:text-slate-400">Blend:</span> លាយសំឡេងដើម + បកប្រែ</p>
+        <p>💡 <span className="text-slate-500 dark:text-slate-400">Voice Only:</span> សំឡេងបកប្រែតែម្យ៉ាង</p>
       </div>
     </GlassCard>
   );

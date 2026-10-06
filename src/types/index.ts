@@ -231,6 +231,10 @@ export interface VideoEffects {
   sponsorInVideo?: InVideoSponsorConfig;
   socialCanvasStyle?: SocialCanvasStyle;
   runningTickerText?: RunningTickerTextConfig;
+  // ── Poster Style Template Overlay ──
+  posterTemplate?: string; // URL of selected poster template image (from posterstyle/ folder)
+  posterTemplateOpacity?: number; // 10 to 100 (default 85)
+  posterTemplateBlendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'soft-light'; // CSS blend mode
 }
 
 export interface SubtitleStyle {
@@ -274,14 +278,56 @@ export interface VideoShelfItem {
 }
 
 export interface HardwareProfile {
+  // CPU
+  cpuName?: string;
   cpuCores: number;
   cpuThreads: number;
+  cpuFreqGhz?: number;
+  // RAM
+  ramTotalGb?: number;
+  ramAvailableGb?: number;
+  ramUsedPercent?: number;
+  // GPU — NVIDIA + AMD Vega 64 + Intel + Apple
+  gpuName?: string;
+  /** GPU vendor: "nvidia" | "amd" | "intel" | "apple" | "unknown" */
+  gpuVendor?: string;
+  vramTotalGb?: number;
+  vramFreeGb?: number;
+  isNvidiaGpu?: boolean;
+  /** True when an AMD Radeon / Vega GPU is detected */
+  isAmdGpu?: boolean;
+  /** True when torch-directml is installed and usable (AMD on Windows) */
+  hasDirectml?: boolean;
+  /** True when PyTorch ROCm build is available (AMD on Linux) */
+  hasRocm?: boolean;
+  /** VRAM in GB for AMD GPU (same as vramTotalGb when isAmdGpu=true) */
+  amdVramGb?: number;
+  /** Human-readable GPU status line from gpu_detect.py */
+  gpuStatusLine?: string;
+  // Disk
+  diskTotalGb?: number;
+  diskFreeGb?: number;
+  diskUsedPercent?: number;
+  diskType?: string;
+  // OS
+  os?: string;
+  osVersion?: string;
+  architecture?: string;
+  // Video encoder
   videoEncoder: string;
   encoderLabel: string;
   isGpuAccelerated: boolean;
+  // Performance
   turboConcurrency: number;
+  safeBatchConcurrency?: number;
+  recommendedPreset?: string;
+  performanceTier?: string;
+  performanceTierLabel?: string;
   hardwareTier: string;
   performanceMode: 'turbo_max' | 'balanced' | 'quality';
+  // AI
+  aiRecommendation?: 'LOCAL' | 'HYBRID' | 'CLOUD';
+  aiRecommendationReason?: string;
 }
 
 export interface ThumbnailConfig {
@@ -347,14 +393,21 @@ export type TabId =
   | 'tab-translator'
   | 'tab-mixer'
   | 'tab-subtitles'
+  | 'tab-voicelab'
   | 'tab-tuner'
+  | 'tab-sync'
+  | 'tab-aitools'
+  | 'tab-sponsor'
+  | 'tab-batch'
+  | 'tab-smartscenes'
   | 'tab-thumbnail'
   | 'tab-cutter'
   | 'tab-posterforge'
   | 'tab-projects'
   | 'tab-classic'
   | 'tab-narrator'
-  | 'tab-voiceover';
+  | 'tab-voiceover'
+  | 'tab-batchstudio';
 
 // ── 3 Studio Engine Options ──
 export type StudioEngineOption =
@@ -443,6 +496,227 @@ export interface StudioCustomUITheme {
   backgroundPreset?: BackgroundPreset;
   themeMode?: 'light' | 'dark';
 }
+
+// ════════════════════════════════════════════════════════════════
+// 🎬 SPONSOR & ADVERTISEMENT STUDIO TYPES
+// ════════════════════════════════════════════════════════════════
+export type SponsorType =
+  | 'fullscreen'
+  | 'pip'
+  | 'overlay'
+  | 'intro'
+  | 'midroll'
+  | 'mid-roll'
+  | 'outro'
+  | 'scene';
+
+export type SponsorPosition =
+  | 'top-left'
+  | 'top-center'
+  | 'top-right'
+  | 'center'
+  | 'bottom-left'
+  | 'bottom-center'
+  | 'bottom-right';
+
+export type SponsorAnimation = 'none' | 'fade' | 'slide' | 'zoom' | 'pop' | 'ken_burns';
+
+export interface SponsorItem {
+  id: string;
+  name: string;
+  title?: string;
+  type: SponsorType;
+  mediaType: 'video' | 'image';
+  mediaUrl: string;
+  filename?: string;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  position: SponsorPosition;
+  x?: number; // Percentage or offset
+  y?: number; // Percentage or offset
+  scale: number; // 0.1 to 2.0 (default 1.0)
+  opacity: number; // 0 to 100 (default 95)
+  rotation?: number; // -180 to 180 (default 0)
+  cornerRadius?: number; // 0 to 40px (default 12)
+  fit: 'contain' | 'cover' | 'fill';
+  fadeIn: boolean;
+  fadeOut: boolean;
+  animation: SponsorAnimation;
+  // Audio settings
+  audioMode: 'original' | 'mute' | 'custom_volume';
+  volume: number; // 0 to 100
+  loopVideo: boolean;
+  endBehavior: 'loop' | 'freeze' | 'stretch';
+  sceneIndex?: number;
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🐲 BATCH DUBBING STUDIO TYPES (5-10 Episodes)
+// ════════════════════════════════════════════════════════════════
+export type BatchEpisodeStatus =
+  | 'queued'
+  | 'analyzing'
+  | 'translating'
+  | 'generating'
+  | 'syncing'
+  | 'mixing'
+  | 'rendering'
+  | 'completed'
+  | 'failed'
+  | 'cancelled';
+
+export interface BatchEpisode {
+  id: string;
+  episodeNumber: number; // 1 to 10
+  title: string;
+  filename: string;
+  inputUrl: string;
+  durationSeconds: number;
+  status: BatchEpisodeStatus;
+  progress: number; // 0 to 100
+  outputVideoUrl?: string;
+  errorMessage?: string;
+  characterCount?: number;
+  sentenceCount?: number;
+  detectedLanguage?: string;
+}
+
+export interface BatchCharacterMemory {
+  characterId: string;
+  name: string;
+  voiceId: string;
+  voiceLabel: string;
+  emotion: string;
+  speed: number;
+  pitch: number;
+  pronunciationNote?: string;
+}
+
+export interface BatchTranslationMemory {
+  id: string;
+  sourceTerm: string;
+  khmerTerm: string;
+  category: 'character' | 'location' | 'skill' | 'organization' | 'weapon' | 'title';
+}
+
+export interface BatchStudioState {
+  episodes: BatchEpisode[];
+  characterMemory: Record<string, BatchCharacterMemory>;
+  translationMemory: BatchTranslationMemory[];
+  maxConcurrency: number; // 1 to 5 safe threads
+  isProcessing: boolean;
+  isPaused: boolean;
+  activeEpisodeIndex: number;
+  overallProgress: number;
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🧠 SMART SCENE INTELLIGENCE & SMART CUT TYPES
+// ════════════════════════════════════════════════════════════════
+export interface SmartScene {
+  id: string;
+  startTime: number;
+  endTime: number;
+  duration: number;
+  previewFrameUrl?: string;
+  speakerName?: string;
+  hasFace: boolean;
+  isSpeaking: boolean;
+  importanceScore: number; // 0 to 100
+  suggestedCut: boolean;
+  cutReason?: 'silence' | 'blank_frame' | 'duplicate_frame' | 'long_pause';
+  status: 'keep' | 'removed';
+}
+
+export interface SmartCutProposal {
+  totalOriginalDuration: number;
+  projectedDuration: number;
+  cutCount: number;
+  scenes: SmartScene[];
+}
+
+// ════════════════════════════════════════════════════════════════
+// 🚀 NEXT VERSION: ADVANCED AI DUBBING ENGINE ROADMAP TYPES
+// ════════════════════════════════════════════════════════════════
+
+export interface PipelineStageInfo {
+  step: number;
+  title: string;
+  khmer: string;
+  status: 'Ready' | 'In Development' | 'Planned';
+}
+
+export interface HardwareDiagnostic {
+  tier: 'ENTRY' | 'STANDARD' | 'PERFORMANCE' | 'HIGH-END';
+  cpu: {
+    cores: number;
+    freq_mhz: number;
+    usage_percent: number;
+  };
+  ram: {
+    total_gb: number;
+    available_gb: number;
+    percent_used: number;
+  };
+  disk: {
+    drive: string;
+    free_gb: number;
+    low_disk_warning: boolean;
+  };
+  gpu: {
+    name: string;
+    has_cuda: boolean;
+    vram_gb: number;
+  };
+  recommendation: string;
+  recommended_safe_mode: 'FAST' | 'BALANCED' | 'SAFE' | 'QUALITY';
+  max_batch_concurrency: number;
+}
+
+export interface ProviderCapabilityItem {
+  provider_id: string;
+  provider_name: string;
+  provider_type: string;
+  is_available: boolean;
+  is_local: boolean;
+  supports_emotions?: boolean;
+  supports_speed?: boolean;
+  supports_pitch?: boolean;
+  supported_languages?: string[];
+  version: string;
+  notice?: string;
+}
+
+export interface NextVersionRoadmap {
+  current_version: {
+    name: string;
+    version: string;
+    status: string;
+    khmer_announcement: string;
+    english_announcement: string;
+  };
+  next_version: {
+    name: string;
+    version: string;
+    status: string;
+    khmer_title: string;
+    english_title: string;
+    khmer_description: string;
+    english_description: string;
+    early_access_enabled: boolean;
+    pipeline_stages: PipelineStageInfo[];
+    safe_modes: Record<string, {
+      title: string;
+      threads: number;
+      crf: number;
+      preset: string;
+      description: string;
+    }>;
+    hardware_evaluation: HardwareDiagnostic;
+  };
+}
+
 
 
 

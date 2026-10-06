@@ -20,7 +20,7 @@ export function GlassCard({
     sky: 'hover:shadow-[0_0_24px_rgba(56,189,248,0.3)] hover:border-sky-400/30',
     emerald: 'hover:shadow-[0_0_24px_rgba(52,211,153,0.3)] hover:border-emerald-400/30',
     violet: 'hover:shadow-[0_0_24px_rgba(139,92,246,0.3)] hover:border-violet-400/30',
-    gold: 'hover:shadow-[0_0_24px_rgba(251,191,36,0.3)] hover:border-amber-400/30',
+    gold: 'hover:shadow-[0_0_24px_rgba(251,191,36,0.3)] hover:border-sky-300 dark:border-sky-300 dark:border-sky-300 dark:border-amber-400/30',
     none: ''
   };
 
@@ -73,10 +73,10 @@ export function GlassButton({
 }: GlassButtonProps) {
   const variantStyles = {
     primary: 'btn-primary',
-    secondary: 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-200 border border-slate-600/50',
+    secondary: 'bg-slate-700/50 hover:bg-slate-600/50 text-slate-700 dark:text-slate-200 border border-slate-600/50',
     ghost: 'btn-ghost',
     danger: 'btn-danger',
-    success: 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
+    success: 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
   };
 
   const sizeStyles = {
@@ -121,7 +121,7 @@ export function GlassInput({ icon, error, className, ...props }: GlassInputProps
     <div className="space-y-1">
       <div className="relative">
         {icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-slate-400">
             {icon}
           </div>
         )}
@@ -136,7 +136,7 @@ export function GlassInput({ icon, error, className, ...props }: GlassInputProps
         />
       </div>
       {error && (
-        <p className="text-xs text-red-400 pl-1">{error}</p>
+        <p className="text-xs text-blue-600 dark:text-red-400 pl-1">{error}</p>
       )}
     </div>
   );
@@ -194,14 +194,14 @@ export function GlassProgress({
     default: 'from-sky-400 via-violet-400 to-fuchsia-400',
     success: 'from-emerald-400 to-emerald-500',
     warning: 'from-amber-400 to-orange-500',
-    danger: 'from-red-400 to-red-600'
+    danger: 'from-blue-600 dark:from-blue-600 dark:from-blue-600 dark:from-red-400 to-red-600'
   };
 
   return (
     <div className={cn('space-y-2', className)}>
       {showLabel && (
         <div className="flex items-center justify-between text-sm">
-          <span className="text-slate-400">Progress</span>
+          <span className="text-slate-500 dark:text-slate-400">Progress</span>
           <span className="font-bold text-sky-400">{Math.round(percentage)}%</span>
         </div>
       )}

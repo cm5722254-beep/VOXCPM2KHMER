@@ -91,13 +91,13 @@ const WaveformBars: React.FC<{ color: string; count?: number }> = ({ color, coun
 
 /** Track colour definitions */
 const TRACK_CONFIGS = [
-  { id: 'V1',  label: 'វីដេអូ',              color: '#00C2FF', accent: 'cyan',    bg: '#141618' },
-  { id: 'A1',  label: 'សំឡេងឌាប់ខ្មែរ',     color: '#10b981', accent: 'emerald', bg: '#111315' },
-  { id: 'A2',  label: 'សំឡេងដើម',            color: '#a855f7', accent: 'purple',  bg: '#141618' },
-  { id: 'B1',  label: 'តន្ត្រីផ្ទៃខាងក្រោយ', color: '#f59e0b', accent: 'amber',   bg: '#111315' },
-  { id: 'S1',  label: 'សំឡេងបែបផែន',        color: '#ec4899', accent: 'pink',    bg: '#141618' },
-  { id: 'CC1', label: 'ចំណងជើងរង',           color: '#818cf8', accent: 'indigo',  bg: '#111315' },
-  { id: 'FX1', label: 'បែបផែន',              color: '#38bdf8', accent: 'sky',     bg: '#141618' },
+  { id: 'V1', label: 'V1 វីដេអូដើម', color: '#DC2626', accent: 'cyan', bg: '#100A0C' },
+  { id: 'A1', label: 'A1 សំឡេងដើម & ភ្លេង', color: '#94A3B8', accent: 'slate', bg: '#080608' },
+  { id: 'A2', label: 'A2 សំឡេងតួអង្គខ្មែរ AI', color: '#EF4444', accent: 'neon', bg: '#100A0C' },
+  { id: 'A3', label: 'A3 សំឡេងបែបផែន SFX', color: '#F59E0B', accent: 'purple', bg: '#080608' },
+  { id: 'S1', label: 'S1 វីដេអូអ្នកឧបត្ថម្ភ', color: '#B91C1C', accent: 'purple', bg: '#100A0C' },
+  { id: 'S2', label: 'S2 រូបភាពអ្នកឧបត្ថម្ភ', color: '#FBBF24', accent: 'amber', bg: '#080608' },
+  { id: 'SUB', label: 'SUB អក្សររត់ខ្មែរ', color: '#FFFFFF', accent: 'sky', bg: '#100A0C' },
 ] as const;
 
 export const MultiTrackTimeline: React.FC<TimelineProps> = ({
@@ -228,7 +228,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
   ───────────────────────────────────────────────────────────────────────── */
   return (
     <div
-      className="multi-track-timeline h-full text-slate-100 border-t border-white/[0.06] flex flex-col overflow-hidden select-none font-khmer shrink-0"
+      className="multi-track-timeline h-full text-slate-800 dark:text-slate-100 border-t border-white/[0.06] flex flex-col overflow-hidden select-none font-khmer shrink-0"
       style={{ background: '#0d0f12' }}
     >
 
@@ -236,7 +236,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           TOOLBAR — brushed-metal header  (top strip)
       ══════════════════════════════════════════════════════ */}
       <div
-        className="h-12 px-3 border-b border-white/[0.08] flex items-center justify-between gap-2 shrink-0"
+        className="h-12 px-3 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-2 shrink-0"
         style={{
           background: 'linear-gradient(180deg, #1e2128 0%, #16181d 100%)',
           boxShadow: '0 1px 0 rgba(255,255,255,0.04), inset 0 1px 0 rgba(255,255,255,0.06)',
@@ -250,7 +250,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             type="button"
             onClick={() => onSeek(Math.max(0, activeTime - 10))}
             title="ថយក្រោយ 10 វិ"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-slate-300 hover:text-white transition-all text-[10px] font-bold border border-white/[0.08] hover:border-white/20"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white transition-all text-[10px] font-bold border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/20"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >
             <SkipBack className="w-3 h-3" />
@@ -261,18 +261,18 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           <button
             type="button"
             onClick={onTogglePlay}
-            title={isPlaying ? 'Pause' : 'Play'}
+            title={isPlaying ? 'ផ្អាក (Pause)' : 'ចាក់ (Play)'}
             style={{
               width: 40,
               height: 40,
               borderRadius: '50%',
               background: isPlaying
-                ? 'radial-gradient(circle, #00d4ff 0%, #0088cc 100%)'
-                : 'radial-gradient(circle, #1e2430 0%, #141820 100%)',
+                ? 'radial-gradient(circle, #DC2626 0%, #991B1B 100%)'
+                : 'radial-gradient(circle, #1e1518 0%, #120A0D 100%)',
               boxShadow: isPlaying
-                ? '0 0 0 3px rgba(0,194,255,0.25), 0 0 18px rgba(0,194,255,0.5), 0 0 36px rgba(0,194,255,0.2)'
+                ? '0 0 0 3px rgba(220,38,38,0.25), 0 0 18px rgba(220,38,38,0.7), 0 0 36px rgba(245,158,11,0.3)'
                 : '0 0 0 2px rgba(255,255,255,0.08)',
-              border: isPlaying ? '1.5px solid rgba(0,220,255,0.7)' : '1.5px solid rgba(255,255,255,0.12)',
+              border: isPlaying ? '1.5px solid rgba(220,38,38,0.8)' : '1.5px solid rgba(255,255,255,0.12)',
               flexShrink: 0,
               display: 'flex',
               alignItems: 'center',
@@ -282,8 +282,8 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             }}
           >
             {isPlaying
-              ? <Pause  className="w-[18px] h-[18px] text-white" />
-              : <Play   className="w-[18px] h-[18px] text-cyan-300 fill-current" style={{ marginLeft: 2 }} />
+              ? <Pause  className="w-[18px] h-[18px] text-slate-800 dark:text-white" />
+              : <Play   className="w-[18px] h-[18px] text-blue-600 dark:text-red-400 fill-current" style={{ marginLeft: 2 }} />
             }
           </button>
 
@@ -292,7 +292,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             type="button"
             onClick={() => onSeek(Math.min(totalDur, activeTime + 10))}
             title="លោត 10 វិ"
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-slate-300 hover:text-white transition-all text-[10px] font-bold border border-white/[0.08] hover:border-white/20"
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white transition-all text-[10px] font-bold border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/20"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >
             <span>10s</span>
@@ -303,32 +303,32 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           <button
             type="button"
             onClick={() => setIsLooping(!isLooping)}
-            title="Loop"
+            title="ចាក់ឡើងវិញ (Loop)"
             className={`flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-bold border transition-all ${
               isLooping
-                ? 'text-cyan-300 border-cyan-400/40 bg-cyan-500/15'
-                : 'text-slate-400 border-white/[0.08] hover:text-white bg-white/[0.04]'
+                ? 'text-red-300 border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 bg-red-600/20 shadow-[0_0_8px_rgba(220,38,38,0.3)]'
+                : 'text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:text-slate-800 dark:text-white bg-slate-100 dark:bg-white/[0.04]'
             }`}
           >
             <Repeat className="w-3 h-3" />
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/[0.08] mx-1" />
+          <div className="w-px h-6 bg-slate-200 dark:bg-white/[0.08] mx-1" />
 
           {/* Timecode display */}
           <div
             className="flex items-center px-2.5 py-1 rounded-lg"
             style={{
-              background: '#080a0d',
-              border: '1px solid rgba(255,255,255,0.08)',
-              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.5)',
+              background: '#080608',
+              border: '1px solid rgba(220,38,38,0.25)',
+              boxShadow: 'inset 0 1px 3px rgba(0,0,0,0.7)',
               minWidth: 80,
             }}
           >
             <span
               className="font-mono text-[13px] font-bold tracking-wider"
-              style={{ color: '#00e5ff', textShadow: '0 0 8px rgba(0,229,255,0.6)', fontVariantNumeric: 'tabular-nums' }}
+              style={{ color: '#EF4444', textShadow: '0 0 8px rgba(239,68,68,0.6)', fontVariantNumeric: 'tabular-nums' }}
             >
               {formatTimecode(currentTime)}
             </span>
@@ -337,10 +337,10 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
 
         {/* ── GROUP 2: Zoom controls ── */}
         <div
-          className="flex items-center gap-2 px-3 py-1 rounded-xl border border-white/[0.08]"
+          className="flex items-center gap-2 px-3 py-1 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]"
           style={{ background: 'rgba(255,255,255,0.03)' }}
         >
-          <ZoomOut className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+          <ZoomOut className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
           <input
             type="range"
             min={50}
@@ -349,41 +349,41 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             value={zoom}
             onChange={(e) => onZoomChange(parseInt(e.target.value, 10))}
             className="w-20 h-1 rounded cursor-pointer"
-            style={{ accentColor: '#00c2ff' }}
+            style={{ accentColor: '#DC2626' }}
           />
-          <ZoomIn className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-          <span className="font-mono text-[10px] text-cyan-400 min-w-[28px] text-center">{Math.round(zoom / 100 * 10) / 10}x</span>
+          <ZoomIn className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400 shrink-0" />
+          <span className="font-mono text-[10px] text-blue-600 dark:text-red-400 min-w-[28px] text-center">{Math.round(zoom / 100 * 10) / 10}x</span>
           <button
             type="button"
             onClick={() => onZoomChange(100)}
-            className="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-300 hover:text-white border border-white/[0.08] hover:border-white/20 transition-all"
+            className="px-2 py-0.5 rounded-md text-[10px] font-bold text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/20 transition-all font-khmer"
             style={{ background: 'rgba(255,255,255,0.05)' }}
           >
-            Fit
+            សមល្មម
           </button>
         </div>
 
         {/* ── GROUP 3: Editing tools ── */}
         <div
-          className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-white/[0.08]"
+          className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]"
           style={{ background: 'rgba(255,255,255,0.03)' }}
         >
           <button
             type="button"
             onClick={handleSplitClip}
-            title="Split (S)"
-            className="p-1.5 rounded-lg text-slate-300 hover:text-cyan-300 hover:bg-cyan-500/15 border border-white/[0.06] hover:border-cyan-400/30 transition-all"
+            title="កាត់ឃ្លា (Split)"
+            className="p-1.5 rounded-lg text-slate-600 dark:text-slate-300 hover:text-red-300 hover:bg-red-600/20 border border-white/[0.06] hover:border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 transition-all"
           >
             <Scissors className="w-3.5 h-3.5" />
           </button>
           <button
             type="button"
             onClick={() => setSnapEnabled(!snapEnabled)}
-            title="Snap"
+            title="ស្រូបស្វ័យប្រវត្តិ (Snap)"
             className={`p-1.5 rounded-lg border transition-all ${
               snapEnabled
-                ? 'text-amber-300 bg-amber-500/15 border-amber-400/30'
-                : 'text-slate-400 hover:text-white border-white/[0.06]'
+                ? 'text-amber-300 bg-amber-500/15 border-sky-300 dark:border-sky-300 dark:border-sky-300 dark:border-amber-400/30'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white border-white/[0.06]'
             }`}
           >
             <Magnet className="w-3.5 h-3.5" />
@@ -392,8 +392,8 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             <button
               type="button"
               onClick={onToggleTimelineHeight}
-              title="Toggle height"
-              className="p-1.5 rounded-lg text-slate-400 hover:text-white border border-white/[0.06] hover:border-white/20 transition-all"
+              title="ពង្រីកបន្ទាត់ពេលវេលា"
+              className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white border border-white/[0.06] hover:border-white/20 transition-all"
             >
               <Maximize2 className="w-3.5 h-3.5" />
             </button>
@@ -405,8 +405,8 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
           <select
             value={zoom}
             onChange={(e) => onZoomChange(parseInt(e.target.value, 10))}
-            className="rounded-lg px-1.5 py-1 text-[10px] font-mono border border-white/[0.08] outline-none cursor-pointer"
-            style={{ background: '#101214', color: '#00c2ff', borderColor: 'rgba(0,194,255,0.2)' }}
+            className="rounded-lg px-1.5 py-1 text-[10px] font-mono border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] outline-none cursor-pointer"
+            style={{ background: '#120A0D', color: '#EF4444', borderColor: 'rgba(220,38,38,0.3)' }}
           >
             <option value="50">0.5x</option>
             <option value="100">1x</option>
@@ -420,7 +420,7 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               type="button"
               onClick={onAssemble}
               disabled={segments.length === 0}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] text-white transition-all active:scale-95 disabled:opacity-40 shrink-0 font-khmer"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-[11px] text-slate-800 dark:text-white transition-all active:scale-95 disabled:opacity-40 shrink-0 font-khmer"
               style={{
                 background: 'linear-gradient(135deg, #f59e0b, #ef4444)',
                 boxShadow: '0 0 14px rgba(245,158,11,0.35)',
@@ -572,14 +572,14 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                   {isMajor && (
                     <div
                       className="absolute top-0 h-full w-[1px]"
-                      style={{ background: 'rgba(0,194,255,0.15)' }}
+                      style={{ background: 'rgba(220,38,38,0.2)' }}
                     />
                   )}
                   {/* Label */}
                   {isMajor && (
                     <span
                       className="absolute top-1 left-1 font-mono text-[8.5px] font-bold select-none"
-                      style={{ color: 'rgba(0,194,255,0.85)', whiteSpace: 'nowrap' }}
+                      style={{ color: 'rgba(239,68,68,0.9)', whiteSpace: 'nowrap' }}
                     >
                       {tick.label}
                     </span>
@@ -601,9 +601,9 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                   left: -6,
                   width: 12,
                   height: 12,
-                  background: '#ff5e2e',
+                  background: 'linear-gradient(135deg, #DC2626, #F59E0B)',
                   clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)',
-                  boxShadow: '0 0 8px #ff5e2e',
+                  boxShadow: '0 0 10px #DC2626, 0 0 20px rgba(245,158,11,0.6)',
                 }}
               />
             </div>
@@ -617,8 +617,8 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
               bottom: 0,
               left: `${playheadPercent}%`,
               width: 2,
-              background: 'linear-gradient(180deg, #ff5e2e 0%, #ff8c00 60%, rgba(255,94,46,0) 100%)',
-              boxShadow: '0 0 10px #ff5e2e, 0 0 24px rgba(255,94,46,0.35)',
+              background: 'linear-gradient(180deg, #DC2626 0%, #EF4444 50%, #F59E0B 100%)',
+              boxShadow: '0 0 12px #DC2626, 0 0 24px rgba(220, 38, 38, 0.6)',
               transform: 'translateX(-50%)',
             }}
           >
@@ -629,13 +629,13 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                 top: 0,
                 left: '50%',
                 transform: 'translateX(-50%)',
-                background: '#ff5e2e',
-                color: '#fff',
+                background: '#DC2626',
+                color: '#FFFFFF',
                 fontSize: 8.5,
                 padding: '1px 5px',
                 borderRadius: 4,
                 whiteSpace: 'nowrap',
-                boxShadow: '0 0 8px rgba(255,94,46,0.7)',
+                boxShadow: '0 0 10px rgba(220,38,38,0.8)',
               }}
             >
               {formatTimecode(currentTime)}
@@ -657,9 +657,9 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                   boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.06)',
                 }}
               >
-                <div className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" style={{ boxShadow: '0 0 6px #00c2ff' }} />
-                <span className="text-[10.5px] font-mono font-bold text-cyan-300 truncate">
-                  Video Master [{formatTimecode(0)} – {formatTimecode(duration)}]
+                <div className="w-2 h-2 rounded-full bg-red-500 shrink-0" style={{ boxShadow: '0 0 6px #dc2626' }} />
+                <span className="text-[10.5px] font-mono font-bold text-red-300 truncate">
+                  វីដេអូចម្បង Master [{formatTimecode(0)} – {formatTimecode(duration)}]
                 </span>
               </div>
             ) : (
@@ -775,44 +775,77 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
             )}
           </div>
 
-          {/* ── Lane 4: B1 BGM ── */}
+          {/* ── Lane 4: A3 Character Voice ── */}
           <div
             className="border-b border-white/[0.04] relative flex items-center px-2"
             style={{ height: 38, background: '#111315' }}
           >
-            <span className="text-[10px] text-zinc-600 italic font-khmer">
-              គ្មានភ្លេងកំដរ BGM
+            <span className="text-[10px] text-sky-600 dark:text-amber-400/90 font-mono font-semibold flex items-center gap-1.5 font-khmer">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+              <span>សំឡេងតួអង្គដែលបានភ្ជាប់ (នាគប្រុស, ស្រី & ចាស់ទុំ)</span>
             </span>
           </div>
 
-          {/* ── Lane 5: S1 SFX ── */}
+          {/* ── Lane 5: S1 Sponsor Video ── */}
           <div
             className="border-b border-white/[0.04] relative flex items-center px-2"
             style={{ height: 38, background: '#141618' }}
           >
-            <span className="text-[10px] text-zinc-600 italic font-khmer">
-              គ្មានបែបផែនសំឡេង SFX
-            </span>
+            <div
+              className="h-6 rounded-md flex items-center px-2.5 gap-2 cursor-pointer transition-all hover:scale-[1.01]"
+              style={{
+                width: '32%',
+                marginLeft: '15%',
+                background: 'linear-gradient(90deg, rgba(220,38,38,0.3) 0%, rgba(185,28,28,0.15) 100%)',
+                border: '1px solid rgba(220,38,38,0.4)',
+              }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+              <span className="text-[9.5px] font-bold text-red-200 truncate font-khmer">
+                [S1 វីដេអូ] វីដេអូអ្នកឧបត្ថម្ភពាក់កណ្តាលរឿង (10វិ)
+              </span>
+            </div>
           </div>
 
-          {/* ── Lane 6: CC1 Subtitles ── */}
+          {/* ── Lane 6: S2 Sponsor Image ── */}
           <div
             className="border-b border-white/[0.04] relative flex items-center px-2"
             style={{ height: 38, background: '#111315' }}
           >
-            <span className="text-[10px] text-zinc-600 italic font-khmer">
-              គ្មានចំណងជើងរង CC
-            </span>
+            <div
+              className="h-6 rounded-md flex items-center px-2.5 gap-2 cursor-pointer transition-all hover:scale-[1.01]"
+              style={{
+                width: '25%',
+                marginLeft: '55%',
+                background: 'linear-gradient(90deg, rgba(245,158,11,0.3) 0%, rgba(217,119,6,0.15) 100%)',
+                border: '1px solid rgba(245,158,11,0.4)',
+              }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0" />
+              <span className="text-[9.5px] font-bold text-amber-300 truncate font-khmer">
+                [S2 រូបភាព] ស្លាកសញ្ញាឧបត្ថម្ភ (ជ្រុងស្តាំលើ)
+              </span>
+            </div>
           </div>
 
-          {/* ── Lane 7: FX1 Visual Effects ── */}
+          {/* ── Lane 7: SUB Subtitles ── */}
           <div
             className="relative flex items-center px-2"
             style={{ height: 38, background: '#141618' }}
           >
-            <span className="text-[10px] text-zinc-600 italic font-khmer">
-              គ្មានបែបផែនរូបភាព FX
-            </span>
+            <div
+              className="h-6 rounded-md flex items-center px-2.5 gap-2"
+              style={{
+                width: `${Math.min(100, Math.max(20, (duration / totalDur) * 100))}%`,
+                background: 'linear-gradient(90deg, rgba(220,38,38,0.18) 0%, rgba(245,158,11,0.06) 100%)',
+                border: '1px solid rgba(220,38,38,0.3)',
+              }}
+            >
+              <div className="w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
+              <span className="text-[9.5px] font-bold text-red-200 truncate font-khmer">
+                ខ្សែអក្សររត់ខ្មែរ (Kantumruy Pro 24px)
+              </span>
+            </div>
           </div>
         </div>
       </div>
@@ -844,11 +877,11 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                 className="relative px-3 py-1 rounded-lg text-[11px] font-bold transition-all font-khmer"
                 style={{
                   background: isActive
-                    ? 'linear-gradient(135deg, rgba(0,194,255,0.25) 0%, rgba(0,194,255,0.12) 100%)'
+                    ? 'linear-gradient(135deg, rgba(220,38,38,0.3) 0%, rgba(220,38,38,0.15) 100%)'
                     : 'transparent',
-                  color: isActive ? '#00e5ff' : '#64748b',
-                  border: isActive ? '1px solid rgba(0,194,255,0.25)' : '1px solid transparent',
-                  textShadow: isActive ? '0 0 10px rgba(0,229,255,0.5)' : 'none',
+                  color: isActive ? '#FFFFFF' : '#888899',
+                  border: isActive ? '1px solid rgba(220,38,38,0.5)' : '1px solid transparent',
+                  textShadow: isActive ? '0 0 10px rgba(220,38,38,0.6)' : 'none',
                 }}
               >
                 {tab.label}
@@ -858,8 +891,8 @@ export const MultiTrackTimeline: React.FC<TimelineProps> = ({
                     className="absolute bottom-0.5 left-3 right-3 rounded-full"
                     style={{
                       height: 2,
-                      background: 'linear-gradient(90deg, #00c2ff, #00e5ff)',
-                      boxShadow: '0 0 8px rgba(0,229,255,0.8)',
+                      background: 'linear-gradient(90deg, #DC2626, #F59E0B)',
+                      boxShadow: '0 0 8px rgba(220,38,38,0.8)',
                       animation: 'tabSlideIn 0.25s ease',
                     }}
                   />

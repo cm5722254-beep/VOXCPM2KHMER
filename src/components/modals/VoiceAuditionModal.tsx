@@ -49,13 +49,13 @@ export const VoiceAuditionModal: React.FC<AuditionModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0b0f19]">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2 font-ui">
+      <div className="bg-white dark:bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#0b0f19]">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2 font-ui">
             <Volume2 className="w-4 h-4 text-purple-400" />
             <span>សាកល្បងឱ្យតួអង្គនិយាយ (Audition)</span>
           </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -65,27 +65,27 @@ export const VoiceAuditionModal: React.FC<AuditionModalProps> = ({
           <div className="bg-indigo-500/10 border border-indigo-500/20 rounded-lg p-3 flex items-center gap-3">
             <span className="text-xl">🎙️</span>
             <div>
-              <div className="font-bold text-white text-xs">{character.label}</div>
-              <div className="text-[10px] text-slate-400">{character.role_key} • {character.gender === 'female' ? 'ស្រី' : 'ប្រុស'}</div>
+              <div className="font-bold text-slate-800 dark:text-white text-xs">{character.label}</div>
+              <div className="text-[10px] text-slate-500 dark:text-slate-400">{character.role_key} • {character.gender === 'female' ? 'ស្រី' : 'ប្រុស'}</div>
             </div>
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="font-semibold text-slate-300">អក្សរខ្មែរដែលចង់ឱ្យតួអង្គនិយាយ៖</label>
+            <label className="font-semibold text-slate-600 dark:text-slate-300">អក្សរខ្មែរដែលចង់ឱ្យតួអង្គនិយាយ៖</label>
             <textarea
               value={text}
               onChange={(e) => setText(e.target.value)}
               rows={3}
-              className="bg-[#07090e] border border-white/[0.08] rounded-lg p-2.5 text-slate-200 outline-none focus:border-sky-400 resize-none leading-relaxed"
+              className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg p-2.5 text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400 resize-none leading-relaxed"
             />
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="font-semibold text-slate-300">ទឹកដមអារម្មណ៍សម្ដែង (Emotional Delivery)</label>
+            <label className="font-semibold text-slate-600 dark:text-slate-300">ទឹកដមអារម្មណ៍សម្ដែង (Emotional Delivery)</label>
             <select
               value={emotion}
               onChange={(e) => setEmotion(e.target.value)}
-              className="bg-[#07090e] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-200 outline-none focus:border-sky-400"
+              className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400"
             >
               <option value="dramatic">🎭 មនោសញ្ចេតនាភាពយន្ត (Dramatic / Theatrical)</option>
               <option value="deep_sorrow">😭 កម្សត់ / ស្រក់ទឹកភ្នែក (Deep Sorrow)</option>
@@ -97,16 +97,16 @@ export const VoiceAuditionModal: React.FC<AuditionModalProps> = ({
           </div>
 
           {audioUrl && (
-            <div className="bg-black/30 border border-white/[0.08] rounded-lg p-2.5">
+            <div className="bg-black/30 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg p-2.5">
               <audio src={audioUrl} controls className="w-full h-8" />
             </div>
           )}
         </div>
 
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#0b0f19] flex justify-end gap-2.5">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0b0f19] flex justify-end gap-2.5">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs transition-colors"
+            className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-600 dark:text-slate-300 text-xs transition-colors"
           >
             បិទ
           </button>

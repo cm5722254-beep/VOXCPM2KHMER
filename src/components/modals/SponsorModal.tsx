@@ -215,31 +215,31 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 select-none font-khmer animate-in fade-in duration-200">
-      <div className="bg-[#111827] border border-purple-500/30 rounded-3xl w-full max-w-2xl overflow-hidden shadow-[0_0_60px_rgba(168,85,247,0.25)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
+      <div className="bg-white dark:bg-[#0f0707] border border-red-900/50 rounded-3xl w-full max-w-2xl overflow-hidden shadow-[0_0_60px_rgba(239,68,68,0.25)] flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
         
         {/* Header */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0b0f19]">
+        <div className="p-4 px-6 border-b border-red-900/50 flex items-center justify-between bg-white dark:bg-[#1a0a0a]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-purple-500/20 border border-purple-500/40 flex items-center justify-center text-purple-400 shadow-sm">
-              <Heart className="w-5 h-5 fill-purple-400/20" />
+            <div className="w-10 h-10 rounded-2xl bg-blue-50 dark:bg-red-500/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 flex items-center justify-center text-blue-600 dark:text-red-400 shadow-sm">
+              <Heart className="w-5 h-5 fill-red-400/20" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-wide">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   គ្រប់គ្រង Sponsor & អ្នកឧបត្ថម្ភ
                 </h3>
-                <span className="px-2 py-0.5 rounded-full bg-purple-500/20 border border-purple-500/40 text-purple-300 text-[10px] font-bold">
+                <span className="px-2 py-0.5 rounded-full bg-blue-50 dark:bg-red-500/20 border border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40 text-red-300 text-[10px] font-bold">
                   {sponsors.length} Sponsors
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 រក្សាទុក Sponsor អចិន្ត្រៃយ៍ — ចងចាំជានិច្ច ទោះ Refresh ឬ បិទបើក App ក៏ដោយ
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-white/[0.08] transition-colors"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-2 rounded-xl hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -255,7 +255,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                 setEditingId(null);
                 setForm(createEmptyForm());
               }}
-              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-purple-500/40 hover:border-purple-500 text-purple-400 hover:text-purple-300 text-xs font-bold transition-all hover:bg-purple-500/10 active:scale-[0.99]"
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border-2 border-dashed border-red-900 hover:border-red-500 text-blue-600 dark:text-red-400 hover:text-red-300 text-xs font-bold transition-all hover:bg-red-500/10 active:scale-[0.99]"
             >
               <Plus className="w-4 h-4" />
               <span>បន្ថែម Sponsor ថ្មី (Add Sponsor)</span>
@@ -266,11 +266,11 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
           {showForm && (
             <form
               onSubmit={handleSave}
-              className="p-4 rounded-2xl bg-black/40 border border-purple-500/30 space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-200"
+              className="p-4 rounded-2xl bg-black/40 border border-red-900/50 space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-200"
             >
-              <div className="flex items-center justify-between border-b border-white/[0.08] pb-2">
-                <span className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
-                  <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+              <div className="flex items-center justify-between border-b border-red-900/50 pb-2">
+                <span className="text-xs font-bold text-sky-600 dark:text-amber-400 flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-sky-700 dark:text-amber-500" />
                   <span>{editingId ? 'កែប្រែ Sponsor' : 'បន្ថែម Sponsor ថ្មី'}</span>
                 </span>
                 <button
@@ -280,7 +280,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     setEditingId(null);
                     setForm(createEmptyForm());
                   }}
-                  className="text-slate-400 hover:text-slate-200 text-xs"
+                  className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 text-xs"
                 >
                   បោះបង់
                 </button>
@@ -288,7 +288,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
 
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     ឈ្មោះ Sponsor *
                   </label>
                   <input
@@ -297,12 +297,12 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     value={form.name}
                     onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
                     required
-                    className="w-full bg-[#0b0f19] border border-white/[0.15] focus:border-purple-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none transition-all"
+                    className="w-full bg-white dark:bg-[#1a0a0a] border border-red-900/50 focus:border-amber-500 rounded-xl px-3 py-2 text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Logo URL (រូបភាព)
                   </label>
                   <div className="flex gap-2">
@@ -311,7 +311,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                       placeholder="https://example.com/logo.png"
                       value={form.logoUrl}
                       onChange={(e) => setForm((f) => ({ ...f, logoUrl: e.target.value }))}
-                      className="flex-1 bg-[#0b0f19] border border-white/[0.15] focus:border-purple-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none transition-all"
+                      className="flex-1 bg-white dark:bg-[#1a0a0a] border border-red-900/50 focus:border-amber-500 rounded-xl px-3 py-2 text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none transition-all"
                     />
                     {form.logoUrl && (
                       <img
@@ -325,7 +325,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Link / URL (តំណភ្ជាប់)
                   </label>
                   <input
@@ -333,12 +333,12 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     placeholder="https://t.me/BongCheatz_IT"
                     value={form.link}
                     onChange={(e) => setForm((f) => ({ ...f, link: e.target.value }))}
-                    className="w-full bg-[#0b0f19] border border-white/[0.15] focus:border-purple-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none transition-all"
+                    className="w-full bg-white dark:bg-[#1a0a0a] border border-red-900/50 focus:border-amber-500 rounded-xl px-3 py-2 text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none transition-all"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     Badge Label (ស្លាក)
                   </label>
                   <input
@@ -346,12 +346,12 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     placeholder="✨ Sponsor, 👑 VIP, 💎 Gold..."
                     value={form.badge}
                     onChange={(e) => setForm((f) => ({ ...f, badge: e.target.value }))}
-                    className="w-full bg-[#0b0f19] border border-white/[0.15] focus:border-purple-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none transition-all"
+                    className="w-full bg-white dark:bg-[#1a0a0a] border border-red-900/50 focus:border-amber-500 rounded-xl px-3 py-2 text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none transition-all"
                   />
                 </div>
 
                 <div className="col-span-2">
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1">
                     ការពិពណ៌នា Sponsor
                   </label>
                   <textarea
@@ -359,12 +359,12 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     value={form.description}
                     onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
                     rows={2}
-                    className="w-full bg-[#0b0f19] border border-white/[0.15] focus:border-purple-500 rounded-xl px-3 py-2 text-white placeholder-slate-500 focus:outline-none transition-all resize-none"
+                    className="w-full bg-white dark:bg-[#1a0a0a] border border-red-900/50 focus:border-amber-500 rounded-xl px-3 py-2 text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none transition-all resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-slate-300 mb-1.5">
+                  <label className="block text-[11px] font-bold text-slate-600 dark:text-slate-300 mb-1.5">
                     Brand Color
                   </label>
                   <div className="flex gap-2 flex-wrap">
@@ -385,14 +385,14 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                 </div>
 
                 <div className="flex items-center gap-2 pt-2">
-                  <label className="text-[11px] font-bold text-slate-300">បង្ហាញក្នុង App:</label>
+                  <label className="text-[11px] font-bold text-slate-600 dark:text-slate-300">បង្ហាញក្នុង App:</label>
                   <button
                     type="button"
                     onClick={() => setForm((f) => ({ ...f, isVisible: !f.isVisible }))}
                     className={`px-3 py-1 rounded-lg text-[10px] font-bold transition-all ${
                       form.isVisible
-                        ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-400'
-                        : 'bg-slate-700/50 border border-white/10 text-slate-400'
+                        ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-600 dark:text-emerald-400'
+                        : 'bg-slate-700/50 border border-white/10 text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     {form.isVisible ? '✅ បង្ហាញ' : '🙈 លាក់'}
@@ -403,7 +403,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
               <button
                 type="submit"
                 disabled={isSaving}
-                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-400 hover:to-pink-500 text-white text-xs font-bold shadow-lg shadow-purple-500/25 disabled:opacity-50 transition-all active:scale-[0.99]"
+                className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-gradient-to-r from-red-700 to-amber-600 hover:from-red-600 hover:to-amber-500 text-slate-800 dark:text-white text-xs font-bold shadow-lg shadow-red-900/50 disabled:opacity-50 transition-all active:scale-[0.99]"
               >
                 {isSaving ? (
                   <>
@@ -423,15 +423,15 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
           {/* Sponsors List */}
           {sponsors.length === 0 ? (
             <div className="py-12 text-center text-slate-500 text-xs">
-              <Heart className="w-10 h-10 mx-auto mb-2 opacity-25 text-purple-400" />
-              <p className="font-semibold text-slate-400">មិនទាន់មាន Sponsor នៅឡើយទេ</p>
+              <Heart className="w-10 h-10 mx-auto mb-2 opacity-25 text-blue-600 dark:text-red-400" />
+              <p className="font-semibold text-slate-500 dark:text-slate-400">មិនទាន់មាន Sponsor នៅឡើយទេ</p>
               <p className="mt-1 text-[11px] opacity-70">ចុច &quot;បន្ថែម Sponsor ថ្មី&quot; ខាងលើដើម្បីបញ្ចូល Sponsor ដំបូង</p>
             </div>
           ) : (
             <div className="space-y-2.5">
-              <div className="text-[11px] font-bold text-slate-400 uppercase tracking-wider flex items-center justify-between">
+              <div className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider flex items-center justify-between">
                 <span>បញ្ជី Sponsor ({sponsors.length})</span>
-                <span className="text-[10px] text-emerald-400 font-normal">
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-normal">
                   {sponsors.filter((s) => s.isVisible).length} កំពុងបង្ហាញ
                 </span>
               </div>
@@ -441,7 +441,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                   key={sp.id}
                   className={`p-3.5 rounded-2xl border transition-all ${
                     sp.isVisible
-                      ? 'border-white/[0.1] bg-white/[0.03] hover:border-purple-500/40'
+                      ? 'border-red-900/50 bg-white dark:bg-[#1a0a0a]/50 hover:border-blue-300 dark:border-blue-300 dark:border-blue-300 dark:border-red-500/40'
                       : 'border-white/[0.05] bg-black/20 opacity-50'
                   }`}
                 >
@@ -469,7 +469,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
-                        <span className="text-sm font-bold text-white truncate">{sp.name}</span>
+                        <span className="text-sm font-bold text-slate-800 dark:text-white truncate">{sp.name}</span>
                         <span
                           className="text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0"
                           style={{
@@ -482,7 +482,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                         </span>
                       </div>
                       {sp.description && (
-                        <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                        <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">
                           {sp.description}
                         </p>
                       )}
@@ -507,8 +507,8 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
                         onClick={() => handleToggleVisible(sp)}
                         className={`p-1.5 rounded-lg border text-xs transition-colors ${
                           sp.isVisible
-                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20'
-                            : 'bg-white/[0.05] border-white/[0.08] text-slate-400 hover:text-white'
+                            ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500/20'
+                            : 'bg-white/[0.05] border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                         }`}
                         title={sp.isVisible ? 'លាក់ Sponsor' : 'បង្ហាញ Sponsor'}
                       >
@@ -517,7 +517,7 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
 
                       <button
                         onClick={() => handleEdit(sp)}
-                        className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-white/[0.08] text-slate-300 hover:text-cyan-300 transition-colors"
+                        className="p-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-cyan-300 transition-colors"
                         title="កែប្រែ Sponsor"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -539,14 +539,14 @@ export const SponsorModal: React.FC<SponsorModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-3.5 px-6 border-t border-white/[0.08] bg-[#0b0f19] flex items-center justify-between">
-          <p className="text-[11px] text-slate-400 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+        <div className="p-3.5 px-6 border-t border-red-900/50 bg-white dark:bg-[#1a0a0a] flex items-center justify-between">
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>ទិន្នន័យ Sponsor រក្សាទុកដោយស្វ័យប្រវត្តិ (Saved permanently)</span>
           </p>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-white/[0.08] hover:bg-white/[0.15] text-slate-200 text-xs font-semibold transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-slate-200 dark:bg-white/[0.08] hover:bg-white/[0.15] text-slate-700 dark:text-slate-200 text-xs font-semibold transition-colors"
           >
             បិទ
           </button>

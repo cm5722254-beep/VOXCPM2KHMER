@@ -62,36 +62,36 @@ export const EditVoiceModal: React.FC<EditVoiceModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0b0f19]">
-          <h3 className="text-sm font-bold text-white flex items-center gap-2 font-ui">
+      <div className="bg-white dark:bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#0b0f19]">
+          <h3 className="text-sm font-bold text-slate-800 dark:text-white flex items-center gap-2 font-ui">
             <Edit3 className="w-4 h-4 text-sky-400" />
             <span>កែប្រែព័ត៌មានសំឡេង (Edit Voice)</span>
           </h3>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1">
+          <button onClick={onClose} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-1">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6 flex flex-col gap-4 text-xs">
           <div className="flex flex-col gap-1.5">
-            <label className="font-semibold text-slate-300">ឈ្មោះសំឡេងតួអង្គ (Label)</label>
+            <label className="font-semibold text-slate-600 dark:text-slate-300">ឈ្មោះសំឡេងតួអង្គ (Label)</label>
             <input
               type="text"
               required
               value={label}
               onChange={(e) => setLabel(e.target.value)}
-              className="bg-[#07090e] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-200 outline-none focus:border-sky-400"
+              className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200 outline-none focus:border-sky-400"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="flex flex-col gap-1.5">
-              <label className="font-semibold text-slate-300">ភេទ (Gender)</label>
+              <label className="font-semibold text-slate-600 dark:text-slate-300">ភេទ (Gender)</label>
               <select
                 value={gender}
                 onChange={(e) => setGender(e.target.value)}
-                className="bg-[#07090e] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-200 outline-none"
+                className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200 outline-none"
               >
                 <option value="male">👑 តួប្រុស (Male)</option>
                 <option value="female">🌸 តួស្រី (Female)</option>
@@ -99,11 +99,11 @@ export const EditVoiceModal: React.FC<EditVoiceModalProps> = ({
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="font-semibold text-slate-300">តួនាទី (Role)</label>
+              <label className="font-semibold text-slate-600 dark:text-slate-300">តួនាទី (Role)</label>
               <select
                 value={role}
                 onChange={(e) => setRole(e.target.value)}
-                className="bg-[#07090e] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-200 outline-none"
+                className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200 outline-none"
               >
                 <option value="male_lead">👑 តួឯកប្រុស</option>
                 <option value="female_lead">🌸 តួឯកស្រី</option>
@@ -116,18 +116,18 @@ export const EditVoiceModal: React.FC<EditVoiceModalProps> = ({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label className="font-semibold text-slate-300">ឃ្លានិយាយគំរូ</label>
+            <label className="font-semibold text-slate-600 dark:text-slate-300">ឃ្លានិយាយគំរូ</label>
             <textarea
               value={words}
               onChange={(e) => setWords(e.target.value)}
               rows={2}
-              className="bg-[#07090e] border border-white/[0.08] rounded-lg px-3 py-2 text-slate-200 outline-none resize-none"
+              className="bg-white dark:bg-[#07090e] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-lg px-3 py-2 text-slate-700 dark:text-slate-200 outline-none resize-none"
             />
           </div>
 
           {character.previewUrl && (
             <div className="bg-black/30 p-2.5 rounded-lg border border-white/[0.06]">
-              <span className="text-[11px] text-slate-400 block mb-1">សំឡេងដើម (Audio Preview):</span>
+              <span className="text-[11px] text-slate-500 dark:text-slate-400 block mb-1">សំឡេងដើម (Audio Preview):</span>
               <audio src={character.previewUrl} controls className="w-full h-8" />
             </div>
           )}
@@ -136,7 +136,7 @@ export const EditVoiceModal: React.FC<EditVoiceModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs transition-colors"
+              className="px-4 py-2 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-600 dark:text-slate-300 text-xs transition-colors"
             >
               បោះបង់
             </button>

@@ -11,7 +11,9 @@ import {
   Activity,
   Layers,
   Flame,
-  ShieldCheck
+  ShieldCheck,
+  MonitorSpeaker,
+  ChevronRight,
 } from 'lucide-react';
 import { HardwareProfile } from '../../types';
 import { api } from '../../services/api';
@@ -20,6 +22,60 @@ interface HardwareTurboModalProps {
   isOpen: boolean;
   onClose: () => void;
   onShowToast: (msg: string, type: 'success' | 'error' | 'info') => void;
+}
+
+/** Return colour classes and icon label for the GPU vendor badge */
+function getGpuVendorBadge(profile: HardwareProfile | null): {
+  bg: string;
+  border: string;
+  text: string;
+  dot: string;
+  label: string;
+} {
+  const vendor = profile?.gpuVendor ?? '';
+  if (profile?.isAmdGpu || vendor === 'amd') {
+    return {
+      bg: 'bg-red-500/15',
+      border: 'border-red-500/40',
+      text: 'text-red-300',
+      dot: 'bg-red-400',
+      label: '🔴 AMD Radeon',
+    };
+  }
+  if (profile?.isNvidiaGpu || vendor === 'nvidia') {
+    return {
+      bg: 'bg-green-500/15',
+      border: 'border-green-500/40',
+      text: 'text-green-300',
+      dot: 'bg-green-400',
+      label: '🟢 NVIDIA CUDA',
+    };
+  }
+  if (vendor === 'apple') {
+    return {
+      bg: 'bg-slate-500/15',
+      border: 'border-slate-500/40',
+      text: 'text-slate-300',
+      dot: 'bg-slate-400',
+      label: '⚪ Apple MPS',
+    };
+  }
+  if (vendor === 'intel') {
+    return {
+      bg: 'bg-blue-500/15',
+      border: 'border-blue-500/40',
+      text: 'text-blue-300',
+      dot: 'bg-blue-400',
+      label: '🔵 Intel GPU',
+    };
+  }
+  return {
+    bg: 'bg-slate-500/10',
+    border: 'border-slate-500/30',
+    text: 'text-slate-400',
+    dot: 'bg-slate-500',
+    label: '⚪ CPU Mode',
+  };
 }
 
 export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
@@ -68,28 +124,32 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
 
   const cpuCores = profile?.cpuCores || 8;
   const isGpu = profile?.isGpuAccelerated || false;
+  const isAmd = profile?.isAmdGpu || false;
+  const hasDirectml = profile?.hasDirectml || false;
+  const amdVram = profile?.amdVramGb || profile?.vramTotalGb || 0;
+  const vendorBadge = getGpuVendorBadge(profile);
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 font-khmer">
-      <div className="bg-[#0b0f19] border border-amber-500/30 rounded-2xl w-full max-w-xl overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.18)] flex flex-col animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white dark:bg-[#0b0f19] border border-amber-500/30 rounded-2xl w-full max-w-xl overflow-hidden shadow-[0_0_40px_rgba(245,158,11,0.18)] flex flex-col animate-in fade-in zoom-in-95 duration-150">
         {/* Header */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070a12]">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#070a12]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-sky-600 dark:text-amber-400">
               <Zap className="w-4 h-4 fill-amber-400" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white">
                 បង្កើនល្បឿន Generate តាមកម្លាំងកុំព្យូទ័រ (Turbo Hardware Speed)
               </h3>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 ទាញយកកម្លាំង CPU & GPU ម៉ាស៊ីនដើម្បីបង្កើតសំឡេង និង Render វីដេអូលឿនបំផុត
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.05] transition-colors"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-1 rounded-lg hover:bg-white/[0.05] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -101,7 +161,7 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
           <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 via-orange-500/5 to-transparent border border-amber-500/25 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
-                <Cpu className="w-4 h-4 text-amber-400" />
+                <Cpu className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                 <span>កម្លាំងម៉ាស៊ីនកុំព្យូទ័ររបស់អ្នក (Hardware Detected):</span>
               </span>
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
@@ -110,31 +170,98 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
               </span>
             </div>
 
+            {/* Core specs grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1 text-xs">
               <div className="p-2 rounded-lg bg-black/40 border border-white/[0.06]">
-                <div className="text-[10px] text-slate-400">CPU Processor</div>
-                <div className="font-bold text-white font-mono mt-0.5">{cpuCores} Cores / Threads</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">CPU Processor</div>
+                <div className="font-bold text-slate-800 dark:text-white font-mono mt-0.5">{cpuCores} Cores / Threads</div>
               </div>
 
               <div className="p-2 rounded-lg bg-black/40 border border-white/[0.06]">
-                <div className="text-[10px] text-slate-400">Video Hardware Encoder</div>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">Video Hardware Encoder</div>
                 <div className="font-bold text-cyan-300 font-mono mt-0.5 truncate" title={profile?.encoderLabel}>
                   {profile?.videoEncoder || 'libx264 (Ultrafast)'}
                 </div>
               </div>
 
               <div className="p-2 rounded-lg bg-black/40 border border-white/[0.06] col-span-2 sm:col-span-1">
-                <div className="text-[10px] text-slate-400">GPU Acceleration</div>
-                <div className={`font-bold mt-0.5 ${isGpu ? 'text-emerald-400' : 'text-amber-300'}`}>
+                <div className="text-[10px] text-slate-500 dark:text-slate-400">GPU Acceleration</div>
+                <div className={`font-bold mt-0.5 ${isGpu ? 'text-emerald-600 dark:text-emerald-400' : 'text-amber-300'}`}>
                   {isGpu ? 'Active (GPU Boost)' : 'CPU Multi-Threading'}
                 </div>
               </div>
             </div>
+
+            {/* ── AMD Vega 64 GPU Info Row ── */}
+            {isAmd && (
+              <div className={`mt-2 p-3 rounded-xl border ${vendorBadge.bg} ${vendorBadge.border} flex flex-col gap-1.5`}>
+                {/* Badge header */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-2 h-2 rounded-full ${vendorBadge.dot} animate-pulse`} />
+                    <span className={`text-xs font-bold ${vendorBadge.text}`}>
+                      {vendorBadge.label}
+                    </span>
+                    {profile?.gpuName && (
+                      <span className="text-[10px] text-slate-400 truncate max-w-[140px]" title={profile.gpuName}>
+                        {profile.gpuName}
+                      </span>
+                    )}
+                  </div>
+                  {/* VRAM chip */}
+                  {amdVram > 0 && (
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-red-500/20 text-red-300 border border-red-500/30">
+                      {amdVram} GB HBM2
+                    </span>
+                  )}
+                </div>
+
+                {/* DirectML / ROCm status */}
+                <div className="flex flex-wrap items-center gap-2 text-[10px]">
+                  {hasDirectml ? (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-medium">
+                      <CheckCircle2 className="w-3 h-3" />
+                      DirectML Active
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-yellow-500/20 text-yellow-300 border border-yellow-500/30 font-medium">
+                      ⚠ DirectML not installed
+                    </span>
+                  )}
+                  {profile?.hasRocm && (
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 font-medium">
+                      <CheckCircle2 className="w-3 h-3" />
+                      ROCm Active
+                    </span>
+                  )}
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-cyan-500/15 text-cyan-300 border border-cyan-500/25 font-medium">
+                    h264_amf Encode
+                  </span>
+                </div>
+
+                {/* Install hint if DirectML missing */}
+                {!hasDirectml && !profile?.hasRocm && (
+                  <p className="text-[9.5px] text-yellow-400/80 mt-0.5 leading-relaxed">
+                    GPU AI acceleration requires{' '}
+                    <span className="font-mono bg-black/30 px-1 rounded">pip install torch-directml</span>
+                    {' '}or run{' '}
+                    <span className="font-mono bg-black/30 px-1 rounded">START_LOCAL_VOXCPM_AMD.bat</span>
+                  </p>
+                )}
+
+                {/* Status line from gpu_detect */}
+                {profile?.gpuStatusLine && (
+                  <p className="text-[9.5px] text-slate-400 truncate" title={profile.gpuStatusLine}>
+                    {profile.gpuStatusLine}
+                  </p>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Performance Mode Selector */}
           <div className="space-y-2">
-            <label className="text-xs font-bold text-slate-300 block">
+            <label className="text-xs font-bold text-slate-600 dark:text-slate-300 block">
               ជ្រើសរើសទម្រង់ដំណើរការ (Performance Mode):
             </label>
 
@@ -149,19 +276,19 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
                 className={`p-3 rounded-xl border text-left flex flex-col gap-1 transition-all ${
                   selectedMode === 'turbo_max'
                     ? 'bg-amber-500/15 border-amber-400/60 shadow-[0_0_15px_rgba(245,158,11,0.2)]'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04]'
+                    : 'bg-white/[0.02] border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:bg-slate-100 dark:bg-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-300 flex items-center gap-1">
-                    <Flame className="w-3.5 h-3.5 text-amber-400" />
+                    <Flame className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
                     <span>Turbo Max</span>
                   </span>
                   {selectedMode === 'turbo_max' && (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-amber-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
                   )}
                 </div>
-                <p className="text-[10.5px] text-slate-400">
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
                   ល្បឿនអតិបរមា ១០០% ស្របគ្នាច្រើនបន្ទាត់ (Parallel Speech)
                 </p>
               </button>
@@ -176,7 +303,7 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
                 className={`p-3 rounded-xl border text-left flex flex-col gap-1 transition-all ${
                   selectedMode === 'balanced'
                     ? 'bg-cyan-500/15 border-cyan-400/60 shadow-[0_0_15px_rgba(6,182,212,0.2)]'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04]'
+                    : 'bg-white/[0.02] border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:bg-slate-100 dark:bg-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -188,7 +315,7 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
                     <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400" />
                   )}
                 </div>
-                <p className="text-[10.5px] text-slate-400">
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
                   ដំណើរការរហ័ស សមតុល្យរវាងល្បឿន និងបន្ទុកកុំព្យូទ័រ
                 </p>
               </button>
@@ -203,7 +330,7 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
                 className={`p-3 rounded-xl border text-left flex flex-col gap-1 transition-all ${
                   selectedMode === 'quality'
                     ? 'bg-purple-500/15 border-purple-400/60 shadow-[0_0_15px_rgba(168,85,247,0.2)]'
-                    : 'bg-white/[0.02] border-white/[0.08] hover:bg-white/[0.04]'
+                    : 'bg-white/[0.02] border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:bg-slate-100 dark:bg-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -215,7 +342,7 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
                     <CheckCircle2 className="w-3.5 h-3.5 text-purple-400" />
                   )}
                 </div>
-                <p className="text-[10.5px] text-slate-400">
+                <p className="text-[10.5px] text-slate-500 dark:text-slate-400">
                   ទាញយកកម្លាំងតិច ទុក CPU សម្រាប់កម្មវិធីផ្សេងៗ
                 </p>
               </button>
@@ -223,9 +350,9 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
           </div>
 
           {/* Parallel Workers Concurrency Slider */}
-          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.08] space-y-2">
+          <div className="p-3.5 rounded-xl bg-white/[0.02] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] space-y-2">
             <div className="flex items-center justify-between text-xs">
-              <span className="font-bold text-slate-300 flex items-center gap-1.5">
+              <span className="font-bold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
                 <Gauge className="w-3.5 h-3.5 text-cyan-400" />
                 <span>ចំនួនខ្សែស្របគ្នា (Concurrent Workers):</span>
               </span>
@@ -254,14 +381,14 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 px-6 border-t border-white/[0.08] flex items-center justify-between bg-[#070a12]">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#070a12]">
           <span className="text-[11px] text-slate-500">
             * កម្មវិធីនឹងប្រើប្រាស់ Thread ទាំងអស់របស់ CPU ដើម្បី Generate ឱ្យបានលឿនបំផុត
           </span>
           <div className="flex items-center gap-2">
             <button
               onClick={onClose}
-              className="px-3 py-1.5 rounded-lg bg-white/[0.05] text-slate-300 text-xs hover:text-white"
+              className="px-3 py-1.5 rounded-lg bg-white/[0.05] text-slate-600 dark:text-slate-300 text-xs hover:text-slate-800 dark:text-white"
             >
               បោះបង់
             </button>
@@ -277,3 +404,5 @@ export const HardwareTurboModal: React.FC<HardwareTurboModalProps> = ({
     </div>
   );
 };
+
+

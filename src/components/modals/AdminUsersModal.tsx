@@ -152,39 +152,39 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[88vh]">
+      <div className="bg-white dark:bg-[#111827] border border-white/[0.1] rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl flex flex-col max-h-[88vh]">
         {/* Header */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#0b0f19]">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#0b0f19]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-white font-khmer">
+              <h3 className="text-sm font-bold text-slate-800 dark:text-white font-khmer">
                 ផ្ទាំងគ្រប់គ្រង Admin (Users & License Keys)
               </h3>
-              <p className="text-[11px] text-slate-400 font-khmer">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-khmer">
                 គ្រប់គ្រងអ្នកប្រើប្រាស់ និងសិទ្ធិប្រើប្រាស់ VoxCPM2
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/[0.05] transition-colors"
+            className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-1 rounded-lg hover:bg-white/[0.05] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Tab Navigation & Stats */}
-        <div className="px-6 pt-4 pb-2 border-b border-white/[0.06] bg-[#0d1322] flex flex-wrap items-center justify-between gap-3">
+        <div className="px-6 pt-4 pb-2 border-b border-white/[0.06] bg-white dark:bg-[#0d1322] flex flex-wrap items-center justify-between gap-3">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('users')}
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold font-khmer transition-all ${
                 activeTab === 'users'
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/[0.04]'
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -195,7 +195,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
               className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold font-khmer transition-all ${
                 activeTab === 'keys'
                   ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                  : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/[0.04]'
               }`}
             >
               <Key className="w-3.5 h-3.5" />
@@ -203,8 +203,8 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
             </button>
           </div>
 
-          <div className="flex items-center gap-2 text-[11px] text-slate-400 font-khmer">
-            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          <div className="flex items-center gap-2 text-[11px] text-slate-500 dark:text-slate-400 font-khmer">
+            <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
               Premium: {premiumCount}
             </span>
             <span className="px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
@@ -216,7 +216,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
         {/* Tab Content */}
         <div className="flex-1 overflow-y-auto p-5">
           {isLoading ? (
-            <div className="flex flex-col items-center justify-center py-12 text-slate-400 gap-2">
+            <div className="flex flex-col items-center justify-center py-12 text-slate-500 dark:text-slate-400 gap-2">
               <Loader2 className="w-6 h-6 animate-spin text-cyan-400" />
               <span className="text-xs font-khmer">កំពុងទាញយកទិន្នន័យ...</span>
             </div>
@@ -224,19 +224,19 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
             /* Tab 1: Users Table */
             <div className="space-y-3">
               {/* User Search Bar */}
-              <div className="flex items-center gap-2 bg-[#0b0f19] border border-white/[0.08] rounded-xl px-3 py-2">
-                <Search className="w-4 h-4 text-slate-400" />
+              <div className="flex items-center gap-2 bg-white dark:bg-[#0b0f19] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-xl px-3 py-2">
+                <Search className="w-4 h-4 text-slate-500 dark:text-slate-400" />
                 <input
                   type="text"
                   value={userSearch}
                   onChange={(e) => setUserSearch(e.target.value)}
                   placeholder="ស្វែងរកតាមឈ្មោះអ្នកប្រើ ឬ ID..."
-                  className="bg-transparent text-xs text-white placeholder-slate-500 focus:outline-none w-full font-khmer"
+                  className="bg-transparent text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none w-full font-khmer"
                 />
                 {userSearch && (
                   <button
                     onClick={() => setUserSearch('')}
-                    className="text-xs text-slate-400 hover:text-white"
+                    className="text-xs text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -246,7 +246,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
               <div className="overflow-x-auto border border-white/[0.06] rounded-xl">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-white/[0.08] bg-white/[0.02] text-[11px] font-bold text-slate-400 font-khmer">
+                    <tr className="border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white/[0.02] text-[11px] font-bold text-slate-500 dark:text-slate-400 font-khmer">
                       <th className="py-2.5 px-3">ID</th>
                       <th className="py-2.5 px-3">ឈ្មោះអ្នកប្រើ</th>
                       <th className="py-2.5 px-3">តួនាទី</th>
@@ -267,15 +267,15 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                         const hasVox = Boolean(u.role === 'admin' || u.has_voxcpm_license);
                         return (
                           <tr key={u.id} className="hover:bg-white/[0.02] transition-colors">
-                            <td className="py-2.5 px-3 font-mono text-slate-400">#{u.id}</td>
-                            <td className="py-2.5 px-3 font-medium text-white">
+                            <td className="py-2.5 px-3 font-mono text-slate-500 dark:text-slate-400">#{u.id}</td>
+                            <td className="py-2.5 px-3 font-medium text-slate-800 dark:text-white">
                               <div>{u.username}</div>
                               {u.current_device_id ? (
-                                <div className="text-[10px] text-amber-400/80 font-mono flex items-center gap-1">
+                                <div className="text-[10px] text-sky-600 dark:text-amber-400/80 font-mono flex items-center gap-1">
                                   <span>🔒 Dev: {u.current_device_id.slice(0, 8)}...</span>
                                 </div>
                               ) : (
-                                <div className="text-[10px] text-emerald-400/80">
+                                <div className="text-[10px] text-emerald-600 dark:text-emerald-400/80">
                                   🔓 គ្មាន Lock ឧបករណ៍
                                 </div>
                               )}
@@ -296,7 +296,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                                 className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded ${
                                   u.tier === 'premium'
                                     ? 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30'
-                                    : 'bg-slate-500/15 text-slate-400'
+                                    : 'bg-slate-500/15 text-slate-500 dark:text-slate-400'
                                 }`}
                               >
                                 {u.tier}
@@ -309,13 +309,13 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                                 className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md text-[11px] font-khmer font-semibold transition-all ${
                                   hasVox
                                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30'
-                                    : 'bg-slate-800 text-slate-400 border border-slate-700 hover:text-white'
+                                    : 'bg-slate-800 text-slate-500 dark:text-slate-400 border border-slate-700 hover:text-slate-800 dark:text-white'
                                 } disabled:opacity-75`}
                               >
                                 {hasVox ? (
                                   <ToggleRight className="w-3.5 h-3.5 text-cyan-400" />
                                 ) : (
-                                  <ToggleLeft className="w-3.5 h-3.5 text-slate-400" />
+                                  <ToggleLeft className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                                 )}
                                 <span>{hasVox ? 'បានបើក' : 'បិទ'}</span>
                               </button>
@@ -345,7 +345,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                                   <button
                                     onClick={() => handleResetDevice(u.id)}
                                     title="ដោះសោរឧបករណ៍ (Reset Device ID)"
-                                    className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-cyan-400 transition-colors"
+                                    className="p-1 rounded bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-cyan-400 transition-colors"
                                   >
                                     <Smartphone className="w-3.5 h-3.5" />
                                   </button>
@@ -354,7 +354,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                                   <button
                                     onClick={() => handleResetPassword(u.id, u.username)}
                                     title="ប្តូរពាក្យសម្ងាត់ (Reset Password)"
-                                    className="p-1 rounded bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-amber-400 transition-colors"
+                                    className="p-1 rounded bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-sky-600 dark:text-amber-400 transition-colors"
                                   >
                                     <KeyRound className="w-3.5 h-3.5" />
                                   </button>
@@ -384,13 +384,13 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
               <div className="p-3.5 rounded-xl bg-cyan-950/20 border border-cyan-500/20 flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                   <Sparkles className="w-4 h-4 text-cyan-400" />
-                  <span className="text-xs font-bold text-white font-khmer">
+                  <span className="text-xs font-bold text-slate-800 dark:text-white font-khmer">
                     បង្កើត Key License VoxCPM2 ថ្មី:
                   </span>
                   <select
                     value={newKeyDays}
                     onChange={(e) => setNewKeyDays(Number(e.target.value))}
-                    className="bg-[#0b0f19] border border-white/[0.1] text-xs text-white rounded-lg px-2.5 py-1 font-khmer focus:outline-none focus:border-cyan-500 cursor-pointer"
+                    className="bg-white dark:bg-[#0b0f19] border border-white/[0.1] text-xs text-slate-800 dark:text-white rounded-lg px-2.5 py-1 font-khmer focus:outline-none focus:border-cyan-500 cursor-pointer"
                   >
                     <option value={7}>សាកល្បង ៧ ថ្ងៃ (7-Day Trial)</option>
                     <option value={30}>១ ខែ (1 Month / 30 Days)</option>
@@ -416,7 +416,7 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
               <div className="overflow-x-auto border border-white/[0.06] rounded-xl">
                 <table className="w-full text-left border-collapse text-xs">
                   <thead>
-                    <tr className="border-b border-white/[0.08] bg-white/[0.02] text-[11px] font-bold text-slate-400 font-khmer">
+                    <tr className="border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white/[0.02] text-[11px] font-bold text-slate-500 dark:text-slate-400 font-khmer">
                       <th className="py-2.5 px-3">លេខកូដ Key</th>
                       <th className="py-2.5 px-3">សុពលភាព (Tier)</th>
                       <th className="py-2.5 px-3">ស្ថានភាព</th>
@@ -439,16 +439,16 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                           <tr key={k.id} className="hover:bg-white/[0.02] transition-colors">
                             <td className="py-2.5 px-3">
                               <div className="flex items-center gap-2">
-                                <span className="font-mono font-bold text-white tracking-wider">
+                                <span className="font-mono font-bold text-slate-800 dark:text-white tracking-wider">
                                   {k.key_code}
                                 </span>
                                 <button
                                   onClick={() => handleCopyKey(k.key_code)}
                                   title="ចម្លង Key"
-                                  className="p-1 rounded hover:bg-white/[0.08] text-slate-400 hover:text-cyan-300 transition-colors"
+                                  className="p-1 rounded hover:bg-slate-200 dark:bg-white/[0.08] text-slate-500 dark:text-slate-400 hover:text-cyan-300 transition-colors"
                                 >
                                   {copiedKey === k.key_code ? (
-                                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                                    <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                                   ) : (
                                     <Copy className="w-3.5 h-3.5" />
                                   )}
@@ -487,10 +487,10 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
                                 {isUsed ? 'ប្រើរួច' : 'នៅទំនេរ'}
                               </span>
                             </td>
-                            <td className="py-2.5 px-3 font-medium text-slate-300">
+                            <td className="py-2.5 px-3 font-medium text-slate-600 dark:text-slate-300">
                               {k.used_by_username || '—'}
                             </td>
-                            <td className="py-2.5 px-3 text-slate-400 text-[11px] font-mono">
+                            <td className="py-2.5 px-3 text-slate-500 dark:text-slate-400 text-[11px] font-mono">
                               {k.created_at ? k.created_at.slice(0, 10) : '—'}
                             </td>
                             <td className="py-2.5 px-3 text-right">
@@ -514,10 +514,10 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#0b0f19] flex justify-end">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#0b0f19] flex justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-300 text-xs font-khmer transition-colors"
+            className="px-4 py-1.5 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-slate-600 dark:text-slate-300 text-xs font-khmer transition-colors"
           >
             បិទ
           </button>

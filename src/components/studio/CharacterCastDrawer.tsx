@@ -178,23 +178,23 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 select-none animate-in fade-in duration-200">
-      <div className="bg-[#0c101c] border border-white/[0.12] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
+      <div className="bg-white dark:bg-[#0c101c] border border-white/[0.12] rounded-2xl w-full max-w-4xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden">
         {/* Header */}
-        <div className="p-4 px-6 border-b border-white/[0.08] bg-[#070a12] flex items-center justify-between">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#070a12] flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 via-indigo-600 to-purple-600 flex items-center justify-center text-white shadow-lg shadow-sky-500/20 border border-sky-400/30">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-sky-500 via-indigo-600 to-purple-600 flex items-center justify-center text-slate-800 dark:text-white shadow-lg shadow-sky-500/20 border border-sky-400/30">
               <Users className="w-5 h-5 text-sky-100" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-base font-bold text-white font-ui">
+                <h3 className="text-base font-bold text-slate-800 dark:text-white font-ui">
                   តារាងម្ចាស់សំឡេងតួអង្គ (1 Character = 1 Voice Casting)
                 </h3>
                 <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-300 border border-sky-500/30 font-semibold">
                   {uniqueCharacters.length} តួអង្គក្នុងរឿង
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 សំឡេងទាំងអស់អាចប្រើបានតែ ១ តួអង្គ = ១ សំឡេង ម្ចាស់រៀងៗខ្លួន មិនឱ្យជាន់គ្នាឡើយ
               </p>
             </div>
@@ -202,23 +202,23 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/[0.06] transition-colors"
+            className="p-2 rounded-xl text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-white/[0.06] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Status Alert Banner */}
-        <div className="px-6 py-3 border-b border-white/[0.08] bg-[#111625] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+        <div className="px-6 py-3 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111625] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-2 text-xs">
             {collisions.size > 0 ? (
               <div className="flex items-center gap-2 text-amber-300 font-semibold bg-amber-500/10 border border-amber-500/25 px-3 py-1.5 rounded-xl">
-                <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+                <AlertTriangle className="w-4 h-4 text-sky-600 dark:text-amber-400 shrink-0" />
                 <span>មាន {collisions.size} សំឡេងកំពុងជាន់គ្នា! សូមចុចចាត់ចែងដើម្បីឱ្យដាច់ដោយឡែក។</span>
               </div>
             ) : (
               <div className="flex items-center gap-2 text-emerald-300 font-semibold bg-emerald-500/10 border border-emerald-500/25 px-3 py-1.5 rounded-xl">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>តួអង្គទាំងអស់មានសំឡេងម្ចាស់ផ្តាច់មុខ ១ លើ ១ រួចរាល់ គ្មានជាន់គ្នា ១០០%</span>
               </div>
             )}
@@ -242,7 +242,7 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                 onAutoCastUniqueVoices();
                 onShowToast('បានចាត់ចែងសំឡេង ១ តួអង្គ = ១ សំឡេងដោយស្វ័យប្រវត្តិ!', 'success');
               }}
-              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:brightness-110 text-white text-xs font-bold shadow-lg shadow-sky-500/25 transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-purple-600 hover:brightness-110 text-slate-800 dark:text-white text-xs font-bold shadow-lg shadow-sky-500/25 transition-all active:scale-95"
             >
               <Sparkles className="w-4 h-4 text-amber-300" />
               <span>✨ ចាត់ចែងសំឡេង 1:1 ដោយស្វ័យប្រវត្តិ</span>
@@ -251,7 +251,7 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
         </div>
 
         {/* RUN VOXCPM2 MODE: ONLINE vs COMPUTER Option Section */}
-        <div className="px-6 py-3 bg-[#080c16] border-b border-white/[0.08]">
+        <div className="px-6 py-3 bg-white dark:bg-[#080c16] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <VoxCPM2OnlineToggle
             engineMode={engineMode}
             voxStatus={voxStatus}
@@ -280,17 +280,17 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                 className={`p-4 rounded-xl border transition-all ${
                   isCollision
                     ? 'bg-amber-500/[0.04] border-amber-500/30'
-                    : 'bg-[#111827]/70 border-white/[0.08] hover:border-sky-500/30'
+                    : 'bg-white dark:bg-[#111827]/70 border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-sky-500/30'
                 } flex flex-col md:flex-row items-start md:items-center justify-between gap-4`}
               >
                 {/* Left: Character Info */}
                 <div className="flex items-center gap-3.5 flex-1 min-w-0">
                   <div className="relative shrink-0">
-                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-sky-600 flex items-center justify-center text-white font-bold text-base shadow-md border border-white/[0.15]">
+                    <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-sky-600 flex items-center justify-center text-slate-800 dark:text-white font-bold text-base shadow-md border border-white/[0.15]">
                       {char.name.charAt(0)}
                     </div>
                     <span
-                      className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-white shadow ${
+                      className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-bold text-slate-800 dark:text-white shadow ${
                         char.gender === 'female' ? 'bg-pink-500' : 'bg-sky-500'
                       }`}
                     >
@@ -300,7 +300,7 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
 
                   <div className="flex flex-col min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-white text-sm truncate">
+                      <span className="font-bold text-slate-800 dark:text-white text-sm truncate">
                         {char.name}
                       </span>
                       <span
@@ -312,14 +312,14 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                       >
                         {char.gender === 'female' ? 'តួស្រី' : 'តួប្រុស'}
                       </span>
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-300">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded-md bg-white/[0.06] text-slate-600 dark:text-slate-300">
                         {char.lineCount} ឃ្លា
                       </span>
                     </div>
 
                     <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-slate-400">
-                        តួនាទី៖ <span className="text-slate-200">{char.speaker_role || 'តួអង្គ'}</span>
+                      <span className="text-xs text-slate-500 dark:text-slate-400">
+                        តួនាទី៖ <span className="text-slate-700 dark:text-slate-200">{char.speaker_role || 'តួអង្គ'}</span>
                       </span>
 
                       {char.movieVoiceSample && (
@@ -403,17 +403,17 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                     <select
                       value={char.currentVoiceId}
                       onChange={(e) => onChangeVoiceForCharacter(char.key, e.target.value)}
-                      className={`w-full bg-[#07090e] border rounded-xl px-3 py-2 text-xs font-medium outline-none transition-colors cursor-pointer ${
+                      className={`w-full bg-white dark:bg-[#07090e] border rounded-xl px-3 py-2 text-xs font-medium outline-none transition-colors cursor-pointer ${
                         isCollision
                           ? 'border-amber-500 text-amber-300'
-                          : 'border-white/[0.12] text-slate-100 focus:border-sky-400'
+                          : 'border-white/[0.12] text-slate-800 dark:text-slate-100 focus:border-sky-400'
                       }`}
                     >
                       <option value="">-- ជ្រើសរើសសំឡេងតួអង្គ --</option>
-                      <option value={`movie_clone:${char.speaker_id}`} className="text-amber-400 font-semibold">
+                      <option value={`movie_clone:${char.speaker_id}`} className="text-sky-600 dark:text-amber-400 font-semibold">
                         🎯 ជម្រើសទី ១: Clone សំឡេងផ្ទាល់ពីរឿងដើម ({char.name})
                       </option>
-                      <option value={char.gender === 'female' ? 'km-KH-SreymomNeural' : 'km-KH-PisethNeural'} className="text-emerald-400 font-semibold">
+                      <option value={char.gender === 'female' ? 'km-KH-SreymomNeural' : 'km-KH-PisethNeural'} className="text-emerald-600 dark:text-emerald-400 font-semibold">
                         🎙️ ជម្រើសទី ៣: សំឡេងខ្មែរធម្មជាតិ ({char.gender === 'female' ? 'ស្រី - Sreymom' : 'ប្រុស - Piseth'})
                       </option>
 
@@ -469,8 +469,8 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#070a12] flex items-center justify-between flex-wrap gap-3">
-          <div className="text-xs text-slate-400">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#070a12] flex items-center justify-between flex-wrap gap-3">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
             រាល់ការផ្លាស់ប្តូរ នឹងត្រូវអនុវត្តលើគ្រប់បន្ទាត់សន្ទនារបស់តួអង្គនោះលើ Timeline ដោយស្វ័យប្រវត្តិ។
           </div>
 
@@ -482,7 +482,7 @@ export const CharacterCastDrawer: React.FC<CharacterCastDrawerProps> = ({
                   onClose();
                   onGenerateCustomVideo();
                 }}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 hover:brightness-110 text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all active:scale-95 border border-emerald-400/40 cursor-pointer"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-sky-500 hover:brightness-110 text-slate-800 dark:text-white font-extrabold text-xs shadow-lg shadow-emerald-500/25 transition-all active:scale-95 border border-emerald-400/40 cursor-pointer"
                 title="បង្កើតវីដេអូបញ្ចូលសំឡេងខ្មែរ តាមសំឡេងតួអង្គដែលបានជ្រើសរើស (1 Character = 1 Voice)"
               >
                 <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />

@@ -28,7 +28,7 @@ os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(SCRATCH_DIR, exist_ok=True)
 
 key = os.getenv('GEMINI_API_KEY')
-model = 'gemini-3.6-flash'
+model = 'gemini-1.5-flash-latest'
 
 def analyze_scene(start_sec, dur_sec=50):
     temp_clip = os.path.join(SCRATCH_DIR, f"scan_scene_{start_sec}.mp3")

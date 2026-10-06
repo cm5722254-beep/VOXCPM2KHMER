@@ -66,7 +66,7 @@ const DEFAULT_CONFIG: ThumbnailConfig = {
   title: 'យានអវកាស',
   subtitle: 'ដំណើរផ្សងព្រេងក្នុងពិភពមហិទ្ធិឫទ្ធិ',
   badge: 'ភាគ ២២',
-  watermark: 'អាទិទេព DABBER PRO v3',
+  watermark: '🐲 DRAGON DABBER PRO',
   gradientStyle: 'gold',
   vignette: true,
   fontSize: 58,
@@ -103,7 +103,7 @@ const BUILTIN_TEMPLATES: UserThumbnailTemplate[] = [
       title: 'យានអវកាស',
       subtitle: 'ដំណើរផ្សងព្រេងក្នុងពិភពមហិទ្ធិឫទ្ធិ',
       badge: 'ភាគ ២២',
-      watermark: 'អាទិទេព DABBER PRO v3',
+      watermark: '🐲 DRAGON DABBER PRO',
       gradientStyle: 'gold',
       vignette: true,
       fontSize: 58,
@@ -135,7 +135,7 @@ const BUILTIN_TEMPLATES: UserThumbnailTemplate[] = [
       title: 'មហាសង្រ្គាម 2099',
       subtitle: 'បច្ចេកវិទ្យាកំពូលសម័យអនាគត',
       badge: 'ភាគ ០១ - ចប់',
-      watermark: 'អាទិទេព DABBER PRO v3',
+      watermark: '🐲 DRAGON DABBER PRO',
       gradientStyle: 'cyberpunk',
       vignette: true,
       fontSize: 60,
@@ -167,7 +167,7 @@ const BUILTIN_TEMPLATES: UserThumbnailTemplate[] = [
       title: 'កំពូលអ្នកប្រយុទ្ធ',
       subtitle: 'វាយប្រហារកក្រើកផែនដី',
       badge: 'ភាគពិសេស',
-      watermark: 'អាទិទេព DABBER PRO v3',
+      watermark: '🐲 DRAGON DABBER PRO',
       gradientStyle: 'fire',
       vignette: true,
       fontSize: 62,
@@ -199,7 +199,7 @@ const BUILTIN_TEMPLATES: UserThumbnailTemplate[] = [
       title: 'ព្រលឹងខ្មោចព្រៃ',
       subtitle: 'រឿងរ៉ាវអាថ៌កំបាំងយប់ជ្រៅ',
       badge: '18+ HORROR',
-      watermark: 'អាទិទេព DABBER PRO v3',
+      watermark: '🐲 DRAGON DABBER PRO',
       gradientStyle: 'crimson',
       vignette: true,
       fontSize: 56,
@@ -231,7 +231,7 @@ const BUILTIN_TEMPLATES: UserThumbnailTemplate[] = [
       title: 'អាណាចក្រទេវតា',
       subtitle: 'អាថ៌កំបាំងកោះសួគ៌ា',
       badge: 'ភាគ ០៥',
-      watermark: 'អាទិទេព DABBER PRO v3',
+      watermark: '🐲 DRAGON DABBER PRO',
       gradientStyle: 'emerald',
       vignette: true,
       fontSize: 58,
@@ -1138,7 +1138,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
   };
 
   return (
-    <div className="flex-1 flex flex-col h-full overflow-y-auto p-6 space-y-6 bg-[#07090e]">
+    <div className="flex-1 flex flex-col h-full overflow-y-auto p-6 space-y-6 bg-white dark:bg-[#07090e]">
       {/* Hidden Master Video Element for Live Rendering */}
       <video
         ref={internalVideoRef}
@@ -1164,19 +1164,19 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
       />
 
       {/* Top Banner */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-white/[0.08]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
         <div className="flex items-center gap-3">
-          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center text-white shadow-lg shadow-amber-500/20">
+          <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-amber-500 to-rose-600 flex items-center justify-center text-slate-800 dark:text-white shadow-lg shadow-amber-500/20">
             <Sparkles className="w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white font-ui flex items-center gap-2">
+            <h1 className="text-xl font-bold text-slate-800 dark:text-white font-ui flex items-center gap-2">
               Thumbnail Movie Generator
               <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
                 Pro Cinema Studio
               </span>
             </h1>
-            <p className="text-xs text-slate-400">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               រចនា Poster និង Thumbnail ភាពយន្ត — Design ផ្ទាល់លើវីដេអូកំពុងដើរ អូសទាញអក្សរ និង Effects 3D
             </p>
           </div>
@@ -1184,8 +1184,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
         <div className="flex flex-wrap items-center gap-2.5">
           {hasAutoSaved && (
-            <span className="text-[11px] text-emerald-400 font-mono flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 rounded-xl animate-fade-in shadow-sm">
-              <Check className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1 rounded-xl animate-fade-in shadow-sm">
+              <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
               <span>Auto-Saved</span>
             </span>
           )}
@@ -1196,7 +1196,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
             className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-amber-600/20 hover:from-amber-500/30 hover:to-amber-600/30 text-amber-300 border border-amber-500/40 text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-md shadow-amber-500/10"
             title="រក្សាទុកការ Design បច្ចុប្បន្ន (ពុម្ព, 3D, ពណ៌, ទីតាំង) ទុកប្រើលើកក្រោយ"
           >
-            <Bookmark className="w-4 h-4 text-amber-400" />
+            <Bookmark className="w-4 h-4 text-sky-600 dark:text-amber-400" />
             <span>💾 រក្សាទុកជា Template</span>
           </button>
 
@@ -1206,7 +1206,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
             className={`px-3.5 py-2 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 ${
               activeTab === 'templates'
                 ? 'bg-amber-500 text-black border-amber-400 font-bold'
-                : 'bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border-white/[0.1]'
+                : 'bg-white/[0.06] hover:bg-white/[0.1] text-slate-700 dark:text-slate-200 border-white/[0.1]'
             }`}
             title="មើលគំរូដែលបានរក្សាទុកទាំងអស់"
           >
@@ -1224,7 +1224,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
             <span>{isScanningFrame ? 'កំពុងស្កេនរូប...' : 'ចាប់យករូបពីវីដេអូ (Frame Grab)'}</span>
           </button>
 
-          <label className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-200 border border-white/[0.1] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
+          <label className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-700 dark:text-slate-200 border border-white/[0.1] text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition-all active:scale-95">
             <ImageIcon className="w-4 h-4" />
             <span>ផ្ទុករូបភាព (Upload)</span>
             <input type="file" accept="image/*" onChange={handleUploadImage} className="hidden" />
@@ -1232,9 +1232,9 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
           <button
             onClick={handleDownloadThumbnail}
-            className="px-4 py-2 rounded-xl bg-white/[0.08] hover:bg-white/[0.14] text-slate-200 text-xs font-semibold flex items-center gap-2 border border-white/[0.12] transition-all active:scale-95"
+            className="px-4 py-2 rounded-xl bg-slate-200 dark:bg-white/[0.08] hover:bg-white/[0.14] text-slate-700 dark:text-slate-200 text-xs font-semibold flex items-center gap-2 border border-white/[0.12] transition-all active:scale-95"
           >
-            <Download className="w-4 h-4 text-amber-400" />
+            <Download className="w-4 h-4 text-sky-600 dark:text-amber-400" />
             <span>Download PNG</span>
           </button>
 
@@ -1245,7 +1245,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 localStorage.setItem('dabber_thumbnail_autosave', JSON.stringify(config));
                 onApplyToVideo(config);
               }}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-emerald-600/25 transition-all active:scale-95 whitespace-nowrap"
               title="ដាក់អក្សរមាស 3D, ចំណងជើង និងស្លាកភាគនេះទៅលើវីដេអូកាត់តផ្ទាល់"
             >
               <Sparkles className="w-4 h-4 text-emerald-200 animate-pulse" />
@@ -1261,10 +1261,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 if (onApplyToVideo) onApplyToVideo(config);
                 onOpenExportModal();
               }}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-indigo-600 hover:brightness-110 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-rose-600/25 transition-all active:scale-95 whitespace-nowrap"
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 via-rose-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-rose-600/25 transition-all active:scale-95 whitespace-nowrap"
               title="Export វីដេអូដោយបង្កប់អក្សរ និងចំណងជើង 3D នេះចូលក្នុងសាច់វីដេអូរហូត"
             >
-              <Download className="w-4 h-4 text-white" />
+              <Download className="w-4 h-4 text-slate-800 dark:text-white" />
               <span>🎬 Export បង្កប់អក្សរជាប់វីដេអូ</span>
             </button>
           )}
@@ -1272,17 +1272,17 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
       </div>
 
       {/* Quick Preset Strip (Bar គំរូរហ័ស) */}
-      <div className="w-full bg-[#0a0f1d] border border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 overflow-x-auto shadow-inner">
+      <div className="w-full bg-white dark:bg-[#0a0f1d] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-xl px-4 py-2.5 flex items-center justify-between gap-3 overflow-x-auto shadow-inner">
         <div className="flex items-center gap-2 min-w-0">
-          <span className="text-xs font-bold text-amber-400 flex items-center gap-1.5 whitespace-nowrap">
-            <Bookmark className="w-3.5 h-3.5 text-amber-400" />
+          <span className="text-xs font-bold text-sky-600 dark:text-amber-400 flex items-center gap-1.5 whitespace-nowrap">
+            <Bookmark className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
             គំរូរហ័ស (Quick Presets):
           </span>
           <div className="flex items-center gap-2 overflow-x-auto py-0.5">
             {savedTemplates.slice(0, 5).map((tpl) => (
               <div
                 key={tpl.id}
-                className="flex items-center rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-[11px] text-slate-300 transition-all overflow-hidden"
+                className="flex items-center rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-[11px] text-slate-600 dark:text-slate-300 transition-all overflow-hidden"
               >
                 <button
                   type="button"
@@ -1297,7 +1297,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 <button
                   type="button"
                   onClick={() => handleApplyTemplate(tpl, 'all')}
-                  className="px-2 py-1 bg-white/[0.04] hover:bg-amber-500 hover:text-black text-slate-400 border-l border-white/[0.08] text-[10px] font-semibold transition-colors"
+                  className="px-2 py-1 bg-slate-100 dark:bg-white/[0.04] hover:bg-amber-500 hover:text-black text-slate-500 dark:text-slate-400 border-l border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-[10px] font-semibold transition-colors"
                   title="យកទាំងអស់ (អក្សរ + ទីតាំង + Style)"
                 >
                   All
@@ -1313,13 +1313,13 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
             onClick={() => setIsSaveModalOpen(true)}
             className="px-3 py-1 rounded-lg bg-gradient-to-r from-amber-500/20 to-rose-500/20 hover:from-amber-500/30 hover:to-rose-500/30 text-amber-300 border border-amber-500/30 text-xs font-semibold flex items-center gap-1.5 transition-all active:scale-95 whitespace-nowrap shadow-sm"
           >
-            <Plus className="w-3.5 h-3.5 text-amber-400" />
+            <Plus className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
             <span>+ រក្សាទុក Design នេះ</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('templates')}
-            className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 hover:text-white border border-white/[0.08] text-xs flex items-center gap-1"
+            className="px-2.5 py-1 rounded-lg bg-white/[0.06] hover:bg-white/[0.1] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs flex items-center gap-1"
           >
             <FolderOpen className="w-3.5 h-3.5" />
             <span>មើលទាំងអស់ ({savedTemplates.length})</span>
@@ -1330,10 +1330,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
       {/* Main Workspace Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Left / Center: Interactive Live Canvas + Video Scrubber */}
-        <div className="lg:col-span-7 flex flex-col items-center justify-center bg-[#0d121f] border border-white/[0.08] rounded-2xl p-5 relative overflow-hidden shadow-2xl">
-          <div className="w-full flex items-center justify-between text-xs text-slate-400 mb-2 px-1">
+        <div className="lg:col-span-7 flex flex-col items-center justify-center bg-white dark:bg-[#0d121f] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl p-5 relative overflow-hidden shadow-2xl">
+          <div className="w-full flex items-center justify-between text-xs text-slate-500 dark:text-slate-400 mb-2 px-1">
             <div className="flex items-center gap-2">
-              <span className="font-mono text-[11px] text-slate-400">
+              <span className="font-mono text-[11px] text-slate-500 dark:text-slate-400">
                 {config.aspectRatio === '16:9' ? '1280 × 720 (16:9)' : '720 × 1280 (9:16)'}
               </span>
               <span className="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/15 text-sky-400 border border-sky-500/30 flex items-center gap-1">
@@ -1341,7 +1341,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-amber-400 font-semibold text-xs flex items-center gap-1">
+              <span className="text-sky-600 dark:text-amber-400 font-semibold text-xs flex items-center gap-1">
                 <span className={`w-2 h-2 rounded-full ${isVideoPlaying ? 'bg-rose-500 animate-ping' : 'bg-emerald-400 animate-pulse'}`} />
                 {isLiveVideoMode ? (isVideoPlaying ? '🎬 Live Video Playing' : '🎬 Live Video Ready') : '🖼️ Static Image'}
               </span>
@@ -1366,12 +1366,12 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
             {/* Target Selector Floating Pill */}
             <div className="absolute bottom-3 left-3 bg-black/85 backdrop-blur border border-white/[0.15] px-2.5 py-1 rounded-lg flex items-center gap-2 text-xs z-20">
-              <span className="text-slate-400 text-[11px]">កំពុងអូស៖</span>
+              <span className="text-slate-500 dark:text-slate-400 text-[11px]">កំពុងអូស៖</span>
               <button
                 type="button"
                 onClick={() => setDragTarget('title')}
                 className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-all ${
-                  dragTarget === 'title' ? 'bg-amber-500 text-black' : 'text-slate-300 hover:text-white'
+                  dragTarget === 'title' ? 'bg-amber-500 text-black' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white'
                 }`}
               >
                 ចំណងជើង (Title)
@@ -1380,7 +1380,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 type="button"
                 onClick={() => setDragTarget('badge')}
                 className={`px-2 py-0.5 rounded text-[11px] font-semibold transition-all ${
-                  dragTarget === 'badge' ? 'bg-rose-500 text-white' : 'text-slate-300 hover:text-white'
+                  dragTarget === 'badge' ? 'bg-rose-500 text-slate-800 dark:text-white' : 'text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white'
                 }`}
               >
                 ស្លាកភាគ (Badge)
@@ -1389,7 +1389,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           </div>
 
           {/* Cinema Live Video Scrubber & Playback Controls */}
-          <div className="w-full bg-[#090d16] border border-white/[0.08] rounded-xl p-3 mt-3 flex flex-col gap-2.5">
+          <div className="w-full bg-white dark:bg-[#090d16] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-xl p-3 mt-3 flex flex-col gap-2.5">
             {/* Top Bar: Mode Switcher & Timecode */}
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
@@ -1402,8 +1402,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   }}
                   className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all ${
                     isLiveVideoMode
-                      ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-white shadow-md'
-                      : 'bg-white/[0.05] text-slate-400 hover:text-white'
+                      ? 'bg-gradient-to-r from-amber-500 to-rose-600 text-slate-800 dark:text-white shadow-md'
+                      : 'bg-white/[0.05] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   <Film className="w-3.5 h-3.5" />
@@ -1420,7 +1420,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   className={`px-3 py-1 rounded-lg text-[11px] font-bold flex items-center gap-1.5 transition-all ${
                     !isLiveVideoMode
                       ? 'bg-sky-500 text-black shadow-md'
-                      : 'bg-white/[0.05] text-slate-400 hover:text-white'
+                      : 'bg-white/[0.05] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   <ImageIcon className="w-3.5 h-3.5" />
@@ -1429,7 +1429,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Timecode Badge */}
-              <div className="font-mono text-[11px] font-bold text-amber-400 bg-black/60 px-2.5 py-0.5 rounded border border-white/[0.1]">
+              <div className="font-mono text-[11px] font-bold text-sky-600 dark:text-amber-400 bg-black/60 px-2.5 py-0.5 rounded border border-white/[0.1]">
                 {formatTimecode(videoCurrentTime)} / {formatTimecode(videoDuration || 60)}
               </div>
             </div>
@@ -1470,7 +1470,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 <button
                   type="button"
                   onClick={() => stepVideo(-1)}
-                  className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08]"
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]"
                   title="ថយក្រោយ 1 វិនាទី"
                 >
                   <SkipBack className="w-3.5 h-3.5" />
@@ -1479,7 +1479,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 <button
                   type="button"
                   onClick={() => stepVideo(1)}
-                  className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08]"
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]"
                   title="ទៅមុខ 1 វិនាទី"
                 >
                   <SkipForward className="w-3.5 h-3.5" />
@@ -1494,10 +1494,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                       setIsVideoMuted(!isVideoMuted);
                     }
                   }}
-                  className="p-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-slate-300 hover:text-white border border-white/[0.08]"
+                  className="p-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]"
                   title={isVideoMuted ? 'បើកសំឡេង' : 'បិទសំឡេង (Mute)'}
                 >
-                  {isVideoMuted ? <VolumeX className="w-3.5 h-3.5 text-slate-500" /> : <Volume2 className="w-3.5 h-3.5 text-amber-400" />}
+                  {isVideoMuted ? <VolumeX className="w-3.5 h-3.5 text-slate-500" /> : <Volume2 className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />}
                 </button>
               </div>
 
@@ -1507,21 +1507,21 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 <button
                   type="button"
                   onClick={() => seekVideo(videoDuration ? videoDuration * 0.1 : 5)}
-                  className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-slate-300"
+                  className="px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-[10px] text-slate-600 dark:text-slate-300"
                 >
                   ដើមរឿង
                 </button>
                 <button
                   type="button"
                   onClick={() => seekVideo(videoDuration ? videoDuration * 0.5 : 30)}
-                  className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-slate-300"
+                  className="px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-[10px] text-slate-600 dark:text-slate-300"
                 >
                   កណ្តាលរឿង
                 </button>
                 <button
                   type="button"
                   onClick={() => seekVideo(videoDuration ? videoDuration * 0.85 : 50)}
-                  className="px-2 py-0.5 rounded bg-white/[0.04] hover:bg-white/[0.08] text-[10px] text-slate-300"
+                  className="px-2 py-0.5 rounded bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-[10px] text-slate-600 dark:text-slate-300"
                 >
                   ចុងរឿង
                 </button>
@@ -1530,10 +1530,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           </div>
 
           {/* Quick Position Status Info */}
-          <div className="w-full flex items-center justify-between text-[11px] text-slate-400 mt-2 px-2">
+          <div className="w-full flex items-center justify-between text-[11px] text-slate-500 dark:text-slate-400 mt-2 px-2">
             <span>
-              កូអរដោនេអក្សរ៖ <strong className="text-amber-400 font-mono">X: {config.posX}%</strong> |{' '}
-              <strong className="text-amber-400 font-mono">Y: {config.posY}%</strong>
+              កូអរដោនេអក្សរ៖ <strong className="text-sky-600 dark:text-amber-400 font-mono">X: {config.posX}%</strong> |{' '}
+              <strong className="text-sky-600 dark:text-amber-400 font-mono">Y: {config.posY}%</strong>
             </span>
             <span>
               មុំបង្វិល៖ <strong className="text-sky-400 font-mono">{config.rotationAngle}°</strong>
@@ -1542,9 +1542,9 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
         </div>
 
         {/* Right: Comprehensive Studio Controls */}
-        <div className="lg:col-span-5 bg-[#0d121f] border border-white/[0.08] rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto max-h-[660px]">
+        <div className="lg:col-span-5 bg-white dark:bg-[#0d121f] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl p-5 flex flex-col gap-4 overflow-y-auto max-h-[660px]">
           {/* Tabs for Organization */}
-          <div className="grid grid-cols-5 gap-1 p-1 bg-[#07090e] rounded-xl border border-white/[0.08]">
+          <div className="grid grid-cols-5 gap-1 p-1 bg-white dark:bg-[#07090e] rounded-xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
             {[
               { id: 'position', label: 'ទីតាំង', icon: Move },
               { id: 'effects', label: 'Effects 3D', icon: Sparkles },
@@ -1561,7 +1561,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   className={`flex flex-col items-center justify-center py-2 px-0.5 rounded-lg text-xs font-semibold transition-all relative ${
                     activeTab === tab.id
                       ? 'bg-amber-500 text-black shadow-md font-bold'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/[0.04]'
                   }`}
                 >
                   <Icon className="w-3.5 h-3.5 mb-0.5" />
@@ -1584,8 +1584,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           {activeTab === 'position' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Move className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <Move className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                   ទីតាំងអក្សរ (Free Position & Alignment)
                 </span>
                 <span className="text-[10px] text-amber-300 font-mono">អូសលើរូប ឬចុច Preset</span>
@@ -1593,10 +1593,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
               {/* 9-Point Alignment Grid */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                   គំរូទីតាំងរហ័ស 9 ចំណុច (9-Point Presets)
                 </label>
-                <div className="grid grid-cols-3 gap-1.5 p-2 bg-[#070b14] rounded-xl border border-white/[0.06]">
+                <div className="grid grid-cols-3 gap-1.5 p-2 bg-white dark:bg-[#070b14] rounded-xl border border-white/[0.06]">
                   {[
                     { id: 'top-left', label: '↖️ លើឆ្វេង' },
                     { id: 'top-center', label: '⬆️ លើកណ្តាល' },
@@ -1612,7 +1612,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                       key={btn.id}
                       type="button"
                       onClick={() => applyAlignmentPreset(btn.id)}
-                      className="py-2 px-1 text-[11px] rounded-lg bg-white/[0.04] hover:bg-amber-500/20 hover:text-amber-300 text-slate-300 border border-white/[0.05] transition-all font-medium text-center"
+                      className="py-2 px-1 text-[11px] rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-amber-500/20 hover:text-amber-300 text-slate-600 dark:text-slate-300 border border-white/[0.05] transition-all font-medium text-center"
                     >
                       {btn.label}
                     </button>
@@ -1621,11 +1621,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Precise Position Sliders */}
-              <div className="bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] space-y-3">
+              <div className="bg-white dark:bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] space-y-3">
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span>↔️ ទីតាំងផ្តេក (Horizontal X)</span>
-                    <span className="text-amber-400 font-mono font-bold">{config.posX}%</span>
+                    <span className="text-sky-600 dark:text-amber-400 font-mono font-bold">{config.posX}%</span>
                   </div>
                   <input
                     type="range"
@@ -1638,9 +1638,9 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span>↕️ ទីតាំងបញ្ឈរ (Vertical Y)</span>
-                    <span className="text-amber-400 font-mono font-bold">{config.posY}%</span>
+                    <span className="text-sky-600 dark:text-amber-400 font-mono font-bold">{config.posY}%</span>
                   </div>
                   <input
                     type="range"
@@ -1654,7 +1654,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
                 {/* Text Alignment */}
                 <div>
-                  <label className="block text-xs text-slate-300 mb-1">ទម្រង់តម្រឹមអក្សរ (Text Alignment)</label>
+                  <label className="block text-xs text-slate-600 dark:text-slate-300 mb-1">ទម្រង់តម្រឹមអក្សរ (Text Alignment)</label>
                   <div className="grid grid-cols-3 gap-2">
                     {[
                       { id: 'left', label: 'ឆ្វេង', icon: AlignLeft },
@@ -1670,7 +1670,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                           className={`py-1.5 px-2 rounded-lg border text-xs flex items-center justify-center gap-1.5 transition-all ${
                             config.textAlign === al.id
                               ? 'bg-amber-500/20 border-amber-500 text-amber-300 font-bold'
-                              : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
+                              : 'bg-white/[0.03] border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                           }`}
                         >
                           <Icon className="w-3.5 h-3.5" />
@@ -1683,7 +1683,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
                 {/* Rotation Angle */}
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span className="flex items-center gap-1">
                       <RotateCw className="w-3.5 h-3.5 text-sky-400" />
                       មុំផ្អៀង / បង្វិល (Rotation Angle)
@@ -1703,7 +1703,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                     <button
                       type="button"
                       onClick={() => setConfig({ ...config, rotationAngle: 0 })}
-                      className="text-slate-400 hover:text-white"
+                      className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white"
                     >
                       ០° (ត្រង់)
                     </button>
@@ -1718,11 +1718,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           {activeTab === 'effects' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
                   <Flame className="w-4 h-4 text-rose-400" />
                   ស្ទីល Effect ភាពយន្ត (Cinematic Effects)
                 </span>
-                <span className="text-[10px] text-slate-400">១០ ជម្រើស Effect ពិសេស</span>
+                <span className="text-[10px] text-slate-500 dark:text-slate-400">១០ ជម្រើស Effect ពិសេស</span>
               </div>
 
               {/* 10 Effect Presets */}
@@ -1745,8 +1745,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                     onClick={() => applyEffectPreset(eff.id)}
                     className={`p-2.5 rounded-xl border text-left transition-all ${
                       config.effectStyle === eff.id
-                        ? 'bg-amber-500/20 border-amber-500 text-white shadow-md'
-                        : 'bg-[#070b14] border-white/[0.06] text-slate-300 hover:border-white/[0.2]'
+                        ? 'bg-amber-500/20 border-amber-500 text-slate-800 dark:text-white shadow-md'
+                        : 'bg-white dark:bg-[#070b14] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:border-white/[0.2]'
                     }`}
                   >
                     <p className="text-xs font-bold leading-tight">{eff.label}</p>
@@ -1756,15 +1756,15 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Advanced Effect Sliders */}
-              <div className="bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] space-y-3.5">
+              <div className="bg-white dark:bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] space-y-3.5">
                 {/* 3D Depth */}
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span className="flex items-center gap-1">
-                      <Layers className="w-3.5 h-3.5 text-amber-400" />
+                      <Layers className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
                       កម្រាស់ស្រមោលអក្សរ 3D (3D Depth)
                     </span>
-                    <span className="text-amber-400 font-mono font-bold">{config.depth3D}px</span>
+                    <span className="text-sky-600 dark:text-amber-400 font-mono font-bold">{config.depth3D}px</span>
                   </div>
                   <input
                     type="range"
@@ -1778,7 +1778,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
                 {/* Glow Intensity */}
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span className="flex items-center gap-1">
                       <Sparkles className="w-3.5 h-3.5 text-sky-400" />
                       ពន្លឺចាំងចែងជុំវិញ (Outer Glow / Bloom)
@@ -1797,7 +1797,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
                 {/* Stroke Outline */}
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span className="flex items-center gap-1">
                       <Box className="w-3.5 h-3.5 text-rose-400" />
                       កម្រាស់ស៊ុមអក្សរ (Stroke Outline)
@@ -1816,7 +1816,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
                 {/* Background Banner Box */}
                 <div>
-                  <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                  <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                     ប្រអប់ទ្រនាប់អក្សរ (Background Ribbon / Box)
                   </label>
                   <div className="grid grid-cols-4 gap-1.5">
@@ -1833,7 +1833,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                         className={`py-1.5 px-1 rounded-lg border text-[11px] font-medium transition-all ${
                           config.bgBanner === bg.id
                             ? 'bg-amber-500/20 border-amber-500 text-amber-300'
-                            : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
+                            : 'bg-white/[0.03] border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                         }`}
                       >
                         {bg.label}
@@ -1849,15 +1849,15 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           {activeTab === 'content' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Type className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <Type className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                   ខ្លឹមសារ និងពុម្ពអក្សរខ្មែរ (Content & Fonts)
                 </span>
               </div>
 
               {/* Khmer Font Selector */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                   ពុម្ពអក្សរខ្មែរចំណងជើង (Khmer Headline Font)
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -1873,8 +1873,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                       onClick={() => setConfig({ ...config, fontFamily: f.id })}
                       className={`p-2.5 rounded-xl border text-left transition-all ${
                         config.fontFamily === f.id
-                          ? 'bg-amber-500/20 border-amber-500 text-white'
-                          : 'bg-[#070b14] border-white/[0.06] text-slate-300 hover:text-white'
+                          ? 'bg-amber-500/20 border-amber-500 text-slate-800 dark:text-white'
+                          : 'bg-white dark:bg-[#070b14] border-white/[0.06] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white'
                       }`}
                     >
                       <p className="text-xs font-bold font-khmer">{f.label}</p>
@@ -1886,7 +1886,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
               {/* Main Title Input */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   ចំណងជើងធំ (Main Title)
                 </label>
                 <input
@@ -1894,13 +1894,13 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   value={config.title}
                   onChange={(e) => setConfig({ ...config, title: e.target.value })}
                   placeholder="ឧទាហរណ៍៖ សង្គ្រាមអាទិទេព"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#070b14] border border-white/[0.1] text-sm text-white focus:outline-none focus:border-amber-500 transition-all font-khmer font-bold"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#070b14] border border-white/[0.1] text-sm text-slate-800 dark:text-white focus:outline-none focus:border-amber-500 transition-all font-khmer font-bold"
                 />
               </div>
 
               {/* Subtitle / Tagline Input */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   ចំណងជើងរង (Subtitle / Tagline)
                 </label>
                 <input
@@ -1908,13 +1908,13 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   value={config.subtitle}
                   onChange={(e) => setConfig({ ...config, subtitle: e.target.value })}
                   placeholder="ដំណើរផ្សងព្រេងក្នុងពិភពមហិទ្ធិឫទ្ធិ"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#070b14] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-amber-500 transition-all font-khmer"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#070b14] border border-white/[0.1] text-xs text-slate-800 dark:text-white focus:outline-none focus:border-amber-500 transition-all font-khmer"
                 />
               </div>
 
               {/* Episode Badge */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   ស្លាកភាគ (Episode Badge)
                 </label>
                 <div className="flex gap-2">
@@ -1923,7 +1923,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                     value={config.badge}
                     onChange={(e) => setConfig({ ...config, badge: e.target.value })}
                     placeholder="ភាគ ០១"
-                    className="flex-1 px-3.5 py-2 rounded-xl bg-[#070b14] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-amber-500 transition-all font-bold"
+                    className="flex-1 px-3.5 py-2 rounded-xl bg-white dark:bg-[#070b14] border border-white/[0.1] text-xs text-slate-800 dark:text-white focus:outline-none focus:border-amber-500 transition-all font-bold"
                   />
                   <div className="flex gap-1">
                     {['ភាគ ០១', 'Full HD', 'សម្រាយរឿង', 'វគ្គបញ្ចប់'].map((preset) => (
@@ -1931,7 +1931,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                         key={preset}
                         type="button"
                         onClick={() => setConfig({ ...config, badge: preset })}
-                        className="px-2 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-[10px] text-slate-300 border border-white/[0.06]"
+                        className="px-2 py-1 rounded-lg bg-white/[0.05] hover:bg-white/[0.1] text-[10px] text-slate-600 dark:text-slate-300 border border-white/[0.06]"
                       >
                         {preset}
                       </button>
@@ -1941,11 +1941,11 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Font Size Sliders */}
-              <div className="bg-[#070b14] p-3 rounded-xl border border-white/[0.06] space-y-3">
+              <div className="bg-white dark:bg-[#070b14] p-3 rounded-xl border border-white/[0.06] space-y-3">
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span>ទំហំអក្សរចំណងជើងធំ</span>
-                    <span className="text-amber-400 font-mono font-bold">{config.fontSize}px</span>
+                    <span className="text-sky-600 dark:text-amber-400 font-mono font-bold">{config.fontSize}px</span>
                   </div>
                   <input
                     type="range"
@@ -1958,9 +1958,9 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 </div>
 
                 <div>
-                  <div className="flex justify-between text-xs text-slate-300 mb-1">
+                  <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300 mb-1">
                     <span>ទំហំអក្សរចំណងជើងរង</span>
-                    <span className="text-slate-300 font-mono font-bold">
+                    <span className="text-slate-600 dark:text-slate-300 font-mono font-bold">
                       {config.subtitleFontSize || 24}px
                     </span>
                   </div>
@@ -1981,15 +1981,15 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           {activeTab === 'style' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Palette className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <Palette className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   ទម្រង់រូបភាព & ផ្ទៃខាងក្រោយ
                 </span>
               </div>
 
               {/* Aspect Ratio */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                   ទម្រង់រូបភាព (Aspect Ratio)
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -2003,8 +2003,8 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                       onClick={() => setConfig({ ...config, aspectRatio: ar.id as any })}
                       className={`p-2.5 rounded-xl border text-left transition-all ${
                         config.aspectRatio === ar.id
-                          ? 'bg-amber-500/20 border-amber-500 text-white'
-                          : 'bg-[#070b14] border-white/[0.06] text-slate-400 hover:text-white'
+                          ? 'bg-amber-500/20 border-amber-500 text-slate-800 dark:text-white'
+                          : 'bg-white dark:bg-[#070b14] border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                       }`}
                     >
                       <p className="text-xs font-bold">{ar.label}</p>
@@ -2015,10 +2015,10 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Vignette Shadow Toggle */}
-              <div className="bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] flex items-center justify-between">
+              <div className="bg-white dark:bg-[#070b14] p-3.5 rounded-xl border border-white/[0.06] flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-semibold text-white">Vignette Shadow (ស្រមោលងងឹតគែម)</p>
-                  <p className="text-[10px] text-slate-400">ជួយឱ្យអក្សរលេចធ្លោ និងមានទឹកដៃបែបភាពយន្ត</p>
+                  <p className="text-xs font-semibold text-slate-800 dark:text-white">Vignette Shadow (ស្រមោលងងឹតគែម)</p>
+                  <p className="text-[10px] text-slate-500 dark:text-slate-400">ជួយឱ្យអក្សរលេចធ្លោ និងមានទឹកដៃបែបភាពយន្ត</p>
                 </div>
                 <button
                   type="button"
@@ -2037,15 +2037,15 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
               {/* Watermark Branding Input */}
               <div>
-                <label className="block text-xs font-semibold text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1">
                   Watermark ស្ទូឌីយោ (Watermark / Brand)
                 </label>
                 <input
                   type="text"
                   value={config.watermark}
                   onChange={(e) => setConfig({ ...config, watermark: e.target.value })}
-                  placeholder="អាទិទេព DABBER PRO v3"
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#070b14] border border-white/[0.1] text-xs text-white focus:outline-none focus:border-amber-500 transition-all font-mono"
+                  placeholder="🐲 DRAGON DABBER PRO"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#070b14] border border-white/[0.1] text-xs text-slate-800 dark:text-white focus:outline-none focus:border-amber-500 transition-all font-mono"
                 />
               </div>
 
@@ -2057,7 +2057,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                     title: 'សង្គ្រាមអាទិទេព',
                     subtitle: 'ដំណើរផ្សងព្រេងក្នុងពិភពមហិទ្ធិឫទ្ធិ',
                     badge: 'ភាគ ០១ - ចប់',
-                    watermark: 'អាទិទេព DABBER PRO v3',
+                    watermark: '🐲 DRAGON DABBER PRO',
                     gradientStyle: 'gold',
                     vignette: true,
                     fontSize: 58,
@@ -2080,7 +2080,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   });
                   onShowToast('បានកំណត់ឡើងវិញនូវទម្រង់ដើម!', 'info');
                 }}
-                className="w-full py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/[0.06] text-xs flex items-center justify-center gap-1.5 transition-all"
+                className="w-full py-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white border border-white/[0.06] text-xs flex items-center justify-center gap-1.5 transition-all"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
                 <span>កំណត់ទម្រង់លំនាំដើមឡើងវិញ (Reset Defaults)</span>
@@ -2092,22 +2092,22 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
           {activeTab === 'templates' && (
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-white/[0.06] pb-2">
-                <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                  <Bookmark className="w-4 h-4 text-amber-400" />
+                <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                  <Bookmark className="w-4 h-4 text-sky-600 dark:text-amber-400" />
                   គ្រប់គ្រងគំរូ & Presets (Saved Templates)
                 </span>
-                <span className="text-[10px] text-emerald-400 font-mono flex items-center gap-1">
-                  <Check className="w-3 h-3 text-emerald-400" /> Auto-Save បើកជានិច្ច
+                <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-mono flex items-center gap-1">
+                  <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> Auto-Save បើកជានិច្ច
                 </span>
               </div>
 
               {/* Box 1: Save Current Design Card */}
-              <div className="p-3.5 bg-[#070b14] rounded-xl border border-amber-500/20 flex flex-col gap-2.5">
+              <div className="p-3.5 bg-white dark:bg-[#070b14] rounded-xl border border-amber-500/20 flex flex-col gap-2.5">
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
                     <Save className="w-3.5 h-3.5" /> រក្សាទុកការ Design បច្ចុប្បន្នជាគំរូ
                   </span>
-                  <span className="text-[10px] text-slate-400 font-mono">
+                  <span className="text-[10px] text-slate-500 dark:text-slate-400 font-mono">
                     Font: {config.fontFamily} | Style: {config.effectStyle}
                   </span>
                 </div>
@@ -2120,25 +2120,25 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                       if (e.key === 'Enter') handleSaveNewTemplate();
                     }}
                     placeholder={`ឧ. គំរូ ${config.title || 'យានអវកាស'} (ភាគ ${config.badge || '២២'})`}
-                    className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/[0.1] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
+                    className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/[0.1] text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:border-amber-500"
                   />
                   <button
                     type="button"
                     onClick={() => handleSaveNewTemplate()}
-                    className="px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-md shadow-amber-500/20 whitespace-nowrap"
+                    className="px-3 py-2 rounded-lg bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 transition-all active:scale-95 shadow-md shadow-amber-500/20 whitespace-nowrap"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>រក្សាទុក</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-400">
+                <p className="text-[10px] text-slate-500 dark:text-slate-400">
                   💡 ពេលរក្សាទុកហើយ អ្នកអាចចុច <strong className="text-amber-300">«យកតែ Style»</strong> លើភាគបន្ទាប់បានភ្លាមៗ ដោយមិនបាច់រៀបចំ Effects ម្តងទៀតទេ!
                 </p>
               </div>
 
               {/* Box 2: Saved Templates List */}
               <div className="flex flex-col gap-2">
-                <div className="flex items-center justify-between text-xs text-slate-300 px-0.5">
+                <div className="flex items-center justify-between text-xs text-slate-600 dark:text-slate-300 px-0.5">
                   <span className="font-semibold">បញ្ជីគំរូទាំងអស់ ({savedTemplates.length})</span>
                   <span className="text-[10px] text-slate-500">ចុច Style ឬ All ដើម្បីប្រើ</span>
                 </div>
@@ -2147,7 +2147,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   {savedTemplates.map((tpl) => (
                     <div
                       key={tpl.id}
-                      className="p-3 rounded-xl bg-[#070a12] border border-white/[0.08] hover:border-white/[0.15] transition-all flex flex-col gap-2"
+                      className="p-3 rounded-xl bg-white dark:bg-[#070a12] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-white/[0.15] transition-all flex flex-col gap-2"
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex items-center gap-2 min-w-0">
@@ -2157,9 +2157,9 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                             } shadow-sm`}
                           />
                           <div className="min-w-0">
-                            <h4 className="text-xs font-bold text-white truncate">{tpl.name}</h4>
-                            <div className="flex items-center gap-2 text-[10px] text-slate-400 mt-0.5 font-mono">
-                              <span className="text-amber-400">{tpl.config.fontFamily}</span>
+                            <h4 className="text-xs font-bold text-slate-800 dark:text-white truncate">{tpl.name}</h4>
+                            <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 mt-0.5 font-mono">
+                              <span className="text-sky-600 dark:text-amber-400">{tpl.config.fontFamily}</span>
                               <span>•</span>
                               <span className="capitalize text-sky-400">{tpl.config.effectStyle}</span>
                               <span>•</span>
@@ -2189,13 +2189,13 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                           className="py-1.5 px-2 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center justify-center gap-1 transition-all active:scale-95 shadow-sm"
                           title="រក្សាទុកអក្សរ និងភាគបច្ចុប្បន្ន តែយកពុម្ព, ពណ៌, 3D, Glow, និងទីតាំងពីគំរូនេះ"
                         >
-                          <Sparkles className="w-3 h-3 text-amber-400" />
+                          <Sparkles className="w-3 h-3 text-sky-600 dark:text-amber-400" />
                           <span>⚡ យកតែ Style (រក្សាអក្សរ)</span>
                         </button>
                         <button
                           type="button"
                           onClick={() => handleApplyTemplate(tpl, 'all')}
-                          className="py-1.5 px-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-slate-200 text-xs font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
+                          className="py-1.5 px-2 rounded-lg bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-slate-700 dark:text-slate-200 text-xs font-medium flex items-center justify-center gap-1 transition-all active:scale-95"
                           title="យកទាំងអក្សរ ភាគ និង Style ទាំងអស់ពីគំរូនេះ"
                         >
                           <Check className="w-3 h-3" />
@@ -2208,19 +2208,19 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
               </div>
 
               {/* Box 3: Backup & Share (JSON Import/Export) */}
-              <div className="pt-2 border-t border-white/[0.08] flex items-center justify-between gap-2">
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-2">
                 <button
                   type="button"
                   onClick={handleExportTemplates}
-                  className="flex-1 py-2 px-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs flex items-center justify-center gap-1.5 transition-all"
+                  className="flex-1 py-2 px-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white text-xs flex items-center justify-center gap-1.5 transition-all"
                   title="ទាញយក file Backup គំរូទាំងអស់របស់អ្នក"
                 >
                   <FileDown className="w-3.5 h-3.5 text-sky-400" />
                   <span>Backup គំរូ (JSON)</span>
                 </button>
 
-                <label className="flex-1 py-2 px-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-slate-300 hover:text-white text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
-                  <FileUp className="w-3.5 h-3.5 text-emerald-400" />
+                <label className="flex-1 py-2 px-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer">
+                  <FileUp className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                   <span>បញ្ចូលគំរូ (Import)</span>
                   <input type="file" accept=".json" onChange={handleImportTemplates} className="hidden" />
                 </label>
@@ -2233,7 +2233,7 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                   setConfig(DEFAULT_CONFIG);
                   onShowToast('បានកំណត់ឡើងវិញនូវទម្រង់ដើម!', 'info');
                 }}
-                className="w-full py-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.08] text-slate-400 hover:text-white border border-white/[0.06] text-xs flex items-center justify-center gap-1.5 transition-all"
+                className="w-full py-2 rounded-xl bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white border border-white/[0.06] text-xs flex items-center justify-center gap-1.5 transition-all"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>កំណត់ទម្រង់លំនាំដើមឡើងវិញ (Reset Defaults)</span>
@@ -2246,21 +2246,21 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
       {/* Floating Save Template Modal Dialog */}
       {isSaveModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4 animate-fade-in">
-          <div className="w-full max-w-md bg-[#0d121f] border border-amber-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 relative">
-            <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
+          <div className="w-full max-w-md bg-white dark:bg-[#0d121f] border border-amber-500/30 rounded-2xl p-5 shadow-2xl flex flex-col gap-4 relative">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+                <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-sky-600 dark:text-amber-400 flex items-center justify-center border border-amber-500/30">
                   <Bookmark className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-white">រក្សាទុកជាគំរូ Template ថ្មី</h3>
-                  <p className="text-[11px] text-slate-400">រក្សាទុកការរៀបចំ 3D, ពណ៌ និងពុម្ពអក្សរសម្រាប់ប្រើលើកក្រោយ</p>
+                  <h3 className="text-sm font-bold text-slate-800 dark:text-white">រក្សាទុកជាគំរូ Template ថ្មី</h3>
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">រក្សាទុកការរៀបចំ 3D, ពណ៌ និងពុម្ពអក្សរសម្រាប់ប្រើលើកក្រោយ</p>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => setIsSaveModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08]"
+                className="p-1 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-200 dark:bg-white/[0.08]"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -2268,21 +2268,21 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
 
             {/* Current Config Snapshot Preview */}
             <div className="p-3 rounded-xl bg-black/40 border border-white/[0.06] flex flex-col gap-1.5 text-xs">
-              <span className="text-[11px] font-semibold text-amber-400">ព័ត៌មានលម្អិតនៃគំរូ៖</span>
-              <div className="text-slate-300 font-medium">ចំណងជើង៖ <strong className="text-white">"{config.title}"</strong> ({config.badge})</div>
-              <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-400 font-mono mt-1">
+              <span className="text-[11px] font-semibold text-sky-600 dark:text-amber-400">ព័ត៌មានលម្អិតនៃគំរូ៖</span>
+              <div className="text-slate-600 dark:text-slate-300 font-medium">ចំណងជើង៖ <strong className="text-slate-800 dark:text-white">"{config.title}"</strong> ({config.badge})</div>
+              <div className="grid grid-cols-2 gap-1 text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-1">
                 <div>ពុម្ព៖ <span className="text-amber-300">{config.fontFamily}</span></div>
                 <div>ស្ទាយ៖ <span className="text-sky-300">{config.effectStyle}</span></div>
                 <div>3D Depth៖ <span className="text-emerald-300">{config.depth3D}px</span></div>
                 <div>Glow Bloom៖ <span className="text-rose-300">{config.glowIntensity}px</span></div>
-                <div>ទីតាំង៖ <span className="text-white">X:{config.posX}% | Y:{config.posY}%</span></div>
-                <div>មុំបង្វិល៖ <span className="text-white">{config.rotationAngle}°</span></div>
+                <div>ទីតាំង៖ <span className="text-slate-800 dark:text-white">X:{config.posX}% | Y:{config.posY}%</span></div>
+                <div>មុំបង្វិល៖ <span className="text-slate-800 dark:text-white">{config.rotationAngle}°</span></div>
               </div>
             </div>
 
             {/* Template Name Input */}
             <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-600 dark:text-slate-300 mb-1.5">
                 ឈ្មោះគំរូ (Template Name)
               </label>
               <input
@@ -2294,23 +2294,23 @@ export const ThumbnailGenerator: React.FC<ThumbnailGeneratorProps> = ({
                 }}
                 placeholder={`ឧ. គំរូ ${config.title || 'យានអវកាស'} (Gold 3D VIP)`}
                 autoFocus
-                className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/[0.15] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-black/50 border border-white/[0.15] text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:outline-none focus:border-amber-400"
               />
             </div>
 
             {/* Actions */}
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-white/[0.08]">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
               <button
                 type="button"
                 onClick={() => setIsSaveModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-300 text-xs font-semibold"
+                className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] text-slate-600 dark:text-slate-300 text-xs font-semibold"
               >
                 បោះបង់
               </button>
               <button
                 type="button"
                 onClick={() => handleSaveNewTemplate()}
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/25 transition-all active:scale-95"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-rose-600 hover:from-amber-400 hover:to-rose-500 text-slate-800 dark:text-white text-xs font-bold flex items-center gap-1.5 shadow-lg shadow-amber-500/25 transition-all active:scale-95"
               >
                 <Save className="w-3.5 h-3.5" />
                 <span>រក្សាទុក (Save)</span>

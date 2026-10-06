@@ -203,7 +203,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             {onToggleCollapse && (
               <button
                 onClick={onToggleCollapse}
-                className="p-1 rounded-md text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
+                className="p-1 rounded-md text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-700 dark:text-slate-200 hover:bg-slate-200/60 dark:hover:bg-slate-800 transition-colors"
                 title="បង្រួមផ្ទាំង (ចុច I)"
               >
                 <PanelRightClose className="w-3.5 h-3.5" />
@@ -228,8 +228,8 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                 activeTab === t.id ||
                 (t.id === 'ai' && activeTab === 'workflow') ||
                 (t.id === 'effects' && activeTab === 'video')
-                  ? 'bg-sky-600 text-white shadow-xs font-black'
-                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
+                  ? 'bg-sky-600 text-slate-800 dark:text-white shadow-xs font-black'
+                  : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:hover:bg-slate-700'
               }`}
             >
               {t.label}
@@ -246,7 +246,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
         {(activeTab === 'ai' || activeTab === 'workflow') && (
           <div className="flex flex-col gap-2.5">
             {/* Mode Selection */}
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5 shadow-2xs">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5 shadow-2xs">
               <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300">ទម្រង់បញ្ចូលសំឡេង</span>
               <div className="grid grid-cols-1 gap-1">
                 {availableVoiceModes.map((m) => (
@@ -256,7 +256,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                     className={`p-2 rounded-lg text-left transition-all border text-xs ${
                       voiceMode === m.id
                         ? 'bg-sky-50 dark:bg-cyan-500/15 border-sky-300 dark:border-cyan-500/40 text-sky-900 dark:text-cyan-300 font-bold'
-                        : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/[0.06] text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/[0.04]'
+                        : 'bg-white dark:bg-black/30 border-slate-200 dark:border-white/[0.06] text-slate-700 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-100 dark:bg-white/[0.04]'
                     }`}
                   >
                     {m.label}
@@ -266,7 +266,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             </div>
 
             {/* Scope & Gemini Model */}
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300">ប្រវែងបញ្ចូល</span>
                 <select
@@ -297,7 +297,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             </div>
 
             {/* Checklist */}
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5 shadow-2xs">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5 shadow-2xs">
               <div className="flex items-center justify-between">
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-200 flex items-center gap-1.5">
                   <Wand2 className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400" />
@@ -363,9 +363,9 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             {dubbingOutputVideo && !isDubbing && (
               <div className="p-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/35 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <div>
-                    <div className="font-bold text-white text-[11px]">វីដេអូបានបញ្ចូលរួចរាល់</div>
+                    <div className="font-bold text-slate-800 dark:text-white text-[11px]">វីដេអូបានបញ្ចូលរួចរាល់</div>
                     <div className="text-[10px] text-emerald-300/80">សំឡេងខ្មែរភ្ជាប់ត្រឹមត្រូវ ១០០%</div>
                   </div>
                 </div>
@@ -381,13 +381,13 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
               disabled={isDubbing || !uploadedFile}
               className={`w-full py-3 rounded-xl text-slate-950 font-black text-xs shadow-xl flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 ${
                 isDubbing
-                  ? 'bg-cyan-600/50 cursor-wait text-white'
+                  ? 'bg-cyan-600/50 cursor-wait text-slate-800 dark:text-white'
                   : 'vip-ai-cta-gradient hover:brightness-110 shadow-[0_0_20px_rgba(0,240,255,0.4)]'
               }`}
             >
               {isDubbing ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin text-white" />
+                  <Loader2 className="w-4 h-4 animate-spin text-slate-800 dark:text-white" />
                   <span>កំពុងបង្កើតសំឡេង AI... {dubbingProgress}%</span>
                 </>
               ) : (
@@ -419,7 +419,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             />
 
             {/* Parameters: Speed, Volume, Pitch */}
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
               <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300">កែសម្រួលសំឡេង (Voice Parameters)</span>
                 <div className="flex flex-col gap-1">
                   <div className="flex justify-between text-[10px] text-slate-600 dark:text-slate-400">
@@ -486,7 +486,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             {onOpenCharacterCast && (
               <button
                 onClick={onOpenCharacterCast}
-                className="w-full py-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-300 text-xs border border-slate-200 dark:border-white/[0.08] flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                className="w-full py-1.5 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:hover:bg-slate-200 dark:bg-white/[0.08] text-slate-700 dark:text-slate-300 text-xs border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
               >
                 <Users className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400" />
                 <span>តារាងតួអង្គទាំងអស់</span>
@@ -502,7 +502,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
           <div className="flex flex-col gap-2.5">
             {selectedSegment ? (
               <>
-                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
+                <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2 shadow-2xs">
                   <div className="flex items-center justify-between text-xs">
                     <span className="font-bold text-slate-900 dark:text-slate-200">
                       បន្ទាត់ទី #{selectedSegment.line_index + 1}
@@ -549,7 +549,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
 
                 {/* Subtitle Styling Settings */}
                 {subtitleStyle && onChangeSubtitleStyle && (
-                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-2xs">
+                  <div className="p-3 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-bold text-sky-800 dark:text-cyan-300 font-khmer flex items-center gap-1.5">
                         <Subtitles className="w-3.5 h-3.5" />
@@ -646,7 +646,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                     {/* Size & Stroke Width */}
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <div className="flex justify-between text-[10px] text-slate-400 font-khmer">
+                        <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-khmer">
                           <span>ទំហំអក្សរ</span>
                           <span className="font-mono text-cyan-300">{subtitleStyle.fontSize}px</span>
                         </div>
@@ -661,7 +661,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                       </div>
 
                       <div>
-                        <div className="flex justify-between text-[10px] text-slate-400 font-khmer">
+                        <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400 font-khmer">
                           <span>កម្រាស់ស៊ុម (Stroke)</span>
                           <span className="font-mono text-cyan-300">{subtitleStyle.strokeWidth}px</span>
                         </div>
@@ -679,7 +679,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                     {/* Colors */}
                     <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/[0.04]">
                       <div>
-                        <label className="text-[10px] text-slate-400 font-khmer block mb-1">ពណ៌អក្សរ</label>
+                        <label className="text-[10px] text-slate-500 dark:text-slate-400 font-khmer block mb-1">ពណ៌អក្សរ</label>
                         <div className="flex items-center gap-1.5">
                           <input
                             type="color"
@@ -687,12 +687,12 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                             onChange={(e) => onChangeSubtitleStyle({ ...subtitleStyle, textColor: e.target.value })}
                             className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer p-0.5"
                           />
-                          <span className="font-mono text-[11px] text-slate-300 uppercase">{subtitleStyle.textColor}</span>
+                          <span className="font-mono text-[11px] text-slate-600 dark:text-slate-300 uppercase">{subtitleStyle.textColor}</span>
                         </div>
                       </div>
 
                       <div>
-                        <label className="text-[10px] text-slate-400 font-khmer block mb-1">ពណ៌ស៊ុមអក្សរ</label>
+                        <label className="text-[10px] text-slate-500 dark:text-slate-400 font-khmer block mb-1">ពណ៌ស៊ុមអក្សរ</label>
                         <div className="flex items-center gap-1.5">
                           <input
                             type="color"
@@ -700,14 +700,14 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                             onChange={(e) => onChangeSubtitleStyle({ ...subtitleStyle, strokeColor: e.target.value })}
                             className="w-7 h-7 rounded border border-white/20 bg-transparent cursor-pointer p-0.5"
                           />
-                          <span className="font-mono text-[11px] text-slate-300 uppercase">{subtitleStyle.strokeColor}</span>
+                          <span className="font-mono text-[11px] text-slate-600 dark:text-slate-300 uppercase">{subtitleStyle.strokeColor}</span>
                         </div>
                       </div>
                     </div>
 
                     {/* Box Background Toggle */}
                     <div className="flex items-center justify-between p-2 rounded-lg bg-black/40 border border-white/[0.06] mt-0.5">
-                      <span className="text-xs text-slate-200 font-khmer">ប្រអប់ផ្ទៃក្រោយ (Background Box)</span>
+                      <span className="text-xs text-slate-700 dark:text-slate-200 font-khmer">ប្រអប់ផ្ទៃក្រោយ (Background Box)</span>
                       <input
                         type="checkbox"
                         checked={subtitleStyle.boxEnabled !== false}
@@ -732,12 +732,12 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
         {/* ================================================================ */}
         {activeTab === 'audio' && (
           <div className="flex flex-col gap-2.5">
-            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-white/[0.08] flex flex-col gap-2.5">
-              <span className="text-[11px] font-bold text-slate-300">កម្រិតសំឡេង Mixer</span>
+            <div className="p-2.5 rounded-xl bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5">
+              <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">កម្រិតសំឡេង Mixer</span>
 
               {/* Master Volume */}
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-[10px] text-slate-400">
+                <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
                   <span>សំឡេងបញ្ចូលខ្មែរ (Khmer Dub)</span>
                   <span className="font-mono text-cyan-400 font-bold">100%</span>
                 </div>
@@ -746,7 +746,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
 
               {/* BGM Level */}
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-[10px] text-slate-400">
+                <div className="flex justify-between text-[10px] text-slate-500 dark:text-slate-400">
                   <span>សំឡេងភ្លេង BGM</span>
                   <span className="font-mono text-cyan-400 font-bold">75%</span>
                 </div>
@@ -754,13 +754,13 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
               </div>
 
               {/* Original Vocal Suppression */}
-              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08]">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <span className="text-xs text-slate-700 dark:text-slate-200 font-medium">បិទសំឡេងដើម (Mute Original)</span>
                 <input type="checkbox" defaultChecked className="accent-sky-600 dark:accent-cyan-400 w-4 h-4 cursor-pointer" />
               </div>
 
               {/* Auto Ducking */}
-              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08]">
+              <div className="flex items-center justify-between p-2 rounded-lg bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
                 <span className="text-xs text-slate-700 dark:text-slate-200 font-medium">បន្ថយភ្លេងស្វ័យប្រវត្តិ (BGM Ducking)</span>
                 <input type="checkbox" defaultChecked className="accent-sky-600 dark:accent-cyan-400 w-4 h-4 cursor-pointer" />
               </div>
@@ -774,7 +774,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
         {(activeTab === 'effects' || activeTab === 'video') && (
           <div className="flex flex-col gap-2.5">
             {videoEffects && onChangeEffects ? (
-              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-2xs">
+              <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-2xs">
                 <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300">កែពន្លឺ និងបែបផែនវីដេអូ</span>
 
                 <div className="flex flex-col gap-1">
@@ -828,7 +828,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                 </div>
 
                 {/* Watermark Configuration Section */}
-                <div className="pt-2.5 border-t border-slate-200/90 dark:border-white/[0.08] flex flex-col gap-2">
+                <div className="pt-2.5 border-t border-slate-200/90 dark:border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300 flex items-center gap-1.5">
                       <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-cyan-400" />
@@ -872,7 +872,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                             });
                           }}
                           placeholder="ឧ. សម្រាយរឿង HD / ឈ្មោះឆានែល"
-                          className="w-full px-2.5 py-1.5 text-xs rounded bg-white dark:bg-black/50 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 focus:border-sky-500 dark:focus:border-cyan-400 outline-none"
+                          className="w-full px-2.5 py-1.5 text-xs rounded bg-white dark:bg-black/50 border border-slate-300 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-500 dark:text-slate-400 focus:border-sky-500 dark:focus:border-cyan-400 outline-none"
                         />
                       </div>
 
@@ -909,7 +909,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
                               className={`py-1 px-1.5 rounded border text-center transition-all ${
                                 (videoEffects.watermark?.position === pos.id || (pos.id === 'free' && (videoEffects.watermark?.posX !== undefined || videoEffects.watermark?.position === 'free')))
                                   ? 'bg-sky-100 dark:bg-cyan-500/20 border-sky-400 dark:border-cyan-400 text-sky-800 dark:text-cyan-300 font-bold'
-                                  : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                                  : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/10 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-800 dark:text-white'
                               }`}
                             >
                               {pos.label}
@@ -1044,7 +1044,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
         {/* ================================================================ */}
         {activeTab === 'project' && (
           <div className="flex flex-col gap-2.5">
-            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5">
+            <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-1.5">
               <span className="text-[11px] font-bold text-slate-800 dark:text-slate-300">ព័ត៌មានគម្រោង</span>
               <div className="space-y-1.5 text-[11px]">
                 <div className="flex justify-between py-1 border-b border-slate-200/80 dark:border-white/[0.04]">
@@ -1085,7 +1085,7 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
             />
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-white/[0.08] text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-white/[0.08] transition-colors"
+              className="w-full py-2 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-white/[0.04] dark:hover:bg-slate-200 dark:bg-white/[0.08] text-slate-800 dark:text-slate-200 font-bold text-xs border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] transition-colors"
             >
               {uploadedFile ? 'ផ្លាស់ប្តូរវីដេអូថ្មី...' : 'ផ្ទុកវីដេអូឡើង...'}
             </button>
@@ -1094,25 +1094,25 @@ export const ContextualInspector: React.FC<ContextualInspectorProps> = ({
       </div>
 
       {/* ── VIP Primary AI Dubbing Action Bar ── */}
-      <div className="p-3 border-t border-slate-200/90 dark:border-white/[0.08] bg-white/95 dark:bg-[#07090e]/95 backdrop-blur-xl flex flex-col gap-1.5 flex-shrink-0">
+      <div className="p-3 border-t border-slate-200/90 dark:border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#07090e]/95 backdrop-blur-xl flex flex-col gap-1.5 flex-shrink-0">
         <button
           onClick={onStartDubbing}
           disabled={isDubbing || !uploadedFile}
           className={`w-full py-3 px-3 rounded-xl font-black text-xs shadow-xl flex items-center justify-center gap-2 transition-all active:scale-[0.98] disabled:opacity-50 ${
             isDubbing
-              ? 'bg-sky-600/80 dark:bg-cyan-600/50 cursor-wait text-white'
-              : 'bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:brightness-110 text-white shadow-sky-500/25'
+              ? 'bg-sky-600/80 dark:bg-cyan-600/50 cursor-wait text-slate-800 dark:text-white'
+              : 'bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white shadow-sky-500/25'
           }`}
           title="បង្កើតសំឡេងខ្មែរ AI សម្រាប់វីដេអូទាំងមូល"
         >
           {isDubbing ? (
             <>
-              <Loader2 className="w-4 h-4 animate-spin text-white" />
-              <span className="text-white">កំពុងបង្កើតសំឡេង AI... {dubbingProgress}%</span>
+              <Loader2 className="w-4 h-4 animate-spin text-slate-800 dark:text-white" />
+              <span className="text-slate-800 dark:text-white">កំពុងបង្កើតសំឡេង AI... {dubbingProgress}%</span>
             </>
           ) : (
             <>
-              <Sparkles className="w-4 h-4 fill-white text-white" />
+              <Sparkles className="w-4 h-4 fill-white text-slate-800 dark:text-white" />
               <span className="font-extrabold tracking-wide">✦ AI បង្កើតសំឡេងខ្មែរ (Generate Khmer AI Voice)</span>
             </>
           )}

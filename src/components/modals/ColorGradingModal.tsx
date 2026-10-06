@@ -76,25 +76,25 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-4xl rounded-xl bg-[#141414] border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
+        className="w-full max-w-4xl rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#181818] border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-[#181818] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#222226] border border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#222226] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
               <Palette className="w-4 h-4 text-[#00C2FF]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-wide">
+                <h2 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   PROFESSIONAL COLOR GRADING & SCOPES
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-[#00C2FF]/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-slate-200 dark:border-[#00C2FF]/30">
                   REAL FILTER
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400">
                 កែតម្រូវពណ៌ភាពយន្ត កម្រិតពន្លឺ (Exposure, Temperature, Contrast) និង Scopes
               </p>
             </div>
@@ -102,7 +102,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-white/[0.08] transition-colors"
+            className="p-1.5 rounded-lg text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -114,7 +114,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
           <div className="lg:col-span-2 space-y-5">
             {/* Presets Row */}
             <div>
-              <label className="block text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">
+              <label className="block text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider mb-2">
                 Color Presets (ម៉ូដពណ៌កំណត់ស្រាប់)
               </label>
               <div className="flex flex-wrap gap-2">
@@ -125,8 +125,8 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
                     onClick={() => handleApplyPreset(p)}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       activePreset === p.name
-                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-white shadow-[0_0_15px_rgba(236,72,153,0.4)]'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-gradient-to-r from-pink-500 to-purple-600 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(236,72,153,0.4)]'
+                        : 'bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-700'
                     }`}
                   >
                     {p.name}
@@ -136,10 +136,10 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
             </div>
 
             {/* Sliders Grid */}
-            <div className="grid grid-cols-2 gap-4 bg-[#050B16] p-4 rounded-xl border border-cyan-500/10">
+            <div className="grid grid-cols-2 gap-4 bg-white dark:bg-[#050B16] p-4 rounded-xl border border-cyan-500/10">
               {/* Exposure */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Exposure (ពន្លឺ):</span>
                   <span className="font-mono text-cyan-400">{params.exposure > 0 ? `+${params.exposure}` : params.exposure}</span>
                 </div>
@@ -155,7 +155,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Contrast */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Contrast (កម្រិតច្បាស់):</span>
                   <span className="font-mono text-cyan-400">{params.contrast}</span>
                 </div>
@@ -171,7 +171,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Highlights */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Highlights (ពន្លឺខ្ពស់):</span>
                   <span className="font-mono text-cyan-400">{params.highlights}</span>
                 </div>
@@ -187,7 +187,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Shadows */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Shadows (ស្រមោល):</span>
                   <span className="font-mono text-cyan-400">{params.shadows}</span>
                 </div>
@@ -203,9 +203,9 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Temperature */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Temperature (សីតុណ្ហភាព):</span>
-                  <span className="font-mono text-amber-400">{params.temperature} K</span>
+                  <span className="font-mono text-sky-600 dark:text-amber-400">{params.temperature} K</span>
                 </div>
                 <input
                   type="range"
@@ -220,7 +220,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Tint */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Tint (ពណ៌លាំ):</span>
                   <span className="font-mono text-pink-400">{params.tint}</span>
                 </div>
@@ -236,7 +236,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Saturation */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Saturation (ភាពដិតពណ៌):</span>
                   <span className="font-mono text-cyan-400">{params.saturation}%</span>
                 </div>
@@ -252,7 +252,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
 
               {/* Vibrance */}
               <div className="space-y-1">
-                <div className="flex justify-between text-xs text-slate-300">
+                <div className="flex justify-between text-xs text-slate-600 dark:text-slate-300">
                   <span>Vibrance:</span>
                   <span className="font-mono text-cyan-400">{params.vibrance}%</span>
                 </div>
@@ -271,7 +271,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
           {/* Right Col: Real-time Histogram / Scopes Display */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-600 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Activity className="w-3.5 h-3.5 text-cyan-400" />
                 RGB Waveform & Histogram
               </span>
@@ -279,7 +279,7 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
             </div>
 
             {/* Simulated Live Scope Canvas */}
-            <div className="w-full h-44 rounded-xl bg-[#050B16] border border-cyan-500/20 p-3 flex flex-col justify-between relative overflow-hidden">
+            <div className="w-full h-44 rounded-xl bg-white dark:bg-[#050B16] border border-cyan-500/20 p-3 flex flex-col justify-between relative overflow-hidden">
               <div className="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center">
                 <div className="w-full h-[1px] bg-cyan-500 top-1/4 absolute" />
                 <div className="w-full h-[1px] bg-cyan-500 top-2/4 absolute" />
@@ -322,16 +322,16 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
             </div>
 
             {/* Scope stats */}
-            <div className="p-3 rounded-xl bg-[#050B16] border border-cyan-500/10 space-y-2 text-xs">
-              <div className="flex justify-between text-slate-400">
+            <div className="p-3 rounded-xl bg-white dark:bg-[#050B16] border border-cyan-500/10 space-y-2 text-xs">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Color Space:</span>
-                <span className="font-mono text-white font-bold">Rec.709 / BT.2020</span>
+                <span className="font-mono text-slate-800 dark:text-white font-bold">Rec.709 / BT.2020</span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Clipping:</span>
-                <span className="text-emerald-400 font-bold">0% Clean</span>
+                <span className="text-emerald-600 dark:text-emerald-400 font-bold">0% Clean</span>
               </div>
-              <div className="flex justify-between text-slate-400">
+              <div className="flex justify-between text-slate-500 dark:text-slate-400">
                 <span>Dynamic Range:</span>
                 <span className="text-cyan-400 font-mono">14.2 Stops</span>
               </div>
@@ -340,11 +340,11 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#0E1C31] border-t border-cyan-500/20">
+        <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#0E1C31] border-t border-cyan-500/20">
           <button
             type="button"
             onClick={handleReset}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition-all"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset (កំណត់ឡើងវិញ)</span>
@@ -354,14 +354,14 @@ export const ColorGradingModal: React.FC<ColorGradingModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition-all"
             >
               Cancel
             </button>
             <button
               type="button"
               onClick={handleSave}
-              className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(0,240,255,0.4)]"
+              className="flex items-center gap-2 px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-slate-800 dark:text-white text-xs font-bold transition-all shadow-[0_0_15px_rgba(0,240,255,0.4)]"
             >
               <Check className="w-4 h-4" />
               <span>Apply Color Grade (អនុវត្ត)</span>

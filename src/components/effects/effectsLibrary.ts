@@ -1,5 +1,6 @@
 /**
- * CHEATZ DABBER PRO - 100+ Professional Effects, LUTs, Subtitle Styles & Audio Presets Library
+ * DRAGON DABBER PRO - 100+ Professional Effects, LUTs, Subtitle Styles & Audio Presets Library
+ * Dragon Fantasy & Cinematic Master Quality Presets
  */
 
 export interface LutPreset {
@@ -55,7 +56,7 @@ export const LUT_PRESETS: LutPreset[] = [
   // Anime & Drama
   { id: 'vibrant_anime', label: '✨ Vibrant 3D Donghua', category: 'Anime & Drama', cssFilter: 'saturate(155%) contrast(118%) brightness(104%)', description: 'Saturated, hyper-vivid anime colors' },
   { id: 'dreamy_pastel', label: '🌸 Dreamy Romance Pastel', category: 'Anime & Drama', cssFilter: 'saturate(115%) contrast(92%) brightness(110%)', description: 'Soft, airy, romantic K-drama glow' },
-  { id: 'emerald_fantasy', label: '🐉 Emerald Spirit Dragon', category: 'Anime & Drama', cssFilter: 'hue-rotate(75deg) saturate(130%) contrast(110%)', description: 'Mystical jade fantasy realm' },
+  { id: 'emerald_fantasy', label: '🐲 Emerald Spirit Dragon', category: 'Anime & Drama', cssFilter: 'hue-rotate(75deg) saturate(130%) contrast(110%)', description: 'Mystical jade fantasy realm' },
   { id: 'cherry_blossom', label: '🌺 Cherry Blossom Spring', category: 'Anime & Drama', cssFilter: 'hue-rotate(330deg) saturate(125%) brightness(106%)', description: 'Delicate pink and floral tones' },
   { id: 'shonen_power', label: '⚡ Shonen Battle Spark', category: 'Anime & Drama', cssFilter: 'contrast(128%) saturate(145%) brightness(102%)', description: 'High-energy fighting animation grading' },
   { id: 'velvet_crimson', label: '🌹 Crimson Romance Drama', category: 'Anime & Drama', cssFilter: 'hue-rotate(345deg) saturate(135%) contrast(112%)', description: 'Deep emotional drama with rich reds' },
@@ -147,7 +148,7 @@ export const SUBTITLE_PRESETS: SubtitlePreset[] = [
   },
   {
     id: 'jade_empress',
-    label: '🐉 Jade Empress Celestial',
+    label: '🐲 Jade Empress Celestial',
     category: 'Donghua & Theatrical',
     fontSize: 20,
     fontFamily: 'Kantumruy Pro',
@@ -1130,7 +1131,7 @@ export const EFFECT_3D_PRESETS: Effect3DItem[] = [
   },
   {
     id: '3d_text_jade_celestial',
-    label: '🐉 3D Jade Empress Celestial',
+    label: '🐲 3D Jade Empress Celestial',
     category: '3D Titles & Typography',
     description: 'ត្បូងកណ្តៀងបៃតងរាជវង្ស 3D ត្រជាក់ភ្នែក',
     titleStylePreset: 'jade_celestial'
@@ -1373,7 +1374,7 @@ export const EFFECT_3D_PRESETS: Effect3DItem[] = [
   { id: '3d_text_desert_gold', label: '🌅 3D Desert Mirage Gold', category: '3D Titles & Typography', description: 'Desert Gold 3D ម', titleStylePreset: 'desert_gold' },
   { id: '3d_text_obsidian_edge', label: '🗡️ 3D Obsidian Dark Edge', category: '3D Titles & Typography', description: 'Obsidian Edge 3D ម', titleStylePreset: 'obsidian_edge' },
   { id: '3d_text_pastel_dream', label: '☁️ 3D Pastel Dream Clouds', category: '3D Titles & Typography', description: 'Pastel Dream 3D ម', titleStylePreset: 'pastel_dream' },
-  { id: '3d_text_jade_dragon', label: '🐉 3D Jade Dragon Emperor', category: '3D Titles & Typography', description: 'Jade Dragon 3D ម', titleStylePreset: 'jade_dragon' },
+  { id: '3d_text_jade_dragon', label: '🐲 3D Jade Dragon Emperor', category: '3D Titles & Typography', description: 'Jade Dragon 3D ម', titleStylePreset: 'jade_dragon' },
   { id: '3d_text_burning_phoenix', label: '🦅 3D Burning Phoenix Rise', category: '3D Titles & Typography', description: 'Burning Phoenix 3D ម', titleStylePreset: 'burning_phoenix' },
   { id: '3d_text_titanium_alloy', label: '🔩 3D Titanium Alloy Matrix', category: '3D Titles & Typography', description: 'Titanium Alloy 3D ម', titleStylePreset: 'titanium_alloy' },
   { id: '3d_text_crystal_cave', label: '💠 3D Crystal Cave Cavern', category: '3D Titles & Typography', description: 'Crystal Cave 3D ម', titleStylePreset: 'crystal_cave' },
@@ -1390,7 +1391,7 @@ export const EFFECT_3D_PRESETS: Effect3DItem[] = [
   { id: '3d_text_solar_storm', label: '☀️ 3D Solar Storm Flare', category: '3D Titles & Typography', description: 'Solar Storm 3D ម', titleStylePreset: 'solar_storm' },
   { id: '3d_text_marble_white', label: '🤍 3D Carrara Marble White', category: '3D Titles & Typography', description: 'Marble White 3D ម', titleStylePreset: 'marble_white' },
   { id: '3d_text_sakura_gold', label: '🌸 3D Sakura Petal Gold', category: '3D Titles & Typography', description: 'Sakura Gold 3D ម', titleStylePreset: 'sakura_gold' },
-  { id: '3d_text_dragon_fire', label: '🐉 3D Dragon Fire Breath', category: '3D Titles & Typography', description: 'Dragon Fire 3D ម', titleStylePreset: 'dragon_fire' },
+  { id: '3d_text_dragon_fire', label: '🐲 3D Dragon Fire Breath', category: '3D Titles & Typography', description: 'Dragon Fire 3D ម', titleStylePreset: 'dragon_fire' },
   { id: '3d_text_wuxia_ink', label: '🖋️ 3D Wuxia Ink Brush', category: '3D Titles & Typography', description: 'Wuxia Ink 3D ម', titleStylePreset: 'wuxia_ink' },
   { id: '3d_text_angel_white', label: '👼 3D Angel Heaven White', category: '3D Titles & Typography', description: 'Angel Heaven 3D ម', titleStylePreset: 'angel_white' },
   { id: '3d_text_neon_yellow', label: '💛 3D Neon Taxi Yellow', category: '3D Titles & Typography', description: 'Neon Yellow 3D ម', titleStylePreset: 'neon_yellow' },

@@ -209,42 +209,42 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
       <div 
-        className="w-full max-w-3xl rounded-xl bg-[#141414] border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
+        className="w-full max-w-3xl rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-[#181818] border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-5 py-3.5 bg-white dark:bg-[#181818] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-[#222226] border border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
+            <div className="w-8 h-8 rounded-lg bg-white dark:bg-[#222226] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-center text-[#00C2FF]">
               <Sparkles className="w-4 h-4 text-[#00C2FF]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-bold text-white tracking-wide">
+                <h2 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   AUTO DUBBING WORKFLOW
                 </h2>
-                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-[#00C2FF]/30">
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[#00C2FF]/10 text-[#00C2FF] border border-slate-200 dark:border-[#00C2FF]/30">
                   REAL PIPELINE
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-400">
+              <p className="text-[11px] text-slate-600 dark:text-zinc-400">
                 ដំណើរការវិភាគវីដេអូ និងបញ្ចូលសំឡេងស្វ័យប្រវត្តិលំដាប់ខ្ពស់
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+            className="p-1.5 rounded-lg text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-white/10 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Global Progress Strip */}
-        <div className="px-6 py-3 bg-[#07111F] border-b border-cyan-500/10 flex items-center justify-between">
+        <div className="px-6 py-3 bg-white dark:bg-[#07111F] border-b border-cyan-500/10 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold text-slate-300">Pipeline Status:</span>
-            <span className={`text-xs font-bold ${isFinished ? 'text-emerald-400' : isRunning ? 'text-cyan-400 animate-pulse' : 'text-slate-400'}`}>
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300">Pipeline Status:</span>
+            <span className={`text-xs font-bold ${isFinished ? 'text-emerald-600 dark:text-emerald-400' : isRunning ? 'text-cyan-400 animate-pulse' : 'text-slate-500 dark:text-slate-400'}`}>
               {isFinished ? '✓ 10/10 Steps Completed' : isRunning ? `Running Step ${currentStepIndex + 1} of 10...` : 'Ready to Launch'}
             </span>
           </div>
@@ -277,7 +277,7 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
                     ? 'bg-cyan-950/40 border-cyan-500/60 shadow-[0_0_15px_rgba(0,240,255,0.2)]'
                     : isCompleted
                     ? 'bg-emerald-950/20 border-emerald-500/30'
-                    : 'bg-[#050B16]/60 border-cyan-500/10 opacity-70'
+                    : 'bg-white dark:bg-[#050B16]/60 border-cyan-500/10 opacity-70'
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0">
@@ -286,12 +286,12 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
                       isCurrent
                         ? 'bg-cyan-500 text-black animate-pulse shadow-[0_0_10px_rgba(0,240,255,0.6)]'
                         : isCompleted
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                        : 'bg-slate-800 text-slate-400'
+                        ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/40'
+                        : 'bg-slate-800 text-slate-500 dark:text-slate-400'
                     }`}
                   >
                     {isCompleted ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     ) : isCurrent ? (
                       <Loader2 className="w-4 h-4 animate-spin text-black" />
                     ) : (
@@ -300,11 +300,11 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono text-slate-400">#{step.id}</span>
-                      <span className="text-xs font-bold text-white">{step.title}</span>
+                      <span className="text-xs font-mono text-slate-500 dark:text-slate-400">#{step.id}</span>
+                      <span className="text-xs font-bold text-slate-800 dark:text-white">{step.title}</span>
                       <span className="text-xs text-cyan-300 font-medium">({step.khmer})</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 truncate max-w-md">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate max-w-md">
                       {step.description}
                     </p>
                   </div>
@@ -333,8 +333,8 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#0E1C31] border-t border-cyan-500/20 font-khmer">
-          <div className="text-xs text-slate-400">
+        <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#0E1C31] border-t border-cyan-500/20 font-khmer">
+          <div className="text-xs text-slate-500 dark:text-slate-400">
             {isFinished ? 'ដំណើរការបញ្ចូលសំឡេងចប់សព្វគ្រប់ ត្រៀមមើលជាមុន ឬនាំចេញ។' : 'ដំណើរការលើ Background ដោយមិនបង្កកកម្មវិធី (Non-blocking AI Processing)។'}
           </div>
 
@@ -342,7 +342,7 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold transition-all font-khmer"
+              className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-semibold transition-all font-khmer"
             >
               {isFinished ? 'បិទ' : 'បោះបង់'}
             </button>
@@ -350,7 +350,7 @@ export const AutoDubWorkflowModal: React.FC<AutoDubWorkflowModalProps> = ({
               type="button"
               onClick={handleStartWorkflow}
               disabled={isRunning}
-              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:from-cyan-400 hover:to-blue-500 text-white text-xs font-bold transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] disabled:opacity-50 font-khmer"
+              className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 hover:from-cyan-400 hover:to-blue-500 text-slate-800 dark:text-white text-xs font-bold transition-all shadow-[0_0_20px_rgba(0,240,255,0.4)] disabled:opacity-50 font-khmer"
             >
               {isRunning ? (
                 <>

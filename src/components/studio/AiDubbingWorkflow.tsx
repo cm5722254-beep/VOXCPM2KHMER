@@ -99,10 +99,10 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
   ];
 
   return (
-    <div className="w-56 bg-[#0a0e17] border-l border-white/[0.08] flex flex-col overflow-hidden select-none">
+    <div className="w-56 bg-white dark:bg-[#0a0e17] border-l border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col overflow-hidden select-none">
       {/* Header */}
-      <div className="p-3.5 px-4 border-b border-white/[0.08] flex items-center justify-between">
-        <h4 className="text-xs font-bold text-white tracking-wide flex items-center gap-1.5 font-ui">
+      <div className="p-3.5 px-4 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between">
+        <h4 className="text-xs font-bold text-slate-800 dark:text-white tracking-wide flex items-center gap-1.5 font-ui">
           <Sparkles className="w-3.5 h-3.5 text-sky-400" />
           <span>AI Dubbing Workflow</span>
         </h4>
@@ -130,12 +130,12 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
               <div
                 className={`relative z-10 w-7 h-7 rounded-full flex items-center justify-center text-xs shrink-0 transition-all ${
                   isDone
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/50 shadow-[0_0_10px_rgba(52,211,153,0.3)]'
+                    ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border border-emerald-500/50 shadow-[0_0_10px_rgba(52,211,153,0.3)]'
                     : isActive
                     ? 'bg-sky-500/20 text-sky-300 border border-sky-400 shadow-[0_0_12px_rgba(56,189,248,0.5)] animate-pulse'
                     : isCurrent
                     ? 'bg-sky-500/10 text-sky-400 border border-sky-500/30'
-                    : 'bg-white/[0.03] text-slate-500 border border-white/[0.08]'
+                    : 'bg-white/[0.03] text-slate-500 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]'
                 }`}
               >
                 {isDone ? (
@@ -152,19 +152,19 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
                 <span
                   className={`text-xs font-semibold leading-tight truncate ${
                     isDone
-                      ? 'text-slate-100'
+                      ? 'text-slate-800 dark:text-slate-100'
                       : isActive
                       ? 'text-sky-300 font-bold'
                       : isCurrent
-                      ? 'text-slate-200'
-                      : 'text-slate-400'
+                      ? 'text-slate-700 dark:text-slate-200'
+                      : 'text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {step.title}
                 </span>
                 <span
                   className={`text-[10px] leading-tight truncate ${
-                    isActive ? 'text-sky-400' : isDone ? 'text-emerald-400/80' : 'text-slate-400'
+                    isActive ? 'text-sky-400' : isDone ? 'text-emerald-600 dark:text-emerald-400/80' : 'text-slate-500 dark:text-slate-400'
                   }`}
                 >
                   {step.desc}
@@ -176,20 +176,20 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
       </div>
 
       {/* Quick Action in Footer */}
-      <div className="p-3 border-t border-white/[0.08] bg-[#070a12] flex flex-col gap-2">
+      <div className="p-3 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#070a12] flex flex-col gap-2">
         {/* Voice Mode Selection (NEW!) */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="text-slate-400 font-medium">ជម្រើសសំឡេង:</span>
+            <span className="text-slate-500 dark:text-slate-400 font-medium">ជម្រើសសំឡេង:</span>
           </div>
-          <div className="flex flex-col gap-1 bg-[#0d121f] p-1.5 rounded-xl border border-white/[0.06]">
+          <div className="flex flex-col gap-1 bg-white dark:bg-[#0d121f] p-1.5 rounded-xl border border-white/[0.06]">
             <button
               type="button"
               onClick={() => onDubbingScopeChange?.('voice_mode:original_clone')}
               className={`py-1.5 px-2 rounded-lg text-[10px] font-bold text-left transition-all cursor-pointer flex items-start gap-1.5 ${
                 dubbingScope?.includes('original_clone')
                   ? 'bg-gradient-to-r from-emerald-500 to-emerald-400 text-black shadow-sm ring-1 ring-emerald-300'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-white/[0.05]'
               }`}
             >
               <span className="text-xs">①</span>
@@ -205,7 +205,7 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
               className={`py-1.5 px-2 rounded-lg text-[10px] font-bold text-left transition-all cursor-pointer flex items-start gap-1.5 ${
                 dubbingScope?.includes('character_voice')
                   ? 'bg-gradient-to-r from-sky-500 to-sky-400 text-black shadow-sm ring-1 ring-sky-300'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-white/[0.05]'
               }`}
             >
               <span className="text-xs">②</span>
@@ -221,7 +221,7 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
               className={`py-1.5 px-2 rounded-lg text-[10px] font-bold text-left transition-all cursor-pointer flex items-start gap-1.5 ${
                 dubbingScope?.includes('movie_clone_all')
                   ? 'bg-gradient-to-r from-purple-500 to-purple-400 text-black shadow-sm ring-1 ring-purple-300'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-white/[0.05]'
               }`}
             >
               <span className="text-xs">③</span>
@@ -236,12 +236,12 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
         {/* 4 Scope Selection Buttons */}
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between text-[10px]">
-            <span className="text-slate-400 font-medium">ជម្រើស Generate វីដេអូ:</span>
-            <span className="font-mono font-bold text-amber-400">
+            <span className="text-slate-500 dark:text-slate-400 font-medium">ជម្រើស Generate វីដេអូ:</span>
+            <span className="font-mono font-bold text-sky-600 dark:text-amber-400">
               {dubbingScope === '120' ? '២ នាទី' : dubbingScope === '300' ? '៥ នាទី' : dubbingScope === '420' ? '៧ នាទី' : '១រឿងពេញ'}
             </span>
           </div>
-          <div className="grid grid-cols-4 gap-1 bg-[#0d121f] p-1 rounded-xl border border-white/[0.06]">
+          <div className="grid grid-cols-4 gap-1 bg-white dark:bg-[#0d121f] p-1 rounded-xl border border-white/[0.06]">
             {[
               { id: '120', label: '២ នាទី' },
               { id: '300', label: '៥ នាទី' },
@@ -257,7 +257,7 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
                   className={`py-1 rounded-lg text-[10.5px] font-bold text-center transition-all cursor-pointer ${
                     isSelected
                       ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-black shadow-sm font-extrabold ring-1 ring-amber-300'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-white/[0.05]'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 hover:bg-white/[0.05]'
                   }`}
                 >
                   {btn.label}
@@ -275,7 +275,7 @@ export const AiDubbingWorkflow: React.FC<AiWorkflowProps> = ({
             onStartDubbing?.();
           }}
           disabled={isDubbing || !hasVideo}
-          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-blue-600 hover:brightness-110 disabled:opacity-50 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-600/25 active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed"
+          className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-500 via-indigo-600 to-blue-600 hover:brightness-110 disabled:opacity-50 text-slate-800 dark:text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-md shadow-sky-600/25 active:scale-95 transition-all cursor-pointer disabled:cursor-not-allowed"
           title="ចុចដើម្បីចាប់ផ្តើមបញ្ចូលសំឡេងរឿងដោយ AI"
         >
           {isDubbing ? (

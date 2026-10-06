@@ -144,7 +144,7 @@ export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
                         : 'bg-white dark:bg-white/5 border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-white/10'
                     }`}
                   >
-                    <div className={contentType === type.id ? 'text-sky-600 dark:text-sky-400' : 'text-slate-400'}>
+                    <div className={contentType === type.id ? 'text-sky-600 dark:text-sky-400' : 'text-slate-500 dark:text-slate-400'}>
                       {type.icon}
                     </div>
                     <span className="text-[11px] font-semibold">{type.label}</span>
@@ -273,7 +273,7 @@ export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
                   </p>
                   <button
                     onClick={handleStartAnalysis}
-                    className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-sm transition-all shadow-md shadow-sky-500/25 hover:scale-105 active:scale-95"
+                    className="px-6 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-slate-800 dark:text-white font-bold text-sm transition-all shadow-md shadow-sky-500/25 hover:scale-105 active:scale-95"
                   >
                     ចាប់ផ្តើមវិភាគ (Analyze Video)
                   </button>
@@ -362,8 +362,8 @@ export const Step2ContentLanguage: React.FC<Step2ContentLanguageProps> = ({
             disabled={!hasScannedSegments || isScanningTimeline}
             className={`flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 ${
               hasScannedSegments && !isScanningTimeline
-                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white shadow-lg shadow-sky-500/25'
-                : 'bg-slate-200 dark:bg-white/5 text-slate-400 dark:text-slate-600 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white shadow-lg shadow-sky-500/25'
+                : 'bg-slate-200 dark:bg-white/5 text-slate-500 dark:text-slate-400 dark:text-slate-600 cursor-not-allowed'
             }`}
           >
             <span>បន្ត</span>

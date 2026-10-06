@@ -1,45 +1,36 @@
 import React, { useState } from 'react';
 import {
-  Film,
   Menu,
-  Save,
   RotateCcw,
   RotateCw,
   Play,
   Share2,
   Settings,
-  User as UserIcon,
-  Loader2,
-  LogOut,
-  ChevronDown,
-  Sparkles,
-  Keyboard,
-  Key,
-  FolderKanban,
-  HardDrive,
-  Zap,
-  Plus,
-  BookOpen,
-  Palette,
-  Volume2,
-  VolumeX,
   Bell,
   Crown,
-  Sun,
-  Moon,
-  Mic,
-  Activity,
-  Video,
-  Clock,
+  Sparkles,
+  Zap,
+  CheckCircle2,
+  Cloud,
+  ChevronDown,
+  Key,
   ShieldAlert,
-  ShieldCheck,
-  Calendar,
+  Clock,
   Heart,
+  Video,
+  Edit2,
+  Bot,
+  Flame,
+  Search,
+  Activity,
+  Shield,
+  Rocket,
 } from 'lucide-react';
 import { User, VoxcpmStatus, ProjectGroup, ProjectFile } from '../../types';
-import { isSoundMuted, toggleSoundMute, playOptionSound } from '../../utils/soundEffects';
 import { getLicenseInfo } from '../../utils/subscription';
 import { ThemeToggle } from '../ui/ThemeToggle';
+import { DragonLogo } from '../dragon/DragonLogo';
+import { DragonButton } from '../dragon/DragonButton';
 
 interface HeaderProps {
   activeProjectTitle: string;
@@ -74,6 +65,8 @@ interface HeaderProps {
   shelfCount?: number;
   onOpenShelf?: () => void;
   onOpenHardwareTurbo?: () => void;
+  onOpenHardwareReport?: () => void;
+  onOpenDiagnostics?: () => void;
   onOpenGuide?: () => void;
   onOpenCustomizer?: () => void;
   onOpenUpdateModal?: () => void;
@@ -89,6 +82,10 @@ interface HeaderProps {
   onSelectVideoFile?: (file: ProjectFile) => void;
   onOneClickDubbing?: () => void;
   onOpenSponsor?: () => void;
+  onOpenAIAssistant?: () => void;
+  onOpenVIPModal?: () => void;
+  onOpenSearch?: () => void;
+  onOpenRoadmap?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -119,13 +116,15 @@ export const Header: React.FC<HeaderProps> = ({
   shelfCount = 0,
   onOpenShelf,
   onOpenHardwareTurbo,
+  onOpenHardwareReport,
+  onOpenDiagnostics,
   onOpenGuide,
   onOpenCustomizer,
   onOpenUpdateModal,
   onToggleMobileMenu,
   hasUpdateAvailable = false,
-  latestVersion = 'V2.5 PRO',
-  currentVersion = 'V2.5 PRO',
+  latestVersion = 'V3.0 PRO',
+  currentVersion = 'V3.0 PRO',
   isDarkMode = true,
   onToggleDarkMode,
   bgMode = 'color',
@@ -134,20 +133,19 @@ export const Header: React.FC<HeaderProps> = ({
   onSelectVideoFile,
   onOneClickDubbing,
   onOpenSponsor,
+  onOpenAIAssistant,
+  onOpenVIPModal,
+  onOpenSearch,
+  onOpenRoadmap,
 }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showNotificationMenu, setShowNotificationMenu] = useState(false);
-  const [soundMuted, setSoundMutedState] = useState(() => isSoundMuted());
+  const [autoSaveEnabled, setAutoSaveEnabled] = useState(true);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [projectTitle, setProjectTitle] = useState(activeProjectTitle || 'គម្រោងរឿង_ភាគ០១_2026');
 
-  const handleToggleSound = () => {
-    const next = toggleSoundMute();
-    setSoundMutedState(next);
-    if (!next) {
-      playOptionSound();
-    }
-  };
+  const lic = getLicenseInfo(user);
 
-  const rawTitle = activeProjectTitle || 'វីដេអូ_ភាគ១_2026';
   const cleanTitle = (raw: string) => {
     let s = raw.split(/[/\\]/).pop() || raw;
     s = s.replace(/.*mediaFile[-_]*/i, '');
@@ -155,335 +153,362 @@ export const Header: React.FC<HeaderProps> = ({
     s = s.replace(/[-_]?(1080P|720P|4K|4000K|300406853|raw|HD)\b/gi, '');
     s = s.replace(/\.(mp4|mkv|mov|avi|webm)$/i, '');
     s = s.replace(/[-_]{2,}/g, ' ').replace(/\s+/g, ' ').trim();
-    return s || 'វីដេអូ_ភាគ១';
+    return s || 'គម្រោងរឿង_ភាគ០១';
   };
 
-  const displayTitle = cleanTitle(rawTitle);
-  const activeGroup = projectGroups.find((g) => g.id === activeGroupId);
+  const displayTitle = cleanTitle(projectTitle);
 
   return (
-    <header className="app-header h-14 border-b border-white/[0.08] bg-[#141417]/95 backdrop-blur-2xl text-slate-100 px-3 sm:px-4 flex items-center justify-between z-40 select-none font-khmer shadow-lg transition-colors duration-200 shrink-0">
-      {/* ── Left: Studio Branding & Selectors ── */}
-      <div className="flex items-center gap-2.5 sm:gap-3.5 min-w-0">
-        {/* Mobile Hamburger Menu Button */}
+    <header className="relative h-14 border-b border-red-950/40 bg-[#100A0C]/95 backdrop-blur-2xl px-3 sm:px-4 flex items-center justify-between z-40 select-none font-khmer shrink-0">
+      {/* Cinematic gradient top line */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/50 to-transparent" />
+
+      {/* ── LEFT: Project Name, Save Status, Cloud Sync ── */}
+      <div className="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        {/* Mobile Menu Toggle */}
         {onToggleMobileMenu && (
           <button
             type="button"
             onClick={onToggleMobileMenu}
-            className="md:hidden p-1.5 rounded-xl bg-[#18181C] hover:bg-[#222228] border border-white/[0.08] text-emerald-400 active:scale-95 transition-all"
-            title="បើកមឺនុយ (Menu)"
+            className="md:hidden p-1.5 rounded-xl bg-white/[0.04] border border-white/[0.08] text-red-400 active:scale-95 transition-all"
+            title="មឺនុយ"
           >
             <Menu className="w-4 h-4" />
           </button>
         )}
 
-        {/* Studio Logo: Modern Microphone + AI Waveform Icon */}
+        {/* Dragon Emblem on compact screens */}
         <div
-          className="flex items-center gap-2.5 cursor-pointer group"
           onClick={onOpenUpdateModal}
-          title="ស្ទូឌីយោឌាប់សំឡេងខ្មែរ PRO — AI Dubbing Studio"
+          className="cursor-pointer flex items-center gap-1.5 group"
+          title="DRAGON DABBER PRO — AI Khmer Dubbing Studio"
         >
-          <div className="relative">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-500/20 via-teal-600/30 to-indigo-600/20 border border-emerald-400/40 flex items-center justify-center shadow-[0_0_15px_rgba(0,242,173,0.25)] group-hover:scale-105 group-hover:border-emerald-300 transition-all">
-              <div className="relative flex items-center justify-center">
-                <Mic className="w-4 h-4 text-emerald-400 drop-shadow-[0_0_8px_rgba(0,242,173,0.8)]" />
-                <Activity className="w-3 h-3 text-teal-300 absolute -bottom-1 -right-1 drop-shadow-[0_0_6px_rgba(0,242,173,0.8)]" />
-              </div>
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#DC2626] via-[#B91C1C] to-[#F59E0B] flex items-center justify-center p-[1px] shadow-[0_0_14px_rgba(220,38,38,0.5)]">
+            <div className="w-full h-full bg-[#0E0608] rounded-[10px] flex items-center justify-center">
+              <img src="/dragon_logo.png" alt="Dragon" className="w-full h-full object-cover rounded-md group-hover:scale-110 transition-transform" />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-[#141417] animate-pulse" />
           </div>
-
-          <div className="flex flex-col">
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm font-bold tracking-wide text-white font-khmer">
-                ស្ទូឌីយោឌាប់សំឡេងខ្មែរ PRO
-              </span>
-            </div>
-            <span className="text-[10px] text-emerald-400 font-medium tracking-wide">
-              CapCut Studio Edition
+          {/* Version badge with glow when update available */}
+          {hasUpdateAvailable && (
+            <span
+              className={`hidden lg:inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border border-amber-500/50 bg-amber-500/15 text-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.4)] cursor-pointer ${hasUpdateAvailable ? 'animate-glow-pulse' : ''}`}
+              onClick={onOpenUpdateModal}
+            >
+              <Sparkles className="w-2.5 h-2.5" />
+              {latestVersion}
             </span>
-          </div>
+          )}
         </div>
 
-        <div className="h-6 w-px bg-white/[0.08] hidden sm:block" />
-
-        {/* Project Selector (គម្រោង [ គម្រោងរឿងរបស់ខ្ញុំ ▼ ]) */}
-        <div 
-          onClick={onOpenGroupManager}
-          className="btn-glass hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:border-emerald-400/50 transition-all text-xs cursor-pointer shadow-sm"
-        >
-          <div className="w-6 h-6 rounded-lg bg-emerald-500/10 border border-emerald-400/30 flex items-center justify-center shrink-0">
-            <FolderKanban className="w-3.5 h-3.5 text-emerald-400" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[9px] text-zinc-400 font-bold tracking-wider leading-none font-khmer">
-              គម្រោង
+        {/* Editable Project Title Pill */}
+        <div className="flex items-center gap-2 px-2.5 py-1 rounded-xl bg-white/[0.04] border border-white/[0.08] hover:border-red-500/30 hover:bg-red-500/5 transition-all duration-200 group">
+          <Video className="w-3.5 h-3.5 text-red-400 shrink-0" />
+          {isEditingTitle ? (
+            <input
+              type="text"
+              autoFocus
+              value={projectTitle}
+              onChange={(e) => setProjectTitle(e.target.value)}
+              onBlur={() => setIsEditingTitle(false)}
+              onKeyDown={(e) => e.key === 'Enter' && setIsEditingTitle(false)}
+              className="bg-transparent text-xs text-white font-bold outline-none border-b border-red-500 max-w-[140px] sm:max-w-[180px]"
+            />
+          ) : (
+            <span
+              onClick={() => setIsEditingTitle(true)}
+              className="text-xs font-bold text-slate-200 max-w-[120px] sm:max-w-[170px] truncate cursor-pointer hover:text-white"
+              title="ចុចដើម្បីកែឈ្មោះគម្រោង"
+            >
+              {displayTitle}
             </span>
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-200">
-              <span className="max-w-[120px] md:max-w-[150px] truncate font-khmer">
-                {activeProjectTitle ? displayTitle : 'គម្រោងរឿងរបស់ខ្ញុំ'}
-              </span>
-              <ChevronDown className="w-3 h-3 text-zinc-400 shrink-0" />
-            </div>
-          </div>
+          )}
+          <button
+            type="button"
+            onClick={() => setIsEditingTitle(!isEditingTitle)}
+            className="text-slate-500 hover:text-slate-300 transition-colors"
+          >
+            <Edit2 className="w-3 h-3" />
+          </button>
         </div>
 
-        {/* Video Selector (វីដេអូ [ video name or គ្មានវីដេអូ ]) */}
-        <div 
-          onClick={onOpenShelf}
-          className="btn-glass hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:border-emerald-400/50 transition-all text-xs cursor-pointer shadow-sm"
-        >
-          <div className="w-6 h-6 rounded-md overflow-hidden shrink-0 border border-white/10 bg-black/40 flex items-center justify-center">
-            {rawTitle && rawTitle !== 'demo_video_2026' ? (
-              <Video className="w-3.5 h-3.5 text-emerald-400" />
-            ) : (
-              <Video className="w-3.5 h-3.5 text-zinc-500" />
-            )}
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[9px] text-zinc-400 font-bold tracking-wider leading-none font-khmer">
-              វីដេអូ
+        {/* Save Status Indicator */}
+        <div className="hidden lg:flex items-center gap-1.5 text-[11px] font-semibold font-khmer">
+          {isSaving ? (
+            <span className="text-red-400 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+              <span className="animate-pulse">កំពុងរក្សាទុក...</span>
             </span>
-            <div className="flex items-center gap-1 text-[11px] font-mono text-zinc-200">
-              <span className="max-w-[130px] lg:max-w-[160px] truncate">
-                {rawTitle && rawTitle !== 'demo_video_2026' ? (rawTitle.endsWith('.mp4') || rawTitle.endsWith('.mkv') ? displayTitle + '.mp4' : displayTitle) : 'គ្មានវីដេអូ (សូម Upload)'}
-              </span>
-              <ChevronDown className="w-3 h-3 text-zinc-400 shrink-0" />
-            </div>
-          </div>
+          ) : (
+            <span className="text-emerald-400 flex items-center gap-1.5 animate-in fade-in duration-500">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+              <span>បានរក្សាទុក</span>
+            </span>
+          )}
         </div>
 
-        {/* Group Selector (ក្រុម [ ទូទៅ ▼ ]) */}
-        <div 
-          onClick={onOpenGroupManager}
-          className="btn-glass hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-xl hover:border-[#00C2FF]/50 transition-all text-xs cursor-pointer shadow-sm"
-        >
-          <div className="w-6 h-6 rounded-lg bg-[#00C2FF]/10 border border-[#00C2FF]/30 flex items-center justify-center shrink-0">
-            <FolderKanban className="w-3.5 h-3.5 text-[#00C2FF]" />
-          </div>
-          <div className="flex flex-col min-w-0">
-            <span className="text-[9px] text-zinc-400 font-bold tracking-wider leading-none font-khmer">
-              ក្រុម
-            </span>
-            <div className="flex items-center gap-1 text-[11px] font-semibold text-zinc-200">
-              <span className="font-khmer">{activeGroup ? activeGroup.name : 'ទូទៅ'}</span>
-              <ChevronDown className="w-3 h-3 text-zinc-400 shrink-0" />
-            </div>
-          </div>
+        {/* Cloud Sync Status */}
+        <div className="hidden xl:flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-white/[0.04] border border-white/[0.06] text-[10px] text-slate-400 font-khmer">
+          <Cloud className="w-3 h-3 text-amber-400" />
+          <span>ភ្ជាប់ពពក</span>
         </div>
       </div>
 
-      {/* ── Center/Right: Actions & Profile ── */}
-      <div className="flex items-center gap-2 sm:gap-2.5">
-        {/* 🎬 1-CLICK AI CINEMA DUBBING (ស្វ័យប្រវត្តិ ១០០%) */}
-        {onOneClickDubbing && (
+      {/* ── CENTER: Undo, Redo, Auto Save, DRAGON AI Assistant ── */}
+      <div className="flex items-center gap-2">
+        {/* Undo / Redo — Glass pill */}
+        <div className="hidden md:flex items-center gap-0 p-0.5 rounded-xl bg-white/[0.04] border border-white/[0.06]">
           <button
             type="button"
-            onClick={onOneClickDubbing}
-            disabled={isDubbing}
-            className="relative group overflow-hidden flex items-center gap-1.5 sm:gap-2 px-2.5 sm:px-4 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 hover:from-amber-400 hover:via-rose-400 hover:to-indigo-500 text-white font-black text-xs shadow-[0_0_22px_rgba(244,63,94,0.45)] hover:shadow-[0_0_30px_rgba(244,63,94,0.7)] border border-amber-300/40 transition-all duration-300 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
-            title="ចុចតែ 1-Click: ស្ដាប់ & បកប្រែ, លុបសំឡេងដើមទុកតែភ្លេង, បែងចែកតួអង្គ (ប្រុស ស្រី ក្មេង ចាស់ បន្ទាប់បន្សំ), សំឡេង 1:1 និង Clone ពីរឿង, បញ្ចូលសំឡេងខ្មែរ 1% ដល់ 100%"
+            onClick={onUndo}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all duration-150 active:scale-95"
+            title="មិនធ្វើវិញ (Undo: Ctrl+Z)"
           >
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-out" />
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-yellow-300 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-yellow-400" />
-            </span>
-            <Sparkles className="w-3.5 h-3.5 text-yellow-200 animate-spin" style={{ animationDuration: '4s' }} />
-            <span className="hidden sm:inline tracking-wide font-khmer drop-shadow-md">
-              {isDubbing ? `កំពុងដំណើការ ${dubbingProgress}%` : '🎬 1-Click AI ឌាប់រឿង (១០០%)'}
-            </span>
-            <span className="sm:hidden tracking-wide font-khmer drop-shadow-md">
-              {isDubbing ? `${dubbingProgress}%` : '🎬 1-Click'}
-            </span>
+            <RotateCcw className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={onRedo}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/[0.08] transition-all duration-150 active:scale-95"
+            title="ធ្វើឡើងវិញ (Redo: Ctrl+Shift+Z)"
+          >
+            <RotateCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
+
+        {/* Auto Save Toggle */}
+        <button
+          type="button"
+          onClick={() => setAutoSaveEnabled(!autoSaveEnabled)}
+          className={`hidden sm:flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-colors font-khmer ${
+            autoSaveEnabled
+              ? 'bg-white/[0.04] border-amber-500/40 text-amber-400'
+              : 'bg-white/[0.03] border-white/[0.06] text-slate-500'
+          }`}
+          title="បើក/បិទ ការរក្សាទុកស្វ័យប្រវត្តិ"
+        >
+          <span className={`w-1.5 h-1.5 rounded-full ${autoSaveEnabled ? 'bg-amber-400' : 'bg-slate-600'}`} />
+          <span>រក្សាទុកស្វ័យប្រវត្តិ</span>
+        </button>
+
+        {/* 🐲 DRAGON AI Glowing Command Button — Cinematic */}
+        <button
+          type="button"
+          onClick={onOpenAIAssistant}
+          className="relative group overflow-hidden flex items-center gap-2 px-4 py-1.5 rounded-xl font-black text-xs text-white border border-red-500/50 active:scale-95 transition-all duration-200 shrink-0 shadow-[0_0_24px_rgba(220,38,38,0.5)] hover:shadow-[0_0_35px_rgba(220,38,38,0.7)] select-none"
+          style={{ background: 'linear-gradient(135deg, #DC2626, #B91C1C, #F59E0B)' }}
+          title="បើក DRAGON AI — ជំនួយការបញ្ជាស្ទូឌីយោដោយសំឡេង & AI"
+        >
+          {/* Animated light sweep */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-[600ms]" />
+
+          {/* Pulse ring indicator */}
+          <span className="relative flex h-2 w-2 shrink-0">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#F59E0B] opacity-75" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#F59E0B]" />
+          </span>
+
+          <img src="/dragon_logo.png" alt="Dragon" className="w-4 h-4 rounded-sm" />
+          <span className="font-ui tracking-wider drop-shadow-sm font-black">
+            DRAGON AI
+          </span>
+        </button>
+
+        {/* 🚀 Next Version Commercial Roadmap Button */}
+        {onOpenRoadmap && (
+          <button
+            type="button"
+            onClick={onOpenRoadmap}
+            className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/15 hover:bg-red-500/25 border border-red-500/35 text-red-200 hover:text-white text-xs font-bold transition-all active:scale-95 shrink-0 shadow-sm font-khmer"
+            title="មើលមុខងារ Advanced AI Dubbing នឹងមកដល់ក្នុង Version បន្ទាប់"
+          >
+            <Rocket className="w-3.5 h-3.5 text-amber-400 animate-pulse" />
+            <span>🚀 Version បន្ទាប់</span>
+          </button>
+        )}
+      </div>
+
+      {/* ── RIGHT: Search, Preview, Export, Notifications, VIP ── */}
+      <div className="flex items-center gap-2">
+        {/* Light / Dark Mode Toggle */}
+        <div className="hidden sm:block mr-1">
+          <ThemeToggle
+            currentTheme={isDarkMode ? 'dark' : 'light'}
+            onThemeChange={(theme) => onToggleDarkMode?.(theme === 'dark')}
+          />
+        </div>
+
+        {/* Global Quick Search button (Ctrl + K) */}
+        {onOpenSearch && (
+          <button
+            type="button"
+            onClick={onOpenSearch}
+            className="hidden md:flex items-center gap-2 px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-white/[0.06] hover:border-red-500/30 text-slate-400 hover:text-white text-xs transition-all duration-200 group"
+            title="ស្វែងរកបញ្ជា & ឧបករណ៍ (Ctrl + K)"
+          >
+            <Search className="w-3.5 h-3.5 text-red-400 group-hover:text-red-300 transition-colors" />
+            <span className="hidden xl:inline text-[11px]">ស្វែងរក...</span>
+            <kbd className="px-1.5 py-0.5 rounded bg-white/[0.06] border border-white/[0.08] text-[9px] font-mono text-slate-500">Ctrl K</kbd>
           </button>
         )}
 
-        {/* Live Dubbing Progress Pill if active */}
-        {isDubbing && (
-          <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl bg-[#00C2FF]/15 border border-[#00C2FF]/50 text-[#00C2FF] animate-pulse text-xs font-bold shrink-0">
-            <Loader2 className="w-3.5 h-3.5 animate-spin text-[#00C2FF]" />
-            <span className="hidden sm:inline">កំពុងបញ្ចូលសំឡេង... {dubbingProgress}%</span>
-            <span className="sm:hidden">{dubbingProgress}%</span>
-          </div>
+        {/* Preview Button */}
+        {onPreview && (
+          <button
+            type="button"
+            onClick={onPreview}
+            className="hidden sm:flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] hover:border-red-500/30 text-xs font-bold text-slate-300 hover:text-white transition-all duration-200 font-khmer"
+            title="មើលវីដេអូសាកល្បង"
+          >
+            <Play className="w-3.5 h-3.5 text-red-400" />
+            <span>មើលសាកល្បង</span>
+          </button>
         )}
 
-        {/* ⚡ TURBO Button */}
+        {/* Hardware Turbo Status */}
         {onOpenHardwareTurbo && (
           <button
             type="button"
             onClick={onOpenHardwareTurbo}
-            className="btn-glass hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 rounded-xl text-[#00C2FF] hover:text-white font-black text-xs border border-[#00C2FF]/40 hover:border-[#00C2FF]/70 transition-all active:scale-95 shadow-sm shrink-0"
-            title="បង្កើនល្បឿន AI Voice & Rendering តាម GPU / CPU Turbo"
+            className="hidden lg:flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-white/[0.04] border border-amber-500/40 hover:border-amber-400 text-amber-400 text-xs font-bold transition-colors font-khmer"
+            title="GPU Turbo Acceleration"
           >
-            <Zap className="w-3.5 h-3.5 fill-[#00C2FF] text-[#00C2FF]" />
-            <span className="tracking-wide hidden md:inline">TURBO</span>
+            <Zap className="w-3 h-3 fill-amber-400" />
+            <span>⚡ ល្បឿនលឿន</span>
           </button>
         )}
 
-        {/* ❤️ Add Sponsor Button */}
-        {onOpenSponsor && (
+        {/* Hardware Report Button */}
+        {onOpenHardwareReport && (
           <button
             type="button"
-            onClick={onOpenSponsor}
-            className="btn-glass-purple hidden sm:flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl font-bold text-xs active:scale-95 shadow-sm shrink-0"
-            title="គ្រប់គ្រង & បន្ថែម Sponsor (Add Sponsor)"
+            onClick={onOpenHardwareReport}
+            className="hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-xl bg-white/[0.04] border border-red-500/30 hover:border-red-500/60 text-red-400 text-xs transition-colors"
+            title="ស្ថានភាព Hardware"
           >
-            <Heart className="w-3.5 h-3.5 text-purple-300 fill-purple-400/40" />
-            <span className="tracking-wide font-khmer hidden md:inline">Sponsor</span>
+            <Activity className="w-3 h-3" />
           </button>
         )}
 
-        {/* Settings Button */}
-        <button
-          type="button"
-          onClick={onOpenSettings}
-          className="btn-glass p-2 rounded-xl text-zinc-300 hover:text-white hover:border-emerald-400/50 transition-all shadow-sm active:scale-95"
-          title="ការកំណត់ស្ទូឌីយោ (Settings)"
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-
-        {/* Theme Toggle Component with Dropdown */}
-        {onToggleDarkMode && (
-          <ThemeToggle
-            currentTheme={isDarkMode ? 'dark' : 'light'}
-            onThemeChange={(theme) => onToggleDarkMode(theme === 'dark')}
-          />
+        {/* Diagnostics Button */}
+        {onOpenDiagnostics && (
+          <button
+            type="button"
+            onClick={onOpenDiagnostics}
+            className="hidden lg:flex items-center gap-1 px-2 py-1.5 rounded-xl bg-white/[0.04] border border-amber-500/30 hover:border-amber-500/60 text-amber-400 text-xs transition-colors"
+            title="ពិនិត្យប្រព័ន្ធ System"
+          >
+            <Shield className="w-3 h-3" />
+          </button>
         )}
 
-        {/* Notification Bell */}
+        {/* 🔥 Export Button — Enhanced glow */}
+        <div className="shadow-[0_0_16px_rgba(220,38,38,0.35)] hover:shadow-[0_0_24px_rgba(220,38,38,0.55)] rounded-xl transition-shadow duration-200">
+          <DragonButton
+            variant="energy"
+            size="sm"
+            onClick={onOpenExport}
+            icon={<Share2 className="w-3.5 h-3.5" />}
+          >
+            បញ្ចេញវីដេអូ
+          </DragonButton>
+        </div>
+
+        {/* Notifications Bell */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowNotificationMenu(!showNotificationMenu)}
-            className="btn-glass p-2 rounded-xl text-zinc-300 hover:text-white hover:border-emerald-400/50 transition-all shadow-sm active:scale-95"
-            title="ដំណឹងស្ទូឌីយោ (Notifications)"
+            className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] text-slate-400 hover:text-white transition-all duration-150 relative"
+            title="ដំណឹងថ្មីៗ (Notifications)"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-400 ring-2 ring-[#141417] animate-pulse" />
+            {/* Animated dot — bounces when there are notifications */}
+            <span className={`absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-red-500 ring-2 ring-[#100A0C] ${true ? 'animate-bounce' : 'animate-pulse'}`} />
           </button>
 
           {showNotificationMenu && (
             <div
-              className="glass-panel-pro absolute right-0 top-full mt-2 w-72 rounded-2xl shadow-2xl p-3 z-50 text-xs animate-in fade-in"
+              className="absolute right-0 top-full mt-2 w-72 rounded-2xl bg-[#180D11] border border-white/[0.08] shadow-2xl p-3 z-50 text-xs font-khmer animate-in fade-in"
               onMouseLeave={() => setShowNotificationMenu(false)}
             >
-              <div className="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
-                <span className="font-bold text-white font-khmer">ដំណឹងថ្មីៗ (Notifications)</span>
-                <span className="px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 text-[10px] font-bold">
+              <div className="flex items-center justify-between pb-2 border-b border-white/[0.08] mb-2">
+                <span className="font-bold text-white">ដំណឹងស្ទូឌីយោ</span>
+                <span className="px-1.5 py-0.5 rounded-full bg-red-500/20 text-red-300 text-[10px] font-bold">
                   1 ថ្មី
                 </span>
               </div>
-              <div className="p-2.5 rounded-xl bg-white/[0.04] border border-white/5 space-y-1">
-                <div className="flex items-center gap-1.5 text-[#00C2FF] font-bold text-[11px]">
+              <div className="p-2.5 rounded-xl bg-[#0E0608] border border-white/[0.06] space-y-1">
+                <div className="flex items-center gap-1.5 text-red-400 font-bold text-[11px]">
                   <Sparkles className="w-3.5 h-3.5" />
-                  <span className="font-khmer">ស្វាគមន៍មកកាន់ Khmer Dubbing Pro!</span>
+                  <span>ស្វាគមន៍មកកាន់ Dragon Dabber Pro!</span>
                 </div>
-                <p className="text-[10px] text-zinc-300 leading-relaxed font-khmer">
-                  ប្រព័ន្ធបញ្ចូលសំឡេង AI ជំនាន់ថ្មីបានត្រៀមរួចជាស្រេច ជាមួយសំឡេងខ្មែរធម្មជាតិ 100% និង Multitrack Timeline។
+                <p className="text-[10px] text-slate-400 leading-relaxed font-khmer">
+                  ប្រព័ន្ធបញ្ចូលសំឡេង AI ជំនាន់ថ្មីត្រៀមរួចជាស្រេច ជាមួយសំឡេងខ្មែរ Neural 100+ និង Dragon Command Center។
                 </p>
               </div>
             </div>
           )}
         </div>
 
-        {/* Dynamic License Status Badge */}
-        {(() => {
-          const lic = getLicenseInfo(user);
-          return (
-            <button
-              type="button"
-              onClick={onOpenLicenseModal}
-              className={`btn-glass flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all active:scale-95 shadow-sm font-khmer ${
-                lic.isLicensed
-                  ? lic.isLifetime
-                    ? 'btn-glass-amber'
-                    : lic.color === 'amber'
-                    ? 'border-amber-500/50 text-amber-300 animate-pulse'
-                    : 'border-cyan-500/50 text-cyan-300'
-                  : 'btn-glass-danger animate-pulse'
-              }`}
-              title={`កម្រិតអាជ្ញាប័ណ្ណ: ${lic.planLabel} | ផុតកំណត់: ${lic.formattedDate}`}
-            >
-              {lic.isLicensed ? (
-                lic.isLifetime ? (
-                  <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
-                ) : (
-                  <Clock className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                )
-              ) : (
-                <ShieldAlert className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-              )}
-              <span className="tracking-wide">{lic.badgeLabel}</span>
-            </button>
-          );
-        })()}
+        {/* VIP Badge / Upgrade Trigger */}
+        <button
+          type="button"
+          onClick={onOpenVIPModal}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all active:scale-95 shadow-sm font-khmer ${
+            lic.isLifetime
+              ? 'bg-amber-500/20 border-amber-500/50 text-amber-300'
+              : lic.isLicensed
+              ? 'bg-red-500/20 border-red-500/50 text-red-300'
+              : 'bg-red-500/10 border-red-500/30 text-red-400'
+          }`}
+          title="Dragon VIP Plan"
+        >
+          <Crown className="w-3.5 h-3.5 text-amber-400 fill-amber-400 shrink-0" />
+          <span className="hidden sm:inline">{lic.isLifetime ? 'VIP LIFETIME' : lic.badgeLabel}</span>
+        </button>
+
+        {/* Settings Button */}
+        <button
+          type="button"
+          onClick={onOpenSettings}
+          className="p-2 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] text-slate-400 hover:text-white transition-all duration-150"
+          title="ការកំណត់ (Settings)"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
 
         {/* User Profile Avatar & Dropdown */}
         <div className="relative">
           <button
             type="button"
             onClick={() => setShowUserMenu(!showUserMenu)}
-            className="btn-glass flex items-center gap-2 pl-1.5 pr-2.5 py-1 rounded-xl hover:border-[#00C2FF]/50 transition-all text-xs active:scale-95 shadow-sm"
+            className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-xl bg-white/[0.04] hover:bg-white/[0.07] border border-white/[0.06] text-xs transition-all duration-150"
           >
-            <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-cyan-500 to-emerald-400 text-black font-bold text-xs flex items-center justify-center shadow-md">
-              {user?.username ? user.username.slice(0, 1).toUpperCase() : 'A'}
+            {/* Avatar with animated ring */}
+            <div className="w-8 h-8 rounded-xl overflow-hidden ring-2 ring-red-500/30 hover:ring-red-500/60 ring-offset-1 ring-offset-[#100A0C] transition-all cursor-pointer">
+              <div className="w-full h-full bg-gradient-to-tr from-[#DC2626] to-[#F59E0B] text-white font-bold text-xs flex items-center justify-center">
+                {user?.username ? user.username.slice(0, 1).toUpperCase() : 'D'}
+              </div>
             </div>
-            <div className="flex flex-col text-left leading-tight hidden xl:flex">
-              <span className="font-bold text-white text-[11px] truncate max-w-[110px] font-khmer">
-                {user?.username || 'អ្នកប្រើប្រាស់'}
-              </span>
-              <span className="text-[9px] text-[#00C2FF] font-semibold font-khmer">
-                {getLicenseInfo(user).badgeLabel}
-              </span>
-            </div>
-            <ChevronDown className="w-3 h-3 text-zinc-400" />
+            <ChevronDown className="w-3 h-3 text-slate-500" />
           </button>
 
           {showUserMenu && (
             <div
-              className="glass-panel-pro absolute right-0 top-full mt-2 w-64 rounded-2xl shadow-2xl p-2.5 z-50 text-xs animate-in fade-in font-khmer"
+              className="absolute right-0 top-full mt-2 w-64 rounded-2xl bg-[#180D11] border border-white/[0.08] shadow-2xl p-2.5 z-50 text-xs font-khmer animate-in fade-in"
               onMouseLeave={() => setShowUserMenu(false)}
             >
-              {/* User & License Info Header */}
-              {(() => {
-                const lic = getLicenseInfo(user);
-                return (
-                  <div className="p-3 rounded-xl bg-black/40 border border-white/[0.06] mb-2 space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-white text-xs truncate">
-                        {user?.username || 'អ្នកប្រើប្រាស់'}
-                      </span>
-                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        lic.isLicensed ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'
-                      }`}>
-                        {lic.isLicensed ? 'Active' : 'Unlicensed'}
-                      </span>
-                    </div>
-
-                    <div className="text-[11px] text-cyan-300 font-medium">
-                      {lic.planLabel}
-                    </div>
-
-                    <div className="pt-1.5 border-t border-white/[0.06] flex items-center justify-between text-[10px] text-slate-300">
-                      <span>ផុតកំណត់:</span>
-                      <span className="font-bold text-amber-300 font-mono">
-                        {lic.formattedDate}
-                      </span>
-                    </div>
-
-                    {lic.daysLeft !== null && (
-                      <div className="flex items-center justify-between text-[10px] text-slate-300">
-                        <span>រយៈពេលនៅសល់:</span>
-                        <span className="font-bold text-cyan-300">
-                          {lic.daysLeft > 0 ? `${lic.daysLeft} ថ្ងៃ` : `${lic.hoursLeft} ម៉ោង`}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                );
-              })()}
+              <div className="p-3 rounded-xl bg-[#0E0608] border border-white/[0.06] mb-2 space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-white">{user?.username || 'Dragon Creator'}</span>
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#16D9FF]/20 text-[#16D9FF]">
+                    {lic.planLabel}
+                  </span>
+                </div>
+                <div className="text-[10px] text-slate-400">
+                  ផុតកំណត់: <span className="font-mono text-[#00FFA8]">{lic.formattedDate}</span>
+                </div>
+              </div>
 
               {onOpenAdmin && (!user || user?.role === 'admin') && (
                 <button
@@ -495,21 +520,7 @@ export const Header: React.FC<HeaderProps> = ({
                   className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-amber-300 font-semibold transition-colors"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span>ផ្ទាំងគ្រប់គ្រង Admin (License & Users)</span>
-                </button>
-              )}
-
-              {onOpenSponsor && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowUserMenu(false);
-                    onOpenSponsor();
-                  }}
-                  className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-purple-300 font-semibold transition-colors"
-                >
-                  <Heart className="w-3.5 h-3.5 text-purple-400 shrink-0" />
-                  <span>គ្រប់គ្រង Sponsor (Add Sponsor)</span>
+                  <span>Admin Control Center</span>
                 </button>
               )}
 
@@ -517,12 +528,24 @@ export const Header: React.FC<HeaderProps> = ({
                 type="button"
                 onClick={() => {
                   setShowUserMenu(false);
+                  onOpenVIPModal?.();
+                }}
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-[#16D9FF] font-semibold transition-colors"
+              >
+                <Crown className="w-3.5 h-3.5 text-[#16D9FF] shrink-0" />
+                <span>Dragon VIP Membership</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowUserMenu(false);
                   onOpenLicenseModal?.();
                 }}
-                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-cyan-300 font-semibold transition-colors"
+                className="w-full flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-white/[0.06] text-slate-200 font-semibold transition-colors"
               >
-                <Key className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
-                <span>គ្រប់គ្រង / បន្តសុពលភាព License</span>
+                <Key className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span>គ្រប់គ្រង License Key</span>
               </button>
 
               <button

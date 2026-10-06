@@ -121,6 +121,99 @@ class UnifiedDatabase:
             )
         ''')
         
+        # Next Version: Sentence-Level Dialogue Segments
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS dialogue_segments (
+                id TEXT PRIMARY KEY,
+                episode_id TEXT,
+                speaker_id TEXT,
+                character_id TEXT,
+                original_text TEXT,
+                translated_text TEXT,
+                start_time REAL,
+                end_time REAL,
+                duration REAL,
+                confidence REAL DEFAULT 1.0,
+                voice_id TEXT,
+                emotion TEXT DEFAULT 'neutral',
+                speed REAL DEFAULT 1.0,
+                pitch REAL DEFAULT 0.0,
+                audio_path TEXT,
+                status TEXT DEFAULT 'pending',
+                created_at TEXT,
+                updated_at TEXT
+            )
+        ''')
+
+        # Next Version: Character Profiles & Series Memory
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS character_profiles (
+                id TEXT PRIMARY KEY,
+                name TEXT NOT NULL,
+                default_voice_id TEXT,
+                gender TEXT,
+                emotion_style TEXT,
+                avatar_url TEXT,
+                series_memory_key TEXT,
+                created_at TEXT
+            )
+        ''')
+
+        # Next Version: Speaker Detection Profiles
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS speaker_profiles (
+                id TEXT PRIMARY KEY,
+                speaker_label TEXT,
+                detected_pitch REAL,
+                sample_clip_path TEXT,
+                created_at TEXT
+            )
+        ''')
+
+        # Next Version: Multi-Track Audio Stems (Vocals, BGM, SFX, Ambience)
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS audio_stems (
+                id TEXT PRIMARY KEY,
+                video_id TEXT,
+                stem_type TEXT,
+                file_path TEXT,
+                volume REAL DEFAULT 1.0,
+                is_muted INTEGER DEFAULT 0,
+                is_solo INTEGER DEFAULT 0,
+                pan REAL DEFAULT 0.0,
+                created_at TEXT
+            )
+        ''')
+
+        # Next Version: Dynamic Feature Flags & Early Access
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS feature_flags (
+                flag_key TEXT PRIMARY KEY,
+                is_enabled INTEGER DEFAULT 0,
+                plan_level TEXT DEFAULT 'STUDIO',
+                description TEXT,
+                updated_at TEXT
+            )
+        ''')
+
+        # Next Version: Version Roadmap Features
+        cur.execute('''
+            CREATE TABLE IF NOT EXISTS version_features (
+                version TEXT,
+                feature_key TEXT PRIMARY KEY,
+                title TEXT,
+                status TEXT,
+                description TEXT,
+                is_released INTEGER DEFAULT 0
+            )
+        ''')
+
+        # Seed Next Version Feature Flags (advanced_dubbing_v2)
+        cur.execute('''
+            INSERT OR IGNORE INTO feature_flags (flag_key, is_enabled, plan_level, description, updated_at)
+            VALUES ('advanced_dubbing_v2', 0, 'STUDIO', 'Early Access Preview to Next Version Advanced AI Dubbing Engine', datetime('now'))
+        ''')
+
         # Create indexes for performance
         cur.execute('CREATE INDEX IF NOT EXISTS idx_jobs_user ON processing_jobs(user_id)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_jobs_status ON processing_jobs(status)')
@@ -128,10 +221,12 @@ class UnifiedDatabase:
         cur.execute('CREATE INDEX IF NOT EXISTS idx_videos_user ON video_library(user_id)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_history_user ON processing_history(user_id)')
         cur.execute('CREATE INDEX IF NOT EXISTS idx_history_mode ON processing_history(processing_mode)')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_dialogue_episode ON dialogue_segments(episode_id)')
+        cur.execute('CREATE INDEX IF NOT EXISTS idx_stems_video ON audio_stems(video_id)')
         
         conn.commit()
         conn.close()
-        logger.info("✅ Unified database initialized successfully")
+        logger.info("✅ Unified database & Next Version tables initialized successfully")
     
     # ==========================================
     # PROCESSING JOBS (Unified for all 3 modes)

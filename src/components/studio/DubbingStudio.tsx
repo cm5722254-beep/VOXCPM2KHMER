@@ -120,6 +120,7 @@ interface DubbingStudioProps {
   onSelectGroup?: (groupId: string) => void;
   onOpenGroupManager?: () => void;
   onOneClickDubbing?: () => void;
+  onOpenRoadmap?: () => void;
 }
 
 export const DubbingStudio: React.FC<DubbingStudioProps> = ({
@@ -182,6 +183,7 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   onSelectGroup,
   onOpenGroupManager,
   onOneClickDubbing,
+  onOpenRoadmap,
 }) => {
   const activeCharacters = characters && characters.length > 0 ? characters : CURATED_CHARACTER_VOICES;
   const [currentTime, setCurrentTime] = useState(0);
@@ -616,23 +618,22 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full overflow-hidden bg-[#121214] text-slate-100 select-none font-sans">
-      {/* ── Feature Toolbar (Section 5) ── */}
+    <div className="flex flex-col h-full overflow-hidden bg-slate-50 dark:bg-[#080608] text-slate-800 dark:text-white select-none font-khmer">
       <FeatureToolbar
         activeFeature={activeFeature}
         onSelectFeature={handleSelectFeature}
-        masterVolume={masterVolume}
-        onChangeMasterVolume={setMasterVolume}
+        masterVolume={100}
+        onChangeMasterVolume={() => {}}
         onOneClickDubbing={onOneClickDubbing}
         isDubbing={isDubbing}
-        dubbingProgress={dubbingProgress}
+        dubbingProgress={0}
       />
 
       {/* ── Main Studio Workstation: Left Video Preview + Right AI Dubbing Panel ── */}
-      <div className="studio-workspace flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden p-2 sm:p-3 gap-2 sm:gap-3 bg-[#121214]">
-        {/* Left: Video Preview Panel (Section 6) */}
+      <div className="studio-workspace flex-1 flex flex-col lg:flex-row min-h-0 overflow-y-auto lg:overflow-hidden p-2 sm:p-3 gap-2 sm:gap-3 bg-slate-50 dark:bg-[#080608]">
+        {/* Left: Video Preview Panel */}
         <div 
-          className="min-w-0 flex flex-col rounded-2xl bg-[#18181C] border border-white/[0.08] shadow-[0_0_30px_rgba(0,0,0,0.8)] overflow-hidden relative h-[250px] sm:h-[320px] md:h-[380px] lg:h-auto shrink-0 lg:shrink"
+          className="min-w-0 flex flex-col rounded-2xl bg-white dark:bg-[#120A0D] border border-slate-200 dark:border-[#3D161F] shadow-[0_0_30px_rgba(0,0,0,0.9)] overflow-hidden relative h-[250px] sm:h-[320px] md:h-[380px] lg:h-auto shrink-0 lg:shrink"
           style={typeof window !== 'undefined' && window.innerWidth >= 1024 ? { flex: isDialoguePanelCollapsed ? '1 1 auto' : `0 0 ${previewWidth}%` } : undefined}
         >
           <VideoPreview
@@ -668,8 +669,8 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
 
         {/* Resizer Handle */}
         <div
-          className={`hidden lg:flex w-2.5 items-center justify-center cursor-col-resize hover:bg-cyan-500/20 rounded transition-colors group ${
-            isResizingPreview ? 'bg-cyan-500/30' : ''
+          className={`hidden lg:flex w-2.5 items-center justify-center cursor-col-resize hover:bg-blue-50 dark:bg-red-500/20 rounded transition-colors group ${
+            isResizingPreview ? 'bg-red-500/30' : ''
           }`}
           onPointerDown={(e) => {
             e.preventDefault();
@@ -680,13 +681,13 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
           onPointerUp={() => setIsResizingPreview(false)}
           onPointerCancel={() => setIsResizingPreview(false)}
           onDoubleClick={() => setPreviewWidth(38)}
-          title="Drag to resize panels"
+          title="អូសដើម្បីផ្លាស់ប្តូរទំហំផ្ទាំង"
         >
-          <div className="w-1 h-8 rounded-full bg-slate-700 group-hover:bg-cyan-400 transition-colors" />
+          <div className="w-1 h-8 rounded-full bg-slate-700 group-hover:bg-red-400 transition-colors" />
         </div>
 
-        {/* Right: Main AI Dubbing Panel (Section 7) */}
-        <div className="flex-1 flex flex-col min-w-0 min-h-0 rounded-xl bg-[#181818] border border-white/[0.08] shadow-md overflow-hidden">
+        {/* Right: Main AI Dubbing Panel */}
+        <div className="flex-1 flex flex-col min-w-0 min-h-0 rounded-2xl bg-white dark:bg-[#120A0D] border border-slate-200 dark:border-[#3D161F] shadow-xl overflow-hidden">
           <AIDubbingPanel
             segments={segments}
             onChangeSegments={onChangeSegments}
@@ -712,12 +713,13 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
             isTranslatingAll={isTranslatingAll || Boolean(isScanningTimeline)}
             onAssemble={onAssemble}
             onOneClickDubbing={onOneClickDubbing}
+            onOpenRoadmap={onOpenRoadmap}
           />
         </div>
       </div>
 
-      {/* ── Bottom: Multitrack Timeline (Section 11) ── */}
-      <div className={`border-t border-[rgba(100,180,255,0.15)] bg-[#07111F] shrink-0 transition-all duration-200 overflow-hidden ${
+      {/* ── Bottom: Multitrack Timeline ── */}
+      <div className={`border-t border-slate-200 dark:border-[#3D161F] bg-slate-100 dark:bg-[#0E070A] shrink-0 transition-all duration-200 overflow-hidden ${
         timelineHeight === 'expanded' ? 'h-[300px]' : timelineHeight === 'compact' ? 'h-[120px]' : 'h-[210px] sm:h-[230px]'
       }`}>
         <MultiTrackTimeline
@@ -883,7 +885,7 @@ export const DubbingStudio: React.FC<DubbingStudioProps> = ({
           onClick={() => setShowEffectsDrawer(false)}
         >
           <div
-            className="bg-[#0b0f19] border border-cyan-500/30 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,240,255,0.25)]"
+            className="bg-white dark:bg-[#0b0f19] border border-cyan-500/30 rounded-2xl w-full max-w-5xl max-h-[92vh] flex flex-col overflow-hidden relative shadow-[0_0_50px_rgba(0,240,255,0.25)]"
             onClick={(e) => e.stopPropagation()}
           >
             <VideoEffectsPanel

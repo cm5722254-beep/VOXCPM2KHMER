@@ -286,10 +286,10 @@ export const TranslationDesk: React.FC<TranslationProps> = ({
                 boxShadow: '0 0 14px rgba(124,58,237,0.5)',
               }}
             >
-              <Languages className="w-4 h-4 text-white" />
+              <Languages className="w-4 h-4 text-slate-800 dark:text-white" />
             </div>
             <div>
-              <p className="text-[11px] font-black tracking-[0.18em] text-white leading-none">
+              <p className="text-[11px] font-black tracking-[0.18em] text-slate-800 dark:text-white leading-none">
                 TRANSLATION DESK
               </p>
               <p className="text-[9px] tracking-widest text-purple-400/80 font-mono mt-0.5">
@@ -381,10 +381,10 @@ export const TranslationDesk: React.FC<TranslationProps> = ({
             borderBottom: '1px solid rgba(255,255,255,0.05)',
           }}
         >
-          <StatPill icon={<Hash className="w-3 h-3 text-amber-400" />} label="Lines" value={parsedSegments.length > 0 ? `${parsedSegments.length}` : `${sourceText.split('\n').filter(Boolean).length}`} />
+          <StatPill icon={<Hash className="w-3 h-3 text-sky-600 dark:text-amber-400" />} label="Lines" value={parsedSegments.length > 0 ? `${parsedSegments.length}` : `${sourceText.split('\n').filter(Boolean).length}`} />
           <StatPill icon={<Clock className="w-3 h-3 text-sky-400" />} label="Dub Time" value={dubbingTime} />
           <StatPill icon={<BarChart2 className="w-3 h-3 text-purple-400" />} label="KH Words" value={`${khWordCount}`} />
-          <StatPill icon={<FileText className="w-3 h-3 text-emerald-400" />} label="Words" value={`${wordCount}`} />
+          <StatPill icon={<FileText className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />} label="Words" value={`${wordCount}`} />
           <StatPill icon={<Languages className="w-3 h-3 text-rose-400" />} label="Chars" value={`${charCount}`} />
           {parsedSegments.length > 0 && (
             <span
@@ -463,7 +463,7 @@ const StatPill: React.FC<{ icon: React.ReactNode; label: string; value: string }
   <div className="flex items-center gap-1.5">
     {icon}
     <span className="text-[10px] text-slate-500">{label}</span>
-    <span className="text-[11px] font-bold text-slate-300">{value}</span>
+    <span className="text-[11px] font-bold text-slate-600 dark:text-slate-300">{value}</span>
   </div>
 );
 
@@ -527,7 +527,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
             border: '1px solid rgba(99,102,241,0.18)',
           }}
         >
-          <label className="text-xs font-bold text-slate-200 flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
             <span className="text-base">👥</span>
             <User className="w-3.5 h-3.5 text-sky-400" />
             <span>Character Relationships</span>
@@ -537,7 +537,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
             value={characterRelationships}
             onChange={(e) => setCharacterRelationships(e.target.value)}
             placeholder="e.g.  👑 បង/អូន,  ⚔️ ឯង/អញ,  💼 ខ្ញុំ/លោក …"
-            className="w-full rounded-xl px-3 py-2 text-xs text-slate-200 outline-none transition-all"
+            className="w-full rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 outline-none transition-all"
             style={{
               background: 'rgba(7,9,14,0.8)',
               border: '1px solid rgba(255,255,255,0.07)',
@@ -558,7 +558,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
             border: '1px solid rgba(168,85,247,0.18)',
           }}
         >
-          <label className="text-xs font-bold text-slate-200 flex items-center gap-2">
+          <label className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-2">
             <span className="text-base">🎭</span>
             <Heart className="w-3.5 h-3.5 text-rose-400" />
             <span>Story Context & Emotion</span>
@@ -568,7 +568,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
             value={storyContext}
             onChange={(e) => setStoryContext(e.target.value)}
             placeholder="e.g.  🏯 រឿងចិនបុរាណ,  💔 ស្នេហា / ក្បត់ចិត្ត,  ⚔️ ច្បាំងក្រៅ…"
-            className="w-full rounded-xl px-3 py-2 text-xs text-slate-200 outline-none transition-all"
+            className="w-full rounded-xl px-3 py-2 text-xs text-slate-700 dark:text-slate-200 outline-none transition-all"
             style={{
               background: 'rgba(7,9,14,0.8)',
               border: '1px solid rgba(255,255,255,0.07)',
@@ -598,7 +598,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
             }}
           >
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                 <Languages className="w-4 h-4 text-sky-400" />
                 Source Text
               </span>
@@ -630,7 +630,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
               {sourceText && (
                 <button
                   onClick={() => setSourceText('')}
-                  className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+                  className="p-1 rounded-lg hover:bg-white/[0.06] text-slate-500 hover:text-slate-600 dark:text-slate-300 transition-colors cursor-pointer"
                   title="Clear"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -647,7 +647,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
               borderBottom: '1px solid rgba(255,255,255,0.05)',
             }}
           >
-            <span className="text-[10px] text-amber-400/80 flex items-center gap-1 mr-1 shrink-0">
+            <span className="text-[10px] text-sky-600 dark:text-amber-400/80 flex items-center gap-1 mr-1 shrink-0">
               <MessageSquare className="w-3 h-3" />
               Particles:
             </span>
@@ -719,7 +719,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
               value={sourceText}
               onChange={(e) => setSourceText(e.target.value)}
               placeholder={`SRT / Dialogue / Script\n\n1\n00:01:00,000 --> 00:01:01,500\n你竟敢背叛我！\n\n2\n00:01:01,600 --> 00:01:03,000\n今天你必须死！`}
-              className="flex-1 w-full p-3.5 text-xs text-slate-200 placeholder-slate-600 outline-none resize-none"
+              className="flex-1 w-full p-3.5 text-xs text-slate-700 dark:text-slate-200 placeholder-slate-600 outline-none resize-none"
               style={{
                 background: 'transparent',
                 fontFamily: 'monospace',
@@ -742,7 +742,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
               borderBottom: '1px solid rgba(168,85,247,0.12)',
             }}
           >
-            <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+            <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
               <Sparkles className="w-4 h-4 text-purple-400" />
               Khmer Translation
             </span>
@@ -758,7 +758,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
                       color: '#fbbf24',
                     }}
                   >
-                    {copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                    {copied ? <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" /> : <Copy className="w-3 h-3" />}
                     {copied ? 'Copied!' : 'Copy SRT'}
                   </button>
                   <button
@@ -809,7 +809,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
               <textarea
                 value={srtResult}
                 onChange={(e) => setSrtResult(e.target.value)}
-                className="w-full p-3 text-xs text-slate-300 outline-none resize-none"
+                className="w-full p-3 text-xs text-slate-600 dark:text-slate-300 outline-none resize-none"
                 style={{
                   background: 'rgba(0,0,0,0.3)',
                   fontFamily: 'monospace',
@@ -828,7 +828,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
         <button
           onClick={onExpertTranslate}
           disabled={isLoading || (!sourceText.trim() && segments.length === 0)}
-          className="relative flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-extrabold text-sm text-white transition-all overflow-hidden cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          className="relative flex items-center justify-center gap-3 px-10 py-4 rounded-2xl font-extrabold text-sm text-slate-800 dark:text-white transition-all overflow-hidden cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           style={
             isLoading
               ? { ...shimmerStyle, animation: 'shimmer 1.8s ease-in-out infinite', minWidth: 320, animationName: 'shimmer pulseGlow' }
@@ -912,7 +912,7 @@ const ExpertMode: React.FC<ExpertModeProps> = ({
                       : 'timecode'}
                   </span>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-                    <span className="text-xs text-slate-400 truncate">{seg.chinese_text || '—'}</span>
+                    <span className="text-xs text-slate-500 dark:text-slate-400 truncate">{seg.chinese_text || '—'}</span>
                     <span className="text-xs font-medium truncate" style={{ color: '#c4b5fd' }}>
                       {seg.khmer_translation || '—'}
                     </span>
@@ -1055,7 +1055,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
             className="flex items-center justify-between px-4 py-2"
             style={{ borderBottom: '1px solid rgba(255,255,255,0.05)', background: 'rgba(255,255,255,0.02)' }}
           >
-            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
               <Languages className="w-3.5 h-3.5 text-sky-400" />
               {LANGUAGE_OPTIONS.find((l) => l.code === sourceLang)?.flag}{' '}
               {LANGUAGE_OPTIONS.find((l) => l.code === sourceLang)?.label}
@@ -1066,7 +1066,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
             value={quickSource}
             onChange={(e) => setQuickSource(e.target.value)}
             placeholder="Paste or type source text here…"
-            className="flex-1 w-full p-4 text-sm text-slate-200 placeholder-slate-600 outline-none resize-none"
+            className="flex-1 w-full p-4 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-600 outline-none resize-none"
             style={{ background: 'transparent', lineHeight: 1.7, minHeight: 280 }}
           />
         </div>
@@ -1083,7 +1083,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
               background: 'rgba(168,85,247,0.04)',
             }}
           >
-            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+            <span className="text-xs font-semibold text-slate-600 dark:text-slate-300 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
               🇰🇭 Khmer Translation
             </span>
@@ -1107,7 +1107,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
             value={quickTarget}
             onChange={(e) => setQuickTarget(e.target.value)}
             placeholder="Khmer translation will appear here…"
-            className="flex-1 w-full p-4 text-sm text-slate-200 placeholder-slate-600 outline-none resize-none"
+            className="flex-1 w-full p-4 text-sm text-slate-700 dark:text-slate-200 placeholder-slate-600 outline-none resize-none"
             style={{ background: 'transparent', lineHeight: 1.7, minHeight: 280 }}
           />
 
@@ -1117,7 +1117,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
               className="px-3 py-2 flex items-center gap-1 flex-wrap"
               style={{ borderTop: '1px solid rgba(255,255,255,0.05)', background: 'rgba(0,0,0,0.2)' }}
             >
-              <span className="text-[10px] text-amber-400/70 mr-1">Insert:</span>
+              <span className="text-[10px] text-sky-600 dark:text-amber-400/70 mr-1">Insert:</span>
               {SPOKEN_PARTICLES.map((p) => (
                 <button
                   key={p}
@@ -1144,7 +1144,7 @@ const QuickMode: React.FC<QuickModeProps> = ({
         <button
           onClick={onQuickTranslate}
           disabled={quickLoading || !quickSource.trim()}
-          className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm text-white transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-40"
+          className="flex items-center gap-2 px-8 py-3 rounded-2xl font-bold text-sm text-slate-800 dark:text-white transition-all hover:scale-[1.02] active:scale-[0.98] cursor-pointer disabled:opacity-40"
           style={{
             background: quickLoading
               ? 'linear-gradient(90deg, #0ea5e9, #6366f1, #0ea5e9)'

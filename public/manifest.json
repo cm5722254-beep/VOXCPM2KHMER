@@ -1,12 +1,12 @@
 {
-  "name": "Cheatz Dabber - Khmer Neural Studio",
-  "short_name": "CheatzDabber",
-  "description": "កម្មវិធីបញ្ចូលសំឡេងភាពយន្តខ្មែរ AI Neural សម្រាប់ទូរស័ព្ទ Android",
+  "name": "Dragon Dabber Pro - AI Khmer Dubbing Studio",
+  "short_name": "Dragon Dabber",
+  "description": "Professional AI Khmer Dubbing Studio & Anime / Donghua Localization Platform",
   "start_url": "/mobile.html",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#070a12",
-  "theme_color": "#0f172a",
+  "background_color": "#111820",
+  "theme_color": "#10b981",
   "icons": [
     {
       "src": "/app_icon.ico",

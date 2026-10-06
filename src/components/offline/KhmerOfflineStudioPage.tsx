@@ -185,19 +185,19 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
   return (
     <div className="flex-1 flex flex-col h-full overflow-hidden bg-transparent select-none font-khmer">
       {/* ── Top Header Bar (Clean, Single Line) ── */}
-      <div className="h-14 px-5 bg-[#080b13]/90 backdrop-blur-xl border-b border-white/[0.08] flex items-center justify-between gap-4 z-20 shrink-0">
+      <div className="h-14 px-5 bg-white dark:bg-[#080b13]/90 backdrop-blur-xl border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between gap-4 z-20 shrink-0">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
-            <Flame className="w-4 h-4 text-emerald-400 animate-pulse" />
+          <div className="w-8 h-8 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+            <Flame className="w-4 h-4 text-emerald-600 dark:text-emerald-400 animate-pulse" />
           </div>
           <div className="flex items-center gap-2">
-            <h1 className="text-sm font-black text-white tracking-wide">
+            <h1 className="text-sm font-black text-slate-800 dark:text-white tracking-wide">
               KHMER OFFLINE STUDIO
             </h1>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold">
               ១ ដល់ ២០ ភាគ
             </span>
-            <span className="hidden md:inline text-[10px] text-slate-400 bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/[0.06]">
+            <span className="hidden md:inline text-[10px] text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-white/[0.04] px-2 py-0.5 rounded-md border border-white/[0.06]">
               ⚡ ដំណើរការលើ CPU/GPU កុំព្យូទ័រផ្ទាល់ខ្លួន (មិនអស់ថ្លៃ Cloud)
             </span>
           </div>
@@ -217,7 +217,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
 
           <button
             onClick={() => onOpenTimelineStudio()}
-            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/[0.1] text-slate-800 dark:text-white text-xs font-bold transition-all active:scale-95 shadow-sm"
           >
             <Film className="w-3.5 h-3.5 text-cyan-400" />
             <span>ស្ទូឌីយោ Timeline ➔</span>
@@ -228,12 +228,12 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
       {/* ── Main 2-Column Workstation Layout (Neat, Organized, Zero Clutter) ── */}
       <div className="flex-1 flex flex-col lg:flex-row overflow-hidden p-3 sm:p-5 gap-4">
         {/* ── Left Column: Video Queue Manager (70% width) ── */}
-        <div className="flex-1 flex flex-col bg-[#090d16]/85 backdrop-blur-2xl border border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl min-w-0">
+        <div className="flex-1 flex flex-col bg-white dark:bg-[#090d16]/85 backdrop-blur-2xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] rounded-2xl overflow-hidden shadow-2xl min-w-0">
           {/* Queue Header & Actions */}
-          <div className="p-3 px-4 bg-[#0c1220]/70 border-b border-white/[0.08] flex flex-wrap items-center justify-between gap-2.5 shrink-0">
+          <div className="p-3 px-4 bg-white dark:bg-[#0c1220]/70 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-wrap items-center justify-between gap-2.5 shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-white flex items-center gap-1.5">
-                <FileVideo className="w-4 h-4 text-emerald-400" />
+              <span className="text-xs font-bold text-slate-800 dark:text-white flex items-center gap-1.5">
+                <FileVideo className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                 <span>បញ្ជីវីដេអូរឿងភាគ (Video Queue)</span>
               </span>
               <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
@@ -246,16 +246,16 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                 <>
                   <button
                     onClick={() => handleSelectAll(selectedCount < episodes.length)}
-                    className="flex items-center gap-1 text-[11px] text-slate-300 hover:text-white px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] transition-colors"
+                    className="flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:text-white px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
                   >
                     {selectedCount === episodes.length ? (
                       <>
-                        <Square className="w-3.5 h-3.5 text-slate-400" />
+                        <Square className="w-3.5 h-3.5 text-slate-500 dark:text-slate-400" />
                         <span>ដោះជ្រើស</span>
                       </>
                     ) : (
                       <>
-                        <CheckSquare className="w-3.5 h-3.5 text-emerald-400" />
+                        <CheckSquare className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                         <span>ជ្រើសទាំងអស់</span>
                       </>
                     )}
@@ -289,9 +289,9 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
               {episodes.length === 0 && (
                 <button
                   onClick={handleLoadSample20Episodes}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 text-xs font-semibold border border-white/[0.1] transition-all"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-700 dark:text-slate-200 text-xs font-semibold border border-white/[0.1] transition-all"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  <Sparkles className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
                   <span>ដាក់គំរូ ២០ ភាគ</span>
                 </button>
               )}
@@ -306,13 +306,13 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                 onClick={() => fileInputRef.current?.click()}
                 className="flex-1 min-h-[300px] border-2 border-dashed border-white/[0.12] hover:border-emerald-500/50 rounded-2xl flex flex-col items-center justify-center p-8 text-center cursor-pointer transition-all bg-white/[0.01] hover:bg-emerald-500/[0.03] group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400 mb-3 transition-transform group-hover:scale-110 shadow-lg shadow-emerald-500/10">
+                <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 group-hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 transition-transform group-hover:scale-110 shadow-lg shadow-emerald-500/10">
                   <Upload className="w-6 h-6" />
                 </div>
-                <h3 className="text-sm font-bold text-white mb-1">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white mb-1">
                   ចុចទីនេះដើម្បីជ្រើសរើសវីដេអូ (១ ដល់ ២០ ភាគ)
                 </h3>
-                <p className="text-xs text-slate-400 max-w-sm mb-4">
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-sm mb-4">
                   គាំទ្រ File វីដេអូ MP4, MKV, MOV, TS កម្រិតច្បាស់ Full HD / 2K / 4K
                 </p>
                 <div className="flex items-center gap-2">
@@ -325,7 +325,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                       e.stopPropagation();
                       handleLoadSample20Episodes();
                     }}
-                    className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-200 text-xs font-semibold border border-white/[0.1]"
+                    className="px-4 py-2 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] text-slate-700 dark:text-slate-200 text-xs font-semibold border border-white/[0.1]"
                   >
                     ✨ ផ្ទុកគំរូ ២០ ភាគសាកល្បង
                   </button>
@@ -347,10 +347,10 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                     <button
                       type="button"
                       onClick={() => toggleSelectEpisode(ep.id)}
-                      className="text-slate-400 hover:text-emerald-400 transition-colors shrink-0"
+                      className="text-slate-500 dark:text-slate-400 hover:text-emerald-600 dark:text-emerald-400 transition-colors shrink-0"
                     >
                       {ep.isSelected ? (
-                        <CheckSquare className="w-4 h-4 text-emerald-400" />
+                        <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                       ) : (
                         <Square className="w-4 h-4" />
                       )}
@@ -363,10 +363,10 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
 
                     {/* Title and Info */}
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-bold text-white truncate">
+                      <div className="text-xs font-bold text-slate-800 dark:text-white truncate">
                         {ep.title}
                       </div>
-                      <div className="flex items-center gap-2 text-[10px] text-slate-400 font-mono mt-0.5">
+                      <div className="flex items-center gap-2 text-[10px] text-slate-500 dark:text-slate-400 font-mono mt-0.5">
                         <span>{ep.filename}</span>
                         <span>•</span>
                         <span>{ep.duration || '22:30'}</span>
@@ -384,7 +384,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                   <div className="flex items-center gap-1.5 shrink-0">
                     <button
                       onClick={() => onOpenTimelineStudio(ep.url, ep.filename)}
-                      className="px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.08] text-cyan-300 hover:text-cyan-200 text-[11px] font-semibold flex items-center gap-1 transition-all"
+                      className="px-2.5 py-1 rounded-lg bg-slate-100 dark:bg-white/[0.04] hover:bg-slate-200 dark:bg-white/[0.08] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-cyan-300 hover:text-cyan-200 text-[11px] font-semibold flex items-center gap-1 transition-all"
                       title="បើកចាក់មើលក្នុងស្ទូឌីយោ Timeline"
                     >
                       <Film className="w-3 h-3 text-cyan-400" />
@@ -408,22 +408,22 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
         {/* ── Right Column: Studio Controls & Turbo Settings (30% width) ── */}
         <div className="w-full lg:w-[340px] flex flex-col gap-3.5 shrink-0">
           {/* Card 1: Mode Selector (Episodes vs Full Movie) */}
-          <div className="p-4 rounded-2xl bg-[#090d16]/85 backdrop-blur-2xl border border-white/[0.08] flex flex-col gap-2.5 shadow-xl">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#090d16]/85 backdrop-blur-2xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                 <Tv className="w-4 h-4 text-cyan-400" />
                 <span>ទម្រង់បញ្ចេញ (Output Mode)</span>
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-1.5 bg-[#060911] p-1 rounded-xl border border-white/[0.06]">
+            <div className="grid grid-cols-2 gap-1.5 bg-white dark:bg-[#060911] p-1 rounded-xl border border-white/[0.06]">
               <button
                 type="button"
                 onClick={() => onChangeConfig({ ...config, mode: 'episodes' })}
                 className={`py-2 px-2.5 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition-all ${
                   config.mode === 'episodes'
                     ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                 }`}
               >
                 <span>ភាគដាច់ដោយឡែក</span>
@@ -436,7 +436,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                 className={`py-2 px-2.5 rounded-lg text-xs font-bold flex flex-col items-center gap-0.5 transition-all ${
                   config.mode === 'full_movie'
                     ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 shadow-sm'
-                    : 'text-slate-400 hover:text-white'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                 }`}
               >
                 <span>ភ្ជាប់ជារឿងពេញ</span>
@@ -446,9 +446,9 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
           </div>
 
           {/* Card 2: Hardware Turbo Threads */}
-          <div className="p-4 rounded-2xl bg-[#090d16]/85 backdrop-blur-2xl border border-white/[0.08] flex flex-col gap-2.5 shadow-xl">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#090d16]/85 backdrop-blur-2xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-2.5 shadow-xl">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 dark:text-slate-200 flex items-center gap-1.5">
                 <Cpu className="w-4 h-4 text-purple-400" />
                 <span>កម្លាំង Hardware Multi-Threads</span>
               </span>
@@ -457,7 +457,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
               </span>
             </div>
 
-            <div className="grid grid-cols-4 gap-1 bg-[#060911] p-1 rounded-xl border border-white/[0.06] text-center">
+            <div className="grid grid-cols-4 gap-1 bg-white dark:bg-[#060911] p-1 rounded-xl border border-white/[0.06] text-center">
               {[
                 { threads: 2, label: '2x', desc: 'PC ទូទៅ' },
                 { threads: 4, label: '4x', desc: 'Core i5' },
@@ -470,8 +470,8 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                   onClick={() => onChangeConfig({ ...config, turboThreads: t.threads })}
                   className={`py-1.5 px-1 rounded-lg text-xs font-bold flex flex-col items-center transition-all ${
                     config.turboThreads === t.threads
-                      ? 'bg-purple-500 text-white shadow-sm'
-                      : 'text-slate-400 hover:text-white hover:bg-white/[0.04]'
+                      ? 'bg-purple-500 text-slate-800 dark:text-white shadow-sm'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white hover:bg-slate-100 dark:bg-white/[0.04]'
                   }`}
                 >
                   <span>{t.label}</span>
@@ -482,22 +482,22 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
           </div>
 
           {/* Card 3: Batch Summary & Start Action Button */}
-          <div className="p-4 rounded-2xl bg-[#090d16]/85 backdrop-blur-2xl border border-white/[0.08] flex flex-col gap-3 shadow-xl mt-auto">
-            <div className="space-y-1.5 text-xs text-slate-300">
+          <div className="p-4 rounded-2xl bg-white dark:bg-[#090d16]/85 backdrop-blur-2xl border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex flex-col gap-3 shadow-xl mt-auto">
+            <div className="space-y-1.5 text-xs text-slate-600 dark:text-slate-300">
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">ចំនួនភាគជ្រើសរើស:</span>
+                <span className="text-slate-500 dark:text-slate-400">ចំនួនភាគជ្រើសរើស:</span>
                 <span className="font-bold text-emerald-300 font-mono">
                   {selectedCount} / {episodes.length} ភាគ
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">ទម្រង់ Output:</span>
-                <span className="font-bold text-white">
+                <span className="text-slate-500 dark:text-slate-400">ទម្រង់ Output:</span>
+                <span className="font-bold text-slate-800 dark:text-white">
                   {config.mode === 'full_movie' ? '🎬 រឿងពេញ (Full Movie)' : '📺 ភាគរៀងខ្លួន'}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-slate-400">ម៉ាស៊ីន AI Dubbing:</span>
+                <span className="text-slate-500 dark:text-slate-400">ម៉ាស៊ីន AI Dubbing:</span>
                 <span className="font-semibold text-cyan-300">
                   ⚡ Khmer Edge TTS (Offline)
                 </span>
@@ -517,7 +517,7 @@ export const KhmerOfflineStudioPage: React.FC<KhmerOfflineStudioPageProps> = ({
                     style={{ width: `${progress}%` }}
                   />
                 </div>
-                {message && <p className="text-[11px] text-slate-400 truncate">{message}</p>}
+                {message && <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">{message}</p>}
               </div>
             )}
 

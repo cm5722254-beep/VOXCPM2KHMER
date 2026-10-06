@@ -241,7 +241,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
         >
           {/* Avatar */}
           <div
-            className="w-12 h-12 rounded-2xl flex items-center justify-center text-white font-bold text-sm transition-transform group-hover:scale-105"
+            className="w-12 h-12 rounded-2xl flex items-center justify-center text-slate-800 dark:text-white font-bold text-sm transition-transform group-hover:scale-105"
             style={{
               background: `linear-gradient(135deg, ${avatarColor}ee, ${avatarColor}99)`,
               boxShadow: isSelected ? `0 0 0 2px ${avatarColor}, 0 0 16px ${avatarColor}66` : 'none',
@@ -254,7 +254,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 className="absolute -top-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center"
                 style={{ background: '#10b981' }}
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-slate-800 dark:text-white" />
               </div>
             )}
           </div>
@@ -290,7 +290,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
               : 'bg-white hover:bg-slate-50 border border-slate-200 hover:border-emerald-400 shadow-sm hover:shadow-md'
             : isSelected
             ? 'bg-gradient-to-b from-[#052e1c] to-[#18181C] border-2 border-emerald-400 shadow-2xl shadow-emerald-500/20'
-            : 'bg-[#18181C] hover:bg-[#1e1e24] border border-white/[0.08] hover:border-emerald-500/50 shadow-md'
+            : 'bg-white dark:bg-[#18181C] hover:bg-white dark:bg-[#1e1e24] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] hover:border-emerald-500/50 shadow-md'
         }`}
       >
         {/* Selected glow top bar */}
@@ -307,7 +307,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             className="absolute top-3 right-3 w-6 h-6 rounded-full flex items-center justify-center z-10"
             style={{ background: '#10b981', boxShadow: '0 0 10px #10b98188' }}
           >
-            <CheckCircle2 className="w-4 h-4 text-white" />
+            <CheckCircle2 className="w-4 h-4 text-slate-800 dark:text-white" />
           </div>
         )}
 
@@ -322,11 +322,11 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
               className="w-12 h-12 rounded-2xl flex items-center justify-center"
               style={{ background: '#ef444422', border: '1.5px solid #ef444455' }}
             >
-              <AlertTriangle className="w-6 h-6 text-red-400" />
+              <AlertTriangle className="w-6 h-6 text-blue-600 dark:text-red-400" />
             </div>
             <div className="text-center">
-              <p className="text-sm font-bold text-white">លុបសំឡេងនេះ?</p>
-              <p className="text-xs text-zinc-400 mt-1 leading-snug">
+              <p className="text-sm font-bold text-slate-800 dark:text-white">លុបសំឡេងនេះ?</p>
+              <p className="text-xs text-slate-600 dark:text-zinc-400 mt-1 leading-snug">
                 "{char.label}" នឹងត្រូវបានលុបចោលជារៀងរហូត
               </p>
             </div>
@@ -337,7 +337,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                   e.stopPropagation();
                   setDeleteConfirmId(null);
                 }}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-zinc-300 transition-colors"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-slate-700 dark:text-zinc-300 transition-colors"
                 style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.1)' }}
               >
                 បោះបង់
@@ -348,7 +348,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                   e.stopPropagation();
                   handleDeleteConfirm(char);
                 }}
-                className="px-4 py-1.5 rounded-xl text-xs font-bold text-white transition-all bg-gradient-to-r from-red-600 to-rose-600 shadow-md"
+                className="px-4 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white transition-all bg-gradient-to-r from-red-600 to-rose-600 shadow-md"
               >
                 លុបភ្លាម
               </button>
@@ -360,7 +360,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
         <div className="flex items-start gap-3 p-4 pb-2">
           {/* Avatar */}
           <div
-            className="w-12 h-12 rounded-xl flex items-center justify-center text-white font-black text-sm shrink-0 shadow-md"
+            className="w-12 h-12 rounded-xl flex items-center justify-center text-slate-800 dark:text-white font-black text-sm shrink-0 shadow-md"
             style={{
               background: `linear-gradient(135deg, ${avatarColor}, ${avatarColor}99)`,
               border: `1.5px solid ${avatarColor}66`,
@@ -372,7 +372,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
           <div className="flex-1 min-w-0 pt-0.5">
             <h4
               className={`text-sm font-black truncate leading-tight pr-6 ${
-                isLight ? 'text-slate-900' : 'text-white'
+                isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'
               }`}
             >
               {char.label || char.filename}
@@ -395,7 +395,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                   className={`text-[10px] font-semibold px-2 py-0.5 rounded-full ${
                     isLight
                       ? 'bg-slate-100 text-slate-700 border border-slate-200'
-                      : 'bg-white/5 text-zinc-300 border border-white/10'
+                      : 'bg-white/5 text-slate-700 dark:text-zinc-300 border border-white/10'
                   }`}
                 >
                   {char.role_key}
@@ -419,7 +419,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             className={`text-xs leading-relaxed line-clamp-2 px-3 py-2 rounded-xl italic font-medium ${
               isLight
                 ? 'bg-slate-100 text-slate-700 border border-slate-200'
-                : 'bg-black/30 text-slate-300 border border-white/5'
+                : 'bg-black/30 text-slate-600 dark:text-slate-300 border border-white/5'
             }`}
           >
             "{char.words || 'សំឡេងគំរូក្នុងស្ទូឌីយោ'}"
@@ -438,7 +438,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             onClick={(e) => handlePlayPreview(e, char)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
               isPlaying
-                ? 'bg-cyan-500 text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] animate-pulse'
+                ? 'bg-cyan-500 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(6,182,212,0.6)] animate-pulse'
                 : isLight
                 ? 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300'
                 : 'bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/40'
@@ -498,8 +498,8 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 }}
                 className={`p-1.5 rounded-xl transition-all ${
                   isLight
-                    ? 'hover:bg-red-50 text-red-500 border border-transparent hover:border-red-200'
-                    : 'hover:bg-red-500/20 text-red-400 border border-transparent hover:border-red-500/30'
+                    ? 'hover:bg-red-50 text-blue-700 dark:text-red-500 border border-transparent hover:border-red-200'
+                    : 'hover:bg-blue-50 dark:bg-red-500/20 text-blue-600 dark:text-red-400 border border-transparent hover:border-red-500/30'
                 }`}
                 title="[Admin] លុបសំឡេង"
               >
@@ -517,10 +517,10 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 }}
                 className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm active:scale-95 ${
                   isSelected
-                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-emerald-500/30'
+                    ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-800 dark:text-white shadow-emerald-500/30'
                     : isLight
-                    ? 'bg-slate-200 text-slate-800 hover:bg-emerald-500 hover:text-white'
-                    : 'bg-white/10 text-white hover:bg-emerald-500/80'
+                    ? 'bg-slate-200 text-slate-800 hover:bg-emerald-500 hover:text-slate-800 dark:text-white'
+                    : 'bg-white/10 text-slate-800 dark:text-white hover:bg-emerald-500/80'
                 }`}
               >
                 {isSelected ? '✓ Active' : 'ជ្រើស'}
@@ -535,7 +535,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
   return (
     <div
       className={`flex-1 overflow-y-auto flex flex-col select-none font-khmer transition-colors duration-200 ${
-        isLight ? 'bg-[#f8fafc] text-slate-900' : 'bg-[#0d0d10] text-slate-100'
+        isLight ? 'bg-[#f8fafc] text-slate-900' : 'bg-white dark:bg-[#0d0d10] text-slate-800 dark:text-slate-100'
       }`}
     >
       {/* ── Persistent DOM-attached Audio Element (Guarantees zero-block audio playback) ── */}
@@ -580,7 +580,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 className="w-8 h-8 rounded-xl flex items-center justify-center"
                 style={{ background: 'linear-gradient(135deg, #34d399, #059669)', boxShadow: '0 4px 14px #34d39944' }}
               >
-                <Mic2 className="w-4.5 h-4.5 text-white" style={{ width: 18, height: 18 }} />
+                <Mic2 className="w-4.5 h-4.5 text-slate-800 dark:text-white" style={{ width: 18, height: 18 }} />
               </div>
               <h1
                 className="text-xl font-extrabold tracking-tight font-sans"
@@ -605,7 +605,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 </span>
               )}
             </div>
-            <p className={`text-xs mb-3 font-medium ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+            <p className={`text-xs mb-3 font-medium ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
               គ្រប់គ្រងសំឡេងតួអង្គខ្មែរ — AI Clone ផ្ទាល់ខ្លួន
             </p>
 
@@ -652,7 +652,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             {/* ✂️ AI Voice Extractor from Video/MP3 */}
             <button
               onClick={() => setIsExtractorOpen(true)}
-              className="group flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white transition-all bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 shadow-[0_4px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_6px_28px_rgba(99,102,241,0.55)] hover:-translate-y-0.5 active:translate-y-0 border border-white/20"
+              className="group flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 dark:text-white transition-all bg-gradient-to-r from-violet-600 via-indigo-600 to-cyan-500 shadow-[0_4px_20px_rgba(99,102,241,0.35)] hover:shadow-[0_6px_28px_rgba(99,102,241,0.55)] hover:-translate-y-0.5 active:translate-y-0 border border-white/20"
               title="កាត់យកសំឡេងតួអង្គពី Video ឬ MP3 ភ្លាមៗ (AI Vocal Extraction)"
             >
               <span className="w-5 h-5 rounded-full bg-white/20 flex items-center justify-center shrink-0">
@@ -664,7 +664,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             {/* Add Voice CTA */}
             <button
               onClick={onOpenAddModal}
-              className="group flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-white transition-all active:scale-95 shadow-md"
+              className="group flex items-center gap-2 px-5 py-2.5 rounded-2xl text-xs sm:text-sm font-bold text-slate-800 dark:text-white transition-all active:scale-95 shadow-md"
               style={{
                 background: 'linear-gradient(135deg, #34d399, #059669)',
                 boxShadow: '0 4px 20px rgba(52,211,153,0.35)',
@@ -683,13 +683,13 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
         ════════════════════════════════════════ */}
         <div
           className={`rounded-2xl p-5 flex flex-col gap-4 border transition-colors ${
-            isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#18181C] border-white/10'
+            isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-white dark:bg-[#18181C] border-white/10'
           }`}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full animate-pulse bg-emerald-500" />
-              <h3 className={`text-xs font-bold uppercase tracking-widest ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <h3 className={`text-xs font-bold uppercase tracking-widest ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
                 ជម្រើសម៉ាស៊ីន Voice Cloning
               </h3>
             </div>
@@ -712,7 +712,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                     : 'bg-gradient-to-br from-[#052e1c] to-[#1a2e1c] border-emerald-400 shadow-[0_0_24px_rgba(52,211,153,0.15)]'
                   : isLight
                   ? 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                  : 'bg-[#141417] border-white/5 hover:border-white/15'
+                  : 'bg-slate-100 dark:bg-[#141417] border-white/5 hover:border-white/15'
               }`}
             >
               {activeEngine === 'voxcpm_computer' && (
@@ -729,7 +729,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                         ? 'bg-emerald-500/20 border-emerald-500/40'
                         : isLight
                         ? 'bg-slate-200 border-slate-300'
-                        : 'bg-[#1e293b] border-white/10'
+                        : 'bg-white dark:bg-[#1e293b] border-white/10'
                     }`}
                   >
                     <Cpu className="w-5 h-5 text-emerald-500" />
@@ -738,7 +738,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                     <span className="text-[10px] font-mono font-bold text-emerald-600 block">
                       OPTION 1
                     </span>
-                    <h4 className={`text-sm font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    <h4 className={`text-sm font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
                       VOXCPM2 COMPUTER
                     </h4>
                   </div>
@@ -752,7 +752,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                   </span>
                 )}
               </div>
-              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
                 🖥️ កុំព្យូទ័រផ្ទាល់ខ្លួន (RTX / CPU) — Offline 100% មិនបាច់ប្រើ Internet
               </p>
             </div>
@@ -767,7 +767,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                     : 'bg-gradient-to-br from-[#0f0c29] to-[#1a1a3e] border-indigo-400 shadow-[0_0_24px_rgba(129,140,248,0.15)]'
                   : isLight
                   ? 'bg-slate-50 border-slate-200 hover:border-slate-300'
-                  : 'bg-[#141417] border-white/5 hover:border-white/15'
+                  : 'bg-slate-100 dark:bg-[#141417] border-white/5 hover:border-white/15'
               }`}
             >
               {activeEngine === 'voxcpm_claude' && (
@@ -784,7 +784,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                         ? 'bg-indigo-500/20 border-indigo-500/40'
                         : isLight
                         ? 'bg-slate-200 border-slate-300'
-                        : 'bg-[#1e293b] border-white/10'
+                        : 'bg-white dark:bg-[#1e293b] border-white/10'
                     }`}
                   >
                     <Cloud className="w-5 h-5 text-indigo-500" />
@@ -793,7 +793,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                     <span className="text-[10px] font-mono font-bold text-indigo-600 block">
                       OPTION 2
                     </span>
-                    <h4 className={`text-sm font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-white'}`}>
+                    <h4 className={`text-sm font-bold leading-tight ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
                       VOXCPM2 CLOUD
                     </h4>
                   </div>
@@ -823,7 +823,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                   )}
                 </div>
               </div>
-              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+              <p className={`text-xs leading-relaxed ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
                 ☁️ Google Colab / Kaggle T4 & A100 — Cloudflare Tunnel — Free GPU
               </p>
             </div>
@@ -836,12 +836,12 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
         {recentVoices.length > 0 && (
           <div
             className={`rounded-2xl p-4 flex flex-col gap-3 border transition-colors ${
-              isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#18181C] border-white/10'
+              isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-white dark:bg-[#18181C] border-white/10'
             }`}
           >
             <div className="flex items-center gap-2">
               <Clock className="w-3.5 h-3.5 text-indigo-500" />
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <h3 className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
                 សំឡេងប្រើថ្មីៗ (Recently Used)
               </h3>
             </div>
@@ -861,7 +861,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
           <div className="relative">
             <Search
               className={`absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 ${
-                isLight ? 'text-slate-400' : 'text-zinc-500'
+                isLight ? 'text-slate-500 dark:text-slate-400' : 'text-zinc-500'
               }`}
             />
             <input
@@ -872,7 +872,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
               className={`w-full outline-none text-sm rounded-full pl-11 pr-11 py-2.5 transition-all font-medium ${
                 isLight
                   ? 'bg-white text-slate-900 placeholder-slate-400 border border-slate-300 focus:border-emerald-500 shadow-sm'
-                  : 'bg-[#18181C] text-slate-100 placeholder-zinc-500 border border-white/10 focus:border-emerald-400'
+                  : 'bg-white dark:bg-[#18181C] text-slate-800 dark:text-slate-100 placeholder-zinc-500 border border-white/10 focus:border-emerald-400'
               }`}
             />
             {search && (
@@ -919,7 +919,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
               })}
 
               {(search || genderFilter !== 'all') && (
-                <span className={`text-xs font-medium ml-1 ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+                <span className={`text-xs font-medium ml-1 ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
                   {filtered.length} លទ្ធផល
                 </span>
               )}
@@ -944,7 +944,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 <button
                   type="button"
                   onClick={onOpenAddModal}
-                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 transition-all shadow-sm active:scale-95"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold text-slate-800 dark:text-white bg-gradient-to-r from-emerald-500 to-teal-600 hover:brightness-110 transition-all shadow-sm active:scale-95"
                 >
                   <PlusCircle style={{ width: 13, height: 13 }} />
                   <span>+ បន្ថែមសំឡេង</span>
@@ -967,7 +967,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
           /* Empty State */
           <div
             className={`flex flex-col items-center justify-center py-16 px-6 rounded-2xl text-center border-2 border-dashed ${
-              isLight ? 'bg-white border-slate-200' : 'bg-[#18181C] border-white/10'
+              isLight ? 'bg-white border-slate-200' : 'bg-white dark:bg-[#18181C] border-white/10'
             }`}
           >
             <div
@@ -979,10 +979,10 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             >
               <Mic2 style={{ width: 36, height: 36, color: '#10b981' }} />
             </div>
-            <h3 className={`text-base font-bold mb-1 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            <h3 className={`text-base font-bold mb-1 ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
               {search || genderFilter !== 'all' ? 'រកមិនឃើញ' : 'មិនទាន់មានសំឡេង'}
             </h3>
-            <p className={`text-xs mb-5 leading-relaxed max-w-xs ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+            <p className={`text-xs mb-5 leading-relaxed max-w-xs ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
               {search
                 ? `រកមិនឃើញសំឡេងដែលត្រូវនឹង "${search}"`
                 : genderFilter !== 'all'
@@ -998,7 +998,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 className={`px-4 py-2 rounded-xl text-xs font-bold transition-all border ${
                   isLight
                     ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border-slate-300'
-                    : 'bg-white/10 hover:bg-white/20 text-zinc-300 border-white/10'
+                    : 'bg-white/10 hover:bg-white/20 text-slate-700 dark:text-zinc-300 border-white/10'
                 }`}
               >
                 សម្អាតការស្វែងរក (Clear Filters)
@@ -1006,7 +1006,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
             ) : (
               <button
                 onClick={onOpenAddModal}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-white transition-all shadow-md bg-gradient-to-r from-emerald-500 to-teal-600"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-bold text-slate-800 dark:text-white transition-all shadow-md bg-gradient-to-r from-emerald-500 to-teal-600"
               >
                 <PlusCircle style={{ width: 16, height: 16 }} />
                 + បន្ថែមសំឡេងថ្មី
@@ -1021,12 +1021,12 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
         {totalVoices > 0 && (
           <div
             className={`rounded-2xl p-4 flex flex-col gap-3 border transition-colors ${
-              isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-[#18181C] border-white/10'
+              isLight ? 'bg-white border-slate-200 shadow-sm' : 'bg-white dark:bg-[#18181C] border-white/10'
             }`}
           >
             <div className="flex items-center gap-2">
               <BarChart3 style={{ width: 14, height: 14, color: '#818cf8' }} />
-              <h3 className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              <h3 className={`text-xs font-bold uppercase tracking-wider ${isLight ? 'text-slate-900' : 'text-slate-800 dark:text-white'}`}>
                 Voice Statistics
               </h3>
             </div>
@@ -1044,19 +1044,19 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
                 >
                   {totalVoices}
                 </div>
-                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-600 dark:text-zinc-400'}`}>
                   Total Voices
                 </div>
               </div>
               <div>
                 <div className="text-2xl font-black text-blue-500">{maleCount}</div>
-                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-600 dark:text-zinc-400'}`}>
                   ប្រុស (Male)
                 </div>
               </div>
               <div>
                 <div className="text-2xl font-black text-pink-500">{femaleCount}</div>
-                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-zinc-400'}`}>
+                <div className={`text-[10px] font-semibold mt-0.5 ${isLight ? 'text-slate-500' : 'text-slate-600 dark:text-zinc-400'}`}>
                   ស្រី (Female)
                 </div>
               </div>
@@ -1064,7 +1064,7 @@ export const CharacterLibrary: React.FC<CharacterLibraryProps> = ({
 
             {/* Progress bar breakdown */}
             <div>
-              <div className={`flex justify-between text-[10px] font-bold mb-1.5 ${isLight ? 'text-slate-600' : 'text-zinc-400'}`}>
+              <div className={`flex justify-between text-[10px] font-bold mb-1.5 ${isLight ? 'text-slate-600' : 'text-slate-600 dark:text-zinc-400'}`}>
                 <span>♂ ប្រុស {malePct}%</span>
                 <span>{femalePct}% ស្រី ♀</span>
               </div>

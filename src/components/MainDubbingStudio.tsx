@@ -44,13 +44,13 @@ export default function MainDubbingStudio() {
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="brand-logo">
-              <Film className="w-4 h-4 text-white" />
+              <Film className="w-4 h-4 text-slate-800 dark:text-white" />
             </div>
             <div>
               <h1 className="text-lg md:text-xl font-bold gradient-text">
                 ATITEBDABBERPRO
               </h1>
-              <p className="text-xs text-slate-400 hidden sm:block">
+              <p className="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
                 AI Khmer Dubbing Studio V2.2PRO
               </p>
             </div>
@@ -110,12 +110,12 @@ export default function MainDubbingStudio() {
                 <GlassCard className="p-6 md:p-8 space-y-6">
                   <div className="text-center">
                     <div className="w-16 h-16 md:w-20 md:h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 flex items-center justify-center">
-                      <Upload className="w-8 h-8 md:w-10 md:h-10 text-white" />
+                      <Upload className="w-8 h-8 md:w-10 md:h-10 text-slate-800 dark:text-white" />
                     </div>
                     <h2 className="text-xl md:text-2xl font-bold gradient-text mb-2">
                       ដាក់វីដេអូចូល
                     </h2>
-                    <p className="text-sm text-slate-400 mb-6">
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">
                       ជ្រើសរើសវីដេអូដើម្បីចាប់ផ្តើមបកប្រែ
                     </p>
                   </div>
@@ -139,12 +139,12 @@ export default function MainDubbingStudio() {
                   {videoFile && (
                     <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 animate-scale-in">
                       <div className="flex items-center gap-3">
-                        <Film className="w-5 h-5 text-emerald-400 flex-shrink-0" />
+                        <Film className="w-5 h-5 text-emerald-600 dark:text-emerald-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-semibold text-slate-200 truncate">
+                          <p className="text-sm font-semibold text-slate-700 dark:text-slate-200 truncate">
                             {videoFile.name}
                           </p>
-                          <p className="text-xs text-slate-400">
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
                             {(videoFile.size / (1024 * 1024)).toFixed(2)} MB
                           </p>
                         </div>
@@ -183,7 +183,7 @@ export default function MainDubbingStudio() {
                   <h3 className="text-lg font-bold gradient-text">ព័ត៌មានតួអង្គ</h3>
                   <div className="space-y-3">
                     <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
-                      <p className="text-sm text-slate-300">
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
                         ✅ ស្កេនតួអង្គស្វ័យប្រវត្តិ
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -191,7 +191,7 @@ export default function MainDubbingStudio() {
                       </p>
                     </div>
                     <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
-                      <p className="text-sm text-slate-300">
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
                         ✅ រៀបចំសំឡេងដោយស្វ័យប្រវត្តិ
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -199,7 +199,7 @@ export default function MainDubbingStudio() {
                       </p>
                     </div>
                     <div className="p-3 rounded-lg bg-violet-500/5 border border-violet-500/20">
-                      <p className="text-sm text-slate-300">
+                      <p className="text-sm text-slate-600 dark:text-slate-300">
                         ✅ គ្រប់ភេទ: ប្រុស ស្រី ក្មេង ចាស់
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
@@ -225,21 +225,21 @@ export default function MainDubbingStudio() {
                   
                   <div className="space-y-3">
                     <div className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30">
-                      <span className="text-sm text-slate-300">សំឡេងបកប្រែ</span>
-                      <span className="text-sm font-bold text-emerald-400">
+                      <span className="text-sm text-slate-600 dark:text-slate-300">សំឡេងបកប្រែ</span>
+                      <span className="text-sm font-bold text-emerald-600 dark:text-emerald-400">
                         {audioSettings?.dubbedVoiceVolume || 100}%
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30">
-                      <span className="text-sm text-slate-300">សំឡេងដើម</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-300">សំឡេងដើម</span>
                       <span className={`text-sm font-bold ${audioSettings?.originalVoiceEnabled ? 'text-sky-400' : 'text-slate-500'}`}>
                         {audioSettings?.originalVoiceEnabled ? `${audioSettings.originalVoiceVolume}%` : 'បិទ'}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between p-3 rounded-lg bg-slate-700/30">
-                      <span className="text-sm text-slate-300">BGM</span>
+                      <span className="text-sm text-slate-600 dark:text-slate-300">BGM</span>
                       <span className={`text-sm font-bold ${audioSettings?.bgmEnabled ? 'text-violet-400' : 'text-slate-500'}`}>
                         {audioSettings?.bgmEnabled ? `${audioSettings.bgmVolume}%` : 'បិទ'}
                       </span>
@@ -247,7 +247,7 @@ export default function MainDubbingStudio() {
                   </div>
 
                   <div className="pt-4 border-t border-white/5">
-                    <p className="text-xs text-slate-400 text-center">
+                    <p className="text-xs text-slate-500 dark:text-slate-400 text-center">
                       រៀបចំ Audio Mixer តាមតម្រូវការរបស់អ្នក
                     </p>
                   </div>
@@ -280,8 +280,8 @@ export default function MainDubbingStudio() {
                   <span className="text-xl">⚡</span>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400">Mode</p>
-                  <p className="text-sm font-bold text-slate-200">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Mode</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
                     {processingMode === 'local_voxcpm' ? 'Local CPU' :
                      processingMode === 'cloud_gpu' ? 'Cloud GPU' : 'Pure Khmer'}
                   </p>
@@ -295,8 +295,8 @@ export default function MainDubbingStudio() {
                   <span className="text-xl">🎬</span>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400">Status</p>
-                  <p className="text-sm font-bold text-slate-200">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Status</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">
                     {videoFile ? 'រួចរាល់' : 'រង់ចាំ'}
                   </p>
                 </div>
@@ -309,8 +309,8 @@ export default function MainDubbingStudio() {
                   <span className="text-xl">🎯</span>
                 </div>
                 <div>
-                  <p className="text-xs text-slate-400">Quality</p>
-                  <p className="text-sm font-bold text-slate-200">Professional</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">Quality</p>
+                  <p className="text-sm font-bold text-slate-700 dark:text-slate-200">Professional</p>
                 </div>
               </div>
             </GlassCard>

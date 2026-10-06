@@ -168,7 +168,7 @@ export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
                   key={f}
                   onClick={() => setFilter(f as any)}
                   className={`px-3 py-1 rounded-md text-xs font-bold capitalize transition-all ${
-                    filter === f ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
+                    filter === f ? 'bg-white dark:bg-white/10 text-slate-900 dark:text-white shadow-2xs' : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-700 dark:text-slate-200'
                   }`}
                 >
                   {f}
@@ -220,7 +220,7 @@ export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
                       className={`flex-1 py-2 rounded-lg text-xs font-bold transition-all ${
                         isActiveForChar 
                           ? 'bg-sky-100 dark:bg-sky-500/20 text-sky-800 dark:text-sky-300 border border-sky-300 dark:border-sky-500/30 font-black' 
-                          : 'bg-indigo-600 hover:bg-indigo-500 text-white'
+                          : 'bg-indigo-600 hover:bg-indigo-500 text-slate-800 dark:text-white'
                       }`}
                     >
                       {isActiveForChar ? 'បានជ្រើសរើស' : 'ជ្រើសរើស'}
@@ -273,7 +273,7 @@ export const Step4VoiceCasting: React.FC<Step4VoiceCastingProps> = ({
           
           <button
             onClick={onNext}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-white shadow-lg shadow-sky-500/25"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95 bg-gradient-to-r from-sky-600 to-indigo-600 hover:brightness-110 text-slate-800 dark:text-white shadow-lg shadow-sky-500/25"
           >
             <span>បន្តទៅមុខ</span>
             <ChevronRight className="w-4 h-4" />

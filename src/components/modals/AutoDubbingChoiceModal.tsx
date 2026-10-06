@@ -124,7 +124,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
       />
 
       {/* Main Glass Modal Window */}
-      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden glass-panel-pro border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.8)] z-10 text-slate-100">
+      <div className="relative w-full max-w-2xl max-h-[90vh] flex flex-col rounded-3xl overflow-hidden glass-panel-pro border border-white/15 shadow-[0_25px_60px_rgba(0,0,0,0.8)] z-10 text-slate-800 dark:text-slate-100">
         
         {/* Modal Header */}
         <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between shrink-0 bg-white/[0.02]">
@@ -135,17 +135,17 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
               </div>
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-black text-white tracking-wide">
+              <h2 className="text-base sm:text-lg font-black text-slate-800 dark:text-white tracking-wide">
                 🎬 1-Click AI ឌាប់រឿង (AI Auto Dubbing Studio)
               </h2>
-              <p className="text-xs text-zinc-400 font-medium">
+              <p className="text-xs text-slate-600 dark:text-zinc-400 font-medium">
                 ជ្រើសរើសរបៀបចាត់តាំងសំឡេងតួអង្គ និងជម្រើសឌាប់រឿង
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="btn-glass p-2 rounded-xl text-zinc-400 hover:text-white transition-all active:scale-95"
+            className="btn-glass p-2 rounded-xl text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white transition-all active:scale-95"
             title="បិទ (Close)"
           >
             <X className="w-4 h-4" />
@@ -158,11 +158,11 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
           {/* ── SECTION 1: 2 Main Dubbing Choices ── */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span className="text-xs font-bold text-slate-700 dark:text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
                 <span className="w-2 h-2 rounded-full bg-cyan-400 inline-block animate-pulse" />
                 សូមជ្រើសរើសជម្រើសសំឡេង (Voice Mode):
               </span>
-              <span className="text-[11px] text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
+              <span className="text-[11px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">
                 🔒 ១ តួអង្គ = ១ សំឡេង (គ្មានការជាន់គ្នា)
               </span>
             </div>
@@ -193,26 +193,26 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-black text-white">
+                    <h3 className="text-sm font-black text-slate-800 dark:text-white">
                       🎙️ Clone ពីសំឡេងរឿងដើម
                     </h3>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                       Movie Cloned
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-300 leading-relaxed">
+                  <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed">
                     AI ស្ដាប់ និងកាត់សំឡេងដើមរបស់តួអង្គក្នុងរឿងផ្ទាល់ ១០០% (Vocal Isolation & Timbre Clone)។
                   </p>
                 </div>
 
-                <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1 text-[11px] text-zinc-400">
+                <div className="mt-3 pt-3 border-t border-white/10 flex flex-col gap-1 text-[11px] text-slate-600 dark:text-zinc-400">
                   <span className="flex items-center gap-1 text-cyan-300 font-semibold">
                     ✓ ស្រង់សំឡេងតួប្រុស តួស្រី តួក្មេង តួចាស់ ពីរឿងផ្ទាល់
                   </span>
-                  <span className="flex items-center gap-1 text-zinc-400">
+                  <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                     ✓ រក្សាទឹកដម & អារម្មណ៍ដើមរបស់តួអង្គ
                   </span>
-                  <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
                     ✓ ១ តួអង្គ = ១ សំឡេង Clone ពីរឿង (មិនជាន់គ្នា)
                   </span>
                 </div>
@@ -242,14 +242,14 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h3 className="text-sm font-black text-white">
+                    <h3 className="text-sm font-black text-slate-800 dark:text-white">
                       🎭 Voice Character ក្នុង Tool
                     </h3>
                     <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
                       Auto Fallback
                     </span>
                   </div>
-                  <p className="text-xs text-zinc-300 leading-relaxed">
+                  <p className="text-xs text-slate-700 dark:text-zinc-300 leading-relaxed">
                     ប្រើសំឡេង Voice Character ខ្មែរដែលមានក្នុង Tool (៣៨+ សំឡេង Voice Actors: តួឯកប្រុស, ស្រី, កំប្លែង, ចាស់, ក្មេង...)។
                   </p>
                 </div>
@@ -258,10 +258,10 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
                   <span className="flex items-center gap-1 text-amber-300 font-semibold">
                     ⭐ បើខ្វះសំឡេងតួ Auto Clone ពីរឿងដើមមកបំពេញបន្ថែម
                   </span>
-                  <span className="flex items-center gap-1 text-emerald-400 font-bold">
+                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-bold">
                     🔒 តួមួយប្រើបានតែមួយសំឡេង ហាមជាន់គ្នាដាច់ខាត!
                   </span>
-                  <span className="flex items-center gap-1 text-zinc-400">
+                  <span className="flex items-center gap-1 text-slate-600 dark:text-zinc-400">
                     ✓ សំឡេងខ្មែរ 48kHz ច្បាស់កម្រិតរោងកុន
                   </span>
                 </div>
@@ -284,7 +284,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     !isMultiEpisode
                       ? 'bg-cyan-500 text-black shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   ១ ភាគបច្ចុប្បន្ន
@@ -299,8 +299,8 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
                   }}
                   className={`px-3 py-1 rounded-lg text-xs font-bold transition-all ${
                     isMultiEpisode
-                      ? 'bg-purple-500 text-white shadow-sm'
-                      : 'text-zinc-400 hover:text-white'
+                      ? 'bg-purple-500 text-slate-800 dark:text-white shadow-sm'
+                      : 'text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white'
                   }`}
                 >
                   🎬 ដល់ ១០ ភាគ (Batch)
@@ -312,8 +312,8 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
             {isMultiEpisode && (
               <div className="space-y-2 pt-2 border-t border-white/5 animate-in fade-in">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-zinc-400">
-                    ជ្រើសរើសភាគដែលត្រូវឌាប់រឿង (ជ្រើសបាន <strong className="text-white">{selectedFilenames.length}</strong> / {Math.min(10, availableEpisodes.length)} ភាគ):
+                  <span className="text-slate-600 dark:text-zinc-400">
+                    ជ្រើសរើសភាគដែលត្រូវឌាប់រឿង (ជ្រើសបាន <strong className="text-slate-800 dark:text-white">{selectedFilenames.length}</strong> / {Math.min(10, availableEpisodes.length)} ភាគ):
                   </span>
                   <button
                     type="button"
@@ -334,7 +334,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
                         className={`flex items-center gap-2 p-2 rounded-xl cursor-pointer border text-xs transition-all ${
                           isChecked
                             ? 'bg-cyan-500/10 border-cyan-400/40 text-cyan-200'
-                            : 'bg-white/[0.02] border-white/5 text-zinc-400 hover:bg-white/[0.05]'
+                            : 'bg-white/[0.02] border-white/5 text-slate-600 dark:text-zinc-400 hover:bg-white/[0.05]'
                         }`}
                       >
                         <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 border ${
@@ -356,7 +356,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
 
           {/* ── SECTION 3: Performance & Anti-Freeze Guarantee ── */}
           <div className="p-3.5 rounded-2xl bg-emerald-500/[0.07] border border-emerald-500/20 flex items-start gap-3 text-xs">
-            <Cpu className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+            <Cpu className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <div className="flex items-center gap-2 font-bold text-emerald-300">
                 <span>🛡️ ប្រព័ន្ធការពារកុំព្យូទ័រមិនឱ្យគាំង (Sequential Safe Mode)</span>
@@ -364,7 +364,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
                   Active
                 </span>
               </div>
-              <p className="text-[11px] text-zinc-300 leading-relaxed">
+              <p className="text-[11px] text-slate-700 dark:text-zinc-300 leading-relaxed">
                 ដំណើរការម្តងមួយ Step យ៉ាងលឿន និងរលូន (Extract → Vocal Strip ទុកភ្លេង → Detect តួអង្គ & Lock សំឡេង 1:1 → Synthesis → Audio Remux) ដោយគ្រប់គ្រង RAM/GPU មិនឱ្យកើនកម្តៅ ឬគាំងម៉ាស៊ីនឡើយ។
               </p>
             </div>
@@ -377,7 +377,7 @@ export const AutoDubbingChoiceModal: React.FC<AutoDubbingChoiceModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="btn-glass px-4 py-2 rounded-xl text-xs font-bold text-zinc-400 hover:text-white transition-all active:scale-95"
+            className="btn-glass px-4 py-2 rounded-xl text-xs font-bold text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white transition-all active:scale-95"
           >
             បោះបង់ (Cancel)
           </button>

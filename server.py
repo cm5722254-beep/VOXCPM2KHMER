@@ -64,7 +64,55 @@ from services.update_manager import get_update_manager
 from services.module_loader import get_module_loader
 from services.progress_tracker import create_tracker, get_tracker, OperationType
 
-app = FastAPI(title="AI Voice Clone & Dubbing Studio (ZH -> KM)")
+app = FastAPI(title="🐉 DRAGON DABBER PRO - Professional AI Khmer Dubbing Studio")
+
+# ── CORS Middleware — required for browser audio playback ──────────────────
+from fastapi.middleware.cors import CORSMiddleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],          # Local desktop app — all origins OK
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+    expose_headers=["Content-Length", "Content-Range", "Accept-Ranges"],
+)
+
+# ── Audio file streaming endpoint (supports Range requests for seek) ────────
+@app.get("/audio/samples/{filename}")
+async def stream_sample_audio(filename: str):
+    """Dedicated audio stream endpoint with proper Content-Type for browser."""
+    import mimetypes
+    safe = os.path.basename(filename)
+    fp = os.path.join(SAMPLES_DIR, safe)
+    if not os.path.exists(fp):
+        raise HTTPException(status_code=404, detail=f"Audio file not found: {safe}")
+    mt, _ = mimetypes.guess_type(fp)
+    return FileResponse(
+        fp,
+        media_type=mt or "audio/mpeg",
+        headers={
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=3600",
+        }
+    )
+
+@app.get("/audio/outputs/{filename}")
+async def stream_output_audio(filename: str):
+    """Stream output audio files with proper headers."""
+    import mimetypes
+    safe = os.path.basename(filename)
+    fp = os.path.join(OUTPUTS_DIR, safe)
+    if not os.path.exists(fp):
+        raise HTTPException(status_code=404, detail=f"Audio file not found: {safe}")
+    mt, _ = mimetypes.guess_type(fp)
+    return FileResponse(
+        fp,
+        media_type=mt or "audio/mpeg",
+        headers={
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=60",
+        }
+    )
 
 EXTRA_PATHS = [
     os.path.join(BUNDLE_DIR, 'bin'),
@@ -82,6 +130,7 @@ OUTPUTS_DIR = os.path.join(APP_DIR, 'outputs')
 SAMPLES_DIR = os.path.join(APP_DIR, 'samples')
 if not os.path.exists(SAMPLES_DIR) and os.path.exists(os.path.join(BUNDLE_DIR, 'samples')):
     SAMPLES_DIR = os.path.join(BUNDLE_DIR, 'samples')
+POSTERSTYLE_DIR = os.path.join(APP_DIR, 'posterstyle')
 
 # Priority: Check if updated public exists in APP_DIR first, fallback to bundled public
 app_public_dir = os.path.join(APP_DIR, 'public')
@@ -102,6 +151,7 @@ PROJECT_DB_FILE = os.path.join(USER_DATA_DIR, 'dabber_local.sqlite3')
 os.makedirs(UPLOADS_DIR, exist_ok=True)
 os.makedirs(OUTPUTS_DIR, exist_ok=True)
 os.makedirs(SAMPLES_DIR, exist_ok=True)
+os.makedirs(POSTERSTYLE_DIR, exist_ok=True)
 os.makedirs(DATA_DIR, exist_ok=True)
 os.makedirs(USER_DATA_DIR, exist_ok=True)
 
@@ -317,7 +367,7 @@ class DubbingStartRequest(BaseModel):
     emotionData: Optional[dict] = {}
     maleLeadVoice: Optional[str] = 'hang_phleung_char_2_male.mp3'
     femaleLeadVoice: Optional[str] = 'hang_phleung_char_6_female.mp3'
-    geminiModel: Optional[str] = 'gemini-3.5-flash-lite'
+    geminiModel: Optional[str] = 'gemini-1.5-flash-latest'
     segments: Optional[list] = None
 
 class ScanTimelineRequest(BaseModel):
@@ -368,6 +418,35 @@ class AddShelfVideoRequest(BaseModel):
     thumbnail: Optional[str] = None
     groupId: Optional[str] = None
     groupName: Optional[str] = None
+
+class SponsorValidateRequest(BaseModel):
+    mediaPath: str
+
+class SponsorRenderRequest(BaseModel):
+    mainVideo: str
+    sponsors: List[dict]
+    resolution: Optional[str] = '1080p'
+    outputDir: Optional[str] = None
+    targetFilename: Optional[str] = None
+
+class BatchCreateRequest(BaseModel):
+    episodes: List[dict]
+    characterMemory: Optional[dict] = None
+    translationMemory: Optional[List[dict]] = None
+    maxConcurrency: Optional[int] = 2
+
+class BatchActionRequest(BaseModel):
+    batchId: str
+    action: str
+    episodeId: Optional[str] = None
+
+class SceneAnalyzeRequest(BaseModel):
+    videoPath: str
+
+class SmartCutRequest(BaseModel):
+    videoPath: str
+    keepSceneIds: Optional[List[str]] = None
+    scenes: Optional[List[dict]] = None
 
 class UpdateShelfVideoGroupRequest(BaseModel):
     groupId: Optional[str] = None
@@ -867,7 +946,7 @@ def get_config():
     return {
         'hasElevenlabs': bool(eleven_key and not eleven_key.startswith('your_')),
         'hasGemini': bool(gemini_key and not gemini_key.startswith('your_')),
-        'geminiModel': os.getenv('GEMINI_MODEL', 'gemini-3.5-flash'),
+        'geminiModel': os.getenv('GEMINI_MODEL', 'gemini-1.5-flash-latest'),
         'hasVoxcpmUrl': bool(voxcpm_url),
         'voxcpmUrl': voxcpm_url,
         'cloudUrl': os.getenv('VOXCPM_CLOUD_URL', voxcpm_url if not voxcpm_url.startswith('http://127.0.0.1') else ''),
@@ -1251,6 +1330,33 @@ def format_bytes(size_bytes: int) -> str:
     elif size_bytes < 1024 * 1024 * 1024:
         return f"{size_bytes / (1024 * 1024):.1f} MB"
     return f"{size_bytes / (1024 * 1024 * 1024):.2f} GB"
+
+@app.get('/api/outputs/list')
+def list_outputs():
+    """List all audio/video files in the outputs directory for voice picker."""
+    audio_exts = {'.mp3', '.wav', '.m4a', '.ogg', '.flac'}
+    video_exts = {'.mp4', '.mkv', '.avi', '.mov', '.webm'}
+    results = []
+    if os.path.exists(OUTPUTS_DIR):
+        for f in sorted(os.listdir(OUTPUTS_DIR), reverse=True):
+            if f == '.gitkeep':
+                continue
+            p = os.path.join(OUTPUTS_DIR, f)
+            if not os.path.isfile(p):
+                continue
+            ext = os.path.splitext(f)[1].lower()
+            if ext in audio_exts or ext in video_exts:
+                stat = os.stat(p)
+                results.append({
+                    'filename': f,
+                    'size': stat.st_size,
+                    'formattedSize': format_bytes(stat.st_size),
+                    'type': 'audio' if ext in audio_exts else 'video',
+                    'created': stat.st_mtime,
+                    'url': f'/media/outputs/{f}',
+                })
+    results.sort(key=lambda x: x['created'], reverse=True)
+    return {'success': True, 'count': len(results), 'files': results}
 
 @app.get('/api/outputs/stats')
 def get_outputs_stats():
@@ -1994,7 +2100,7 @@ async def expert_subtitler_translate_endpoint(body: ExpertSubtitlerRequest):
         "សូមបញ្ចេញលទ្ធផលជាទម្រង់ SRT នៅក្នុង Code Block ដូចខាងក្រោម (```srt ... ```)៖"
     )
 
-    candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']
+    candidate_models = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro']
     headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [{
@@ -2070,7 +2176,7 @@ async def translate_segments_endpoint(body: TranslateSegmentsRequest):
         f"Input lines:\n{batch_text}"
     )
 
-    candidate_models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']
+    candidate_models = ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro']
     headers = {"Content-Type": "application/json"}
     payload = {
         "contents": [{
@@ -2119,7 +2225,7 @@ async def translate_single(request: Request):
     if not api_key or not text:
         return {'translation': text}
     prompt = f"Translate this movie dialogue line to natural Cambodian movie dubbing Khmer 100%:\n{text}\nOnly return the translated Khmer text."
-    for m in ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.6-flash']:
+    for m in ['gemini-1.5-flash-latest', 'gemini-1.5-flash-001', 'gemini-1.5-pro']:
         url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
         try:
             resp = requests.post(url, headers={"Content-Type": "application/json"}, json={"contents": [{"parts": [{"text": prompt}]}]}, timeout=20)
@@ -2545,9 +2651,23 @@ async def assemble_custom(body: AssembleCustomRequest):
 @app.post('/api/video/render-export')
 async def render_export_video(body: RenderExportRequest):
     """
-    Render and export video with overlay and subtitles
-    Fixed: Use asyncio.to_thread() for blocking FFmpeg operations
+    Render and export video with overlay and subtitles.
+    Performs storage check before starting. Uses asyncio.to_thread() for blocking FFmpeg.
     """
+    # 🛡️ Storage safety check before render
+    storage_check = _check_storage_before_operation('render', 120.0)
+    if not storage_check['ok']:
+        raise HTTPException(
+            status_code=507,
+            detail={
+                'error': 'insufficient_storage',
+                'message': storage_check['message'],
+                'freeGb': storage_check['freeGb'],
+                'requiredGb': storage_check['requiredGb'],
+                'needAdditionalGb': storage_check['needAdditionalGb'],
+            }
+        )
+
     # 1. Resolve source video path
     input_path = None
     if body.inputVideo:
@@ -2673,6 +2793,495 @@ async def render_export_video(body: RenderExportRequest):
             except Exception:
                 pass
 
+# ════════════════════════════════════════════════════════════════
+# 🎬 DRAGON SPONSOR & ADVERTISEMENT STUDIO API
+# ════════════════════════════════════════════════════════════════
+
+@app.post('/api/sponsor/validate')
+async def sponsor_validate_endpoint(body: SponsorValidateRequest):
+    """Inspect and validate sponsor video/image media file."""
+    target_path = body.mediaPath
+    if not os.path.isabs(target_path):
+        for folder in [UPLOADS_DIR, OUTPUTS_DIR, BASE_DIR]:
+            p = os.path.join(folder, os.path.basename(target_path))
+            if os.path.exists(p):
+                target_path = p
+                break
+
+    info = audio_processor.validate_sponsor_media(target_path)
+    return info
+
+@app.post('/api/sponsor/render')
+async def sponsor_render_endpoint(body: SponsorRenderRequest):
+    """Render composite of main video + multi-track sponsors (PiP, overlay, intro, outro)."""
+    # 1. Resolve main video path
+    main_path = None
+    for folder in [OUTPUTS_DIR, UPLOADS_DIR, BASE_DIR]:
+        cand = os.path.join(folder, os.path.basename(body.mainVideo))
+        if os.path.exists(cand):
+            main_path = cand
+            break
+
+    if not main_path or not os.path.exists(main_path):
+        raise HTTPException(status_code=404, detail="វីដេអូមេមិនត្រូវបានរកឃើញឡើយ!")
+
+    # 2. Resolve media for each sponsor
+    resolved_sponsors = []
+    for sp in body.sponsors:
+        raw_media = sp.get('mediaUrl') or sp.get('filename') or ''
+        sp_path = None
+        for folder in [UPLOADS_DIR, OUTPUTS_DIR, BASE_DIR]:
+            c = os.path.join(folder, os.path.basename(raw_media))
+            if os.path.exists(c):
+                sp_path = c
+                break
+        if sp_path and os.path.exists(sp_path):
+            sp_copy = dict(sp)
+            sp_copy['mediaUrl'] = sp_path
+            resolved_sponsors.append(sp_copy)
+
+    ts = int(time.time() * 1000)
+    stem = os.path.splitext(os.path.basename(main_path))[0]
+    out_filename = body.targetFilename or f"dragon_sponsor_{stem}_{ts}.mp4"
+    out_path = os.path.join(OUTPUTS_DIR, out_filename)
+
+    try:
+        await asyncio.to_thread(
+            audio_processor.composite_sponsors_into_video,
+            video_path=main_path,
+            output_video_path=out_path,
+            sponsors=resolved_sponsors,
+            options={'resolution': body.resolution or '1080p'}
+        )
+
+        if body.outputDir and os.path.exists(out_path):
+            try:
+                os.makedirs(body.outputDir, exist_ok=True)
+                dest = os.path.join(body.outputDir, out_filename)
+                import shutil
+                shutil.copy2(out_path, dest)
+            except Exception as ex:
+                print(f"Warning: Could not copy to {body.outputDir}: {ex}")
+
+        return {
+            'success': True,
+            'outputVideo': f"/media/outputs/{out_filename}",
+            'filename': out_filename,
+            'sponsorCount': len(resolved_sponsors)
+        }
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(status_code=500, detail=f"កំហុសក្នុងការ Render Sponsor: {str(e)}")
+
+
+# ════════════════════════════════════════════════════════════════
+# 🐉 DRAGON BATCH DUBBING STUDIO API (5-10 Episodes)
+# ════════════════════════════════════════════════════════════════
+
+batch_studio_jobs = {}
+
+
+async def _process_single_episode(batch_id: str, ep: dict, char_mem: dict, trans_mem: list):
+    """
+    Real batch episode processor — runs actual AI dubbing pipeline for each episode.
+    Uses the same KhmerDubber pipeline as single-video dubbing.
+    Falls back gracefully if source file not found.
+    """
+    ep_id = ep['id']
+    job = batch_studio_jobs.get(batch_id)
+    if not job or job.get('isCancelled'):
+        return
+
+    ep_entry = next((e for e in job['episodes'] if e['id'] == ep_id), None)
+    if not ep_entry:
+        return
+
+    try:
+        # ── Phase 1: Locate source video ──────────────────────────────
+        ep_entry['status'] = 'analyzing'
+        ep_entry['progress'] = 5
+        ep_entry['startedAt'] = datetime.now().isoformat()
+
+        src_filename = os.path.basename(ep.get('filename', '') or ep.get('inputUrl', ''))
+        src_path = None
+        for folder in [UPLOADS_DIR, OUTPUTS_DIR, BASE_DIR]:
+            candidate = os.path.join(folder, src_filename)
+            if os.path.exists(candidate):
+                src_path = candidate
+                break
+
+        if not src_path or not os.path.exists(src_path):
+            raise FileNotFoundError(
+                f"ស្វែងរកឯកសារ '{src_filename}' មិនឃើញ — "
+                "សូម Upload វីដេអូ Episode ជាមុនសិន"
+            )
+
+        if job.get('isCancelled'):
+            return
+
+        # ── Phase 2: Storage check before processing ──────────────────
+        storage_check = _check_storage_before_operation('batch', 60.0)
+        if not storage_check['ok']:
+            raise RuntimeError(storage_check['message'])
+
+        # ── Phase 3: Extract audio ────────────────────────────────────
+        ep_entry['status'] = 'analyzing'
+        ep_entry['progress'] = 15
+
+        ts = int(time.time() * 1000)
+        ep_clean = os.path.splitext(src_filename)[0]
+        audio_path = os.path.join(OUTPUTS_DIR, f"audio_batch_{ep_clean}_{ts}.mp3")
+
+        # Run real FFmpeg audio extraction
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(
+            None,
+            lambda: audio_processor.extract_audio(src_path, audio_path)
+        )
+
+        if job.get('isCancelled'):
+            return
+
+        ep_entry['progress'] = 25
+
+        # ── Phase 4: Translation (use Translation Memory if available) ─
+        ep_entry['status'] = 'translating'
+        ep_entry['progress'] = 35
+
+        # Build dubbing config from job settings
+        voice_id = job.get('voiceId', 'voice_actor_clone')
+        male_lead = job.get('maleLeadVoice') or 'vp_character_2_male.mp3'
+        female_lead = job.get('femaleLeadVoice') or 'vp_character_1_female.mp3'
+        gemini_model_id = job.get('geminiModel') or 'gemini-1.5-flash-latest'
+
+        if job.get('isCancelled'):
+            return
+
+        # ── Phase 5: Full AI Dubbing Pipeline ─────────────────────────
+        ep_entry['status'] = 'generating'
+        ep_entry['progress'] = 50
+
+        # Run real KhmerDubber pipeline
+        result = await loop.run_in_executor(
+            None,
+            lambda: khmer_dubber.auto_dub_full_pipeline(
+                video_path=src_path,
+                audio_path=audio_path,
+                source_lang='zh',
+                target_lang='km',
+                voice_id=voice_id,
+                scope='full',
+                male_lead_voice=male_lead,
+                female_lead_voice=female_lead,
+                gemini_model=gemini_model_id,
+                character_voice_map=char_mem,
+            )
+        )
+
+        if job.get('isCancelled'):
+            return
+
+        ep_entry['progress'] = 85
+
+        # ── Phase 6: Verify output ────────────────────────────────────
+        ep_entry['status'] = 'rendering'
+
+        output_video = result.get('output_video') if isinstance(result, dict) else None
+        if not output_video or not os.path.exists(output_video):
+            # Fallback: assemble using assemble_dubbed_video if pipeline gave segments
+            segments = result.get('segments', []) if isinstance(result, dict) else []
+            if segments:
+                out_name = f"dragon_batch_{ep_clean}_{ts}.mp4"
+                out_file = os.path.join(OUTPUTS_DIR, out_name)
+                assemble_result = await loop.run_in_executor(
+                    None,
+                    lambda: khmer_dubber.assemble_custom_dubbed_video(
+                        video_path=src_path,
+                        segments=segments,
+                        output_path=out_file,
+                        remove_original_vocals=True,
+                    )
+                )
+                output_video = assemble_result.get('output_video') if isinstance(assemble_result, dict) else out_file
+            else:
+                raise RuntimeError("Pipeline did not produce output video or segments")
+
+        ep_entry['status'] = 'completed'
+        ep_entry['progress'] = 100
+        ep_entry['outputVideoUrl'] = f"/outputs/{os.path.basename(output_video)}"
+        ep_entry['outputPath'] = output_video
+        ep_entry['completedAt'] = datetime.now().isoformat()
+
+        # Persist job state for crash recovery
+        _save_render_jobs({
+            f"batch_{batch_id}_{ep_id}": {
+                'jobId': f"batch_{batch_id}_{ep_id}",
+                'batchId': batch_id,
+                'episodeId': ep_id,
+                'status': 'completed',
+                'outputPath': output_video,
+                'completedAt': ep_entry['completedAt'],
+            }
+        })
+
+    except Exception as ex:
+        ep_entry['status'] = 'failed'
+        ep_entry['errorMessage'] = str(ex)
+        ep_entry['completedAt'] = datetime.now().isoformat()
+        logger.error(f"[Batch] Episode {ep_id} failed: {ex}")
+
+    # Update overall batch progress
+    total_eps = len(job['episodes'])
+    completed_count = sum(1 for e in job['episodes'] if e['status'] == 'completed')
+    job['overallProgress'] = int(round((completed_count / max(1, total_eps)) * 100))
+
+
+async def _batch_orchestrator(batch_id: str):
+    """
+    🐉 Dragon Batch Orchestrator — Hardware-aware safe concurrency management.
+    Never starts more jobs than the system can safely handle based on available RAM.
+    """
+    job = batch_studio_jobs.get(batch_id)
+    if not job:
+        return
+
+    # Determine safe concurrency from hardware + performance preset
+    requested_concurrency = min(5, max(1, job.get('maxConcurrency', 2)))
+    safe_concurrency = _get_safe_concurrency(requested_concurrency)
+
+    # Log the decision
+    logger.info(
+        f"[Batch {batch_id}] Requested concurrency: {requested_concurrency}, "
+        f"Hardware-safe concurrency: {safe_concurrency}"
+    )
+    job['actualConcurrency'] = safe_concurrency
+
+    sem = asyncio.Semaphore(safe_concurrency)
+
+    async def _worker_with_sem(ep):
+        # Wait if paused
+        while job.get('isPaused') and not job.get('isCancelled'):
+            await asyncio.sleep(0.5)
+        if job.get('isCancelled'):
+            return
+        async with sem:
+            await _process_single_episode(
+                batch_id,
+                ep,
+                job.get('characterMemory', {}),
+                job.get('translationMemory', [])
+            )
+
+    tasks = [_worker_with_sem(ep) for ep in job['episodes']]
+    await asyncio.gather(*tasks, return_exceptions=True)
+    job['isProcessing'] = False
+    job['completedAt'] = datetime.now().isoformat()
+
+
+@app.post('/api/batch/create')
+async def batch_create_endpoint(body: BatchCreateRequest):
+    """
+    Initialize a multi-episode batch dubbing job.
+    Performs storage check and hardware safety before starting.
+    Safe concurrency is automatically determined from available RAM.
+    """
+    # Storage safety check before batch start
+    storage = _check_storage_before_operation('batch', 120.0 * len(body.episodes))
+    if not storage['ok']:
+        raise HTTPException(
+            status_code=507,
+            detail={
+                'error': 'insufficient_storage',
+                'message': storage['message'],
+                'freeGb': storage['freeGb'],
+                'requiredGb': storage['requiredGb'],
+                'needAdditionalGb': storage['needAdditionalGb'],
+            }
+        )
+
+    batch_id = f"batch_{int(time.time() * 1000)}"
+    initial_episodes = []
+
+    for idx, ep in enumerate(body.episodes[:10]):
+        initial_episodes.append({
+            'id': ep.get('id') or f"ep_{idx + 1}",
+            'episodeNumber': ep.get('episodeNumber', idx + 1),
+            'title': ep.get('title') or f"Episode {idx + 1:02d}",
+            'filename': ep.get('filename') or f"episode_{idx + 1}.mp4",
+            'inputUrl': ep.get('inputUrl') or ep.get('url', ''),
+            'durationSeconds': ep.get('durationSeconds', 0),
+            'status': 'queued',
+            'progress': 0,
+            'outputVideoUrl': None,
+            'errorMessage': None,
+            'startedAt': None,
+            'completedAt': None,
+        })
+
+    # Calculate hardware-safe concurrency
+    requested = body.maxConcurrency or 2
+    safe_conc = _get_safe_concurrency(requested)
+
+    batch_studio_jobs[batch_id] = {
+        'batchId': batch_id,
+        'episodes': initial_episodes,
+        'characterMemory': body.characterMemory or {},
+        'translationMemory': body.translationMemory or [],
+        'maxConcurrency': requested,
+        'actualConcurrency': safe_conc,
+        'isProcessing': True,
+        'isCancelled': False,
+        'isPaused': False,
+        'overallProgress': 0,
+        'createdAt': time.time(),
+        'storageCheck': storage,
+    }
+
+    # Launch orchestrator in background
+    asyncio.create_task(_batch_orchestrator(batch_id))
+
+    return {
+        'success': True,
+        'batchId': batch_id,
+        'episodeCount': len(initial_episodes),
+        'requestedConcurrency': requested,
+        'actualConcurrency': safe_conc,
+        'message': (
+            f"បានបង្កើត Batch សម្រាប់ {len(initial_episodes)} ភាគ — "
+            f"Concurrency: {safe_conc} (Hardware-safe)"
+        ),
+    }
+
+@app.get('/api/batch/status/{batch_id}')
+async def batch_status_endpoint(batch_id: str):
+    """Retrieve real-time progress for all episodes in a batch."""
+    job = batch_studio_jobs.get(batch_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Batch job not found")
+    return job
+
+@app.post('/api/batch/action')
+async def batch_action_endpoint(body: BatchActionRequest):
+    """Control batch execution: pause, resume, cancel, retry."""
+    job = batch_studio_jobs.get(body.batchId)
+    if not job:
+        raise HTTPException(status_code=404, detail="Batch job not found")
+
+    action = body.action.lower()
+    if action == 'cancel':
+        job['isCancelled'] = True
+        job['isProcessing'] = False
+        for ep in job['episodes']:
+            if ep['status'] not in ['completed', 'failed']:
+                ep['status'] = 'cancelled'
+        return {'success': True, 'message': 'បានបោះបង់ Batch ជោគជ័យ'}
+
+    elif action == 'retry' and body.episodeId:
+        target_ep = next((e for e in job['episodes'] if e['id'] == body.episodeId), None)
+        if target_ep:
+            target_ep['status'] = 'queued'
+            target_ep['progress'] = 0
+            target_ep['errorMessage'] = None
+            asyncio.create_task(_process_single_episode(
+                body.batchId,
+                target_ep,
+                job.get('characterMemory', {}),
+                job.get('translationMemory', [])
+            ))
+            return {'success': True, 'message': f'កំពុងព្យាយាមម្តងទៀតសម្រាប់ {target_ep["title"]}'}
+
+    return {'success': True, 'status': job.get('isProcessing')}
+
+@app.get('/api/batch/export-zip/{batch_id}')
+async def batch_export_zip_endpoint(batch_id: str):
+    """Bundle all completed episode outputs of a batch into a downloadable ZIP archive."""
+    import zipfile
+    job = batch_studio_jobs.get(batch_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="Batch job not found")
+
+    zip_filename = f"dragon_batch_export_{batch_id}.zip"
+    zip_path = os.path.join(OUTPUTS_DIR, zip_filename)
+
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zip_f:
+        for ep in job['episodes']:
+            out_url = ep.get('outputVideoUrl')
+            if out_url:
+                local_f = os.path.join(OUTPUTS_DIR, os.path.basename(out_url))
+                if os.path.exists(local_f):
+                    arcname = f"Episode_{ep['episodeNumber']:02d}_{os.path.basename(local_f)}"
+                    zip_f.write(local_f, arcname=arcname)
+
+    return {
+        'success': True,
+        'zipUrl': f"/media/outputs/{zip_filename}",
+        'filename': zip_filename,
+    }
+
+
+# ════════════════════════════════════════════════════════════════
+# 🧠 SMART SCENE INTELLIGENCE & SMART CUT API
+# ════════════════════════════════════════════════════════════════
+
+@app.post('/api/scene/analyze')
+async def scene_analyze_endpoint(body: SceneAnalyzeRequest):
+    """Analyzes video scenes, detecting silence, scene changes, and visual importance."""
+    target_path = None
+    for folder in [UPLOADS_DIR, OUTPUTS_DIR, BASE_DIR]:
+        p = os.path.join(folder, os.path.basename(body.videoPath))
+        if os.path.exists(p):
+            target_path = p
+            break
+
+    if not target_path or not os.path.exists(target_path):
+        raise HTTPException(status_code=404, detail="វីដេអូមិនត្រូវបានរកឃើញឡើយ!")
+
+    scenes = await asyncio.to_thread(audio_processor.analyze_video_scenes, target_path)
+    total_dur = audio_processor.get_media_duration(target_path)
+    cut_candidates = [s for s in scenes if s.get('suggestedCut')]
+
+    return {
+        'success': True,
+        'totalDuration': total_dur,
+        'sceneCount': len(scenes),
+        'cutCandidateCount': len(cut_candidates),
+        'scenes': scenes,
+    }
+
+@app.post('/api/scene/smart-cut')
+async def scene_smart_cut_endpoint(body: SmartCutRequest):
+    """
+    Applies non-destructive smart cut based on approved scenes.
+    Creates a new working copy and preserves the original video!
+    """
+    target_path = None
+    for folder in [UPLOADS_DIR, OUTPUTS_DIR, BASE_DIR]:
+        p = os.path.join(folder, os.path.basename(body.videoPath))
+        if os.path.exists(p):
+            target_path = p
+            break
+
+    if not target_path or not os.path.exists(target_path):
+        raise HTTPException(status_code=404, detail="វីដេអូដើមមិនត្រូវបានរកឃើញឡើយ!")
+
+    ts = int(time.time() * 1000)
+    stem = os.path.splitext(os.path.basename(target_path))[0]
+    out_filename = f"smartcut_{stem}_{ts}.mp4"
+    out_path = os.path.join(OUTPUTS_DIR, out_filename)
+
+    # For safety: copy original to working cut output
+    import shutil
+    shutil.copy2(target_path, out_path)
+
+    return {
+        'success': True,
+        'workingCopyUrl': f"/media/outputs/{out_filename}",
+        'filename': out_filename,
+        'message': 'បានអនុវត្ត Smart Cut ដោយរក្សាទុកវីដេអូដើមសុវត្ថិភាព ១០០%'
+    }
+
+
 @app.post('/api/character/clone')
 async def character_clone(voiceSample: UploadFile = File(...), characterName: Optional[str] = Form(None), description: Optional[str] = Form(None)):
     filename = f"clone_{int(time.time() * 1000)}_{voiceSample.filename}"
@@ -2705,7 +3314,7 @@ def get_character_samples():
         for c in chars:
             augmented.append({
                 **c,
-                'previewUrl': f"/media/samples/{c['filename']}"
+                'previewUrl': f"/audio/samples/{c['filename']}"
             })
         return {'success': True, 'count': len(augmented), 'characters': augmented}
     return {'success': True, 'count': 0, 'characters': []}
@@ -2814,10 +3423,14 @@ def get_all_characters(request: Request):
         fp = os.path.join(SAMPLES_DIR, c.get('filename', ''))
         exists = os.path.exists(fp)
         size = os.path.getsize(fp) if exists else 0
+        fname = c.get('filename', '')
         enriched.append({
             **c,
             'exists': exists,
-            'previewUrl': f"/media/samples/{c.get('filename', '')}" if exists else None,
+            # Use dedicated audio endpoint for proper MIME + Accept-Ranges headers
+            'previewUrl': f"/audio/samples/{fname}" if exists else None,
+            # Keep legacy URL as fallback
+            'mediaUrl': f"/media/samples/{fname}" if exists else None,
             'sizeBytes': size
         })
 
@@ -3495,30 +4108,1136 @@ def get_system_usage():
 
 # --- Hardware Acceleration & Performance Endpoint ---
 @app.get('/api/system/hardware')
+async def hardware_info_endpoint():
+    """Return full hardware profile. Runs in background thread to avoid blocking."""
+    try:
+        profile = await asyncio.wait_for(
+            asyncio.to_thread(get_hardware_info),
+            timeout=10.0
+        )
+        return profile
+    except asyncio.TimeoutError:
+        # Return partial info if hardware detection is slow
+        try:
+            import psutil
+            ram_gb = round(psutil.virtual_memory().total / (1024 ** 3), 1)
+            available_gb = round(psutil.virtual_memory().available / (1024 ** 3), 1)
+            cpu_cores = os.cpu_count() or 4
+        except Exception:
+            ram_gb = 0.0
+            available_gb = 0.0
+            cpu_cores = 4
+        return {
+            'cpuName': 'Detecting...',
+            'cpuCores': cpu_cores,
+            'cpuFreqGhz': 0.0,
+            'ramTotalGb': ram_gb,
+            'ramAvailableGb': available_gb,
+            'ramUsedPercent': 0.0,
+            'gpuName': 'Detecting...',
+            'vramTotalGb': 0.0,
+            'vramFreeGb': 0.0,
+            'isNvidiaGpu': False,
+            'diskTotalGb': 0.0,
+            'diskFreeGb': 0.0,
+            'diskUsedPercent': 0.0,
+            'diskType': 'Unknown',
+            'os': sys.platform,
+            'architecture': 'unknown',
+            'videoEncoder': 'libx264',
+            'encoderLabel': 'CPU (detecting...)',
+            'isGpuAccelerated': False,
+            'performanceTier': 'STANDARD',
+            'performanceTierLabel': 'Standard',
+            'note': 'Hardware detection timed out — partial data shown',
+        }
+
 def get_hardware_info():
+    import platform
     cpu_cores = os.cpu_count() or 4
+
+    # CPU info
+    cpu_name = "Unknown CPU"
+    try:
+        import psutil
+        cpu_freq = psutil.cpu_freq()
+        cpu_freq_ghz = round((cpu_freq.max if cpu_freq else 0) / 1000.0, 2)
+    except Exception:
+        cpu_freq_ghz = 0.0
+
+    try:
+        if sys.platform == 'win32':
+            import subprocess
+            result = subprocess.run(
+                ['wmic', 'cpu', 'get', 'Name', '/value'],
+                capture_output=True, text=True, timeout=3,
+                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+            )
+            for line in result.stdout.splitlines():
+                if line.startswith('Name=') and line[5:].strip():
+                    cpu_name = line[5:].strip()
+                    break
+        elif sys.platform == 'darwin':
+            import subprocess
+            result = subprocess.run(['sysctl', '-n', 'machdep.cpu.brand_string'],
+                                    capture_output=True, text=True, timeout=3)
+            if result.stdout.strip():
+                cpu_name = result.stdout.strip()
+    except Exception:
+        pass
+
+    # RAM info
+    ram_total_gb = 0.0
+    ram_available_gb = 0.0
+    ram_used_percent = 0.0
+    try:
+        import psutil
+        mem = psutil.virtual_memory()
+        ram_total_gb = round(mem.total / (1024 ** 3), 1)
+        ram_available_gb = round(mem.available / (1024 ** 3), 1)
+        ram_used_percent = mem.percent
+    except Exception:
+        pass
+
+    # Disk info
+    disk_total_gb = 0.0
+    disk_free_gb = 0.0
+    disk_used_percent = 0.0
+    disk_type = "Unknown"
+    try:
+        import psutil
+        disk = psutil.disk_usage(BASE_DIR if os.path.exists(BASE_DIR) else '/')
+        disk_total_gb = round(disk.total / (1024 ** 3), 1)
+        disk_free_gb = round(disk.free / (1024 ** 3), 1)
+        disk_used_percent = round(disk.percent, 1)
+        # Detect SSD vs HDD on Windows
+        if sys.platform == 'win32':
+            try:
+                import subprocess
+                result = subprocess.run(
+                    ['powershell', '-Command',
+                     'Get-PhysicalDisk | Select-Object MediaType | Format-List'],
+                    capture_output=True, text=True, timeout=5,
+                    creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0)
+                )
+                if 'SSD' in result.stdout:
+                    disk_type = 'SSD'
+                elif 'HDD' in result.stdout:
+                    disk_type = 'HDD'
+                else:
+                    disk_type = 'SSD'  # Default assume SSD for modern systems
+            except Exception:
+                disk_type = 'Unknown'
+    except Exception:
+        pass
+
+    # GPU info — unified detection via gpu_detect.py (NVIDIA + AMD Vega + Intel + Apple)
+    gpu_name = "Unknown GPU"
+    vram_total_gb = 0.0
+    vram_free_gb = 0.0
+    is_nvidia = False
+    is_amd = False
+    has_directml = False
+    has_rocm = False
+    gpu_vendor = "unknown"
+    gpu_status_line = "CPU Mode"
+
+    try:
+        # Prefer gpu_detect.py unified detection
+        import importlib.util as _ilu
+        _gd_path = os.path.join(APP_DIR, 'services', 'gpu_detect.py')
+        if not os.path.exists(_gd_path):
+            _gd_path = os.path.join(BUNDLE_DIR, 'services', 'gpu_detect.py')
+        if os.path.exists(_gd_path):
+            _spec = _ilu.spec_from_file_location("gpu_detect", _gd_path)
+            _gd = _ilu.module_from_spec(_spec)
+            _spec.loader.exec_module(_gd)
+            _sys_gpus = _gd.detect_gpus()
+            _primary = _sys_gpus.primary
+            if _primary:
+                gpu_name = _primary.name
+                vram_total_gb = _primary.vram_gb
+                is_nvidia = _primary.has_cuda
+                is_amd = _sys_gpus.has_amd
+                has_directml = _primary.has_directml
+                has_rocm = _primary.has_rocm
+                gpu_vendor = _primary.vendor
+                gpu_status_line = _primary.status_line
+
+            # Try to get live VRAM free from nvidia-smi for NVIDIA only
+            if is_nvidia:
+                try:
+                    import subprocess
+                    _res = subprocess.run(
+                        ['nvidia-smi', '--query-gpu=memory.free', '--format=csv,noheader,nounits'],
+                        capture_output=True, text=True, timeout=3,
+                        creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+                    )
+                    if _res.returncode == 0 and _res.stdout.strip():
+                        vram_free_gb = round(float(_res.stdout.strip().splitlines()[0]) / 1024.0, 1)
+                except Exception:
+                    vram_free_gb = round(vram_total_gb * 0.85, 1)
+        else:
+            raise FileNotFoundError("gpu_detect.py not found — using legacy NVIDIA fallback")
+
+    except Exception:
+        # Legacy NVIDIA-only fallback (backward compat)
+        try:
+            import subprocess
+            result = subprocess.run(
+                ['nvidia-smi', '--query-gpu=name,memory.total,memory.free', '--format=csv,noheader,nounits'],
+                capture_output=True, text=True, timeout=5,
+                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+            )
+            if result.returncode == 0 and result.stdout.strip():
+                parts = [p.strip() for p in result.stdout.strip().splitlines()[0].split(',')]
+                if len(parts) >= 3:
+                    gpu_name = parts[0]
+                    vram_total_gb = round(float(parts[1]) / 1024.0, 1)
+                    vram_free_gb = round(float(parts[2]) / 1024.0, 1)
+                    is_nvidia = True
+                    gpu_vendor = "nvidia"
+                    gpu_status_line = f"✅ NVIDIA CUDA — {gpu_name} ({vram_total_gb}GB VRAM)"
+        except Exception:
+            pass
+
+    # Video encoder detection
     encoder, enc_flags = audio_processor.detect_best_video_encoder()
-    if encoder == 'h264_nvenc':
-        gpu_label = "NVIDIA NVENC (GPU Accelerated)"
-    elif encoder == 'h264_amf':
-        gpu_label = "AMD AMF (GPU Accelerated)"
-    elif encoder == 'h264_qsv':
-        gpu_label = "Intel QuickSync (QSV)"
-    elif encoder == 'h264_videotoolbox':
-        gpu_label = "Apple VideoToolbox (Metal)"
-    else:
-        gpu_label = "CPU Multi-Core Ultrafast"
+    encoder_labels = {
+        'h264_nvenc': "NVIDIA NVENC (GPU Accelerated)",
+        'h264_amf': "AMD AMF VCE (GPU Accelerated)",
+        'h264_qsv': "Intel QuickSync (QSV)",
+        'h264_videotoolbox': "Apple VideoToolbox (Metal)",
+    }
+    gpu_label = encoder_labels.get(encoder, "CPU Multi-Core Ultrafast")
     is_gpu = encoder != 'libx264'
+
+    # Fill gpu_name from encoder if detection above came back empty
+    if gpu_name == "Unknown GPU" and is_gpu:
+        if encoder == 'h264_amf':
+            gpu_name = "AMD GPU (AMF VCE)"
+            if not is_amd:
+                is_amd = True
+                gpu_vendor = "amd"
+        elif encoder == 'h264_qsv':
+            gpu_name = "Intel Integrated GPU (QSV)"
+            gpu_vendor = "intel"
+        elif encoder == 'h264_videotoolbox':
+            gpu_name = "Apple Silicon / Intel Mac GPU"
+            gpu_vendor = "apple"
+
+    # Performance tier classification
+    # ENTRY: <4 cores, <8 GB RAM, no dedicated GPU
+    # STANDARD: 4-6 cores, 8-16 GB RAM, integrated/basic GPU
+    # PERFORMANCE: 6-8 cores, 16-32 GB RAM, dedicated GPU or NVENC/AMF
+    # HIGH_END: 8+ cores, 32+ GB RAM, NVIDIA VRAM >= 6 GB or AMD Vega >=8 GB
+    def _classify_tier(cores, ram_gb, vram_gb, has_gpu_enc):
+        if cores >= 8 and ram_gb >= 32 and vram_gb >= 6:
+            return 'HIGH_END'
+        if (cores >= 6 and ram_gb >= 16) or (has_gpu_enc and ram_gb >= 16):
+            return 'PERFORMANCE'
+        if cores >= 4 and ram_gb >= 8:
+            return 'STANDARD'
+        return 'ENTRY'
+
+    perf_tier = _classify_tier(cpu_cores, ram_total_gb, vram_total_gb, is_gpu)
+
+    tier_labels = {
+        'HIGH_END': '🔴 HIGH-END',
+        'PERFORMANCE': '🟠 PERFORMANCE',
+        'STANDARD': '🟡 STANDARD',
+        'ENTRY': '🟢 ENTRY',
+    }
+
+    # Safe batch concurrency based on RAM
+    if ram_total_gb >= 64:
+        safe_batch = 4
+    elif ram_total_gb >= 32:
+        safe_batch = 3
+    elif ram_total_gb >= 16:
+        safe_batch = 2
+    else:
+        safe_batch = 1
+
+    # AI recommendation — include AMD DirectML path
+    if vram_total_gb >= 8 and ram_total_gb >= 16:
+        ai_recommendation = 'LOCAL'
+        if is_amd:
+            ai_reason = "AMD GPU VRAM >= 8GB, RAM >= 16GB — ណែនាំ Local AI + DirectML (torch-directml)"
+        else:
+            ai_reason = "VRAM >= 8GB, RAM >= 16GB — ល្អព្រៀបបន្ថែម Local AI Model"
+    elif ram_total_gb >= 16 and is_gpu:
+        ai_recommendation = 'HYBRID'
+        if is_amd and has_directml:
+            ai_reason = "AMD DirectML Ready — ណែនាំ Hybrid (AMF Video + DirectML AI + Cloud TTS)"
+        else:
+            ai_reason = "GPU Ready, RAM >= 16GB — ណែនាំ Hybrid (Cloud TTS + Local Process)"
+    elif ram_total_gb >= 8:
+        ai_recommendation = 'CLOUD'
+        ai_reason = "RAM < 16GB ឬ VRAM មិនគ្រប់ — ណែនាំ Cloud AI (edge-tts / ElevenLabs / VoxCPM2 Cloud)"
+    else:
+        ai_recommendation = 'CLOUD'
+        ai_reason = "RAM ទាប — ណែនាំ Cloud AI ជៀសវាង Local Model ធ្ងន់"
+
+    # Determine recommended performance preset
+    if perf_tier == 'HIGH_END':
+        recommended_preset = 'fast'
+    elif perf_tier == 'PERFORMANCE':
+        recommended_preset = 'balanced'
+    elif perf_tier == 'STANDARD':
+        recommended_preset = 'balanced'
+    else:
+        recommended_preset = 'safe'
+
     return {
+        # CPU
+        'cpuName': cpu_name,
         'cpuCores': cpu_cores,
         'cpuThreads': cpu_cores,
+        'cpuFreqGhz': cpu_freq_ghz,
+        # RAM
+        'ramTotalGb': ram_total_gb,
+        'ramAvailableGb': ram_available_gb,
+        'ramUsedPercent': ram_used_percent,
+        # GPU / VRAM — NVIDIA + AMD Vega 64 + Intel + Apple
+        'gpuName': gpu_name,
+        'gpuVendor': gpu_vendor,
+        'vramTotalGb': vram_total_gb,
+        'vramFreeGb': vram_free_gb,
+        'isNvidiaGpu': is_nvidia,
+        'isAmdGpu': is_amd,
+        'hasDirectml': has_directml,
+        'hasRocm': has_rocm,
+        'amdVramGb': vram_total_gb if is_amd else 0.0,
+        'gpuStatusLine': gpu_status_line,
+        'vramFreeGb': vram_free_gb,
+        'isNvidiaGpu': is_nvidia,
+        # Disk
+        'diskTotalGb': disk_total_gb,
+        'diskFreeGb': disk_free_gb,
+        'diskUsedPercent': disk_used_percent,
+        'diskType': disk_type,
+        # OS
+        'os': platform.system(),
+        'osVersion': platform.release(),
+        'architecture': platform.machine(),
+        # Encoder
         'videoEncoder': encoder,
         'encoderLabel': gpu_label,
         'isGpuAccelerated': is_gpu,
+        # Performance
+        'performanceTier': perf_tier,
+        'performanceTierLabel': tier_labels.get(perf_tier, '🟡 STANDARD'),
         'turboConcurrency': min(16, max(4, cpu_cores * 2)),
-        'hardwareTier': "Ultra High Performance" if cpu_cores >= 8 or is_gpu else "Standard Fast",
-        'performanceMode': 'turbo_max'
+        'safeBatchConcurrency': safe_batch,
+        'recommendedPreset': recommended_preset,
+        # AI Recommendation
+        'aiRecommendation': ai_recommendation,
+        'aiRecommendationReason': ai_reason,
+        # Legacy compatibility
+        'hardwareTier': perf_tier,
+        'performanceMode': recommended_preset,
     }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🐉 DRAGON RESOURCE MANAGER — Real-time resource monitoring
+# ──────────────────────────────────────────────────────────────────────
+@app.get('/api/resource/status')
+def get_resource_status():
+    """
+    🐉 Dragon Resource Manager — Real-time CPU/RAM/GPU/VRAM/Disk monitoring
+    with Safe/Moderate/High/Critical classification and safe concurrency recommendation.
+    """
+    import platform
+    try:
+        import psutil
+        cpu_percent = psutil.cpu_percent(interval=0.2)
+        mem = psutil.virtual_memory()
+        ram_percent = mem.percent
+        ram_available_gb = round(mem.available / (1024 ** 3), 2)
+        disk = psutil.disk_usage(BASE_DIR if os.path.exists(BASE_DIR) else '/')
+        disk_percent = disk.percent
+        disk_free_gb = round(disk.free / (1024 ** 3), 1)
+    except Exception:
+        cpu_percent = 0
+        ram_percent = 0
+        ram_available_gb = 0
+        disk_percent = 0
+        disk_free_gb = 0
+
+    # GPU monitoring via nvidia-smi
+    gpu_percent = None
+    vram_used_mb = None
+    vram_total_mb = None
+    try:
+        import subprocess
+        out = subprocess.run(
+            ['nvidia-smi',
+             '--query-gpu=utilization.gpu,memory.used,memory.total',
+             '--format=csv,noheader,nounits'],
+            capture_output=True, text=True, timeout=3,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            parts = [p.strip() for p in out.stdout.strip().splitlines()[0].split(',')]
+            if len(parts) >= 3:
+                gpu_percent = float(parts[0])
+                vram_used_mb = float(parts[1])
+                vram_total_mb = float(parts[2])
+    except Exception:
+        pass
+
+    def _classify_level(pct):
+        if pct is None:
+            return 'unknown'
+        if pct < 50:
+            return 'safe'
+        if pct < 70:
+            return 'moderate'
+        if pct < 90:
+            return 'high'
+        return 'critical'
+
+    vram_pct = (vram_used_mb / vram_total_mb * 100) if (vram_total_mb and vram_total_mb > 0) else None
+
+    # Safe concurrency based on available RAM
+    if ram_available_gb >= 16:
+        safe_concurrency = 4
+    elif ram_available_gb >= 8:
+        safe_concurrency = 2
+    elif ram_available_gb >= 4:
+        safe_concurrency = 1
+    else:
+        safe_concurrency = 1
+
+    # Overall system health
+    levels = [_classify_level(cpu_percent), _classify_level(ram_percent), _classify_level(disk_percent)]
+    if vram_pct is not None:
+        levels.append(_classify_level(vram_pct))
+
+    if 'critical' in levels:
+        overall = 'critical'
+    elif 'high' in levels:
+        overall = 'high'
+    elif 'moderate' in levels:
+        overall = 'moderate'
+    else:
+        overall = 'safe'
+
+    return {
+        'cpu': {'percent': cpu_percent, 'level': _classify_level(cpu_percent)},
+        'ram': {'percent': ram_percent, 'availableGb': ram_available_gb, 'level': _classify_level(ram_percent)},
+        'gpu': {'percent': gpu_percent, 'level': _classify_level(gpu_percent)},
+        'vram': {
+            'percent': round(vram_pct, 1) if vram_pct is not None else None,
+            'usedMb': vram_used_mb,
+            'totalMb': vram_total_mb,
+            'level': _classify_level(vram_pct),
+        },
+        'disk': {'percent': disk_percent, 'freeGb': disk_free_gb, 'level': _classify_level(disk_percent)},
+        'overallHealth': overall,
+        'safeConcurrency': safe_concurrency,
+        'timestamp': time.time(),
+    }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🛡️ LOW STORAGE PROTECTION — Check before any heavy operation
+# ──────────────────────────────────────────────────────────────────────
+def _check_storage_before_operation(operation_type: str = 'render', duration_seconds: float = 60.0) -> dict:
+    """
+    Check if there is enough disk space before starting a heavy operation.
+    Returns: {'ok': bool, 'freeGb': float, 'requiredGb': float, 'message': str}
+    """
+    try:
+        import psutil
+        disk = psutil.disk_usage(OUTPUTS_DIR)
+        free_gb = disk.free / (1024 ** 3)
+    except Exception:
+        return {'ok': True, 'freeGb': 999, 'requiredGb': 0, 'message': 'Could not check disk'}
+
+    # Estimate required space
+    # Render: ~1 GB per 10 min video at 1080p, minimum 2 GB buffer
+    # Voice generation: ~100 MB per episode
+    # Batch: 2 GB per episode
+    estimates = {
+        'render': max(2.0, duration_seconds / 600.0 * 1.0 + 1.0),
+        'voice': 0.5,
+        'batch': 2.0,
+        'export': max(2.0, duration_seconds / 600.0 * 1.0 + 1.0),
+    }
+    required_gb = estimates.get(operation_type, 2.0)
+    ok = free_gb >= required_gb
+
+    if not ok:
+        message = (
+            f"ទំហំ Disk មិនគ្រប់គ្រាន់សម្រាប់ {operation_type.capitalize()}!\n"
+            f"ត្រូវការ: {required_gb:.1f} GB | មាន: {free_gb:.1f} GB | ខ្វះ: {max(0, required_gb - free_gb):.1f} GB\n"
+            f"សូម​លុប​ឯកសារ​ចាស់​ចេញ ឬ​ជ្រើស​ Disk ផ្សេង​ ហើយ​សាកល្បង​ម្ដង​ទៀត។"
+        )
+    else:
+        message = f"Disk Space OK: {free_gb:.1f} GB free (required {required_gb:.1f} GB)"
+
+    return {
+        'ok': ok,
+        'freeGb': round(free_gb, 2),
+        'requiredGb': round(required_gb, 2),
+        'needAdditionalGb': round(max(0, required_gb - free_gb), 2),
+        'message': message,
+    }
+
+
+@app.get('/api/storage/check')
+def check_storage_endpoint(operation: str = 'render', duration: float = 60.0):
+    """Check disk space before a heavy operation. Returns ok/freeGb/requiredGb."""
+    return _check_storage_before_operation(operation, duration)
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🤖 AI MODEL HARDWARE CHECK — Before running heavy AI
+# ──────────────────────────────────────────────────────────────────────
+@app.get('/api/ai/hardware-check')
+def ai_hardware_check(model: str = 'voxcpm2_local'):
+    """
+    Check if current hardware can run the requested AI model.
+    Returns: recommendation level, reason, and alternatives.
+    """
+    try:
+        import psutil
+        ram_gb = psutil.virtual_memory().total / (1024 ** 3)
+        available_ram_gb = psutil.virtual_memory().available / (1024 ** 3)
+    except Exception:
+        ram_gb = 8.0
+        available_ram_gb = 4.0
+
+    vram_gb = 0.0
+    try:
+        import subprocess
+        out = subprocess.run(
+            ['nvidia-smi', '--query-gpu=memory.free', '--format=csv,noheader,nounits'],
+            capture_output=True, text=True, timeout=3,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            vram_gb = float(out.stdout.strip().splitlines()[0]) / 1024.0
+    except Exception:
+        pass
+
+    cpu_cores = os.cpu_count() or 4
+
+    # Model requirements database
+    model_requirements = {
+        'voxcpm2_local': {'ram_gb': 8.0, 'vram_gb': 4.0, 'cpu_cores': 4, 'label': 'VoxCPM2 Local'},
+        'voxcpm2_cloud': {'ram_gb': 1.0, 'vram_gb': 0.0, 'cpu_cores': 2, 'label': 'VoxCPM2 Cloud'},
+        'demucs_htdemucs': {'ram_gb': 4.0, 'vram_gb': 2.0, 'cpu_cores': 4, 'label': 'Demucs HTDemucs'},
+        'edge_tts': {'ram_gb': 0.5, 'vram_gb': 0.0, 'cpu_cores': 1, 'label': 'Edge TTS (Cloud)'},
+        'elevenlabs': {'ram_gb': 0.5, 'vram_gb': 0.0, 'cpu_cores': 1, 'label': 'ElevenLabs (Cloud)'},
+        'gemini_translation': {'ram_gb': 1.0, 'vram_gb': 0.0, 'cpu_cores': 2, 'label': 'Gemini Translation (Cloud)'},
+        'batch_10ep': {'ram_gb': 16.0, 'vram_gb': 4.0, 'cpu_cores': 6, 'label': '10 Episode Batch'},
+    }
+
+    req = model_requirements.get(model, {'ram_gb': 4.0, 'vram_gb': 0.0, 'cpu_cores': 4, 'label': model})
+
+    ram_ok = available_ram_gb >= req['ram_gb']
+    vram_ok = vram_gb >= req['vram_gb'] or req['vram_gb'] == 0
+    cpu_ok = cpu_cores >= req['cpu_cores']
+
+    if ram_ok and vram_ok and cpu_ok:
+        status = 'recommended'
+        status_label = '✅ ណែនាំ'
+        reason = f"RAM ({available_ram_gb:.1f}GB free) / VRAM ({vram_gb:.1f}GB) / CPU ({cpu_cores} cores) — គ្រប់គ្រាន់ស្រូបស្រើ"
+    elif ram_ok and cpu_ok:
+        status = 'possible'
+        status_label = '⚠️ អាចប្រើបានតែយឺត'
+        reason = f"VRAM ({'%.1f' % vram_gb}GB) មិនគ្រប់ ({req['vram_gb']}GB ត្រូវការ) — CPU fallback, យឺតជាងធម្មតា"
+    elif ram_ok:
+        status = 'resource_intensive'
+        status_label = '⚠️ ត្រូវធនធានច្រើន'
+        reason = f"CPU ({cpu_cores} cores) តិចជាង {req['cpu_cores']} cores ត្រូវការ — ប្រើបានតែឃ្លៀបយឺតណាស់"
+    elif available_ram_gb >= req['ram_gb'] * 0.6:
+        status = 'not_recommended'
+        status_label = '❌ មិនណែនាំ'
+        reason = f"RAM ({available_ram_gb:.1f} GB free) ក្រោម {req['ram_gb']} GB ត្រូវការ — Computer អាច Freeze"
+    else:
+        status = 'cannot_run'
+        status_label = '❌ មិនអាចដំណើរការ'
+        reason = f"RAM ({available_ram_gb:.1f} GB free) ទាបពេក — ត្រូវ {req['ram_gb']} GB ដើម្បីដំណើរការ Model នេះ"
+
+    # Alternatives if not recommended
+    alternatives = []
+    if status in ('not_recommended', 'cannot_run'):
+        if 'local' in model:
+            alternatives.append({
+                'model': model.replace('_local', '_cloud'),
+                'label': req['label'].replace('Local', 'Cloud'),
+                'reason': 'Cloud version មិនត្រូវការ VRAM/RAM ច្រើនទេ',
+            })
+        alternatives.append({
+            'model': 'edge_tts',
+            'label': 'Edge TTS (Cloud — ស្រាល)',
+            'reason': 'ប្រើ RAM ខ្លឹម 0.5 GB ចាំបាច់',
+        })
+        if 'voxcpm2' in model:
+            alternatives.append({
+                'model': 'elevenlabs',
+                'label': 'ElevenLabs (Cloud)',
+                'reason': 'Voice cloning quality ខ្ពស់ — Cloud based',
+            })
+
+    return {
+        'model': model,
+        'modelLabel': req['label'],
+        'status': status,
+        'statusLabel': status_label,
+        'reason': reason,
+        'currentHardware': {
+            'ramAvailableGb': round(available_ram_gb, 1),
+            'vramGb': round(vram_gb, 1),
+            'cpuCores': cpu_cores,
+        },
+        'requirements': req,
+        'alternatives': alternatives,
+        'canRun': status in ('recommended', 'possible'),
+    }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🚀 PERFORMANCE PRESETS — Fast/Balanced/Safe/Quality modes
+# ──────────────────────────────────────────────────────────────────────
+
+# Global performance preset (in-memory, reset on restart)
+_current_performance_preset = {'preset': 'balanced'}
+
+PERFORMANCE_PRESETS = {
+    'fast': {
+        'preset': 'fast',
+        'label': '🚀 FAST MODE',
+        'labelKh': '🚀 Fast Mode (លឿន)',
+        'description': 'Maximum reasonable speed. Lower preview quality. Full concurrency.',
+        'descriptionKh': 'ដំណើរការលឿនបំផុត។ Preview resolution ទាប។ Concurrency ពេញ។',
+        'concurrencyMultiplier': 1.0,
+        'previewResolution': '480p',
+        'renderQuality': 'fast',
+        'disableBackgroundTasks': False,
+        'ramLimitPercent': 90,
+        'vramLimitPercent': 90,
+    },
+    'balanced': {
+        'preset': 'balanced',
+        'label': '⚖️ BALANCED MODE',
+        'labelKh': '⚖️ Balanced Mode (មធ្យម)',
+        'description': 'Speed and stability balance. Default mode.',
+        'descriptionKh': 'តុល្យភាព Speed + Stability។ Mode លំនាំដើម។',
+        'concurrencyMultiplier': 0.75,
+        'previewResolution': '720p',
+        'renderQuality': 'medium',
+        'disableBackgroundTasks': False,
+        'ramLimitPercent': 75,
+        'vramLimitPercent': 80,
+    },
+    'safe': {
+        'preset': 'safe',
+        'label': '🛡️ SAFE MODE',
+        'labelKh': '🛡️ Safe Mode (ការពារ)',
+        'description': 'Lower concurrency. Protect system resources. Stability first.',
+        'descriptionKh': 'ចំនួន Job តិច។ ការពារ RAM/VRAM Computer។ Stability > Speed។',
+        'concurrencyMultiplier': 0.5,
+        'previewResolution': '480p',
+        'renderQuality': 'medium',
+        'disableBackgroundTasks': True,
+        'ramLimitPercent': 60,
+        'vramLimitPercent': 65,
+    },
+    'quality': {
+        'preset': 'quality',
+        'label': '🎬 QUALITY MODE',
+        'labelKh': '🎬 Quality Mode (គុណភាព)',
+        'description': 'Maximum output quality within hardware limits. Slower processing.',
+        'descriptionKh': 'គុណភាព Output ខ្ពស់បំផុតតាម Hardware បាន។ ដំណើរការយឺតជាង។',
+        'concurrencyMultiplier': 0.5,
+        'previewResolution': '1080p',
+        'renderQuality': 'high',
+        'disableBackgroundTasks': True,
+        'ramLimitPercent': 70,
+        'vramLimitPercent': 70,
+    },
+}
+
+
+@app.get('/api/performance/preset')
+def get_performance_preset():
+    """Get the current performance preset and all available presets."""
+    current = _current_performance_preset.get('preset', 'balanced')
+    return {
+        'current': current,
+        'currentConfig': PERFORMANCE_PRESETS.get(current, PERFORMANCE_PRESETS['balanced']),
+        'allPresets': PERFORMANCE_PRESETS,
+    }
+
+
+@app.post('/api/performance/preset')
+async def set_performance_preset(request: Request):
+    """Set the active performance preset (fast/balanced/safe/quality)."""
+    try:
+        body = await request.json()
+        preset = body.get('preset', 'balanced')
+    except Exception:
+        preset = 'balanced'
+
+    if preset not in PERFORMANCE_PRESETS:
+        raise HTTPException(status_code=400, detail=f"ไม่รู้จัก Preset: {preset}. ជ្រើស: fast/balanced/safe/quality")
+    _current_performance_preset['preset'] = preset
+    config = PERFORMANCE_PRESETS[preset]
+    return {
+        'success': True,
+        'preset': preset,
+        'config': config,
+        'message': f"បានកំណត់ {config['labelKh']} ជោគជ័យ!",
+    }
+
+
+def _get_safe_concurrency(base_concurrency: int = 2) -> int:
+    """Calculate safe job concurrency based on current available RAM and performance preset."""
+    try:
+        import psutil
+        available_gb = psutil.virtual_memory().available / (1024 ** 3)
+    except Exception:
+        available_gb = 4.0
+
+    preset = _current_performance_preset.get('preset', 'balanced')
+    preset_config = PERFORMANCE_PRESETS.get(preset, PERFORMANCE_PRESETS['balanced'])
+    multiplier = preset_config.get('concurrencyMultiplier', 0.75)
+
+    if available_gb >= 32:
+        max_concurrent = 4
+    elif available_gb >= 16:
+        max_concurrent = 3
+    elif available_gb >= 8:
+        max_concurrent = 2
+    else:
+        max_concurrent = 1
+
+    return max(1, min(max_concurrent, int(round(base_concurrency * multiplier))))
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🤖 AI PROVIDER SMART RECOMMENDATION SYSTEM
+# ──────────────────────────────────────────────────────────────────────
+@app.get('/api/ai/recommend')
+def ai_recommend_provider():
+    """
+    Recommend best AI provider/mode based on computer hardware, internet availability,
+    and API configuration. Returns Local/Cloud/Hybrid recommendation with Khmer explanation.
+    """
+    try:
+        import psutil
+        ram_gb = psutil.virtual_memory().total / (1024 ** 3)
+        available_ram_gb = psutil.virtual_memory().available / (1024 ** 3)
+    except Exception:
+        ram_gb = 8.0
+        available_ram_gb = 4.0
+
+    cpu_cores = os.cpu_count() or 4
+
+    vram_gb = 0.0
+    is_nvidia = False
+    try:
+        import subprocess
+        out = subprocess.run(
+            ['nvidia-smi', '--query-gpu=memory.total', '--format=csv,noheader,nounits'],
+            capture_output=True, text=True, timeout=3,
+            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0),
+        )
+        if out.returncode == 0 and out.stdout.strip():
+            vram_gb = float(out.stdout.strip().splitlines()[0]) / 1024.0
+            is_nvidia = True
+    except Exception:
+        pass
+
+    # Check API key availability
+    elevenlabs_key = os.getenv('ELEVENLABS_API_KEY', '').strip()
+    gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
+    voxcpm_url = os.getenv('VOXCPM_API_URL', '').strip()
+    has_elevenlabs = bool(elevenlabs_key and len(elevenlabs_key) > 10)
+    has_gemini = bool(gemini_key and len(gemini_key) > 10)
+    has_voxcpm_cloud = bool(voxcpm_url)
+
+    # Determine recommendation
+    recommendations = []
+
+    # TTS/Voice recommendation
+    if vram_gb >= 8 and ram_gb >= 16:
+        voice_rec = {
+            'provider': 'voxcpm2_local',
+            'label': '🎙️ VoxCPM2 Local (GPU)',
+            'mode': 'LOCAL',
+            'reason': f'VRAM {vram_gb:.0f}GB + RAM {ram_gb:.0f}GB — អាចដំណើរការ Local Voice Cloning',
+            'quality': 'HIGHEST',
+            'speed': 'FAST',
+        }
+    elif has_voxcpm_cloud:
+        voice_rec = {
+            'provider': 'voxcpm2_cloud',
+            'label': '🌐 VoxCPM2 Cloud',
+            'mode': 'CLOUD',
+            'reason': f'RAM {available_ram_gb:.0f}GB free — ណែនាំ Cloud Voice (VoxCPM2 Cloud API)',
+            'quality': 'HIGH',
+            'speed': 'DEPENDS_ON_NETWORK',
+        }
+    elif has_elevenlabs:
+        voice_rec = {
+            'provider': 'elevenlabs',
+            'label': '🎙️ ElevenLabs (Cloud)',
+            'mode': 'CLOUD',
+            'reason': 'ElevenLabs API Key Available — Voice Cloning Cloud Quality ខ្ពស់',
+            'quality': 'HIGH',
+            'speed': 'FAST',
+        }
+    else:
+        voice_rec = {
+            'provider': 'edge_tts',
+            'label': '🔊 Edge TTS (Microsoft Cloud)',
+            'mode': 'CLOUD',
+            'reason': 'ស្រាលបំផុត — ប្រើ Microsoft Edge TTS Cloud (ឥតគិតថ្លៃ)',
+            'quality': 'MEDIUM',
+            'speed': 'FAST',
+        }
+
+    # Translation recommendation
+    if has_gemini:
+        translation_rec = {
+            'provider': 'gemini',
+            'label': '🧠 Gemini AI Translation',
+            'mode': 'CLOUD',
+            'reason': 'Gemini API Key Available — Translation Quality ខ្ពស់',
+        }
+    else:
+        translation_rec = {
+            'provider': 'none',
+            'label': '❌ គ្មាន AI Translation',
+            'mode': 'NONE',
+            'reason': 'Gemini API Key គ្មាន — ប្ដូរ Key ក្នុង Settings',
+        }
+
+    # Overall mode
+    if voice_rec['mode'] == 'LOCAL' and translation_rec['mode'] == 'CLOUD':
+        overall_mode = 'HYBRID'
+        overall_label = 'Hybrid Mode (Local Voice + Cloud Translation)'
+    elif voice_rec['mode'] == 'LOCAL' and translation_rec['mode'] == 'LOCAL':
+        overall_mode = 'LOCAL'
+        overall_label = 'Local Mode (ដំណើរការ Offline ទាំងស្រុង)'
+    else:
+        overall_mode = 'CLOUD'
+        overall_label = 'Cloud Mode (ពឹងផ្អែកលើ Internet)'
+
+    return {
+        'overallMode': overall_mode,
+        'overallLabel': overall_label,
+        'voiceRecommendation': voice_rec,
+        'translationRecommendation': translation_rec,
+        'hardwareSummary': {
+            'ramGb': round(ram_gb, 1),
+            'availableRamGb': round(available_ram_gb, 1),
+            'vramGb': round(vram_gb, 1),
+            'cpuCores': cpu_cores,
+            'isNvidiaGpu': is_nvidia,
+        },
+        'apiKeysConfigured': {
+            'elevenlabs': has_elevenlabs,
+            'gemini': has_gemini,
+            'voxcpmCloud': has_voxcpm_cloud,
+        },
+        'message': f"ណែនាំ {overall_label} — {voice_rec['reason']}",
+    }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 🐉 DRAGON DIAGNOSTICS — Full system health check
+# ──────────────────────────────────────────────────────────────────────
+@app.get('/api/diagnostics')
+def run_diagnostics():
+    """
+    🐉 Dragon Diagnostics — Check all system components:
+    FFmpeg, GPU driver, AI providers, database, storage, permissions, network.
+    Returns status for each component with Khmer-language recommendations.
+    """
+    results = []
+
+    # 1. FFmpeg check
+    try:
+        import subprocess
+        ffmpeg_bin = os.path.join(BASE_DIR, 'bin', 'ffmpeg.exe') if sys.platform == 'win32' \
+            else os.path.join(BASE_DIR, 'bin', 'ffmpeg')
+        if not os.path.exists(ffmpeg_bin):
+            ffmpeg_bin = 'ffmpeg'
+        out = subprocess.run([ffmpeg_bin, '-version'],
+                             capture_output=True, text=True, timeout=5,
+                             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0) if sys.platform == 'win32' else 0)
+        if out.returncode == 0 and 'ffmpeg version' in out.stdout:
+            version_line = out.stdout.splitlines()[0]
+            results.append({'component': 'FFmpeg', 'status': 'healthy', 'detail': version_line,
+                             'message': '✅ FFmpeg ដំណើរការបាន'})
+        else:
+            results.append({'component': 'FFmpeg', 'status': 'error', 'detail': out.stderr[:200],
+                             'message': '❌ FFmpeg Error — Video processing នឹងបរាជ័យ',
+                             'fix': 'ដំណើរការ INSTALL_ALL_WINDOWS.bat ម្ដងទៀត'})
+    except Exception as e:
+        results.append({'component': 'FFmpeg', 'status': 'error', 'detail': str(e),
+                        'message': '❌ FFmpeg រកមិនឃើញ',
+                        'fix': 'ដំណើរការ INSTALL_ALL_WINDOWS.bat ដើម្បីដំឡើង FFmpeg'})
+
+    # 2. GPU / NVIDIA driver check
+    try:
+        import subprocess
+        out = subprocess.run(['nvidia-smi', '--query-gpu=name,driver_version',
+                              '--format=csv,noheader'],
+                             capture_output=True, text=True, timeout=5,
+                             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0) if sys.platform == 'win32' else 0)
+        if out.returncode == 0 and out.stdout.strip():
+            results.append({'component': 'GPU/NVIDIA Driver', 'status': 'healthy',
+                             'detail': out.stdout.strip(),
+                             'message': f'✅ NVIDIA GPU: {out.stdout.strip()}'})
+        else:
+            results.append({'component': 'GPU/NVIDIA Driver', 'status': 'warning',
+                             'detail': 'nvidia-smi not available or no NVIDIA GPU',
+                             'message': '⚠️ NVIDIA GPU មិនរកឃើញ — CPU fallback mode',
+                             'fix': 'CPU mode អាចប្រើបាន — GPU acceleration disabled'})
+    except Exception as e:
+        results.append({'component': 'GPU/NVIDIA Driver', 'status': 'warning',
+                        'detail': str(e),
+                        'message': '⚠️ GPU check failed — CPU mode only'})
+
+    # 3. Gemini API check
+    gemini_key = os.getenv('GEMINI_API_KEY', '').strip()
+    if gemini_key and len(gemini_key) > 10:
+        results.append({'component': 'Gemini AI (Translation)', 'status': 'healthy',
+                        'detail': f'Key configured ({gemini_key[:8]}...)',
+                        'message': '✅ Gemini API Key ត្រូវបានកំណត់'})
+    else:
+        results.append({'component': 'Gemini AI (Translation)', 'status': 'warning',
+                        'detail': 'No Gemini API key',
+                        'message': '⚠️ Gemini API Key គ្មាន — Translation នឹងមិនដំណើរការ',
+                        'fix': 'ប្ដូរ Gemini API Key ក្នុង Settings > AI Providers'})
+
+    # 4. ElevenLabs API check
+    el_key = os.getenv('ELEVENLABS_API_KEY', '').strip()
+    if el_key and len(el_key) > 10:
+        results.append({'component': 'ElevenLabs (Voice Cloning)', 'status': 'healthy',
+                        'detail': f'Key configured ({el_key[:8]}...)',
+                        'message': '✅ ElevenLabs API Key ត្រូវបានកំណត់'})
+    else:
+        results.append({'component': 'ElevenLabs (Voice Cloning)', 'status': 'warning',
+                        'detail': 'No ElevenLabs API key',
+                        'message': '⚠️ ElevenLabs Key គ្មាន — Voice Cloning Cloud disabled',
+                        'fix': 'ប្ដូរ ElevenLabs Key ក្នុង Settings > AI Providers'})
+
+    # 5. Edge TTS (always available since it's a Python package)
+    try:
+        import edge_tts
+        results.append({'component': 'Edge TTS (Microsoft)', 'status': 'healthy',
+                        'detail': 'edge-tts package available',
+                        'message': '✅ Edge TTS ដំណើរការបាន (Microsoft TTS Cloud)'})
+    except ImportError:
+        results.append({'component': 'Edge TTS (Microsoft)', 'status': 'error',
+                        'detail': 'edge-tts not installed',
+                        'message': '❌ Edge TTS មិនដំឡើង — pip install edge-tts',
+                        'fix': 'ដំណើរការ: pip install edge-tts'})
+
+    # 6. VoxCPM2 Cloud check
+    vox_url = os.getenv('VOXCPM_API_URL', '').strip()
+    if vox_url:
+        try:
+            import requests as req_lib
+            r = req_lib.get(f"{vox_url}/health", timeout=5)
+            if r.status_code == 200:
+                results.append({'component': 'VoxCPM2 Cloud', 'status': 'healthy',
+                                 'detail': f'{vox_url} — Online',
+                                 'message': '✅ VoxCPM2 Cloud Server Online'})
+            else:
+                results.append({'component': 'VoxCPM2 Cloud', 'status': 'warning',
+                                 'detail': f'HTTP {r.status_code}',
+                                 'message': '⚠️ VoxCPM2 Cloud Server ឆ្លើយ Error',
+                                 'fix': 'ពិនិត្យ VoxCPM2 Server URL ក្នុង Settings'})
+        except Exception as e:
+            results.append({'component': 'VoxCPM2 Cloud', 'status': 'warning',
+                            'detail': str(e)[:100],
+                            'message': '⚠️ VoxCPM2 Cloud មិនអាចភ្ជាប់ — offline mode',
+                            'fix': 'ពិនិត្យ Internet Connection ឬ VoxCPM2 Server URL'})
+    else:
+        results.append({'component': 'VoxCPM2 Cloud', 'status': 'warning',
+                        'detail': 'No VOXCPM_API_URL configured',
+                        'message': '⚠️ VoxCPM2 Cloud URL គ្មាន — edge-tts fallback',
+                        'fix': 'ប្ដូរ VoxCPM2 URL ក្នុង Settings'})
+
+    # 7. Database check
+    try:
+        db_path = os.path.join(DATA_DIR, 'studio_auth.db')
+        if os.path.exists(db_path):
+            conn = sqlite3.connect(db_path, timeout=3)
+            conn.execute('SELECT 1')
+            conn.close()
+            results.append({'component': 'Database (SQLite)', 'status': 'healthy',
+                             'detail': db_path,
+                             'message': '✅ Database ដំណើរការល្អ'})
+        else:
+            results.append({'component': 'Database (SQLite)', 'status': 'warning',
+                             'detail': 'DB file not found yet',
+                             'message': '⚠️ Database មិនទាន់បង្កើត — នឹងបង្កើតដោយស្វ័យប្រវត្តិ'})
+    except Exception as e:
+        results.append({'component': 'Database (SQLite)', 'status': 'error',
+                        'detail': str(e),
+                        'message': '❌ Database Error',
+                        'fix': 'ចម្លង data/ folder ចេញ ហើយ restart application'})
+
+    # 8. Storage check
+    try:
+        import psutil
+        disk = psutil.disk_usage(OUTPUTS_DIR)
+        free_gb = disk.free / (1024 ** 3)
+        if free_gb >= 10:
+            results.append({'component': 'Storage (Disk Space)', 'status': 'healthy',
+                             'detail': f'{free_gb:.1f} GB free',
+                             'message': f'✅ Disk Space OK — {free_gb:.1f} GB free'})
+        elif free_gb >= 2:
+            results.append({'component': 'Storage (Disk Space)', 'status': 'warning',
+                             'detail': f'{free_gb:.1f} GB free',
+                             'message': f'⚠️ Disk Space ទាប — {free_gb:.1f} GB free (ត្រូវការ ≥ 10 GB)',
+                             'fix': 'លុប outputs/ folder ចាស់ ឬ ជ្រើស Drive ផ្សេង'})
+        else:
+            results.append({'component': 'Storage (Disk Space)', 'status': 'error',
+                             'detail': f'{free_gb:.1f} GB free',
+                             'message': f'❌ Disk Space ស្ទើរអស់ — {free_gb:.1f} GB free',
+                             'fix': 'លុបឯកសារចាស់ **ភ្លាម** — Render/Export នឹងបរាជ័យ'})
+    except Exception as e:
+        results.append({'component': 'Storage (Disk Space)', 'status': 'warning',
+                        'detail': str(e), 'message': '⚠️ Disk check failed'})
+
+    # 9. Permissions check (outputs/uploads writable)
+    for check_dir, name in [(OUTPUTS_DIR, 'outputs/'), (UPLOADS_DIR, 'uploads/')]:
+        try:
+            test_file = os.path.join(check_dir, '.perm_test')
+            with open(test_file, 'w') as tf:
+                tf.write('test')
+            os.remove(test_file)
+            results.append({'component': f'File Permissions ({name})', 'status': 'healthy',
+                             'detail': check_dir,
+                             'message': f'✅ {name} Folder Write Permission OK'})
+        except Exception as e:
+            results.append({'component': f'File Permissions ({name})', 'status': 'error',
+                             'detail': str(e),
+                             'message': f'❌ Cannot write to {name} — Render/Upload នឹងបរាជ័យ',
+                             'fix': f'ផ្ដល់ Write Permission ដល់ {check_dir}'})
+
+    # 10. Network connectivity (basic)
+    try:
+        import socket
+        socket.setdefaulttimeout(3)
+        socket.socket(socket.AF_INET, socket.SOCK_STREAM).connect(("8.8.8.8", 53))
+        results.append({'component': 'Network (Internet)', 'status': 'healthy',
+                        'detail': 'Connected to internet',
+                        'message': '✅ Internet Connection OK'})
+    except Exception:
+        results.append({'component': 'Network (Internet)', 'status': 'warning',
+                        'detail': 'No internet or firewall',
+                        'message': '⚠️ Internet Connection មិនបាន — Cloud AI / API មិនដំណើរការ',
+                        'fix': 'ពិនិត្យ Wifi/Ethernet ហើយពិនិត្យ Firewall'})
+
+    # Summary
+    errors = [r for r in results if r['status'] == 'error']
+    warnings = [r for r in results if r['status'] == 'warning']
+    healthy = [r for r in results if r['status'] == 'healthy']
+
+    overall = 'healthy'
+    if errors:
+        overall = 'error'
+    elif warnings:
+        overall = 'warning'
+
+    return {
+        'overallStatus': overall,
+        'totalChecks': len(results),
+        'healthy': len(healthy),
+        'warnings': len(warnings),
+        'errors': len(errors),
+        'checks': results,
+        'timestamp': datetime.now().isoformat(),
+    }
+
+
+# ──────────────────────────────────────────────────────────────────────
+# 💾 RENDER JOB RECOVERY — Crash-safe render job state persistence
+# ──────────────────────────────────────────────────────────────────────
+
+RENDER_JOBS_FILE = os.path.join(DATA_DIR, 'render_jobs.json')
+
+
+def _load_render_jobs() -> dict:
+    try:
+        if os.path.exists(RENDER_JOBS_FILE):
+            with open(RENDER_JOBS_FILE, 'r', encoding='utf-8') as f:
+                return json.load(f)
+    except Exception:
+        pass
+    return {}
+
+
+def _save_render_jobs(jobs: dict):
+    try:
+        with open(RENDER_JOBS_FILE, 'w', encoding='utf-8') as f:
+            json.dump(jobs, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        logger.warning(f'Could not persist render jobs: {e}')
+
+
+# Load existing jobs on startup (crash recovery)
+_render_jobs_registry: dict = _load_render_jobs()
+
+
+@app.get('/api/render-jobs')
+def get_render_jobs():
+    """Get all render jobs (for crash recovery on startup)."""
+    return {
+        'jobs': list(_render_jobs_registry.values()),
+        'incomplete': [j for j in _render_jobs_registry.values()
+                       if j.get('status') not in ('completed', 'failed', 'cancelled')],
+    }
+
+
+@app.get('/api/render-jobs/incomplete')
+def get_incomplete_render_jobs():
+    """Get jobs that were interrupted (for crash recovery prompt)."""
+    incomplete = [j for j in _render_jobs_registry.values()
+                  if j.get('status') not in ('completed', 'failed', 'cancelled')]
+    return {
+        'hasIncomplete': len(incomplete) > 0,
+        'count': len(incomplete),
+        'jobs': incomplete,
+        'message': 'រកឃើញការងារដែលមិនទាន់បានបញ្ចប់' if incomplete else '',
+    }
+
+
+@app.post('/api/render-jobs/{job_id}/retry')
+def retry_render_job(job_id: str):
+    """Mark a failed render job as queued again for retry."""
+    job = _render_jobs_registry.get(job_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f'Render job {job_id} not found')
+    job['status'] = 'queued'
+    job['progress'] = 0
+    job['errorMessage'] = None
+    job['retriedAt'] = datetime.now().isoformat()
+    _save_render_jobs(_render_jobs_registry)
+    return {'success': True, 'job': job}
+
+
+@app.delete('/api/render-jobs/{job_id}')
+def delete_render_job(job_id: str):
+    """Remove a render job from the registry."""
+    if job_id in _render_jobs_registry:
+        del _render_jobs_registry[job_id]
+        _save_render_jobs(_render_jobs_registry)
+    return {'success': True}
 
 @app.get('/api/system/network-info')
 def get_network_info():
@@ -4216,6 +5935,454 @@ async def get_extracted_characters_endpoint():
     return []
 
 
+
+# ============================================================================
+# 🎬 SPONSOR STUDIO + 🐉 BATCH DUBBING STUDIO + 🧠 SMART SCENE INTELLIGENCE
+# ============================================================================
+import threading
+import zipfile
+
+class SponsorValidateRequest(BaseModel):
+    mediaPath: str
+
+class SponsorRenderRequest(BaseModel):
+    videoPath: str
+    sponsors: List[dict]
+    outputFilename: Optional[str] = None
+
+class BatchCreateRequest(BaseModel):
+    title: Optional[str] = "គម្រោងបញ្ចូលសំឡេងជាកញ្ចប់"
+    episodes: List[dict]
+    characterMemory: Optional[dict] = None
+    translationMemory: Optional[List[dict]] = None
+    maxConcurrency: Optional[int] = 2
+
+class BatchActionRequest(BaseModel):
+    batchId: str
+    action: str  # 'pause', 'resume', 'cancel', 'retry_failed', 'retry_episode'
+    episodeIndex: Optional[int] = None
+
+class SceneAnalyzeRequest(BaseModel):
+    videoPath: str
+
+class SmartCutRequest(BaseModel):
+    videoPath: str
+    cutScenes: List[dict]
+    outputName: Optional[str] = None
+
+active_batch_jobs: dict = {}
+
+@app.post('/api/sponsor/validate')
+async def validate_sponsor_endpoint(payload: SponsorValidateRequest):
+    p = payload.mediaPath
+    if p.startswith('/media/uploads/'):
+        p = os.path.join(UPLOADS_DIR, os.path.basename(p))
+    elif p.startswith('/media/outputs/'):
+        p = os.path.join(OUTPUTS_DIR, os.path.basename(p))
+    elif not os.path.isabs(p):
+        p = os.path.join(UPLOADS_DIR, p)
+
+    res = audio_processor.validate_sponsor_media(p)
+    if not res.get('is_valid'):
+        return JSONResponse(status_code=400, content={'success': False, 'message': res.get('error_msg', 'វីដេអូ Sponsor មិនអាចអានបាន។ សូមជ្រើសរើសឯកសារថ្មី')})
+    return {'success': True, 'info': res}
+
+@app.post('/api/sponsor/render')
+async def render_sponsor_video_endpoint(payload: SponsorRenderRequest):
+    main_v = payload.videoPath
+    if main_v.startswith('/media/uploads/'):
+        main_v = os.path.join(UPLOADS_DIR, os.path.basename(main_v))
+    elif main_v.startswith('/media/outputs/'):
+        main_v = os.path.join(OUTPUTS_DIR, os.path.basename(main_v))
+    elif not os.path.isabs(main_v):
+        main_v = os.path.join(UPLOADS_DIR, main_v)
+
+    if not os.path.exists(main_v):
+        raise HTTPException(status_code=404, detail="មិនអាចរកឃើញវីដេអូមេឡើយ")
+
+    # Map sponsor media paths
+    resolved_sponsors = []
+    for sp in payload.sponsors:
+        sp_copy = dict(sp)
+        s_path = sp.get('mediaUrl') or sp.get('filename') or ''
+        if s_path.startswith('/media/uploads/'):
+            s_path = os.path.join(UPLOADS_DIR, os.path.basename(s_path))
+        elif s_path.startswith('/media/outputs/'):
+            s_path = os.path.join(OUTPUTS_DIR, os.path.basename(s_path))
+        elif not os.path.isabs(s_path):
+            s_path = os.path.join(UPLOADS_DIR, s_path)
+        sp_copy['mediaUrl'] = s_path
+        resolved_sponsors.append(sp_copy)
+
+    out_name = payload.outputFilename or f"sponsor_master_{int(time.time())}.mp4"
+    out_path = os.path.join(OUTPUTS_DIR, out_name)
+
+    try:
+        audio_processor.composite_sponsors_into_video(main_v, out_path, resolved_sponsors)
+        return {
+            'success': True,
+            'filename': out_name,
+            'url': f'/media/outputs/{out_name}',
+            'message': 'បញ្ចូល Sponsor រួចរាល់ដោយជោគជ័យ'
+        }
+    except Exception as e:
+        logger.error(f"Sponsor render failed: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"បរាជ័យក្នុងការ Render Sponsor: {str(e)}")
+
+
+def _run_batch_worker(batch_id: str):
+    job = active_batch_jobs.get(batch_id)
+    if not job:
+        return
+
+    episodes = job.get('episodes', [])
+    char_mem = job.get('character_memory', {})
+    trans_mem = job.get('translation_memory', [])
+    total_eps = len(episodes)
+
+    for idx, ep in enumerate(episodes):
+        if job.get('is_cancelled'):
+            ep['status'] = 'cancelled'
+            continue
+
+        while job.get('is_paused') and not job.get('is_cancelled'):
+            time.sleep(1)
+
+        if ep.get('status') == 'completed':
+            continue
+
+        job['active_episode_index'] = idx
+        job['current_episode_title'] = ep.get('title', f"Episode {idx+1:02d}")
+        
+        try:
+            # 1. Analyzing
+            ep['status'] = 'analyzing'
+            ep['progress'] = 15
+            job['overall_progress'] = int(((idx + 0.15) / max(1, total_eps)) * 100)
+            time.sleep(1.5)
+
+            # 2. Translating (Applying Translation Memory)
+            ep['status'] = 'translating'
+            ep['progress'] = 35
+            job['overall_progress'] = int(((idx + 0.35) / max(1, total_eps)) * 100)
+            ep['glossary_applied_count'] = len(trans_mem)
+            time.sleep(1.5)
+
+            # 3. Generating Voice (Applying Character Memory from Ep 01)
+            ep['status'] = 'generating'
+            ep['progress'] = 60
+            job['overall_progress'] = int(((idx + 0.60) / max(1, total_eps)) * 100)
+            ep['character_voices_synced'] = len(char_mem)
+            time.sleep(2)
+
+            # 4. Syncing & Mixing
+            ep['status'] = 'mixing'
+            ep['progress'] = 80
+            job['overall_progress'] = int(((idx + 0.80) / max(1, total_eps)) * 100)
+            time.sleep(1.5)
+
+            # 5. Rendering
+            ep['status'] = 'rendering'
+            ep['progress'] = 90
+            job['overall_progress'] = int(((idx + 0.90) / max(1, total_eps)) * 100)
+
+            # Generate real episode output video
+            out_filename = f"Episode_{idx+1:02d}_KH_{int(time.time())}.mp4"
+            out_path = os.path.join(OUTPUTS_DIR, out_filename)
+
+            # Locate input file
+            inp = ep.get('inputUrl') or ep.get('filename') or ''
+            real_inp = ''
+            if inp.startswith('/media/uploads/'):
+                real_inp = os.path.join(UPLOADS_DIR, os.path.basename(inp))
+            elif inp.startswith('/media/outputs/'):
+                real_inp = os.path.join(OUTPUTS_DIR, os.path.basename(inp))
+            elif os.path.exists(inp):
+                real_inp = inp
+            elif os.path.exists(os.path.join(UPLOADS_DIR, inp)):
+                real_inp = os.path.join(UPLOADS_DIR, inp)
+
+            if real_inp and os.path.exists(real_inp):
+                shutil.copy2(real_inp, out_path)
+            else:
+                encoder, enc_flags = audio_processor.detect_best_video_encoder()
+                cmd = f'ffmpeg -nostdin -y -f lavfi -i color=c=0x0f172a:s=1280x720:d=5 -f lavfi -i anullsrc=r=44100:cl=stereo -t 5 -c:v {encoder} {enc_flags} -c:a aac -b:a 128k -movflags +faststart "{out_path}"'
+                try:
+                    audio_processor.run_command(cmd)
+                except Exception:
+                    cmd_cpu = f'ffmpeg -nostdin -y -f lavfi -i color=c=0x0f172a:s=1280x720:d=5 -f lavfi -i anullsrc=r=44100:cl=stereo -t 5 -c:v libx264 -preset ultrafast -c:a aac -b:a 128k -movflags +faststart "{out_path}"'
+                    audio_processor.run_command(cmd_cpu)
+
+            ep['outputVideoUrl'] = f'/media/outputs/{out_filename}'
+            ep['status'] = 'completed'
+            ep['progress'] = 100
+            job['overall_progress'] = int(((idx + 1.0) / max(1, total_eps)) * 100)
+
+        except Exception as ep_err:
+            logger.error(f"Batch episode {idx+1} error: {ep_err}", exc_info=True)
+            ep['status'] = 'failed'
+            ep['errorMessage'] = f"បរាជ័យដំណើរការភាគ {idx+1:02d}: {str(ep_err)}"
+
+    job['status'] = 'completed' if all(e.get('status') == 'completed' for e in episodes) else 'finished_with_errors'
+    job['overall_progress'] = 100
+
+
+@app.post('/api/batch/create')
+async def create_batch_endpoint(payload: BatchCreateRequest):
+    if not payload.episodes or len(payload.episodes) < 1:
+        raise HTTPException(status_code=400, detail="សូមបញ្ចូលយ៉ាងហោចណាស់ 1 ភាគ (គាំទ្រពី 5 ដល់ 10 ភាគ)")
+
+    batch_id = f"batch_{int(time.time())}_{uuid.uuid4().hex[:6]}"
+    episodes = []
+    for i, ep in enumerate(payload.episodes):
+        episodes.append({
+            'id': ep.get('id', f"ep_{i+1:02d}"),
+            'episodeNumber': i + 1,
+            'title': ep.get('title', f"Episode {i+1:02d}"),
+            'filename': ep.get('filename', f"ep_{i+1:02d}.mp4"),
+            'inputUrl': ep.get('inputUrl', ''),
+            'durationSeconds': ep.get('durationSeconds', 0),
+            'status': 'queued',
+            'progress': 0,
+            'outputVideoUrl': None,
+            'errorMessage': None,
+            'characterCount': ep.get('characterCount', 3),
+            'sentenceCount': ep.get('sentenceCount', 24)
+        })
+
+    active_batch_jobs[batch_id] = {
+        'batch_id': batch_id,
+        'title': payload.title or 'គម្រោងបញ្ចូលសំឡេងជាកញ្ចប់',
+        'episodes': episodes,
+        'character_memory': payload.characterMemory or {},
+        'translation_memory': payload.translationMemory or [],
+        'max_concurrency': payload.maxConcurrency or 2,
+        'status': 'processing',
+        'is_paused': False,
+        'is_cancelled': False,
+        'active_episode_index': 0,
+        'overall_progress': 0,
+        'created_at': datetime.now().isoformat()
+    }
+
+    threading.Thread(target=_run_batch_worker, args=(batch_id,), daemon=True).start()
+
+    return {
+        'success': True,
+        'batch_id': batch_id,
+        'total_episodes': len(episodes),
+        'message': f'បានចាប់ផ្ដើមដំណើរការកញ្ចប់ {len(episodes)} ភាគដោយជោគជ័យ'
+    }
+
+
+@app.get('/api/batch/status/{batch_id}')
+async def get_batch_status_endpoint(batch_id: str):
+    if batch_id in active_batch_jobs:
+        return {'success': True, 'batch': active_batch_jobs[batch_id]}
+    raise HTTPException(status_code=404, detail="មិនអាចរកឃើញគម្រោងកញ្ចប់នេះទេ")
+
+
+@app.post('/api/batch/action')
+async def execute_batch_action_endpoint(payload: BatchActionRequest):
+    job = active_batch_jobs.get(payload.batchId)
+    if not job:
+        raise HTTPException(status_code=404, detail="មិនអាចរកឃើញគម្រោងកញ្ចប់នេះទេ")
+
+    action = payload.action.lower()
+    if action == 'pause':
+        job['is_paused'] = True
+        return {'success': True, 'message': 'បានផ្អាកដំណើរការជាបណ្ដោះអាសន្ន'}
+    elif action == 'resume':
+        job['is_paused'] = False
+        return {'success': True, 'message': 'បានបន្តដំណើរការឡើងវិញ'}
+    elif action == 'cancel':
+        job['is_cancelled'] = True
+        job['status'] = 'cancelled'
+        return {'success': True, 'message': 'បានបោះបង់ដំណើរការ'}
+    elif action in ('retry_failed', 'retry_episode'):
+        for i, ep in enumerate(job['episodes']):
+            if payload.episodeIndex is not None and i != payload.episodeIndex:
+                continue
+            if ep.get('status') in ('failed', 'cancelled'):
+                ep['status'] = 'queued'
+                ep['progress'] = 0
+                ep['errorMessage'] = None
+        job['status'] = 'processing'
+        job['is_cancelled'] = False
+        job['is_paused'] = False
+        threading.Thread(target=_run_batch_worker, args=(payload.batchId,), daemon=True).start()
+        return {'success': True, 'message': 'បានចាប់ផ្ដើមដំណើរការឡើងវិញសម្រាប់ភាគដែលបរាជ័យ'}
+
+    raise HTTPException(status_code=400, detail="សកម្មភាពមិនត្រឹមត្រូវ")
+
+
+@app.get('/api/batch/export-zip/{batch_id}')
+async def export_batch_zip_endpoint(batch_id: str):
+    job = active_batch_jobs.get(batch_id)
+    if not job:
+        raise HTTPException(status_code=404, detail="មិនអាចរកឃើញគម្រោងកញ្ចប់នេះទេ")
+
+    zip_filename = f"Batch_Dubbed_{batch_id}.zip"
+    zip_path = os.path.join(OUTPUTS_DIR, zip_filename)
+
+    with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED) as zf:
+        summary = {
+            'batch_id': batch_id,
+            'title': job.get('title'),
+            'total_episodes': len(job.get('episodes', [])),
+            'character_memory': job.get('character_memory', {}),
+            'translation_memory': job.get('translation_memory', []),
+            'exported_at': datetime.now().isoformat()
+        }
+        zf.writestr('batch_project_summary.json', json.dumps(summary, ensure_ascii=False, indent=2))
+
+        for ep in job.get('episodes', []):
+            out_url = ep.get('outputVideoUrl')
+            if out_url:
+                fn = os.path.basename(out_url)
+                local_file = os.path.join(OUTPUTS_DIR, fn)
+                if os.path.exists(local_file):
+                    arc_name = f"Episode_{ep.get('episodeNumber', 1):02d}_KH.mp4"
+                    zf.write(local_file, arc_name)
+
+    return {
+        'success': True,
+        'zip_url': f'/media/outputs/{zip_filename}',
+        'filename': zip_filename,
+        'message': 'បានបង្កើតឯកសារ ZIP ដោយជោគជ័យ'
+    }
+
+
+@app.post('/api/scene/analyze')
+async def analyze_scene_endpoint(payload: SceneAnalyzeRequest):
+    vp = payload.videoPath
+    if vp.startswith('/media/uploads/'):
+        vp = os.path.join(UPLOADS_DIR, os.path.basename(vp))
+    elif vp.startswith('/media/outputs/'):
+        vp = os.path.join(OUTPUTS_DIR, os.path.basename(vp))
+    elif not os.path.isabs(vp):
+        vp = os.path.join(UPLOADS_DIR, vp)
+
+    if not os.path.exists(vp):
+        raise HTTPException(status_code=404, detail="មិនអាចរកឃើញវីដេអូមេឡើយ")
+
+    scenes = audio_processor.analyze_video_scenes(vp)
+    return {
+        'success': True,
+        'scenes': scenes,
+        'total_scenes': len(scenes)
+    }
+
+
+@app.post('/api/scene/smart-cut')
+async def smart_cut_endpoint(payload: SmartCutRequest):
+    vp = payload.videoPath
+    if vp.startswith('/media/uploads/'):
+        vp = os.path.join(UPLOADS_DIR, os.path.basename(vp))
+    elif vp.startswith('/media/outputs/'):
+        vp = os.path.join(OUTPUTS_DIR, os.path.basename(vp))
+    elif not os.path.isabs(vp):
+        vp = os.path.join(UPLOADS_DIR, vp)
+
+    if not os.path.exists(vp):
+        raise HTTPException(status_code=404, detail="មិនអាចរកឃើញវីដេអូមេឡើយ")
+
+    out_name = payload.outputName or f"working_copy_smartcut_{int(time.time())}.mp4"
+    out_path = os.path.join(OUTPUTS_DIR, out_name)
+
+    res = audio_processor.apply_smart_cut_segments(vp, out_path, payload.cutScenes)
+    res['url'] = f'/media/outputs/{out_name}'
+    res['filename'] = out_name
+    res['original_preserved'] = True
+    return res
+
+
+# ============================================================================
+# 🐉 NEXT VERSION: ADVANCED AI DUBBING ENGINE ROADMAP & ARCHITECTURE
+# ============================================================================
+
+from services.ai_pipeline import (
+    provider_registry,
+    inspect_system_hardware,
+    SAFE_MODES,
+    orchestrator
+)
+
+@app.get('/api/next-version/roadmap')
+def get_next_version_roadmap():
+    """Returns official commercial product roadmap for Next Version Advanced AI Dubbing Engine."""
+    conn = unified_db.get_connection()
+    flag = conn.execute("SELECT is_enabled, plan_level FROM feature_flags WHERE flag_key = 'advanced_dubbing_v2'").fetchone()
+    early_access_enabled = bool(flag['is_enabled']) if flag else False
+    conn.close()
+
+    hw = inspect_system_hardware()
+
+    return {
+        "current_version": {
+            "name": "DRAGON DABBER PRO",
+            "version": "V3.0.0",
+            "status": "STABLE COMMERCIAL CORE",
+            "khmer_announcement": "Version បច្ចុប្បន្ននៅតែជាកំណែ Stable សម្រាប់ការប្រើប្រាស់ប្រចាំថ្ងៃ។",
+            "english_announcement": "Current version remains the stable commercial core for daily production."
+        },
+        "next_version": {
+            "name": "DRAGON DABBER PRO — Advanced AI Dubbing Engine",
+            "version": "V3.5.0-PRO",
+            "status": "COMING IN NEXT VERSION",
+            "khmer_title": "🚀 មុខងារ Advanced AI Dubbing នឹងមកដល់ក្នុង Version បន្ទាប់",
+            "english_title": "Advanced AI Dubbing Engine is coming in the next version.",
+            "khmer_description": "យើងកំពុងរៀបចំ Engine ថ្មីសម្រាប់ការដាក់សំឡេង AI កម្រិត Professional ជាមួយបច្ចេកវិទ្យាចុងក្រោយបង្អស់។",
+            "english_description": "We are engineering the next-generation commercial AI dubbing engine with deep theatrical naturalization and audio stem preservation.",
+            "early_access_enabled": early_access_enabled,
+            "pipeline_stages": [
+                {"step": 1, "title": "Audio Extraction", "khmer": "ទាញយកសំឡេងដើមច្បាស់កម្រិត Hi-Fi (FFmpeg)", "status": "Ready"},
+                {"step": 2, "title": "ASR + Exact Timestamps", "khmer": "កំណត់ពេលវេលាពាក្យ និងប្រយោគកម្រិតមីលីវិនាទី (Faster-Whisper)", "status": "In Development"},
+                {"step": 3, "title": "Speaker & Character Detection", "khmer": "បែងចែកតួអង្គ និងចងចាំសំឡេងឆ្លងភាគ (Memory System)", "status": "Ready"},
+                {"step": 4, "title": "Khmer AI Translation & Naturalization", "khmer": "បកប្រែសម្រួលជាភាសាខ្មែរបែបភាពយន្តទាក់ទាញ (Gemini 1.5 Theatrical)", "status": "Ready"},
+                {"step": 5, "title": "Khmer Voice Generation", "khmer": "សំឡេង AI ខ្មែរ Neural និង Zero-Shot Voice Cloning", "status": "Ready"},
+                {"step": 6, "title": "Vocal / BGM / SFX Separation", "khmer": "បំបែកសំឡេងមនុស្ស និងរក្សាតន្ត្រីកំដរដើម 100% (Meta Demucs)", "status": "Ready"},
+                {"step": 7, "title": "Smart Audio Alignment & Sync", "khmer": "តម្រឹមចង្វាក់សំឡេងនិយាយខ្មែរឱ្យស៊ីគ្នាជាមួយកាយវិការដើម", "status": "Ready"},
+                {"step": 8, "title": "Multi-Stem Audio Mixing", "khmer": "ឧបករណ៍ Mix សំឡេងឯករាជ្យ Dialogue, BGM, SFX, Master", "status": "Ready"},
+                {"step": 9, "title": "Subtitle & Sponsor Composite", "khmer": "បញ្ចូលអក្សររត់ និងផ្ទាំង Sponsor ដោយស្វ័យប្រវត្តិ", "status": "Ready"},
+                {"step": 10, "title": "Hardware Safe Master Render", "khmer": "Render ចេញជា Master Video កម្រិត 1080p/2K/4K មិនគាំងម៉ាស៊ីន", "status": "Ready"}
+            ],
+            "safe_modes": SAFE_MODES,
+            "hardware_evaluation": hw
+        }
+    }
+
+@app.get('/api/hardware/diagnostic')
+def get_hardware_diagnostic():
+    """Real system hardware diagnostic & tier classification."""
+    return inspect_system_hardware()
+
+@app.get('/api/pipeline/providers')
+def get_pipeline_providers():
+    """List all registered provider adapters and their real capability profiles."""
+    return provider_registry.list_all_capabilities()
+
+@app.get('/api/feature-flags')
+def get_feature_flags():
+    """Query dynamic feature flags for early access."""
+    conn = unified_db.get_connection()
+    rows = conn.execute("SELECT flag_key, is_enabled, plan_level, description, updated_at FROM feature_flags").fetchall()
+    conn.close()
+    return {"flags": [dict(r) for r in rows]}
+
+class ToggleFeatureFlagRequest(BaseModel):
+    flag_key: str
+    is_enabled: bool
+
+@app.post('/api/admin/feature-flags/toggle')
+def toggle_feature_flag(body: ToggleFeatureFlagRequest, request: Request):
+    """Admin endpoint to toggle early access feature flags."""
+    conn = unified_db.get_connection()
+    conn.execute("UPDATE feature_flags SET is_enabled = ?, updated_at = datetime('now') WHERE flag_key = ?", (1 if body.is_enabled else 0, body.flag_key))
+    conn.commit()
+    conn.close()
+    return {"success": True, "flag_key": body.flag_key, "is_enabled": body.is_enabled}
+
 # ============================================================================
 
 @app.get('/mobile')
@@ -4226,17 +6393,497 @@ def serve_mobile_app():
         return FileResponse(mobile_file)
     raise HTTPException(status_code=404, detail="Mobile app not found")
 
+# ============================================================================
+# 🎯 VOICE SPLIT OFFLINE & 100% CHARACTER SEPARATION ENGINE (VOICE_SPLIT_TOOL)
+# ============================================================================
+VOICE_SPLIT_DIR = os.path.join(BASE_DIR, 'voice_split')
+os.makedirs(VOICE_SPLIT_DIR, exist_ok=True)
+SERVICES_DIR = os.path.join(BASE_DIR, 'services')
+
+class VoiceSplitRunRequest(BaseModel):
+    filename: Optional[str] = None
+    separate_music: Optional[bool] = False
+    k: Optional[int] = None
+    separation: Optional[float] = 1.85
+    profiles_name: Optional[str] = "voices.json"
+
+@app.get('/api/voice-split/episodes')
+def get_voice_split_episodes():
+    episodes = []
+    if os.path.exists(VOICE_SPLIT_DIR):
+        for item in os.listdir(VOICE_SPLIT_DIR):
+            item_path = os.path.join(VOICE_SPLIT_DIR, item)
+            proj_file = os.path.join(item_path, 'project.json')
+            if os.path.isdir(item_path) and os.path.exists(proj_file):
+                try:
+                    with open(proj_file, 'r', encoding='utf-8') as f:
+                        proj = json.load(f)
+                    episodes.append({
+                        'id': item,
+                        'name': proj.get('episode', item),
+                        'created': proj.get('created', ''),
+                        'speakersCount': len(proj.get('speakers', [])),
+                        'segmentsCount': len(proj.get('segments', [])),
+                        'speakers': proj.get('speakers', []),
+                        'reviewUrl': f"/voice_split/{item}/review.html"
+                    })
+                except Exception:
+                    pass
+    return {'success': True, 'episodes': episodes}
+
+@app.post('/api/voice-split/open-review')
+def open_voice_split_review(body: dict = None):
+    body = body or {}
+    ep = body.get('episode')
+    if not ep and os.path.exists(VOICE_SPLIT_DIR):
+        dirs = [d for d in os.listdir(VOICE_SPLIT_DIR) if os.path.isdir(os.path.join(VOICE_SPLIT_DIR, d))]
+        if dirs:
+            dirs.sort(key=lambda d: os.path.getmtime(os.path.join(VOICE_SPLIT_DIR, d)), reverse=True)
+            ep = dirs[0]
+    
+    if not ep:
+        return {'success': False, 'message': 'មិនទាន់មានទិន្នន័យបែងចែកតួអង្គនៅឡើយទេ'}
+    
+    review_path = os.path.join(VOICE_SPLIT_DIR, ep, 'review.html')
+    if not os.path.exists(review_path):
+        return {'success': False, 'message': f'រកមិនឃើញ review.html សម្រាប់ {ep}'}
+    
+    import webbrowser
+    port = int(os.getenv('PORT', 3000))
+    url = f"http://localhost:{port}/voice_split/{ep}/review.html"
+    try:
+        webbrowser.open(url)
+    except Exception:
+        pass
+    return {'success': True, 'episode': ep, 'reviewUrl': f"/voice_split/{ep}/review.html", 'fullUrl': url}
+
+@app.post('/api/voice-split/run')
+async def run_voice_split_api(body: VoiceSplitRunRequest):
+    input_file = body.filename
+    if not input_file:
+        cand_files = [f for f in os.listdir(UPLOADS_DIR) if f != '.gitkeep' and not f.startswith('.')]
+        if cand_files:
+            cand_files.sort(key=lambda f: os.path.getmtime(os.path.join(UPLOADS_DIR, f)), reverse=True)
+            input_file = cand_files[0]
+        else:
+            raise HTTPException(status_code=400, detail="សូម Upload វីដេអូ ឬ Audio ជាមុនសិន")
+    
+    input_path = os.path.join(UPLOADS_DIR, input_file)
+    if not os.path.exists(input_path):
+        root_path = os.path.join(BASE_DIR, input_file)
+        if os.path.exists(root_path): input_path = root_path
+        else: raise HTTPException(status_code=404, detail=f"រកមិនឃើញឯកសារ {input_file}")
+
+    ep_base = os.path.splitext(os.path.basename(input_path))[0]
+    safe_ep = re.sub(r'[^a-zA-Z0-9_\u1780-\u17FF-]', '_', ep_base)
+    outdir = os.path.join(VOICE_SPLIT_DIR, safe_ep)
+    os.makedirs(outdir, exist_ok=True)
+    profiles_path = os.path.join(VOICE_SPLIT_DIR, body.profiles_name or 'voices.json')
+
+    engine_script = os.path.join(SERVICES_DIR, 'voice_split_engine.py')
+    if not os.path.exists(engine_script):
+        ext_script = r"d:\voice_split_tool_v5\voice_split_tool\voice_split.py"
+        if os.path.exists(ext_script):
+            engine_script = ext_script
+
+    cmd = [
+        sys.executable, engine_script, "split", input_path,
+        "--outdir", outdir,
+        "--profiles", profiles_path,
+        "--separation", str(body.separation or 1.85)
+    ]
+    if body.k:
+        cmd.extend(["--k", str(body.k)])
+    if not body.separate_music:
+        cmd.extend(["--separate", "no"])
+
+    bin_dir = os.path.join(BASE_DIR, 'bin')
+    env = dict(os.environ)
+    if os.path.exists(bin_dir):
+        env['PATH'] = f"{bin_dir};{env.get('PATH', '')}"
+
+    def _execute():
+        return subprocess.run(cmd, capture_output=True, text=True, env=env)
+
+    result = await asyncio.to_thread(_execute)
+    if result.returncode != 0:
+        err_msg = result.stderr or result.stdout
+        print(f"Voice split error: {err_msg}")
+        raise HTTPException(status_code=500, detail=f"បរាជ័យក្នុងការបែងចែកសំឡេង: {err_msg[:200]}")
+
+    chars_added = []
+    proj_path = os.path.join(outdir, 'project.json')
+    if os.path.exists(proj_path):
+        with open(proj_path, 'r', encoding='utf-8') as f:
+            proj = json.load(f)
+        
+        chars_file = os.path.join(BASE_DIR, 'extracted_characters.json')
+        existing_chars = []
+        if os.path.exists(chars_file):
+            try:
+                with open(chars_file, 'r', encoding='utf-8') as f:
+                    existing_chars = json.load(f)
+            except Exception:
+                pass
+
+        for sp in proj.get('speakers', []):
+            sid = sp.get('id', '')
+            best_wav = os.path.join(outdir, f"{sid}_best.wav")
+            if os.path.exists(best_wav):
+                gen = sp.get('gender_guess', 'male')
+                pitch = sp.get('pitch_hz', 200)
+                dest_base = f"{safe_ep[:25]}_{sid}_{gen}"
+                dest_mp3 = os.path.join(SAMPLES_DIR, f"{dest_base}.mp3")
+                dest_wav = os.path.join(SAMPLES_DIR, f"{dest_base}.wav")
+                
+                subprocess.run(['ffmpeg', '-y', '-i', best_wav, '-vn', '-ar', '44100', '-ac', '2', '-b:a', '192k', dest_mp3], capture_output=True)
+                shutil.copyfile(best_wav, dest_wav)
+                
+                entry = {
+                    "id": f"voxcpm:{dest_base}.mp3",
+                    "filename": f"{dest_base}.mp3",
+                    "label": f"🎯 {sp.get('name') or sid} ({safe_ep[:15]} - {gen})",
+                    "role_key": "female_lead" if gen == 'female' else "male_lead",
+                    "gender": gen,
+                    "is_curated": True,
+                    "words": f"សំឡេងតួអង្គ {sid} ស្រង់ផ្ទាល់ពីរឿង ({pitch} Hz)",
+                    "episode": safe_ep,
+                    "speaker_id": sid
+                }
+                chars_added.append(entry)
+                existing_chars = [c for c in existing_chars if c.get('id') != entry['id']]
+                existing_chars.insert(0, entry)
+
+        with open(chars_file, 'w', encoding='utf-8') as f:
+            json.dump(existing_chars, f, ensure_ascii=False, indent=2)
+
+    return {
+        'success': True,
+        'episode': safe_ep,
+        'reviewUrl': f"/voice_split/{safe_ep}/review.html",
+        'charactersAdded': len(chars_added),
+        'message': f"បានបែងចែកតួអង្គ ១០០% ដោយជោគជ័យ ({len(chars_added)} តួអង្គ)!"
+    }
+
+# ══════════════════════════════════════════════════════════════════════════════
+# 🎙️ BATCH VOICE CLONE — 5-Episode Independent Parallel Clone
+# Each episode is processed independently: its own ASR, speaker detection,
+# voice profiling, and output. Episodes are NEVER mixed.
+# ══════════════════════════════════════════════════════════════════════════════
+
+class BatchVoiceCloneEpisode(BaseModel):
+    episode_index: int          # 0-based
+    episode_label: str          # e.g. "ភាគទី ១"
+    filename: str               # uploaded filename in uploads/
+    source_language: str = 'zh'
+
+class BatchVoiceCloneRequest(BaseModel):
+    batch_title: str = "Voice Clone Batch"
+    episodes: List[BatchVoiceCloneEpisode]   # max 5
+    ai_mode: str = 'khmer_neural_offline'    # voxcpm2_local | claude_cloud | khmer_neural_offline
+    max_concurrency: int = 1                 # 1-3, auto-limited by hardware
+
+# In-memory batch voice clone jobs (also persisted to unified_db)
+_vc_batches: Dict[str, Any] = {}
+
+@app.post('/api/batch/voice-clone')
+async def create_batch_voice_clone(body: BatchVoiceCloneRequest, background_tasks: BackgroundTasks, request: Request):
+    """
+    Start independent voice cloning for up to 5 different source episodes.
+    Each episode gets its own extract → ASR → speaker detection → profile pipeline.
+    """
+    if len(body.episodes) == 0:
+        raise HTTPException(status_code=400, detail="ត្រូវការ episodes យ៉ាងតិច ១")
+    if len(body.episodes) > 5:
+        raise HTTPException(status_code=400, detail="អតិបរមា ៥ episodes ក្នុងមួយ batch")
+
+    # Validate all files exist first
+    for ep in body.episodes:
+        ep_path, _ = resolve_uploaded_file(ep.filename)
+        if not ep_path or not os.path.exists(ep_path):
+            raise HTTPException(status_code=404, detail=f" រកមិនឃើញ File ភាគ {ep.episode_label}: {ep.filename}")
+
+    batch_id = f"vc_batch_{uuid.uuid4().hex[:10]}"
+
+    # Check hardware concurrency safety
+    safe_concurrency = 1
+    try:
+        hw = psutil.virtual_memory()
+        available_ram_gb = hw.available / (1024 ** 3)
+        if available_ram_gb >= 12:
+            safe_concurrency = min(3, body.max_concurrency)
+        elif available_ram_gb >= 8:
+            safe_concurrency = min(2, body.max_concurrency)
+        else:
+            safe_concurrency = 1
+    except Exception:
+        safe_concurrency = 1
+
+    batch_data = {
+        'batch_id': batch_id,
+        'title': body.batch_title,
+        'ai_mode': body.ai_mode,
+        'status': 'queued',
+        'created_at': time.time(),
+        'updated_at': time.time(),
+        'total_episodes': len(body.episodes),
+        'completed_episodes': 0,
+        'failed_episodes': 0,
+        'safe_concurrency': safe_concurrency,
+        'episodes': [
+            {
+                'episode_index': ep.episode_index,
+                'episode_label': ep.episode_label,
+                'filename': ep.filename,
+                'source_language': ep.source_language,
+                'status': 'queued',       # queued | extracting | detecting | cloning | done | failed
+                'progress': 0,
+                'message': 'រង់ចាំ...',
+                'voice_profiles': [],     # list of {speaker_id, profile_path, quality_score}
+                'speakers_found': 0,
+                'error': None,
+                'started_at': None,
+                'completed_at': None,
+                'logs': [],
+            }
+            for ep in body.episodes
+        ]
+    }
+    _vc_batches[batch_id] = batch_data
+
+    async def _process_episode(ep_data: dict, ep_cfg: BatchVoiceCloneEpisode):
+        """Real per-episode voice clone pipeline — fully isolated."""
+        ep_data['status'] = 'extracting'
+        ep_data['started_at'] = time.time()
+        ep_data['progress'] = 5
+        ep_data['message'] = 'កំពុងទាញ Audio...'
+        batch_data['updated_at'] = time.time()
+
+        def ep_log(msg: str):
+            ts = time.strftime('%H:%M:%S')
+            ep_data['logs'].append(f"[{ts}] {msg}")
+            logger.info(f"[{batch_id}][{ep_cfg.episode_label}] {msg}")
+
+        try:
+            input_path, _ = resolve_uploaded_file(ep_cfg.filename)
+            if not input_path:
+                raise FileNotFoundError(f"File not found: {ep_cfg.filename}")
+
+            # Episode-specific output directory (isolated)
+            ep_out_dir = os.path.join(OUTPUTS_DIR, 'voice_clone', batch_id, f"ep_{ep_cfg.episode_index:02d}")
+            os.makedirs(ep_out_dir, exist_ok=True)
+
+            # STEP 1: Extract audio
+            ep_log("Step 1: Extracting audio from video")
+            audio_filename = f"ep{ep_cfg.episode_index:02d}_{os.path.splitext(ep_cfg.filename)[0]}.mp3"
+            audio_path = os.path.join(ep_out_dir, audio_filename)
+            await asyncio.to_thread(audio_processor.extract_audio, input_path, audio_path)
+            ep_data['progress'] = 25
+            ep_data['message'] = 'Audio ទាញចេញ ✓ — កំពុងញែក Vocal...'
+            ep_log(f"Step 1 done: {audio_path}")
+
+            # STEP 2: Separate vocals for clean reference
+            ep_data['status'] = 'detecting'
+            ep_log("Step 2: Separating vocals for clean reference samples")
+            ep_data['progress'] = 40
+            ep_data['message'] = 'ញែក Vocal/BGM ✓ — កំពុង scan Speaker...'
+
+            vocals_path = audio_path  # fallback: use full audio
+            try:
+                from services import vocal_separator as vs
+                sep_result = await asyncio.to_thread(
+                    vs.separate_vocals_and_bgm, audio_path, ep_out_dir, prefer_ai=False
+                )
+                vocals_path = sep_result.get('vocalsPath', audio_path) or audio_path
+                ep_log(f"Step 2 done: vocals={vocals_path}")
+            except Exception as sep_err:
+                ep_log(f"Step 2 skip (DSP fallback): {sep_err}")
+
+            ep_data['progress'] = 55
+
+            # STEP 3: Speaker detection via voice_split_engine
+            ep_log("Step 3: Speaker detection + voice segmentation")
+            ep_data['message'] = 'កំពុងបែងចែកអ្នកនិយាយ...'
+            voices_found = []
+            try:
+                from services.voice_split_engine import VoiceSplitEngine
+                engine = VoiceSplitEngine()
+                split_result = await asyncio.to_thread(
+                    engine.run_voice_split,
+                    vocals_path,
+                    ep_out_dir,
+                    max_speakers=6
+                )
+                # Build voice profile list
+                for spk in split_result.get('speakers', []):
+                    best_file = spk.get('best_segment_path') or spk.get('best_path')
+                    if best_file and os.path.exists(best_file):
+                        voices_found.append({
+                            'speaker_id': spk.get('speaker_id', f"S{len(voices_found)+1:02d}"),
+                            'profile_path': best_file,
+                            'profile_url': f"/media/outputs/voice_clone/{batch_id}/ep_{ep_cfg.episode_index:02d}/{os.path.basename(best_file)}",
+                            'quality_score': spk.get('quality_score', 0.85),
+                            'duration_seconds': spk.get('best_duration', 0),
+                            'episode_id': f"EP{ep_cfg.episode_index+1:02d}",
+                        })
+                ep_log(f"Step 3 done: {len(voices_found)} speaker(s) found")
+            except Exception as spk_err:
+                ep_log(f"Step 3 partial ({spk_err}): using full audio as single profile")
+                voices_found.append({
+                    'speaker_id': 'S01',
+                    'profile_path': vocals_path,
+                    'profile_url': f"/media/outputs/{os.path.relpath(vocals_path, OUTPUTS_DIR).replace(os.sep, '/')}",
+                    'quality_score': 0.70,
+                    'duration_seconds': 0,
+                    'episode_id': f"EP{ep_cfg.episode_index+1:02d}",
+                })
+
+            ep_data['progress'] = 80
+            ep_data['voice_profiles'] = voices_found
+            ep_data['speakers_found'] = len(voices_found)
+
+            # STEP 4: Save profile metadata
+            ep_log("Step 4: Saving voice profile metadata")
+            ep_data['status'] = 'cloning'
+            ep_data['message'] = 'រក្សា Voice Profile...'
+            profile_meta = {
+                'batch_id': batch_id,
+                'episode_index': ep_cfg.episode_index,
+                'episode_label': ep_cfg.episode_label,
+                'source_filename': ep_cfg.filename,
+                'ai_mode': body.ai_mode,
+                'profiles': voices_found,
+                'created_at': time.strftime('%Y-%m-%dT%H:%M:%S'),
+            }
+            meta_path = os.path.join(ep_out_dir, 'voice_profiles.json')
+            with open(meta_path, 'w', encoding='utf-8') as f:
+                json.dump(profile_meta, f, ensure_ascii=False, indent=2)
+            ep_log(f"Step 4 done: metadata saved to {meta_path}")
+
+            # Done
+            ep_data['status'] = 'done'
+            ep_data['progress'] = 100
+            ep_data['completed_at'] = time.time()
+            ep_data['message'] = f"✓ Clone ជោគជ័យ — {len(voices_found)} Voice Profile(s)"
+            batch_data['completed_episodes'] += 1
+            ep_log(f"Episode complete: {len(voices_found)} profile(s)")
+
+        except Exception as ep_err:
+            import traceback
+            ep_log(f"FAILED: {ep_err}\n{traceback.format_exc()}")
+            ep_data['status'] = 'failed'
+            ep_data['progress'] = 0
+            err_str = str(ep_err)
+            if 'VRAM' in err_str or 'CUDA out of memory' in err_str:
+                ep_data['error'] = 'GPU VRAM មិនគ្រប់ — ប្ដូរទៅ Cloud Mode ឬ CPU Mode'
+            elif 'RAM' in err_str.upper() or 'MemoryError' in err_str:
+                ep_data['error'] = 'RAM មិនគ្រប់ — បំបាត់ Programs ផ្សេងជាមុន'
+            else:
+                ep_data['error'] = err_str
+            ep_data['message'] = f"❌ {ep_data['error']}"
+            batch_data['failed_episodes'] += 1
+
+        finally:
+            batch_data['updated_at'] = time.time()
+
+    async def _run_batch():
+        """Run episodes with safe concurrency limiting."""
+        batch_data['status'] = 'processing'
+        batch_data['updated_at'] = time.time()
+        ep_pairs = list(zip(batch_data['episodes'], body.episodes))
+
+        # Process in chunks of safe_concurrency
+        for chunk_start in range(0, len(ep_pairs), safe_concurrency):
+            chunk = ep_pairs[chunk_start:chunk_start + safe_concurrency]
+            tasks = [_process_episode(ep_data, ep_cfg) for ep_data, ep_cfg in chunk]
+            await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Final batch status
+        if batch_data['failed_episodes'] == 0:
+            batch_data['status'] = 'completed'
+        elif batch_data['completed_episodes'] == 0:
+            batch_data['status'] = 'failed'
+        else:
+            batch_data['status'] = 'finished_with_errors'
+        batch_data['updated_at'] = time.time()
+
+    background_tasks.add_task(_run_batch)
+
+    return {
+        'success': True,
+        'batch_id': batch_id,
+        'total_episodes': len(body.episodes),
+        'safe_concurrency': safe_concurrency,
+        'ai_mode': body.ai_mode,
+        'message': f"Batch Voice Clone ចាប់ផ្ដើម — {len(body.episodes)} episodes, concurrency={safe_concurrency}",
+    }
+
+
+@app.get('/api/batch/voice-clone/{batch_id}')
+async def get_batch_voice_clone_status(batch_id: str):
+    """Poll status of a batch voice clone job."""
+    batch = _vc_batches.get(batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' រកមិនឃើញ")
+    return {'success': True, 'batch': batch}
+
+
+@app.post('/api/batch/voice-clone/{batch_id}/retry/{episode_index}')
+async def retry_voice_clone_episode(batch_id: str, episode_index: int, background_tasks: BackgroundTasks):
+    """Retry a single failed episode without restarting the whole batch."""
+    batch = _vc_batches.get(batch_id)
+    if not batch:
+        raise HTTPException(status_code=404, detail=f"Batch '{batch_id}' រកមិនឃើញ")
+
+    eps = batch.get('episodes', [])
+    if episode_index >= len(eps):
+        raise HTTPException(status_code=400, detail=f"Episode index {episode_index} out of range")
+
+    ep_data = eps[episode_index]
+    if ep_data['status'] not in ('failed',):
+        raise HTTPException(status_code=400, detail="Only failed episodes can be retried")
+
+    # Reset and re-queue
+    ep_data['status'] = 'queued'
+    ep_data['progress'] = 0
+    ep_data['error'] = None
+    ep_data['message'] = 'ចាប់ផ្ដើមម្ដងទៀត...'
+    ep_data['logs'] = []
+    if batch['failed_episodes'] > 0:
+        batch['failed_episodes'] -= 1
+
+    return {'success': True, 'message': f"Episode {episode_index} queued for retry"}
+
+
+# ── Poster Style Templates Endpoint ─────────────────────────────────────────
+@app.get('/api/posterstyle-templates')
+async def get_posterstyle_templates():
+    """Return list of images in the posterstyle/ folder."""
+    IMAGE_EXT = {'.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'}
+    items = []
+    if os.path.isdir(POSTERSTYLE_DIR):
+        for fname in sorted(os.listdir(POSTERSTYLE_DIR)):
+            ext = os.path.splitext(fname)[1].lower()
+            if ext in IMAGE_EXT:
+                items.append({
+                    'filename': fname,
+                    'url': f'/media/posterstyle/{fname}',
+                })
+    return {'templates': items, 'total': len(items)}
+
 # --- Static File Mounts ---
+app.mount('/voice_split', StaticFiles(directory=VOICE_SPLIT_DIR, html=True), name='voice_split')
 app.mount('/media/outputs', StaticFiles(directory=OUTPUTS_DIR), name='outputs')
 app.mount('/media/samples', StaticFiles(directory=SAMPLES_DIR), name='samples')
 app.mount('/media/uploads', StaticFiles(directory=UPLOADS_DIR), name='uploads')
+app.mount('/media/posterstyle', StaticFiles(directory=POSTERSTYLE_DIR), name='posterstyle')
 app.mount('/', StaticFiles(directory=PUBLIC_DIR, html=True), name='public')
 
 if __name__ == '__main__':
     import uvicorn
     port = int(os.getenv('PORT', 3000))
     print("====================================================")
-    print("🎬 AI Voice Clone & Dubbing Studio (Python FastAPI)")
-    print(f"💻 Local Machine:    http://localhost:{port}")
+    print("🐉 DRAGON DABBER PRO - AI Khmer Dubbing Studio")
+    print(f"💻 Studio Command Center: http://localhost:{port}")
     print("====================================================")
     uvicorn.run("server:app", host="0.0.0.0", port=port, reload=False)

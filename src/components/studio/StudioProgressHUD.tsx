@@ -86,10 +86,10 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
   if (isMinimized) {
     return (
       <div className="fixed bottom-6 right-6 z-[9999] animate-in fade-in slide-in-from-bottom-4 duration-300 font-khmer">
-        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-[#12161F]/95 backdrop-blur-xl border border-cyan-500/40 shadow-[0_10px_35px_rgba(0,194,255,0.35)] text-white">
+        <div className="flex items-center gap-3 px-4 py-3 rounded-2xl bg-white dark:bg-[#12161F]/95 backdrop-blur-xl border border-cyan-500/40 shadow-[0_10px_35px_rgba(0,194,255,0.35)] text-slate-800 dark:text-white">
           <div className="relative flex items-center justify-center">
             {isCompleted ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+              <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             ) : (
               <Loader2 className="w-5 h-5 text-cyan-400 animate-spin" />
             )}
@@ -100,7 +100,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
               <span className="text-sm font-black font-mono text-cyan-300">
                 {Math.round(Math.max(0, Math.min(100, progress)))}%
               </span>
-              <span className="text-[11px] font-semibold text-zinc-300 truncate max-w-[180px]">
+              <span className="text-[11px] font-semibold text-slate-700 dark:text-zinc-300 truncate max-w-[180px]">
                 {isCompleted ? 'ជោគជ័យ ១០០%!' : message || 'កំពុងដំណើរការ...'}
               </span>
             </div>
@@ -119,7 +119,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
           <button
             type="button"
             onClick={() => setIsMinimized(false)}
-            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white transition-colors"
+            className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-800 dark:text-white transition-colors"
             title="ពង្រីកផ្ទាំងដំណើរការ"
           >
             <Maximize2 className="w-4 h-4" />
@@ -133,15 +133,15 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-md animate-in fade-in duration-200 select-none font-khmer">
       <div
-        className="w-full max-w-xl rounded-3xl bg-[#121622]/95 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,194,255,0.25)] flex flex-col overflow-hidden text-zinc-100"
+        className="w-full max-w-xl rounded-3xl bg-white dark:bg-[#121622]/95 border border-cyan-500/30 shadow-[0_0_60px_rgba(0,194,255,0.25)] flex flex-col overflow-hidden text-zinc-100"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 bg-[#182030]/90 border-b border-white/[0.08]">
+        <div className="flex items-center justify-between px-6 py-4 bg-white dark:bg-[#182030]/90 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-cyan-500/20 via-blue-600/30 to-indigo-600/20 border border-cyan-400/40 flex items-center justify-center shadow-[0_0_20px_rgba(0,194,255,0.35)] shrink-0">
               {isCompleted ? (
-                <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
               ) : isFailed ? (
                 <AlertCircle className="w-5 h-5 text-rose-400" />
               ) : (
@@ -149,19 +149,19 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
               )}
             </div>
             <div>
-              <h2 className="text-base font-extrabold text-white tracking-wide flex items-center gap-2">
+              <h2 className="text-base font-extrabold text-slate-800 dark:text-white tracking-wide flex items-center gap-2">
                 <span>{title}</span>
                 {!isCompleted && !isFailed && (
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
                 )}
               </h2>
-              <div className="flex items-center gap-3 text-xs text-zinc-400 font-mono mt-0.5">
+              <div className="flex items-center gap-3 text-xs text-slate-600 dark:text-zinc-400 font-mono mt-0.5">
                 <span className="flex items-center gap-1">
                   <Clock className="w-3 h-3 text-cyan-400" />
                   <span>{formatTime(secondsElapsed)}</span>
                 </span>
                 {jobId && (
-                  <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-zinc-400">
+                  <span className="px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-[10px] text-slate-600 dark:text-zinc-400">
                     ID: {jobId}
                   </span>
                 )}
@@ -174,7 +174,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
               <button
                 type="button"
                 onClick={() => setIsMinimized(true)}
-                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+                className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white transition-colors"
                 title="បង្រួមតូចទុកនៅជ្រុងក្រោម (Minimize)"
               >
                 <Minimize2 className="w-4 h-4" />
@@ -183,7 +183,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors"
+              className="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-600 dark:text-zinc-400 hover:text-slate-800 dark:text-white transition-colors"
               title="បិទផ្ទាំង"
             >
               <X className="w-4 h-4" />
@@ -194,7 +194,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
         {/* Content Body */}
         <div className="p-6 space-y-6">
           {/* Big Digital Percentage Gauge */}
-          <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-[#0b0e16]/80 border border-white/[0.06] relative overflow-hidden">
+          <div className="flex flex-col items-center justify-center p-6 rounded-2xl bg-white dark:bg-[#0b0e16]/80 border border-white/[0.06] relative overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-cyan-500/[0.05] via-transparent to-transparent pointer-events-none" />
 
             <div className="text-center space-y-1 relative z-10">
@@ -204,7 +204,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                 </span>
                 <span className="text-3xl font-black text-cyan-400/80 font-mono">%</span>
               </div>
-              <p className="text-xs text-zinc-400 font-medium">
+              <p className="text-xs text-slate-600 dark:text-zinc-400 font-medium">
                 {isCompleted
                   ? 'ដំណើរការចប់សព្វគ្រប់ ១០០%!'
                   : isFailed
@@ -240,7 +240,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                   )}
                   <span className="truncate">{message || 'កំពុងរៀបចំ...'}</span>
                 </div>
-                <span className="font-mono text-[11px] text-zinc-400 shrink-0">
+                <span className="font-mono text-[11px] text-slate-600 dark:text-zinc-400 shrink-0">
                   {Math.round(progress)} / 100
                 </span>
               </div>
@@ -249,7 +249,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
 
           {/* 5-Stage Checklist Roadmap */}
           <div className="space-y-2">
-            <div className="text-xs font-bold text-zinc-400 uppercase tracking-wider px-1">
+            <div className="text-xs font-bold text-slate-600 dark:text-zinc-400 uppercase tracking-wider px-1">
               ដំណាក់កាលដំណើរការ (Stages Roadmap)
             </div>
 
@@ -279,7 +279,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                           isCurrent
                             ? 'bg-cyan-500 text-black animate-pulse font-bold'
                             : isPassed
-                            ? 'bg-emerald-500 text-white font-bold'
+                            ? 'bg-emerald-500 text-slate-800 dark:text-white font-bold'
                             : 'bg-white/5 text-zinc-500'
                         }`}
                       >
@@ -295,7 +295,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                           <span>ដំណើរការ...</span>
                         </span>
                       ) : isPassed ? (
-                        <span className="text-emerald-400 font-bold flex items-center gap-1">
+                        <span className="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5" />
                           <span>រួចរាល់</span>
                         </span>
@@ -312,8 +312,8 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
           {/* Completion Celebration & Action Buttons */}
           {isCompleted && (
             <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 space-y-3 animate-in zoom-in-95 duration-200">
-              <div className="flex items-center gap-2 text-emerald-400 font-bold text-sm">
-                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+              <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                 <span>🎉 ការ Dubbing វីដេអូគ្រប់តួអង្គសម្រេចជោគជ័យ ១០០%!</span>
               </div>
 
@@ -336,9 +336,9 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                   <a
                     href={outputVideo}
                     download
-                    className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs transition-all active:scale-95"
+                    className="flex-1 min-w-[140px] flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-white/15 text-slate-800 dark:text-white font-bold text-xs transition-all active:scale-95"
                   >
-                    <Download className="w-4 h-4 text-emerald-400" />
+                    <Download className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                     <span>Download វីដេអូ MP4</span>
                   </a>
                 )}
@@ -347,7 +347,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
                   <a
                     href={outputAudio}
                     download
-                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-zinc-300 hover:text-white font-medium text-xs transition-all"
+                    className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-800 dark:text-white font-medium text-xs transition-all"
                     title="Download តែខ្សែសំឡេង Dubbed MP3"
                   >
                     <Music className="w-4 h-4 text-cyan-400" />
@@ -360,7 +360,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-3.5 bg-[#0e121a] border-t border-white/[0.08] flex items-center justify-between text-xs text-zinc-400">
+        <div className="px-6 py-3.5 bg-white dark:bg-[#0e121a] border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between text-xs text-slate-600 dark:text-zinc-400">
           <span className="flex items-center gap-1.5">
             <Sparkles className="w-3.5 h-3.5 text-cyan-400" />
             <span>VOXCPM2 Ultra HD Cinema Dubbing</span>
@@ -368,7 +368,7 @@ export const StudioProgressHUD: React.FC<StudioProgressHUDProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-zinc-300 hover:text-white font-medium transition-colors"
+            className="px-4 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-700 dark:text-zinc-300 hover:text-slate-800 dark:text-white font-medium transition-colors"
           >
             {isCompleted ? 'បិទ' : 'លាក់ទុក (Hide)'}
           </button>

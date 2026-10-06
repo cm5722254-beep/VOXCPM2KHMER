@@ -106,9 +106,9 @@ export const tw = {
   
   // Cards
   card: {
-    base: 'bg-[#1a1d23] border border-white/[0.08] rounded-2xl shadow-lg',
-    elevated: 'bg-[#1a1d23] border border-white/[0.12] rounded-2xl shadow-xl',
-    interactive: 'bg-[#1a1d23] border border-white/[0.08] hover:border-cyan-500/30 rounded-2xl shadow-lg transition-all cursor-pointer hover:shadow-cyan-500/10',
+    base: 'bg-white dark:bg-[#1a1d23] border border-white/[0.08] rounded-2xl shadow-lg',
+    elevated: 'bg-white dark:bg-[#1a1d23] border border-white/[0.12] rounded-2xl shadow-xl',
+    interactive: 'bg-white dark:bg-[#1a1d23] border border-white/[0.08] hover:border-cyan-500/30 rounded-2xl shadow-lg transition-all cursor-pointer hover:shadow-cyan-500/10',
   },
   
   // Inputs

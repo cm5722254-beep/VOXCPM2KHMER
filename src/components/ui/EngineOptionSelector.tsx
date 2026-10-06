@@ -47,7 +47,7 @@ export const EngineOptionSelector: React.FC<EngineOptionSelectorProps> = ({
       badgeText: 'LOCAL PRO',
       badgeColor: 'bg-sky-50 text-sky-800 border-sky-300',
       activeGradient:
-        'from-sky-500 to-blue-600 text-white shadow-sm',
+        'from-sky-500 to-blue-600 text-slate-800 dark:text-white shadow-sm',
     },
     {
       id: 'voxcpm_claude' as StudioEngineOption,
@@ -59,7 +59,7 @@ export const EngineOptionSelector: React.FC<EngineOptionSelectorProps> = ({
       badgeText: 'CLOUD TURBO',
       badgeColor: 'bg-purple-50 text-purple-800 border-purple-300',
       activeGradient:
-        'from-purple-600 to-indigo-600 text-white shadow-sm',
+        'from-purple-600 to-indigo-600 text-slate-800 dark:text-white shadow-sm',
     },
     {
       id: 'khmer_offline' as StudioEngineOption,
@@ -71,7 +71,7 @@ export const EngineOptionSelector: React.FC<EngineOptionSelectorProps> = ({
       badgeText: 'UNIVERSAL FAST',
       badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-300',
       activeGradient:
-        'from-emerald-500 to-teal-600 text-white shadow-sm',
+        'from-emerald-500 to-teal-600 text-slate-800 dark:text-white shadow-sm',
     },
   ];
 
@@ -91,7 +91,7 @@ export const EngineOptionSelector: React.FC<EngineOptionSelectorProps> = ({
               onClick={() => handleOptionClick(opt.id)}
               className={`flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 ${
                 isActive
-                  ? 'bg-gradient-to-r ' + opt.activeGradient + ' text-white font-black'
+                  ? 'bg-gradient-to-r ' + opt.activeGradient + ' text-slate-800 dark:text-white font-black'
                   : 'text-slate-600 hover:text-slate-900 hover:bg-white shadow-2xs'
               }`}
               title={opt.name + ' - ' + opt.sublabel}

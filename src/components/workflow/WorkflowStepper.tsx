@@ -66,14 +66,14 @@ export const WorkflowStepper: React.FC<WorkflowStepperProps> = ({
                 <div
                   className={`w-9 h-9 rounded-full flex items-center justify-center border-[2px] transition-all duration-500 ${
                     state === 'completed'
-                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400 text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]'
+                      ? 'bg-gradient-to-br from-emerald-500 to-teal-600 border-emerald-400 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(16,185,129,0.3)]'
                       : state === 'current'
                       ? 'bg-sky-50 dark:bg-[#0a0e1a] border-sky-500 text-sky-700 dark:text-sky-300 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-                      : 'bg-slate-100 dark:bg-[#0a0e1a] border-slate-300 dark:border-white/10 text-slate-400 dark:text-white/20'
+                      : 'bg-slate-100 dark:bg-[#0a0e1a] border-slate-300 dark:border-white/10 text-slate-500 dark:text-slate-400 dark:text-white/20'
                   } ${isClickable ? 'group-hover:scale-110' : ''}`}
                 >
                   {state === 'completed' ? (
-                    <Check className="w-4 h-4 text-white" />
+                    <Check className="w-4 h-4 text-slate-800 dark:text-white" />
                   ) : state === 'current' ? (
                     step.id === 'generating' ? (
                       <Loader2 className="w-4 h-4 text-sky-600 dark:text-sky-400 animate-spin" />

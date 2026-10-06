@@ -100,23 +100,23 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-xl flex items-center justify-center p-3 sm:p-5 select-none font-khmer animate-in fade-in duration-200">
-      <div className="bg-[#0b0f19] border border-amber-500/30 rounded-2xl w-full max-w-4xl overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.2)] flex flex-col max-h-[92vh]">
+      <div className="bg-white dark:bg-[#0b0f19] border border-amber-500/30 rounded-2xl w-full max-w-4xl overflow-hidden shadow-[0_0_50px_rgba(245,158,11,0.2)] flex flex-col max-h-[92vh]">
         {/* ── Modal Header ── */}
-        <div className="p-4 px-6 border-b border-white/[0.08] flex items-center justify-between bg-[#070a13]">
+        <div className="p-4 px-6 border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08] flex items-center justify-between bg-white dark:bg-[#070a13]">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-500 to-orange-600 flex items-center justify-center text-black shadow-lg shadow-amber-500/30">
               <Tv className="w-4 h-4 stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-sm font-bold text-white tracking-wide">
+                <h3 className="text-sm font-bold text-slate-800 dark:text-white tracking-wide">
                   COMMERCIAL VIDEO OVERLAY (ADS & SPONSOR)
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
                   MONETIZATION
                 </span>
               </div>
-              <p className="text-[11px] text-slate-400">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400">
                 ដាក់វីដេអូផ្សាយពាណិជ្ជកម្ម Sponsor ពីលើសាច់រឿង (Picture-in-Picture)
               </p>
             </div>
@@ -138,7 +138,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
             )}
             <button
               onClick={onClose}
-              className="text-slate-400 hover:text-white p-1.5 rounded-lg hover:bg-white/[0.08] transition-colors"
+              className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white p-1.5 rounded-lg hover:bg-slate-200 dark:bg-white/[0.08] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -148,14 +148,14 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
         {/* ── Modal Body: Left Controls | Right Live Preview ── */}
         <div className="grid grid-cols-1 lg:grid-cols-12 flex-1 overflow-y-auto">
           {/* Left Controls (6 cols) */}
-          <div className="lg:col-span-6 p-5 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r border-white/[0.08] text-xs">
+          <div className="lg:col-span-6 p-5 flex flex-col gap-4 border-b lg:border-b-0 lg:border-r border-slate-200 dark:border-slate-200 dark:border-white/[0.08] text-xs">
             {/* Enable Toggle Switch */}
             <div className="p-3.5 rounded-xl bg-amber-500/[0.08] border border-amber-500/25 flex items-center justify-between">
               <div className="flex items-center gap-2.5">
                 <div className="w-3 h-3 rounded-full bg-amber-400 animate-pulse" />
                 <div>
-                  <div className="font-bold text-white">បើកដំណើរការ Video Overlay</div>
-                  <div className="text-[10px] text-slate-400">
+                  <div className="font-bold text-slate-800 dark:text-white">បើកដំណើរការ Video Overlay</div>
+                  <div className="text-[10px] text-slate-500 dark:text-slate-400">
                     បង្ហាញវីដេអូពាណិជ្ជកម្មលើវីដេអូដើម
                   </div>
                 </div>
@@ -175,7 +175,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
 
             {/* Video File Upload / URL Input */}
             <div className="flex flex-col gap-2">
-              <label className="font-bold text-slate-300 flex items-center justify-between">
+              <label className="font-bold text-slate-600 dark:text-slate-300 flex items-center justify-between">
                 <span>ជ្រើសរើសវីដេអូពាណិជ្ជកម្ម (Upload Ad Video):</span>
                 {localConfig.originalFilename && (
                   <span className="text-[10px] text-amber-300 truncate max-w-[160px]">
@@ -190,7 +190,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
                   placeholder="URL ឬផ្លូវវីដេអូ..."
                   value={videoInputUrl}
                   onChange={(e) => setVideoInputUrl(e.target.value)}
-                  className="flex-1 bg-[#070a13] border border-white/10 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 outline-none"
+                  className="flex-1 bg-white dark:bg-[#070a13] border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-800 dark:text-white placeholder-slate-500 focus:border-amber-400 outline-none"
                 />
 
                 <label className="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-black font-bold text-xs cursor-pointer flex items-center gap-1.5 shrink-0 transition-colors">
@@ -208,7 +208,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
 
             {/* Position Selector */}
             <div className="flex flex-col gap-2">
-              <label className="font-bold text-slate-300">ទីតាំងបង្ហាញ (Position):</label>
+              <label className="font-bold text-slate-600 dark:text-slate-300">ទីតាំងបង្ហាញ (Position):</label>
               <div className="grid grid-cols-3 gap-1.5 text-[11px]">
                 {[
                   { id: 'top-left', label: 'ជ្រុងលើឆ្វេង' },
@@ -229,7 +229,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
                     className={`py-2 px-1 rounded-lg border font-semibold transition-all ${
                       localConfig.position === pos.id
                         ? 'bg-amber-500/25 border-amber-400 text-amber-200'
-                        : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
+                        : 'bg-white/[0.03] border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     {pos.label}
@@ -240,7 +240,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
 
             {/* Size Selector */}
             <div className="flex flex-col gap-2">
-              <label className="font-bold text-slate-300">ទំហំវីដេអូពាណិជ្ជកម្ម (Size):</label>
+              <label className="font-bold text-slate-600 dark:text-slate-300">ទំហំវីដេអូពាណិជ្ជកម្ម (Size):</label>
               <div className="grid grid-cols-4 gap-1.5 text-[11px]">
                 {[
                   { id: 'small', label: 'តូច (15%)' },
@@ -260,7 +260,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
                     className={`py-1.5 px-1 rounded-lg border font-semibold transition-all ${
                       localConfig.size === sz.id
                         ? 'bg-amber-500/25 border-amber-400 text-amber-200'
-                        : 'bg-white/[0.03] border-white/[0.06] text-slate-400 hover:text-white'
+                        : 'bg-white/[0.03] border-white/[0.06] text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-white'
                     }`}
                   >
                     {sz.label}
@@ -272,7 +272,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
             {/* Sliders: Start Time & Duration */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-slate-400 text-[11px]">
+                <div className="flex justify-between text-slate-500 dark:text-slate-400 text-[11px]">
                   <span>ចាប់ផ្ដើមត្រង់ (Start):</span>
                   <span className="text-amber-300 font-mono font-bold">
                     {localConfig.startTime}s
@@ -295,7 +295,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
               </div>
 
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-slate-400 text-[11px]">
+                <div className="flex justify-between text-slate-500 dark:text-slate-400 text-[11px]">
                   <span>រយៈពេលបង្ហាញ (Duration):</span>
                   <span className="text-amber-300 font-mono font-bold">
                     {localConfig.duration === 0 ? 'រហូតចប់' : `${localConfig.duration}s`}
@@ -321,7 +321,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
             {/* Opacity & Volume */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-slate-400 text-[11px]">
+                <div className="flex justify-between text-slate-500 dark:text-slate-400 text-[11px]">
                   <span>ភាពថ្លា (Opacity):</span>
                   <span className="text-amber-300 font-mono font-bold">
                     {localConfig.opacity}%
@@ -344,7 +344,7 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
               </div>
 
               <div className="flex flex-col gap-1">
-                <div className="flex justify-between text-slate-400 text-[11px]">
+                <div className="flex justify-between text-slate-500 dark:text-slate-400 text-[11px]">
                   <span>កម្រិតសំឡេង Ad (Volume):</span>
                   <span className="text-amber-300 font-mono font-bold">
                     {localConfig.volume}%
@@ -370,12 +370,12 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
 
           {/* Right Live Visual Simulation (6 cols) */}
           <div className="lg:col-span-6 p-5 flex flex-col items-center justify-center bg-black/50 relative min-h-[300px]">
-            <div className="text-[11px] text-slate-400 mb-2 flex items-center gap-1.5">
-              <Eye className="w-3.5 h-3.5 text-amber-400" />
+            <div className="text-[11px] text-slate-500 dark:text-slate-400 mb-2 flex items-center gap-1.5">
+              <Eye className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" />
               <span>ការបង្ហាញជាក់ស្ដែង (Live Simulation):</span>
             </div>
 
-            <div className="relative w-full aspect-video bg-slate-950 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center">
+            <div className="relative w-full aspect-video bg-white dark:bg-slate-950 rounded-2xl border border-white/10 overflow-hidden shadow-2xl flex items-center justify-center">
               {/* Main background mockup or video */}
               {mainVideoSrc ? (
                 <video
@@ -430,10 +430,10 @@ export const CommercialOverlayModal: React.FC<CommercialOverlayModalProps> = ({
         </div>
 
         {/* ── Modal Footer ── */}
-        <div className="p-4 px-6 border-t border-white/[0.08] bg-[#070a13] flex items-center justify-end gap-3">
+        <div className="p-4 px-6 border-t border-slate-200 dark:border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#070a13] flex items-center justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs text-slate-300 transition-colors"
+            className="px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.1] text-xs text-slate-600 dark:text-slate-300 transition-colors"
           >
             បោះបង់
           </button>

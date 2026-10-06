@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import {
   Palette,
   Image as ImageIcon,
@@ -57,73 +57,73 @@ const PRESET_BACKGROUND_COLORS: ColorPresetItem[] = [
   {
     id: 'pearl_snow',
     name: 'Pearl Snow Light (Eye Friendly)',
-    khName: '🥛 ពណ៌សគុជខ្យង (ណែនាំពិសេស - ស្រទន់ភ្នែក)',
+    khName: 'ðŸ¥› áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ (ážŽáŸ‚áž“áž¶áŸ†áž–áž·ážŸáŸážŸ - ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€)',
     color: '#f8fafc',
-    description: 'ស្រទន់ភ្នែក មិនចាំងភ្នែក មិនសរខ្លាំងពេក មើលអក្សរ និងប៊ូតុងច្បាស់ល្អបំផុត',
+    description: 'ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ áž˜áž·áž“áž…áž¶áŸ†áž„áž—áŸ’áž“áŸ‚áž€ áž˜áž·áž“ážŸážšážáŸ’áž›áž¶áŸ†áž„áž–áŸáž€ áž˜áž¾áž›áž¢áž€áŸ’ážŸážš áž“áž·áž„áž”áŸŠáž¼ážáž»áž„áž…áŸ’áž”áž¶ážŸáŸ‹áž›áŸ’áž¢áž”áŸ†áž•áž»áž',
     textColor: '#0f172a',
   },
   {
     id: 'clean_white',
     name: 'Pure Clean White',
-    khName: '⚪ ពណ៌សសុទ្ធ (ភ្លឺច្បាស់)',
+    khName: 'âšª áž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’ (áž—áŸ’áž›ážºáž…áŸ’áž”áž¶ážŸáŸ‹)',
     color: '#ffffff',
-    description: 'ពណ៌សសុទ្ធ ភ្លឺច្បាស់ល្អបែប Studio Canvas',
+    description: 'áž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’ áž—áŸ’áž›ážºáž…áŸ’áž”áž¶ážŸáŸ‹áž›áŸ’áž¢áž”áŸ‚áž” Studio Canvas',
     textColor: '#0f172a',
   },
   {
     id: 'ice_crystal',
     name: 'Ice Crystal White',
-    khName: '💎 ពណ៌សទឹកកក',
+    khName: 'ðŸ’Ž áž–ážŽáŸŒážŸáž‘áž¹áž€áž€áž€',
     color: '#f0f7ff',
-    description: 'ពណ៌សលាយខៀវស្រាល ស្រស់ថ្លា បែប Luxury Studio',
+    description: 'áž–ážŽáŸŒážŸáž›áž¶áž™ážáŸ€ážœážŸáŸ’ážšáž¶áž› ážŸáŸ’ážšážŸáŸ‹ážáŸ’áž›áž¶ áž”áŸ‚áž” Luxury Studio',
     textColor: '#0f172a',
   },
   {
     id: 'warm_ivory',
     name: 'Warm Ivory Linen',
-    khName: '🌾 ពណ៌សក្រែម',
+    khName: 'ðŸŒ¾ áž–ážŽáŸŒážŸáž€áŸ’ážšáŸ‚áž˜',
     color: '#fafaf9',
-    description: 'ពណ៌បែបកក់ក្តៅ ទន់ភ្លន់ និងប្រណិត',
+    description: 'áž–ážŽáŸŒáž”áŸ‚áž”áž€áž€áŸ‹áž€áŸ’ážáŸ… áž‘áž“áŸ‹áž—áŸ’áž›áž“áŸ‹ áž“áž·áž„áž”áŸ’ážšážŽáž·áž',
     textColor: '#0f172a',
   },
   {
     id: 'slate_light',
     name: 'Studio Slate Light',
-    khName: '🌫️ ពណ៌ Slate ស្រាល',
+    khName: 'ðŸŒ«ï¸ áž–ážŽáŸŒ Slate ážŸáŸ’ážšáž¶áž›',
     color: '#f1f5f9',
-    description: 'ពណ៌ប្រផេះស្រាលបែប Executive Studio អាជីព',
+    description: 'áž–ážŽáŸŒáž”áŸ’ážšáž•áŸáŸ‡ážŸáŸ’ážšáž¶áž›áž”áŸ‚áž” Executive Studio áž¢áž¶áž‡áž¸áž–',
     textColor: '#0f172a',
   },
   {
     id: 'sakura_light',
     name: 'Soft Sakura Pink',
-    khName: '🌸 ពណ៌ផ្កាឈូកស្រាល',
+    khName: 'ðŸŒ¸ áž–ážŽáŸŒáž•áŸ’áž€áž¶ážˆáž¼áž€ážŸáŸ’ážšáž¶áž›',
     color: '#fdf2f8',
-    description: 'ពណ៌ស្រាលបែប anime ស្រទន់ និងទាក់ទាញ',
+    description: 'áž–ážŽáŸŒážŸáŸ’ážšáž¶áž›áž”áŸ‚áž” anime ážŸáŸ’ážšáž‘áž“áŸ‹ áž“áž·áž„áž‘áž¶áž€áŸ‹áž‘áž¶áž‰',
     textColor: '#0f172a',
   },
   {
     id: 'mint_light',
     name: 'Fresh Mint Green',
-    khName: '🌿 ពណ៌បៃតងស្រាល',
+    khName: 'ðŸŒ¿ áž–ážŽáŸŒáž”áŸƒážáž„ážŸáŸ’ážšáž¶áž›',
     color: '#f0fdf4',
-    description: 'ពណ៌ស្រស់ថ្លា បន្ធូរអារម្មណ៍ និងភ្នែកពេលធ្វើការយូរ',
+    description: 'áž–ážŽáŸŒážŸáŸ’ážšážŸáŸ‹ážáŸ’áž›áž¶ áž”áž“áŸ’áž’áž¼ážšáž¢áž¶ážšáž˜áŸ’áž˜ážŽáŸ áž“áž·áž„áž—áŸ’áž“áŸ‚áž€áž–áŸáž›áž’áŸ’ážœáž¾áž€áž¶ážšáž™áž¼ážš',
     textColor: '#0f172a',
   },
   {
     id: 'aurora_light',
     name: 'Aurora Pastel Gradient',
-    khName: '🌈 ពណ៌ឥន្ធនូស្រាល',
+    khName: 'ðŸŒˆ áž–ážŽáŸŒáž¥áž“áŸ’áž’áž“áž¼ážŸáŸ’ážšáž¶áž›',
     color: 'linear-gradient(135deg, #f0f9ff 0%, #fdf4ff 50%, #f0fdf4 100%)',
-    description: 'ពណ៌ឥន្ធនូស្រាលបែប Pastel ស្រស់ស្អាតទំនើប',
+    description: 'áž–ážŽáŸŒáž¥áž“áŸ’áž’áž“áž¼ážŸáŸ’ážšáž¶áž›áž”áŸ‚áž” Pastel ážŸáŸ’ážšážŸáŸ‹ážŸáŸ’áž¢áž¶ážáž‘áŸ†áž“áž¾áž”',
     textColor: '#0f172a',
   },
   {
     id: 'default_dark',
     name: 'Stealth Dark Pro',
-    khName: '🖤 ពណ៌ងងឹត Pro',
+    khName: 'ðŸ–¤ áž–ážŽáŸŒáž„áž„áž¹áž Pro',
     color: '#0f172a',
-    description: 'សម្រាប់អ្នកដែលចូលចិត្តរបៀប Dark Mode ងងឹត',
+    description: 'ážŸáž˜áŸ’ážšáž¶áž”áŸ‹áž¢áŸ’áž“áž€ážŠáŸ‚áž›áž…áž¼áž›áž…áž·ážáŸ’ážážšáž”áŸ€áž” Dark Mode áž„áž„áž¹áž',
     textColor: '#f8fafc',
     isDark: true,
   },
@@ -140,7 +140,7 @@ const PRESET_GLASS_COLORS: {
 }[] = [
   {
     id: 'ice',
-    name: '❄️ Glacier Ice (ណែនាំសម្រាប់ពណ៌ស)',
+    name: 'â„ï¸ Glacier Ice (ážŽáŸ‚áž“áž¶áŸ†ážŸáž˜áŸ’ážšáž¶áž”áŸ‹áž–ážŽáŸŒážŸ)',
     badge: 'FROST BLUE',
     tintRgba: 'rgba(240, 249, 255, 0.85)',
     borderRgba: 'rgba(56, 189, 248, 0.35)',
@@ -149,7 +149,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'cyan',
-    name: '💎 Cyan Crystal Glass',
+    name: 'ðŸ’Ž Cyan Crystal Glass',
     badge: 'CYAN CRYSTAL',
     tintRgba: 'rgba(236, 254, 255, 0.85)',
     borderRgba: 'rgba(6, 182, 212, 0.35)',
@@ -158,7 +158,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'purple',
-    name: '🌸 Sakura Purple Glass',
+    name: 'ðŸŒ¸ Sakura Purple Glass',
     badge: 'ANIME VIOLET',
     tintRgba: 'rgba(250, 245, 255, 0.85)',
     borderRgba: 'rgba(168, 85, 247, 0.35)',
@@ -167,7 +167,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'amber',
-    name: '🍯 Amber Gold Glass',
+    name: 'ðŸ¯ Amber Gold Glass',
     badge: 'WARM GOLD',
     tintRgba: 'rgba(254, 252, 232, 0.85)',
     borderRgba: 'rgba(245, 158, 11, 0.35)',
@@ -176,7 +176,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'emerald',
-    name: '🍃 Frosted Emerald Glass',
+    name: 'ðŸƒ Frosted Emerald Glass',
     badge: 'BIO MATRIX',
     tintRgba: 'rgba(236, 253, 245, 0.85)',
     borderRgba: 'rgba(16, 185, 129, 0.35)',
@@ -185,7 +185,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'crimson',
-    name: '🩸 Crimson Rose Glass',
+    name: 'ðŸ©¸ Crimson Rose Glass',
     badge: 'ROSE RED',
     tintRgba: 'rgba(255, 241, 242, 0.85)',
     borderRgba: 'rgba(244, 63, 94, 0.35)',
@@ -194,7 +194,7 @@ const PRESET_GLASS_COLORS: {
   },
   {
     id: 'obsidian',
-    name: '🖤 Dark Obsidian Smoke',
+    name: 'ðŸ–¤ Dark Obsidian Smoke',
     badge: 'STEALTH PRO',
     tintRgba: 'rgba(15, 23, 42, 0.85)',
     borderRgba: 'rgba(255, 255, 255, 0.15)',
@@ -204,14 +204,14 @@ const PRESET_GLASS_COLORS: {
 ];
 
 const PRESET_STICKERS = [
-  { name: '🔥 Fire Flame', url: '🔥' },
-  { name: '👑 Royal Crown', url: '👑' },
-  { name: '⚔️ Katana Blade', url: '⚔️' },
-  { name: '🌸 Cherry Blossom', url: '🌸' },
-  { name: '⚡ Lightning Zap', url: '⚡' },
-  { name: '✨ Anime Sparkle', url: '✨' },
-  { name: '🐉 Dragon Spirit', url: '🐉' },
-  { name: '🤖 Cyber AI', url: '🤖' },
+  { name: 'ðŸ”¥ Fire Flame', url: 'ðŸ”¥' },
+  { name: 'ðŸ‘‘ Royal Crown', url: 'ðŸ‘‘' },
+  { name: 'âš”ï¸ Katana Blade', url: 'âš”ï¸' },
+  { name: 'ðŸŒ¸ Cherry Blossom', url: 'ðŸŒ¸' },
+  { name: 'âš¡ Lightning Zap', url: 'âš¡' },
+  { name: 'âœ¨ Anime Sparkle', url: 'âœ¨' },
+  { name: 'ðŸ‰ Dragon Spirit', url: 'ðŸ‰' },
+  { name: 'ðŸ¤– Cyber AI', url: 'ðŸ¤–' },
 ];
 
 export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
@@ -236,7 +236,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
   // Custom and preset wallpapers list in state
   const [customWallpapers, setCustomWallpapers] = useState<WallpaperItem[]>(() => {
     try {
-      const saved = localStorage.getItem('animestudio_custom_wallpapers');
+      const saved = localStorage.getItem('dragon_dabber_custom_wallpapers');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -245,7 +245,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
 
   const [presets, setPresets] = useState<WallpaperItem[]>(() => {
     try {
-      const saved = localStorage.getItem('animestudio_preset_wallpapers');
+      const saved = localStorage.getItem('dragon_dabber_preset_wallpapers');
       return saved ? JSON.parse(saved) : DEFAULT_PRESET_WALLPAPERS;
     } catch {
       return DEFAULT_PRESET_WALLPAPERS;
@@ -262,7 +262,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
     setLocalTheme(updated);
     onChangeTheme(updated);
     try {
-      localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
     } catch {}
   };
 
@@ -277,7 +277,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       accentColor: 'sky',
     };
     updateTheme(updated);
-    onShowToast?.('🥛 បានដាក់ពណ៌សគុជខ្យង ស្រទន់ភ្នែក (Pearl Snow Soft White) ជោគជ័យ!', 'success');
+    onShowToast?.('ðŸ¥› áž”áž¶áž“ážŠáž¶áž€áŸ‹áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ (Pearl Snow Soft White) áž‡áŸ„áž‚áž‡áŸáž™!', 'success');
   };
 
   // 1-Click Set Pure Clean White Studio
@@ -291,7 +291,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       accentColor: 'sky',
     };
     updateTheme(updated);
-    onShowToast?.('⚪ បានដាក់ពណ៌សស្អាតសុទ្ធ (Clean Pure White Studio) ជោគជ័យ!', 'success');
+    onShowToast?.('âšª áž”áž¶áž“ážŠáž¶áž€áŸ‹áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶ážážŸáž»áž‘áŸ’áž’ (Clean Pure White Studio) áž‡áŸ„áž‚áž‡áŸáž™!', 'success');
   };
 
   // Select Solid Color Preset
@@ -304,7 +304,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       accentColor: preset.isDark ? 'cyan' : 'sky',
     };
     updateTheme(updated);
-    onShowToast?.(`✨ បានកំណត់ពណ៌ផ្ទៃខាងក្រោយ "${preset.khName}"!`, 'success');
+    onShowToast?.(`âœ¨ áž”áž¶áž“áž€áŸ†ážŽážáŸ‹áž–ážŽáŸŒáž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™ "${preset.khName}"!`, 'success');
   };
 
   // Apply custom hex color
@@ -331,14 +331,14 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       const newItem: WallpaperItem = {
         id: newId,
         name: file.name.replace(/\.[^/.]+$/, '').substring(0, 24) || 'Custom Wallpaper',
-        preview: '🖼️',
+        preview: 'ðŸ–¼ï¸',
         url: base64,
         isCustom: true,
       };
 
       const updatedList = [newItem, ...customWallpapers];
       setCustomWallpapers(updatedList);
-      localStorage.setItem('animestudio_custom_wallpapers', JSON.stringify(updatedList));
+      localStorage.setItem('dragon_dabber_custom_wallpapers', JSON.stringify(updatedList));
 
       const updatedTheme: StudioCustomUITheme = {
         ...localTheme,
@@ -349,7 +349,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
         wallpaperBlur: 0,
       };
       updateTheme(updatedTheme);
-      onShowToast?.(`🎉 បានដាក់រូប Wallpaper ផ្ទាល់ខ្លួនជោគជ័យ!`, 'success');
+      onShowToast?.(`ðŸŽ‰ áž”áž¶áž“ážŠáž¶áž€áŸ‹ážšáž¼áž” Wallpaper áž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“áž‡áŸ„áž‚áž‡áŸáž™!`, 'success');
     };
     reader.readAsDataURL(file);
   };
@@ -365,7 +365,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
         backgroundPreset: 'pearl_snow',
       };
       updateTheme(updated);
-      onShowToast?.('✨ បានដោះ Wallpaper ចេញ (ប្ដូរទៅពណ៌សស្រទន់ Pearl Snow)!', 'info');
+      onShowToast?.('âœ¨ áž”áž¶áž“ážŠáŸ„áŸ‡ Wallpaper áž…áŸáž‰ (áž”áŸ’ážŠáž¼ážšáž‘áŸ…áž–ážŽáŸŒážŸážŸáŸ’ážšáž‘áž“áŸ‹ Pearl Snow)!', 'info');
       return;
     }
 
@@ -378,7 +378,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       wallpaperBlur: 0,
     };
     updateTheme(updated);
-    onShowToast?.('🖼️ បានប្ដូររូប Wallpaper ថ្មីច្បាស់ត្រជាក់ភ្នែក!', 'success');
+    onShowToast?.('ðŸ–¼ï¸ áž”áž¶áž“áž”áŸ’ážŠáž¼ážšážšáž¼áž” Wallpaper ážáŸ’áž˜áž¸áž…áŸ’áž”áž¶ážŸáŸ‹ážáŸ’ážšáž‡áž¶áž€áŸ‹áž—áŸ’áž“áŸ‚áž€!', 'success');
   };
 
   const allWallpapers = [...customWallpapers, ...presets];
@@ -402,7 +402,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
   const handleDeleteSelected = () => {
     if (selectedWallpaperIds.length === 0) return;
 
-    if (!window.confirm(`តើអ្នកពិតជាចង់លុប Wallpaper ចំនួន ${selectedWallpaperIds.length} ដែលបាន Select មែនទេ?`)) {
+    if (!window.confirm(`ážáž¾áž¢áŸ’áž“áž€áž–áž·ážáž‡áž¶áž…áž„áŸ‹áž›áž»áž” Wallpaper áž…áŸ†áž“áž½áž“ ${selectedWallpaperIds.length} ážŠáŸ‚áž›áž”áž¶áž“ Select áž˜áŸ‚áž“áž‘áŸ?`)) {
       return;
     }
 
@@ -412,30 +412,30 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
 
     const newCustomList = customWallpapers.filter((w) => !selectedWallpaperIds.includes(w.id));
     setCustomWallpapers(newCustomList);
-    localStorage.setItem('animestudio_custom_wallpapers', JSON.stringify(newCustomList));
+    localStorage.setItem('dragon_dabber_custom_wallpapers', JSON.stringify(newCustomList));
 
     const newPresetsList = presets.filter((w) => !selectedWallpaperIds.includes(w.id));
     setPresets(newPresetsList);
-    localStorage.setItem('animestudio_preset_wallpapers', JSON.stringify(newPresetsList));
+    localStorage.setItem('dragon_dabber_preset_wallpapers', JSON.stringify(newPresetsList));
 
     if (localTheme.wallpaperUrl && selectedUrls.includes(localTheme.wallpaperUrl)) {
       handleSelectWallpaper(null);
     }
 
     setSelectedWallpaperIds([]);
-    onShowToast?.(`🗑️ បានលុប Background ចំនួន ${selectedWallpaperIds.length} រួចរាល់!`, 'info');
+    onShowToast?.(`ðŸ—‘ï¸ áž”áž¶áž“áž›áž»áž” Background áž…áŸ†áž“áž½áž“ ${selectedWallpaperIds.length} ážšáž½áž…ážšáž¶áž›áŸ‹!`, 'info');
   };
 
   const handleDeleteAllWallpapers = () => {
-    if (!window.confirm('តើអ្នកចង់លុប Wallpaper ទាំងអស់ និងកំណត់ទៅពណ៌សស្អាត (Clean White Studio) មែនទេ?')) {
+    if (!window.confirm('ážáž¾áž¢áŸ’áž“áž€áž…áž„áŸ‹áž›áž»áž” Wallpaper áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹ áž“áž·áž„áž€áŸ†ážŽážáŸ‹áž‘áŸ…áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶áž (Clean White Studio) áž˜áŸ‚áž“áž‘áŸ?')) {
       return;
     }
 
     setCustomWallpapers([]);
-    localStorage.removeItem('animestudio_custom_wallpapers');
+    localStorage.removeItem('dragon_dabber_custom_wallpapers');
     handleSelectWallpaper(null);
     setSelectedWallpaperIds([]);
-    onShowToast?.('✨ បានលុប Wallpaper ចេញទាំងអស់ (Clean White Studio)!', 'warning');
+    onShowToast?.('âœ¨ áž”áž¶áž“áž›áž»áž” Wallpaper áž…áŸáž‰áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹ (Clean White Studio)!', 'warning');
   };
 
   const handleDeleteSingle = (id: string, url: string, isCustom: boolean, e: React.MouseEvent) => {
@@ -443,11 +443,11 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
     if (isCustom) {
       const updated = customWallpapers.filter((w) => w.id !== id);
       setCustomWallpapers(updated);
-      localStorage.setItem('animestudio_custom_wallpapers', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_custom_wallpapers', JSON.stringify(updated));
     } else {
       const updated = presets.filter((w) => w.id !== id);
       setPresets(updated);
-      localStorage.setItem('animestudio_preset_wallpapers', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_preset_wallpapers', JSON.stringify(updated));
     }
 
     setSelectedWallpaperIds((prev) => prev.filter((item) => item !== id));
@@ -455,13 +455,13 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
     if (localTheme.wallpaperUrl === url) {
       handleSelectWallpaper(null);
     }
-    onShowToast?.('បានលុប Wallpaper មួយនេះរួចរាល់', 'info');
+    onShowToast?.('áž”áž¶áž“áž›áž»áž” Wallpaper áž˜áž½áž™áž“áŸáŸ‡ážšáž½áž…ážšáž¶áž›áŸ‹', 'info');
   };
 
   const handleResetDefaultPresets = () => {
     setPresets(DEFAULT_PRESET_WALLPAPERS);
-    localStorage.removeItem('animestudio_preset_wallpapers');
-    onShowToast?.('បានដាក់គំរូ Wallpaper ដើមឡើងវិញ!', 'success');
+    localStorage.removeItem('dragon_dabber_preset_wallpapers');
+    onShowToast?.('áž”áž¶áž“ážŠáž¶áž€áŸ‹áž‚áŸ†ážšáž¼ Wallpaper ážŠáž¾áž˜áž¡áž¾áž„ážœáž·áž‰!', 'success');
   };
 
   const handleSelectGlassColor = (glassId: GlassColorPreset) => {
@@ -470,7 +470,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       glassColor: glassId,
     };
     updateTheme(updated);
-    onShowToast?.(`✨ បានប្ដូរ Color Glass ទៅ ${glassId.toUpperCase()}!`, 'success');
+    onShowToast?.(`âœ¨ áž”áž¶áž“áž”áŸ’ážŠáž¼ážš Color Glass áž‘áŸ… ${glassId.toUpperCase()}!`, 'success');
   };
 
   const handleAddEmojiSticker = (emoji: string, name: string) => {
@@ -489,7 +489,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       stickers: [...localTheme.stickers, newSticker],
     };
     updateTheme(updated);
-    onShowToast?.(`បានបន្ថែម Sticker ${emoji}!`, 'success');
+    onShowToast?.(`áž”áž¶áž“áž”áž“áŸ’ážáŸ‚áž˜ Sticker ${emoji}!`, 'success');
   };
 
   const handleRemoveSticker = (id: string) => {
@@ -516,8 +516,8 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
       backgroundPreset: 'clean_white',
     };
     updateTheme(defaultTheme);
-    localStorage.removeItem('animestudio_custom_theme');
-    onShowToast?.('បានកំណត់រចនាបថស្ទូឌីយោទៅពណ៌សស្អាតសុទ្ធ (Clean White Default)!', 'info');
+    localStorage.removeItem('dragon_dabber_custom_theme');
+    onShowToast?.('áž”áž¶áž“áž€áŸ†ážŽážáŸ‹ážšáž…áž“áž¶áž”ážážŸáŸ’áž‘áž¼ážŒáž¸áž™áŸ„áž‘áŸ…áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶ážážŸáž»áž‘áŸ’áž’ (Clean White Default)!', 'info');
   };
 
   const isColorModeActive = localTheme.bgMode === 'color' || !localTheme.wallpaperUrl;
@@ -525,23 +525,23 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 select-none font-khmer animate-in fade-in duration-200">
       <div className="bg-white border border-slate-200/90 rounded-3xl w-full max-w-4xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        {/* ── Modal Header ── */}
+        {/* â”€â”€ Modal Header â”€â”€ */}
         <div className="p-4 px-6 border-b border-slate-200 flex items-center justify-between bg-slate-50/90 shrink-0">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md shadow-sky-500/25">
+            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-indigo-500 to-purple-600 flex items-center justify-center text-slate-800 dark:text-white shadow-md shadow-sky-500/25">
               <Palette className="w-5 h-5 stroke-[2.5]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
                 <h3 className="text-sm font-black text-slate-900 tracking-wide">
-                  🎨 ប្ដូរពណ៌ផ្ទៃខាងក្រោយ & WALLPAPER
+                  ðŸŽ¨ áž”áŸ’ážŠáž¼ážšáž–ážŽáŸŒáž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™ & WALLPAPER
                 </h3>
                 <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300">
                   STUDIO THEME
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 mt-0.5">
-                កំណត់ផ្ទៃខាងក្រោយពណ៌សស្អាត (Clean White) ងាយស្រួលយល់ និងប្រើប្រាស់ ឬប្ដូរ Wallpaper 4K
+                áž€áŸ†ážŽážáŸ‹áž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™áž–ážŽáŸŒážŸážŸáŸ’áž¢áž¶áž (Clean White) áž„áž¶áž™ážŸáŸ’ážšáž½áž›áž™áž›áŸ‹ áž“áž·áž„áž”áŸ’ážšáž¾áž”áŸ’ážšáž¶ážŸáŸ‹ áž¬áž”áŸ’ážŠáž¼ážš Wallpaper 4K
               </p>
             </div>
           </div>
@@ -549,22 +549,22 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
           <button
             onClick={onClose}
             className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-red-50 hover:text-red-600 border border-slate-200 hover:border-red-200 text-slate-500 flex items-center justify-center transition-all active:scale-95"
-            title="បិទផ្ទាំង (Close)"
+            title="áž”áž·áž‘áž•áŸ’áž‘áž¶áŸ†áž„ (Close)"
           >
             <X className="w-4 h-4 stroke-[2.5]" />
           </button>
         </div>
 
-        {/* ── Quick Mode Toggle: Wallpaper vs Soft Color ── */}
+        {/* â”€â”€ Quick Mode Toggle: Wallpaper vs Soft Color â”€â”€ */}
         <div className="px-6 py-2.5 bg-gradient-to-r from-sky-50 via-indigo-50 to-purple-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-slate-700">របៀបផ្ទៃខាងក្រោយកំពុងប្រើ:</span>
+            <span className="text-xs font-bold text-slate-700">ážšáž”áŸ€áž”áž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™áž€áŸ†áž–áž»áž„áž”áŸ’ážšáž¾:</span>
             <span className={`px-2.5 py-0.5 rounded-full text-[11px] font-black shadow-2xs ${
               localTheme.bgMode === 'wallpaper'
-                ? 'bg-indigo-600 text-white'
-                : 'bg-emerald-600 text-white'
+                ? 'bg-indigo-600 text-slate-800 dark:text-white'
+                : 'bg-emerald-600 text-slate-800 dark:text-white'
             }`}>
-              {localTheme.bgMode === 'wallpaper' ? '🖼️ ផ្ទាំងរូបភាព Wallpaper 4K' : '🎨 ពណ៌ស្រទន់ Soft Color'}
+              {localTheme.bgMode === 'wallpaper' ? 'ðŸ–¼ï¸ áž•áŸ’áž‘áž¶áŸ†áž„ážšáž¼áž”áž—áž¶áž– Wallpaper 4K' : 'ðŸŽ¨ áž–ážŽáŸŒážŸáŸ’ážšáž‘áž“áŸ‹ Soft Color'}
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -578,16 +578,16 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                 };
                 updateTheme(updated);
                 setActiveTab('wallpaper');
-                onShowToast?.('🖼️ បានប្ដូរទៅប្រើ Wallpaper 4K!', 'success');
+                onShowToast?.('ðŸ–¼ï¸ áž”áž¶áž“áž”áŸ’ážŠáž¼ážšáž‘áŸ…áž”áŸ’ážšáž¾ Wallpaper 4K!', 'success');
               }}
               className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 ${
                 localTheme.bgMode === 'wallpaper'
-                  ? 'bg-indigo-600 text-white shadow-sm ring-2 ring-indigo-300'
+                  ? 'bg-indigo-600 text-slate-800 dark:text-white shadow-sm ring-2 ring-indigo-300'
                   : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>បើកប្រើ Wallpaper</span>
+              <span>áž”áž¾áž€áž”áŸ’ážšáž¾ Wallpaper</span>
             </button>
             <button
               onClick={() => {
@@ -599,21 +599,21 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                 };
                 updateTheme(updated);
                 setActiveTab('color');
-                onShowToast?.('🥛 បានប្ដូរមកប្រើពណ៌សគុជខ្យង ស្រទន់ភ្នែក!', 'success');
+                onShowToast?.('ðŸ¥› áž”áž¶áž“áž”áŸ’ážŠáž¼ážšáž˜áž€áž”áŸ’ážšáž¾áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€!', 'success');
               }}
               className={`px-3 py-1.5 rounded-xl font-bold text-xs transition-all active:scale-95 flex items-center gap-1.5 ${
                 localTheme.bgMode === 'color'
-                  ? 'bg-emerald-600 text-white shadow-sm ring-2 ring-emerald-300'
+                  ? 'bg-emerald-600 text-slate-800 dark:text-white shadow-sm ring-2 ring-emerald-300'
                   : 'bg-white text-slate-700 hover:bg-slate-50 border border-slate-200'
               }`}
             >
               <Palette className="w-3.5 h-3.5" />
-              <span>ប្ដូរមកពណ៌ស្រទន់ (Pearl Snow)</span>
+              <span>áž”áŸ’ážŠáž¼ážšáž˜áž€áž–ážŽáŸŒážŸáŸ’ážšáž‘áž“áŸ‹ (Pearl Snow)</span>
             </button>
           </div>
         </div>
 
-        {/* ── Modal Tabs Bar ── */}
+        {/* â”€â”€ Modal Tabs Bar â”€â”€ */}
         <div className="px-6 py-2.5 bg-slate-100/70 border-b border-slate-200 flex items-center gap-2 overflow-x-auto shrink-0">
           <button
             onClick={() => setActiveTab('color')}
@@ -624,7 +624,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
             }`}
           >
             <Palette className="w-3.5 h-3.5 text-sky-600" />
-            <span>🎨 ពណ៌ផ្ទៃខាងក្រោយ (COLOR - ស្រទន់ភ្នែក)</span>
+            <span>ðŸŽ¨ áž–ážŽáŸŒáž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™ (COLOR - ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€)</span>
           </button>
 
           <button
@@ -636,27 +636,27 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
             }`}
           >
             <ImageIcon className="w-3.5 h-3.5 text-indigo-600" />
-            <span>🖼️ WALLPAPER 4K & UPLOAD ({allWallpapers.length})</span>
+            <span>ðŸ–¼ï¸ WALLPAPER 4K & UPLOAD ({allWallpapers.length})</span>
           </button>
 
 
         </div>
 
-        {/* ── Modal Body Content ── */}
+        {/* â”€â”€ Modal Body Content â”€â”€ */}
         <div className="p-5 sm:p-6 overflow-y-auto flex-1 flex flex-col gap-5 text-xs bg-slate-50/50">
-          {/* ═══════════ TAB 1: BACKGROUND COLOR (CLEAN WHITE) ═══════════ */}
+          {/* â•â•â•â•â•â•â•â•â•â•â• TAB 1: BACKGROUND COLOR (CLEAN WHITE) â•â•â•â•â•â•â•â•â•â•â• */}
           {activeTab === 'color' && (
             <div className="flex flex-col gap-4">
               {/* Highlight Hero Card: One-Click Light vs Night Mode */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* ☀️ Light Mode Studio (Soft Pearl Snow) */}
+                {/* â˜€ï¸ Light Mode Studio (Soft Pearl Snow) */}
                 <div
                   onClick={() => {
                     handleSetSoftPearlWhite();
                     localStorage.setItem('animestudio_theme_mode', 'light');
                     document.documentElement.classList.add('light');
                     document.documentElement.classList.remove('dark');
-                    onShowToast?.('🥛 បានកំណត់ស្ទូឌីយោទៅ Light Mode (ពណ៌សគុជខ្យង ស្រទន់ភ្នែក)!', 'success');
+                    onShowToast?.('ðŸ¥› áž”áž¶áž“áž€áŸ†ážŽážáŸ‹ážŸáŸ’áž‘áž¼ážŒáž¸áž™áŸ„áž‘áŸ… Light Mode (áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€)!', 'success');
                   }}
                   className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between gap-3 shadow-xs hover:shadow-md ${
                     localTheme.themeMode === 'light' || (!localTheme.themeMode && (localTheme.backgroundColor === '#f8fafc' || localTheme.backgroundPreset === 'pearl_snow'))
@@ -666,17 +666,17 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-amber-100 border border-amber-300 flex items-center justify-center text-2xl shadow-xs shrink-0">
-                      🥛
+                      ðŸ¥›
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-black text-slate-900 text-sm">Light Mode (ស្រទន់ភ្នែក)</span>
+                        <span className="font-black text-slate-900 text-sm">Light Mode (ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€)</span>
                         <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          ណែនាំពិសេស
+                          ážŽáŸ‚áž“áž¶áŸ†áž–áž·ážŸáŸážŸ
                         </span>
                       </div>
                       <p className="text-[11px] text-slate-500 mt-0.5">
-                        ពណ៌សគុជខ្យង ស្រទន់ភ្នែក មិនចាំងភ្នែក មើលអក្សរច្បាស់បំផុត
+                        áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ áž˜áž·áž“áž…áž¶áŸ†áž„áž—áŸ’áž“áŸ‚áž€ áž˜áž¾áž›áž¢áž€áŸ’ážŸážšáž…áŸ’áž”áž¶ážŸáŸ‹áž”áŸ†áž•áž»áž
                       </p>
                     </div>
                   </div>
@@ -684,11 +684,11 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                     type="button"
                     className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-xs shrink-0"
                   >
-                    ជ្រើសរើស
+                    áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸ
                   </button>
                 </div>
 
-                {/* 🌙 Night Mode Studio */}
+                {/* ðŸŒ™ Night Mode Studio */}
                 <div
                   onClick={() => {
                     const darkTheme: StudioCustomUITheme = {
@@ -706,31 +706,31 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                   }}
                   className={`p-4 rounded-2xl border-2 cursor-pointer transition-all duration-200 flex items-center justify-between gap-3 shadow-xs hover:shadow-md ${
                     localTheme.themeMode === 'dark' || localTheme.backgroundColor === '#0b0f19'
-                      ? 'bg-gradient-to-r from-slate-900 via-[#0b0f19] to-indigo-950 border-indigo-500 ring-2 ring-indigo-500/40 text-white'
-                      : 'bg-slate-900 text-white hover:bg-slate-800 border-slate-700'
+                      ? 'bg-gradient-to-r from-slate-900 via-[#0b0f19] to-indigo-950 border-indigo-500 ring-2 ring-indigo-500/40 text-slate-800 dark:text-white'
+                      : 'bg-slate-900 text-slate-800 dark:text-white hover:bg-slate-800 border-slate-700'
                   }`}
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-950 border border-indigo-700 flex items-center justify-center text-2xl shadow-xs shrink-0">
-                      🌙
+                      ðŸŒ™
                     </div>
                     <div>
                       <div className="flex items-center gap-1.5">
-                        <span className="font-black text-white text-sm">Night Mode (ងងឹត)</span>
+                        <span className="font-black text-slate-800 dark:text-white text-sm">Night Mode (áž„áž„áž¹áž)</span>
                         <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-indigo-900/60 text-indigo-300 border border-indigo-700">
-                          ត្រជាក់ភ្នែក
+                          ážáŸ’ážšáž‡áž¶áž€áŸ‹áž—áŸ’áž“áŸ‚áž€
                         </span>
                       </div>
-                      <p className="text-[11px] text-slate-400 mt-0.5">
-                        ផ្ទៃខាងក្រោយងងឹត អក្សរភ្លឺច្បាស់ មិនចាំងភ្នែកពេលយប់
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                        áž•áŸ’áž‘áŸƒážáž¶áž„áž€áŸ’ážšáŸ„áž™áž„áž„áž¹áž áž¢áž€áŸ’ážŸážšáž—áŸ’áž›ážºáž…áŸ’áž”áž¶ážŸáŸ‹ áž˜áž·áž“áž…áž¶áŸ†áž„áž—áŸ’áž“áŸ‚áž€áž–áŸáž›áž™áž”áŸ‹
                       </p>
                     </div>
                   </div>
                   <button
                     type="button"
-                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black text-xs shadow-xs shrink-0"
+                    className="px-3.5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-slate-800 dark:text-white font-black text-xs shadow-xs shrink-0"
                   >
-                    ជ្រើសរើស
+                    áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸ
                   </button>
                 </div>
               </div>
@@ -738,7 +738,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
               {/* Mode Indicator & Active Background Status */}
               <div className="p-3.5 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-700">របៀបបច្ចុប្បន្ន:</span>
+                  <span className="text-xs font-bold text-slate-700">ážšáž”áŸ€áž”áž”áž…áŸ’áž…áž»áž”áŸ’áž”áž“áŸ’áž“:</span>
                   <span className={`px-2.5 py-1 rounded-lg text-xs font-bold flex items-center gap-1.5 ${
                     isColorModeActive
                       ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
@@ -747,12 +747,12 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                     {isColorModeActive ? (
                       <>
                         <span className="w-2 h-2 rounded-full bg-emerald-500" />
-                        <span>🎨 របៀបពណ៌សុទ្ធ (Solid Color Mode)</span>
+                        <span>ðŸŽ¨ ážšáž”áŸ€áž”áž–ážŽáŸŒážŸáž»áž‘áŸ’áž’ (Solid Color Mode)</span>
                       </>
                     ) : (
                       <>
                         <span className="w-2 h-2 rounded-full bg-purple-500" />
-                        <span>🖼️ របៀប Wallpaper Image</span>
+                        <span>ðŸ–¼ï¸ ážšáž”áŸ€áž” Wallpaper Image</span>
                       </>
                     )}
                   </span>
@@ -767,15 +767,15 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                         bgMode: 'color',
                         wallpaperUrl: null,
                       });
-                      onShowToast?.('បានបើករបៀបពណ៌សុទ្ធ (Solid Color Mode)', 'info');
+                      onShowToast?.('áž”áž¶áž“áž”áž¾áž€ážšáž”áŸ€áž”áž–ážŽáŸŒážŸáž»áž‘áŸ’áž’ (Solid Color Mode)', 'info');
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       isColorModeActive
-                        ? 'bg-sky-600 text-white shadow-xs'
+                        ? 'bg-sky-600 text-slate-800 dark:text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
                     }`}
                   >
-                    🎨 ប្រើពណ៌សុទ្ធ
+                    ðŸŽ¨ áž”áŸ’ážšáž¾áž–ážŽáŸŒážŸáž»áž‘áŸ’áž’
                   </button>
 
                   <button
@@ -790,11 +790,11 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                     }}
                     className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
                       !isColorModeActive
-                        ? 'bg-indigo-600 text-white shadow-xs'
+                        ? 'bg-indigo-600 text-slate-800 dark:text-white shadow-xs'
                         : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
                     }`}
                   >
-                    🖼️ ប្រើ Wallpaper
+                    ðŸ–¼ï¸ áž”áŸ’ážšáž¾ Wallpaper
                   </button>
                 </div>
               </div>
@@ -802,7 +802,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
               {/* Color Preset Grid */}
               <div>
                 <label className="block text-xs font-bold text-slate-800 mb-2.5">
-                  ជ្រើសរើសពណ៌គំរូស្អាតៗ (Clean Studio Color Presets):
+                  áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸáž–ážŽáŸŒáž‚áŸ†ážšáž¼ážŸáŸ’áž¢áž¶ážáŸ— (Clean Studio Color Presets):
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                   {PRESET_BACKGROUND_COLORS.map((c) => {
@@ -837,7 +837,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                           {isActive && (
                             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-300 flex items-center gap-1 shrink-0">
                               <Check className="w-3 h-3 stroke-[3]" />
-                              <span>កំពុងប្រើ</span>
+                              <span>áž€áŸ†áž–áž»áž„áž”áŸ’ážšáž¾</span>
                             </span>
                           )}
                         </div>
@@ -859,10 +859,10 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                   </div>
                   <div>
                     <div className="font-bold text-slate-900 text-xs">
-                      ជ្រើសរើសពណ៌ផ្ទាល់ខ្លួនតាមចិត្ត (Custom Color Wheel)
+                      áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸáž–ážŽáŸŒáž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“ážáž¶áž˜áž…áž·ážáŸ’áž (Custom Color Wheel)
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      អ្នកអាចរើសពណ៌ណាមួយដែលអ្នកពេញចិត្ត ឬវាយបញ្ចូលកូដ Hex
+                      áž¢áŸ’áž“áž€áž¢áž¶áž…ážšáž¾ážŸáž–ážŽáŸŒážŽáž¶áž˜áž½áž™ážŠáŸ‚áž›áž¢áŸ’áž“áž€áž–áŸáž‰áž…áž·ážáŸ’áž áž¬ážœáž¶áž™áž”áž‰áŸ’áž…áž¼áž›áž€áž¼ážŠ Hex
                     </div>
                   </div>
                 </div>
@@ -874,7 +874,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       value={localTheme.backgroundColor?.startsWith('#') ? localTheme.backgroundColor : '#ffffff'}
                       onChange={(e) => handleApplyCustomHex(e.target.value)}
                       className="w-10 h-10 rounded-xl cursor-pointer border border-slate-300 p-0.5 bg-white shadow-2xs"
-                      title="ចុចដើម្បីរើសពណ៌"
+                      title="áž…áž»áž…ážŠáž¾áž˜áŸ’áž”áž¸ážšáž¾ážŸáž–ážŽáŸŒ"
                     />
                   </div>
                   <input
@@ -892,16 +892,16 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                   <button
                     type="button"
                     onClick={() => handleApplyCustomHex(customHexInput)}
-                    className="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-bold text-xs transition-colors shadow-2xs"
+                    className="px-3 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-slate-800 dark:text-white font-bold text-xs transition-colors shadow-2xs"
                   >
-                    អនុវត្ត
+                    áž¢áž“áž»ážœážáŸ’áž
                   </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ═══════════ TAB 2: WALLPAPERS (UPLOAD & PRESETS) ═══════════ */}
+          {/* â•â•â•â•â•â•â•â•â•â•â• TAB 2: WALLPAPERS (UPLOAD & PRESETS) â•â•â•â•â•â•â•â•â•â•â• */}
           {activeTab === 'wallpaper' && (
             <div className="flex flex-col gap-4">
               {/* Custom Upload Card */}
@@ -912,16 +912,16 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                   </div>
                   <div>
                     <div className="font-bold text-slate-900 text-xs">
-                      ដាក់រូបភាព Wallpaper ផ្ទាល់ខ្លួនពី Computer (Upload from PC)
+                      ážŠáž¶áž€áŸ‹ážšáž¼áž”áž—áž¶áž– Wallpaper áž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“áž–áž¸ Computer (Upload from PC)
                     </div>
                     <div className="text-[11px] text-slate-500">
-                      គាំទ្រ JPG, PNG, WEBP កម្រិតច្បាស់ Full HD ឬ 4K
+                      áž‚áž¶áŸ†áž‘áŸ’ážš JPG, PNG, WEBP áž€áž˜áŸ’ážšáž·ážáž…áŸ’áž”áž¶ážŸáŸ‹ Full HD áž¬ 4K
                     </div>
                   </div>
                 </div>
 
-                <label className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold cursor-pointer transition-all shadow-sm active:scale-95">
-                  <span>+ ជ្រើសរើសរូបភាពពី PC</span>
+                <label className="px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-slate-800 dark:text-white font-bold cursor-pointer transition-all shadow-sm active:scale-95">
+                  <span>+ áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸážšáž¼áž”áž—áž¶áž–áž–áž¸ PC</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -935,11 +935,11 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
               <div className="p-3 rounded-2xl bg-white border border-slate-200 flex flex-wrap items-center justify-between gap-2.5 shadow-2xs">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-bold text-slate-700">
-                    បណ្ដុំរូបភាព ({allWallpapers.length}):
+                    áž”ážŽáŸ’ážŠáž»áŸ†ážšáž¼áž”áž—áž¶áž– ({allWallpapers.length}):
                   </span>
                   {selectedWallpaperIds.length > 0 && (
                     <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                      បាន Select: {selectedWallpaperIds.length}
+                      áž”áž¶áž“ Select: {selectedWallpaperIds.length}
                     </span>
                   )}
                 </div>
@@ -951,18 +951,18 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       type="button"
                       onClick={handleSelectAll}
                       className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 text-[11px] font-bold transition-all"
-                      title="ជ្រើសរើសទាំងអស់"
+                      title="áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸáž‘áž¶áŸ†áž„áž¢ážŸáŸ‹"
                     >
-                      ✓ Select ទាំងអស់
+                      âœ“ Select áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹
                     </button>
                   ) : (
                     <button
                       type="button"
                       onClick={handleDeselectAll}
                       className="px-2.5 py-1.5 rounded-lg bg-indigo-50 text-indigo-700 border border-indigo-200 text-[11px] font-bold transition-all"
-                      title="ដោះការជ្រើសរើស"
+                      title="ážŠáŸ„áŸ‡áž€áž¶ážšáž‡áŸ’ážšáž¾ážŸážšáž¾ážŸ"
                     >
-                      ដោះ Select
+                      ážŠáŸ„áŸ‡ Select
                     </button>
                   )}
 
@@ -972,10 +972,10 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       type="button"
                       onClick={handleDeleteSelected}
                       className="px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 text-[11px] font-bold transition-all flex items-center gap-1 active:scale-95 shadow-2xs"
-                      title="លុបរូបដែលបាន Select ចោល"
+                      title="áž›áž»áž”ážšáž¼áž”ážŠáŸ‚áž›áž”áž¶áž“ Select áž…áŸ„áž›"
                     >
                       <Trash2 className="w-3.5 h-3.5 text-red-600" />
-                      <span>លុបដែលបាន Select ({selectedWallpaperIds.length})</span>
+                      <span>áž›áž»áž”ážŠáŸ‚áž›áž”áž¶áž“ Select ({selectedWallpaperIds.length})</span>
                     </button>
                   )}
 
@@ -985,9 +985,9 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       type="button"
                       onClick={() => handleSelectWallpaper(null)}
                       className="px-3 py-1.5 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 text-[11px] font-bold transition-all flex items-center gap-1"
-                      title="ដោះ Wallpaper ចេញ (ប្ដូរទៅពណ៌សសុទ្ធ)"
+                      title="ážŠáŸ„áŸ‡ Wallpaper áž…áŸáž‰ (áž”áŸ’ážŠáž¼ážšáž‘áŸ…áž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’)"
                     >
-                      <span>🚫 ដោះ Wallpaper ចេញ</span>
+                      <span>ðŸš« ážŠáŸ„áŸ‡ Wallpaper áž…áŸáž‰</span>
                     </button>
                   )}
 
@@ -996,19 +996,19 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                     type="button"
                     onClick={handleDeleteAllWallpapers}
                     className="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-red-50 text-slate-600 hover:text-red-700 border border-slate-200 text-[11px] font-medium transition-all flex items-center gap-1"
-                    title="លុប Wallpaper ចោលទាំងអស់"
+                    title="áž›áž»áž” Wallpaper áž…áŸ„áž›áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹"
                   >
                     <AlertTriangle className="w-3.5 h-3.5 text-slate-500" />
-                    <span>លុបទាំងអស់</span>
+                    <span>áž›áž»áž”áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹</span>
                   </button>
                 </div>
               </div>
 
-              {/* ── Custom Wallpapers Section (if any) ── */}
+              {/* â”€â”€ Custom Wallpapers Section (if any) â”€â”€ */}
               {customWallpapers.length > 0 && (
                 <div>
                   <div className="text-xs font-bold text-slate-800 mb-2 flex items-center gap-1.5">
-                    <span>📁 រូបភាព Wallpaper ផ្ទាល់ខ្លួនរបស់អ្នក ({customWallpapers.length}):</span>
+                    <span>ðŸ“ ážšáž¼áž”áž—áž¶áž– Wallpaper áž•áŸ’áž‘áž¶áž›áŸ‹ážáŸ’áž›áž½áž“ážšáž”ážŸáŸ‹áž¢áŸ’áž“áž€ ({customWallpapers.length}):</span>
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mb-3">
                     {customWallpapers.map((wp) => {
@@ -1040,10 +1040,10 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                               onClick={(e) => handleToggleSelect(wp.id, e)}
                               className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
                                 isSelected
-                                  ? 'bg-sky-500 text-white shadow-md'
-                                  : 'bg-black/60 text-white/80 hover:text-white border border-white/20'
+                                  ? 'bg-sky-500 text-slate-800 dark:text-white shadow-md'
+                                  : 'bg-black/60 text-slate-800 dark:text-white/80 hover:text-slate-800 dark:text-white border border-white/20'
                               }`}
-                              title={isSelected ? 'ដោះ Select' : 'Select'}
+                              title={isSelected ? 'ážŠáŸ„áŸ‡ Select' : 'Select'}
                             >
                               {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
                             </button>
@@ -1051,23 +1051,23 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                             <button
                               type="button"
                               onClick={(e) => handleDeleteSingle(wp.id, wp.url, true, e)}
-                              className="w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500 text-white/80 hover:text-white flex items-center justify-center transition-all border border-white/20 hover:border-red-400"
-                              title="លុបរូបនេះចោល"
+                              className="w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500 text-slate-800 dark:text-white/80 hover:text-slate-800 dark:text-white flex items-center justify-center transition-all border border-white/20 hover:border-red-400"
+                              title="áž›áž»áž”ážšáž¼áž”áž“áŸáŸ‡áž…áŸ„áž›"
                             >
                               <Trash2 className="w-3.5 h-3.5" />
                             </button>
                           </div>
 
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5">
-                            <span className="text-[11px] font-bold text-white truncate flex items-center gap-1">
+                            <span className="text-[11px] font-bold text-slate-800 dark:text-white truncate flex items-center gap-1">
                               <span>{wp.preview}</span>
                               <span>{wp.name}</span>
                             </span>
                           </div>
 
                           {isActive && (
-                            <div className="absolute bottom-2 right-2 bg-sky-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-full shadow-md">
-                              ✓ កំពុងប្រើ
+                            <div className="absolute bottom-2 right-2 bg-sky-500 text-slate-800 dark:text-white font-black text-[9.5px] px-2 py-0.5 rounded-full shadow-md">
+                              âœ“ áž€áŸ†áž–áž»áž„áž”áŸ’ážšáž¾
                             </div>
                           )}
                         </div>
@@ -1077,11 +1077,11 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                 </div>
               )}
 
-              {/* ── Preset Wallpapers Section ── */}
+              {/* â”€â”€ Preset Wallpapers Section â”€â”€ */}
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <label className="text-xs font-bold text-slate-800">
-                    Wallpaper 4K គំរូស្អាតៗ ({presets.length}):
+                    Wallpaper 4K áž‚áŸ†ážšáž¼ážŸáŸ’áž¢áž¶ážáŸ— ({presets.length}):
                   </label>
                   {presets.length < DEFAULT_PRESET_WALLPAPERS.length && (
                     <button
@@ -1090,7 +1090,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                       className="text-[11px] text-sky-600 hover:underline flex items-center gap-1 font-bold"
                     >
                       <RotateCcw className="w-3 h-3" />
-                      <span>ដាក់គំរូដើមឡើងវិញ</span>
+                      <span>ážŠáž¶áž€áŸ‹áž‚áŸ†ážšáž¼ážŠáž¾áž˜áž¡áž¾áž„ážœáž·áž‰</span>
                     </button>
                   )}
                 </div>
@@ -1125,10 +1125,10 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                             onClick={(e) => handleToggleSelect(wp.id, e)}
                             className={`w-6 h-6 rounded-lg flex items-center justify-center transition-all ${
                               isSelected
-                                ? 'bg-sky-500 text-white shadow-md'
-                                : 'bg-black/60 text-white/80 hover:text-white border border-white/20'
+                                ? 'bg-sky-500 text-slate-800 dark:text-white shadow-md'
+                                : 'bg-black/60 text-slate-800 dark:text-white/80 hover:text-slate-800 dark:text-white border border-white/20'
                             }`}
-                            title={isSelected ? 'ដោះ Select' : 'Select'}
+                            title={isSelected ? 'ážŠáŸ„áŸ‡ Select' : 'Select'}
                           >
                             {isSelected ? <CheckSquare className="w-4 h-4" /> : <Square className="w-4 h-4" />}
                           </button>
@@ -1136,23 +1136,23 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                           <button
                             type="button"
                             onClick={(e) => handleDeleteSingle(wp.id, wp.url, false, e)}
-                            className="w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500 text-white/80 hover:text-white flex items-center justify-center transition-all border border-white/20 hover:border-red-400"
-                            title="លុប Wallpaper នេះចេញ"
+                            className="w-6 h-6 rounded-lg bg-black/60 hover:bg-red-500 text-slate-800 dark:text-white/80 hover:text-slate-800 dark:text-white flex items-center justify-center transition-all border border-white/20 hover:border-red-400"
+                            title="áž›áž»áž” Wallpaper áž“áŸáŸ‡áž…áŸáž‰"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </div>
 
                         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-end p-2.5">
-                          <span className="text-[11px] font-bold text-white truncate flex items-center gap-1">
+                          <span className="text-[11px] font-bold text-slate-800 dark:text-white truncate flex items-center gap-1">
                             <span>{wp.preview}</span>
                             <span>{wp.name}</span>
                           </span>
                         </div>
 
                         {isActive && (
-                          <div className="absolute bottom-2 right-2 bg-sky-500 text-white font-black text-[9.5px] px-2 py-0.5 rounded-full shadow-md">
-                            ✓ កំពុងប្រើ
+                          <div className="absolute bottom-2 right-2 bg-sky-500 text-slate-800 dark:text-white font-black text-[9.5px] px-2 py-0.5 rounded-full shadow-md">
+                            âœ“ áž€áŸ†áž–áž»áž„áž”áŸ’ážšáž¾
                           </div>
                         )}
                       </div>
@@ -1166,7 +1166,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs">
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                      <span>ភាពច្បាស់នៃ Wallpaper (Opacity):</span>
+                      <span>áž—áž¶áž–áž…áŸ’áž”áž¶ážŸáŸ‹áž“áŸƒ Wallpaper (Opacity):</span>
                       <span className="font-mono text-sky-600 font-bold">
                         {localTheme.wallpaperOpacity}%
                       </span>
@@ -1189,7 +1189,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
 
                   <div className="flex flex-col gap-2">
                     <div className="flex items-center justify-between text-xs font-bold text-slate-800">
-                      <span>ភាពព្រិលស្រវាំង (Blur):</span>
+                      <span>áž—áž¶áž–áž–áŸ’ážšáž·áž›ážŸáŸ’ážšážœáž¶áŸ†áž„ (Blur):</span>
                       <span className="font-mono text-sky-600 font-bold">
                         {localTheme.wallpaperBlur}px
                       </span>
@@ -1215,7 +1215,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
           )}
         </div>
 
-        {/* ── Modal Footer ── */}
+        {/* â”€â”€ Modal Footer â”€â”€ */}
         <div className="p-3.5 px-6 border-t border-slate-200 bg-slate-50 flex items-center justify-between shrink-0">
           <button
             type="button"
@@ -1223,7 +1223,7 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
             className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-900 transition-colors font-medium"
           >
             <RotateCcw className="w-3.5 h-3.5" />
-            <span>កំណត់ពណ៌សដើម (Reset Pure White)</span>
+            <span>áž€áŸ†ážŽážáŸ‹áž–ážŽáŸŒážŸážŠáž¾áž˜ (Reset Pure White)</span>
           </button>
 
           <div className="flex items-center gap-2">
@@ -1232,15 +1232,15 @@ export const StudioCustomizerModal: React.FC<StudioCustomizerModalProps> = ({
               onClick={onClose}
               className="px-4 py-2 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-xs font-bold text-slate-700 transition-colors shadow-2xs"
             >
-              បិទ (Close)
+              áž”áž·áž‘ (Close)
             </button>
 
             <button
               type="button"
               onClick={onClose}
-              className="px-6 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs shadow-md shadow-sky-500/25 transition-all active:scale-95"
+              className="px-6 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-slate-800 dark:text-white font-black text-xs shadow-md shadow-sky-500/25 transition-all active:scale-95"
             >
-              ✓ រួចរាល់ (រក្សាទុក)
+              âœ“ ážšáž½áž…ážšáž¶áž›áŸ‹ (ážšáž€áŸ’ážŸáž¶áž‘áž»áž€)
             </button>
           </div>
         </div>

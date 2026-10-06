@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { Palette, Image as ImageIcon, Sun, Moon, Sparkles, ChevronUp, ChevronDown, Check } from 'lucide-react';
 import { StudioCustomUITheme } from '../../types';
 
@@ -15,25 +15,25 @@ const QUICK_WALLPAPERS = [
   {
     id: 'anime_sunset',
     name: 'Anime Sunset',
-    preview: '🌅',
+    preview: 'ðŸŒ…',
     url: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=2560&q=95&auto=format&fit=crop',
   },
   {
     id: 'cyberpunk',
     name: 'Cyberpunk Neon',
-    preview: '🌃',
+    preview: 'ðŸŒƒ',
     url: 'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=2560&q=95&auto=format&fit=crop',
   },
   {
     id: 'midnight_purple',
     name: 'Midnight Nebula',
-    preview: '🌌',
+    preview: 'ðŸŒŒ',
     url: 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=2560&q=95&auto=format&fit=crop',
   },
   {
     id: 'emerald_matrix',
     name: 'Emerald Forest',
-    preview: '🌲',
+    preview: 'ðŸŒ²',
     url: 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=2560&q=95&auto=format&fit=crop',
   },
 ];
@@ -62,9 +62,9 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
       };
       onChangeTheme(updated);
       try {
-        localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+        localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
       } catch {}
-      onShowToast?.('🥛 បានប្ដូរទៅពណ៌សគុជខ្យង ស្រទន់ភ្នែក (Pearl Snow Soft White)', 'info');
+      onShowToast?.('ðŸ¥› áž”áž¶áž“áž”áŸ’ážŠáž¼ážšáž‘áŸ…áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ (Pearl Snow Soft White)', 'info');
     } else {
       // Switch to wallpaper mode
       const targetUrl = theme.wallpaperUrl || QUICK_WALLPAPERS[0].url;
@@ -77,9 +77,9 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
       };
       onChangeTheme(updated);
       try {
-        localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+        localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
       } catch {}
-      onShowToast?.('🖼️ បានបើកផ្ទាំងរូបភាព Wallpaper រួចរាល់!', 'success');
+      onShowToast?.('ðŸ–¼ï¸ áž”áž¶áž“áž”áž¾áž€áž•áŸ’áž‘áž¶áŸ†áž„ážšáž¼áž”áž—áž¶áž– Wallpaper ážšáž½áž…ážšáž¶áž›áŸ‹!', 'success');
     }
   };
 
@@ -93,10 +93,10 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
     };
     onChangeTheme(updated);
     try {
-      localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
     } catch {}
     setShowWallpaperMenu(false);
-    onShowToast?.(`🖼️ បានដាក់ Wallpaper "${name}" ជោគជ័យ!`, 'success');
+    onShowToast?.(`ðŸ–¼ï¸ áž”áž¶áž“ážŠáž¶áž€áŸ‹ Wallpaper "${name}" áž‡áŸ„áž‚áž‡áŸáž™!`, 'success');
   };
 
   const handleSetSoftPearlWhite = () => {
@@ -110,9 +110,9 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
     onChangeTheme(updated);
     if (isDarkMode) onToggleDarkMode();
     try {
-      localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
     } catch {}
-    onShowToast?.('🥛 ពណ៌សគុជខ្យង (Pearl Snow) — ស្រទន់ភ្នែក មិនចាំង ងាយស្រួលមើល!', 'success');
+    onShowToast?.('ðŸ¥› áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ (Pearl Snow) â€” ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ áž˜áž·áž“áž…áž¶áŸ†áž„ áž„áž¶áž™ážŸáŸ’ážšáž½áž›áž˜áž¾áž›!', 'success');
   };
 
   const handleSetPureCleanWhite = () => {
@@ -126,9 +126,9 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
     onChangeTheme(updated);
     if (isDarkMode) onToggleDarkMode();
     try {
-      localStorage.setItem('animestudio_custom_theme', JSON.stringify(updated));
+      localStorage.setItem('dragon_dabber_custom_theme', JSON.stringify(updated));
     } catch {}
-    onShowToast?.('⚪ ពណ៌សសុទ្ធ (Pure White Studio) — ភ្លឺច្បាស់!', 'success');
+    onShowToast?.('âšª áž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’ (Pure White Studio) â€” áž—áŸ’áž›ážºáž…áŸ’áž”áž¶ážŸáŸ‹!', 'success');
   };
 
   return (
@@ -139,13 +139,13 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
           <div className="flex items-center justify-between pb-2 border-b border-slate-100 dark:border-slate-800 mb-2">
             <span className="text-xs font-black flex items-center gap-1.5 text-sky-700 dark:text-sky-300">
               <ImageIcon className="w-3.5 h-3.5" />
-              <span>ជ្រើសរើស Wallpaper ភ្លាមៗ</span>
+              <span>áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸ Wallpaper áž—áŸ’áž›áž¶áž˜áŸ—</span>
             </span>
             <button
               onClick={() => setShowWallpaperMenu(false)}
-              className="text-[10px] text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+              className="text-[10px] text-slate-500 dark:text-slate-400 hover:text-slate-600 dark:hover:text-slate-700 dark:text-slate-200"
             >
-              ✕ បិទ
+              âœ• áž”áž·áž‘
             </button>
           </div>
           <div className="grid grid-cols-2 gap-2">
@@ -168,7 +168,7 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {isSelected && (
-                      <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-sky-500 text-white flex items-center justify-center text-[10px]">
+                      <div className="absolute top-1 right-1 w-4 h-4 rounded-full bg-sky-500 text-slate-800 dark:text-white flex items-center justify-center text-[10px]">
                         <Check className="w-3 h-3 stroke-[3]" />
                       </div>
                     )}
@@ -185,10 +185,10 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
               setShowWallpaperMenu(false);
               onOpenCustomizer();
             }}
-            className="w-full mt-2.5 py-1.5 px-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs"
+            className="w-full mt-2.5 py-1.5 px-2 rounded-xl bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-slate-800 dark:text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-all shadow-xs"
           >
             <Palette className="w-3.5 h-3.5" />
-            <span>បើកផ្ទាំងប្ដូរ Wallpaper ទាំងអស់ & Upload</span>
+            <span>áž”áž¾áž€áž•áŸ’áž‘áž¶áŸ†áž„áž”áŸ’ážŠáž¼ážš Wallpaper áž‘áž¶áŸ†áž„áž¢ážŸáŸ‹ & Upload</span>
           </button>
         </div>
       )}
@@ -200,14 +200,14 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
           onClick={handleToggleWallpaper}
           className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl font-bold transition-all active:scale-95 ${
             isWallpaperActive
-              ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-white shadow-sm shadow-sky-500/30'
+              ? 'bg-gradient-to-r from-sky-500 to-indigo-600 text-slate-800 dark:text-white shadow-sm shadow-sky-500/30'
               : 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 hover:text-slate-900'
           }`}
-          title={isWallpaperActive ? 'ចុចដើម្បីបិទ Wallpaper (ប្ដូរមកពណ៌សស្រទន់)' : 'ចុចដើម្បីបើក Wallpaper 4K ស្អាត'}
+          title={isWallpaperActive ? 'áž…áž»áž…ážŠáž¾áž˜áŸ’áž”áž¸áž”áž·áž‘ Wallpaper (áž”áŸ’ážŠáž¼ážšáž˜áž€áž–ážŽáŸŒážŸážŸáŸ’ážšáž‘áž“áŸ‹)' : 'áž…áž»áž…ážŠáž¾áž˜áŸ’áž”áž¸áž”áž¾áž€ Wallpaper 4K ážŸáŸ’áž¢áž¶áž'}
         >
           <ImageIcon className="w-3.5 h-3.5" />
           <span className="hidden sm:inline font-bold">
-            {isWallpaperActive ? '🖼️ Wallpaper បើក' : '🖼️ Wallpaper'}
+            {isWallpaperActive ? 'ðŸ–¼ï¸ Wallpaper áž”áž¾áž€' : 'ðŸ–¼ï¸ Wallpaper'}
           </span>
         </button>
 
@@ -215,14 +215,14 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
         <button
           onClick={() => setShowWallpaperMenu(!showWallpaperMenu)}
           className="p-1.5 rounded-xl text-slate-500 hover:text-sky-600 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-          title="ជ្រើសរើស Wallpaper ផ្សេងៗ"
+          title="áž‡áŸ’ážšáž¾ážŸážšáž¾ážŸ Wallpaper áž•áŸ’ážŸáŸáž„áŸ—"
         >
           <ChevronUp className="w-3.5 h-3.5" />
         </button>
 
         <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
 
-        {/* 🥛 Soft Pearl White (Eye-Friendly Recommended) */}
+        {/* ðŸ¥› Soft Pearl White (Eye-Friendly Recommended) */}
         <button
           onClick={handleSetSoftPearlWhite}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-xl font-bold transition-all active:scale-95 ${
@@ -230,13 +230,13 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
               ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-2xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
-          title="🥛 ពណ៌សគុជខ្យង (Pearl Snow) — ស្រទន់ភ្នែក មិនចាំងភ្នែក ងាយស្រួលមើលបំផុត"
+          title="ðŸ¥› áž–ážŽáŸŒážŸáž‚áž»áž‡ážáŸ’áž™áž„ (Pearl Snow) â€” ážŸáŸ’ážšáž‘áž“áŸ‹áž—áŸ’áž“áŸ‚áž€ áž˜áž·áž“áž…áž¶áŸ†áž„áž—áŸ’áž“áŸ‚áž€ áž„áž¶áž™ážŸáŸ’ážšáž½áž›áž˜áž¾áž›áž”áŸ†áž•áž»áž"
         >
-          <span className="text-sm">🥛</span>
-          <span className="hidden md:inline text-[11px] font-bold">សស្រទន់</span>
+          <span className="text-sm">ðŸ¥›</span>
+          <span className="hidden md:inline text-[11px] font-bold">ážŸážŸáŸ’ážšáž‘áž“áŸ‹</span>
         </button>
 
-        {/* ⚪ Pure Clean White */}
+        {/* âšª Pure Clean White */}
         <button
           onClick={handleSetPureCleanWhite}
           className={`flex items-center gap-1 px-2 py-1.5 rounded-xl font-bold transition-all active:scale-95 ${
@@ -244,13 +244,13 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
               ? 'bg-sky-100 dark:bg-sky-950/60 text-sky-900 dark:text-sky-300 border border-sky-300 dark:border-sky-700 shadow-2xs'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 hover:bg-slate-100 dark:hover:bg-slate-800'
           }`}
-          title="⚪ ពណ៌សសុទ្ធ (Pure Clean White Studio)"
+          title="âšª áž–ážŽáŸŒážŸážŸáž»áž‘áŸ’áž’ (Pure Clean White Studio)"
         >
-          <span className="text-sm">⚪</span>
-          <span className="hidden md:inline text-[11px] font-bold">សសុទ្ធ</span>
+          <span className="text-sm">âšª</span>
+          <span className="hidden md:inline text-[11px] font-bold">ážŸážŸáž»áž‘áŸ’áž’</span>
         </button>
 
-        {/* 🌙 Night / Light Toggle */}
+        {/* ðŸŒ™ Night / Light Toggle */}
         <button
           onClick={onToggleDarkMode}
           className={`p-1.5 rounded-xl font-bold transition-all active:scale-95 ${
@@ -258,9 +258,9 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
               ? 'bg-indigo-900/60 text-indigo-300 border border-indigo-700'
               : 'text-slate-600 hover:text-indigo-600 hover:bg-slate-100'
           }`}
-          title={isDarkMode ? 'ប្ដូរទៅ Light Mode ☀️' : 'ប្ដូរទៅ Night Mode 🌙'}
+          title={isDarkMode ? 'áž”áŸ’ážŠáž¼ážšáž‘áŸ… Light Mode â˜€ï¸' : 'áž”áŸ’ážŠáž¼ážšáž‘áŸ… Night Mode ðŸŒ™'}
         >
-          {isDarkMode ? <Sun className="w-3.5 h-3.5 text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-indigo-600" />}
+          {isDarkMode ? <Sun className="w-3.5 h-3.5 text-sky-600 dark:text-amber-400" /> : <Moon className="w-3.5 h-3.5 text-indigo-600" />}
         </button>
 
         <div className="h-4 w-px bg-slate-200 dark:bg-slate-800 mx-0.5" />
@@ -269,10 +269,10 @@ export const QuickThemeFloatingWidget: React.FC<QuickThemeFloatingWidgetProps> =
         <button
           onClick={onOpenCustomizer}
           className="flex items-center gap-1 px-2 py-1.5 rounded-xl font-bold bg-gradient-to-r from-purple-50 to-pink-50 hover:from-purple-100 hover:to-pink-100 dark:from-slate-800 dark:to-slate-800 text-purple-900 dark:text-purple-300 border border-purple-200 dark:border-slate-700 transition-all active:scale-95"
-          title="បើកផ្ទាំងកែសម្រួលពណ៌ និង Wallpaper ពេញលេញ (Full Customizer)"
+          title="áž”áž¾áž€áž•áŸ’áž‘áž¶áŸ†áž„áž€áŸ‚ážŸáž˜áŸ’ážšáž½áž›áž–ážŽáŸŒ áž“áž·áž„ Wallpaper áž–áŸáž‰áž›áŸáž‰ (Full Customizer)"
         >
           <Palette className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
-          <span className="text-[11px] font-bold">🎨 កែពណ៌</span>
+          <span className="text-[11px] font-bold">ðŸŽ¨ áž€áŸ‚áž–ážŽáŸŒ</span>
         </button>
       </div>
     </div>

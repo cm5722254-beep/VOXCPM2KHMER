@@ -107,12 +107,12 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="w-full max-w-2xl rounded-xl bg-[#141414] border border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
+        className="w-full max-w-2xl rounded-xl bg-white dark:bg-[#141414] border border-slate-200 dark:border-slate-200 dark:border-white/[0.08] shadow-2xl overflow-hidden flex flex-col font-khmer text-zinc-200"
         onClick={(e) => e.stopPropagation()}
         onKeyDown={handleKeyDown}
       >
         {/* Search Input Bar */}
-        <div className="flex items-center px-4 py-3 bg-[#181818] border-b border-white/[0.08]">
+        <div className="flex items-center px-4 py-3 bg-white dark:bg-[#181818] border-b border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
           <Search className="w-4 h-4 text-[#00C2FF] shrink-0 mr-3" />
           <input
             ref={inputRef}
@@ -120,10 +120,10 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="វាយបញ្ជា ឬស្វែងរក (ឧទាហរណ៍: 'Generate voice', 'Export', 'Mixer')..."
-            className="w-full bg-transparent text-white text-xs placeholder-zinc-500 focus:outline-none"
+            className="w-full bg-transparent text-slate-800 dark:text-white text-xs placeholder-zinc-500 focus:outline-none"
           />
           <div className="flex items-center gap-1.5 shrink-0 ml-2">
-            <kbd className="px-2 py-0.5 rounded bg-[#222226] text-[10px] font-mono text-zinc-400 border border-white/[0.08]">
+            <kbd className="px-2 py-0.5 rounded bg-white dark:bg-[#222226] text-[10px] font-mono text-slate-600 dark:text-zinc-400 border border-slate-200 dark:border-slate-200 dark:border-white/[0.08]">
               ESC
             </kbd>
           </div>
@@ -150,8 +150,8 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
                   onMouseEnter={() => setSelectedIndex(idx)}
                   className={`flex items-center justify-between px-3 py-2.5 rounded-xl cursor-pointer transition-all ${
                     isSelected
-                      ? 'bg-cyan-950/50 border border-cyan-500/40 text-white shadow-[0_0_15px_rgba(0,240,255,0.15)]'
-                      : 'text-slate-300 hover:bg-slate-800/40 border border-transparent'
+                      ? 'bg-cyan-950/50 border border-cyan-500/40 text-slate-800 dark:text-white shadow-[0_0_15px_rgba(0,240,255,0.15)]'
+                      : 'text-slate-600 dark:text-slate-300 hover:bg-slate-800/40 border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -159,17 +159,17 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
                       className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
                         isSelected
                           ? 'bg-cyan-500 text-black shadow-[0_0_10px_rgba(0,240,255,0.5)]'
-                          : 'bg-slate-800 text-slate-400'
+                          : 'bg-slate-800 text-slate-500 dark:text-slate-400'
                       }`}
                     >
                       <Icon className="w-3.5 h-3.5" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white">{item.title}</span>
+                        <span className="text-xs font-bold text-slate-800 dark:text-white">{item.title}</span>
                         <span className="text-xs text-cyan-300 font-medium">({item.khmer})</span>
                       </div>
-                      <span className="text-[10px] font-mono text-slate-400 uppercase tracking-wider">
+                      <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 uppercase tracking-wider">
                         {item.category}
                       </span>
                     </div>
@@ -180,7 +180,7 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
                       className={`px-2 py-0.5 rounded text-[10px] font-mono border ${
                         isSelected
                           ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
-                          : 'bg-slate-800 text-slate-400 border-slate-700'
+                          : 'bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-700'
                       }`}
                     >
                       {item.shortcut}
@@ -193,15 +193,15 @@ export const CommandSearchModal: React.FC<CommandSearchModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-4 py-2.5 bg-[#07111F] border-t border-cyan-500/10 text-[11px] text-slate-400">
+        <div className="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-[#07111F] border-t border-cyan-500/10 text-[11px] text-slate-500 dark:text-slate-400">
           <div className="flex items-center gap-3">
             <span>
-              Use <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">↑</kbd>{' '}
-              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">↓</kbd> to navigate
+              Use <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-600 dark:text-slate-300">↑</kbd>{' '}
+              <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-600 dark:text-slate-300">↓</kbd> to navigate
             </span>
             <span>•</span>
             <span>
-              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">Enter</kbd> to run
+              Press <kbd className="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-600 dark:text-slate-300">Enter</kbd> to run
             </span>
           </div>
           <span className="text-cyan-400 font-medium">KHMER DUBBING PRO</span>
