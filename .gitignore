@@ -32,30 +32,31 @@ __pycache__/
 *.pyc
 
 # Large Binaries & Desktop Builds
-bin/
 *.exe
 *.apk
-!public/CheatzDabber_Khmer_v1.0.apk
 *.mp4
 *.bak
 *.bak.*
 dist/
 build/
 *.spec
-studio_auth.db
+*.db
 
 # Android & Gradle Caches
 .gradle/
-android/.gradle/
-android/build/
-android/app/build/
+android/
 build_output/
 
 # Flutter & Dart Caches
 .dart_tool/
-flutter_app/.dart_tool/
-flutter_app/build/
-flutter_app/.flutter-plugins
-flutter_app/.flutter-plugins-dependencies
+flutter_app/
+
+# Archives & Old builds
+archive_builds/
+voice_split/
+
+# Documentation & Updates
+updates/
+docs/
 
 
