@@ -71,7 +71,7 @@ try:
 except Exception as gpu_init_err:
     print(f"GPU initialization notice: {gpu_init_err}")
 
-app = FastAPI(title="🐉 DRAGON DABBER PRO - Professional AI Khmer Dubbing Studio")
+app = FastAPI(title="👑 CHEAT DABBER TOOL - Professional AI Dubbing & Multi Language Studio")
 
 # ── CORS Middleware — required for browser audio playback ──────────────────
 from fastapi.middleware.cors import CORSMiddleware

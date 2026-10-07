@@ -1,10 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 # =============================================================================
-#  🐉 DRAGON DABBER PRO — PyInstaller Build Spec (Single Standalone Executable)
-#  App Name : DRAGON DABBER PRO (កូននាគអាទិទេព AI)
+#  👑 CHEAT DABBER TOOL — PyInstaller Build Spec (Single Standalone Executable)
+#  App Name : CHEAT DABBER TOOL (AI Dubbing & Multi Language)
 #  ✅ Bundles ALL libraries & dependencies
 #  ✅ Supports Windows 7 / 8 / 10 / 11 (x64)
-#  Produces: dist/KounNeak_SamraiRoeung.exe
+#  Produces: dist/CheatDabberTool.exe
 # =============================================================================
 import os, sys
 from PyInstaller.utils.hooks import collect_submodules, collect_data_files
@@ -195,7 +195,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name='KounNeak_SamraiRoeung',
+    name='CheatDabberTool',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
