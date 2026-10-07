@@ -1,4 +1,4 @@
-# 🐉 Tool AI Speak Khmer - Dragon Dabber Pro
+#  Tool AI Speak Khmer - Dragon Dabber Pro
 
 **AI-Powered Professional Khmer Dubbing Studio & Voice Cloning Platform**
 
