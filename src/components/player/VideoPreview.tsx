@@ -819,7 +819,6 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   ref={videoRef}
                   src={actualSrc}
                   playsInline
-                  crossOrigin="anonymous"
                   preload="auto"
                   style={{
                     filter: filterString,
@@ -829,7 +828,19 @@ export const VideoPreview: React.FC<VideoPreviewProps> = ({
                   }}
                   onTimeUpdate={() => { if (videoRef.current) onTimeUpdate(videoRef.current.currentTime); }}
                   onLoadedMetadata={() => { if (videoRef.current) onDurationChange(videoRef.current.duration); }}
-                  onError={() => { console.warn("Video failed to load:", src); }}
+                  onError={(e) => { 
+                    console.error("Video load error:", {src: actualSrc, error: e}); 
+                    // Try reload once
+                    if (videoRef.current && videoRef.current.readyState === 0) {
+                      setTimeout(() => {
+                        if (videoRef.current) {
+                          videoRef.current.load();
+                        }
+                      }, 500);
+                    }
+                  }}
+                  onLoadStart={() => { console.log("Video loading:", actualSrc); }}
+                  onCanPlay={() => { console.log("Video can play:", actualSrc); }}
                   className="w-full h-full pointer-events-none transition-transform duration-75"
                 />
               </div>

@@ -64,6 +64,13 @@ from services.update_manager import get_update_manager
 from services.module_loader import get_module_loader
 from services.progress_tracker import create_tracker, get_tracker, OperationType
 
+# Initialize GPU acceleration (NVIDIA CUDA) if available
+try:
+    from services.gpu_init import initialize_gpu
+    initialize_gpu()
+except Exception as gpu_init_err:
+    print(f"GPU initialization notice: {gpu_init_err}")
+
 app = FastAPI(title="🐉 DRAGON DABBER PRO - Professional AI Khmer Dubbing Studio")
 
 # ── CORS Middleware — required for browser audio playback ──────────────────
@@ -97,20 +104,121 @@ async def stream_sample_audio(filename: str):
     )
 
 @app.get("/audio/outputs/{filename}")
-async def stream_output_audio(filename: str):
-    """Stream output audio files with proper headers."""
+async def stream_output_audio(filename: str, request: Request):
+    """Stream output audio files with proper headers and Range support."""
     import mimetypes
     safe = os.path.basename(filename)
     fp = os.path.join(OUTPUTS_DIR, safe)
     if not os.path.exists(fp):
         raise HTTPException(status_code=404, detail=f"Audio file not found: {safe}")
     mt, _ = mimetypes.guess_type(fp)
+    
+    # Handle Range requests for seeking
+    range_header = request.headers.get('range')
+    if range_header:
+        file_size = os.path.getsize(fp)
+        range_match = range_header.replace('bytes=', '').split('-')
+        start = int(range_match[0]) if range_match[0] else 0
+        end = int(range_match[1]) if len(range_match) > 1 and range_match[1] else file_size - 1
+        
+        def iter_file():
+            with open(fp, 'rb') as f:
+                f.seek(start)
+                remaining = end - start + 1
+                while remaining > 0:
+                    chunk_size = min(65536, remaining)
+                    data = f.read(chunk_size)
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+        
+        return StreamingResponse(
+            iter_file(),
+            status_code=206,
+            media_type=mt or "audio/mpeg",
+            headers={
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(end - start + 1),
+                "Cache-Control": "public, max-age=60",
+            }
+        )
+    
     return FileResponse(
         fp,
         media_type=mt or "audio/mpeg",
         headers={
             "Accept-Ranges": "bytes",
             "Cache-Control": "public, max-age=60",
+        }
+    )
+
+# Video streaming endpoint with Range support for proper playback
+@app.get("/video/stream/{filename}")
+async def stream_video(filename: str, request: Request):
+    """Stream video files from uploads/outputs with Range support for seek and playback."""
+    import mimetypes
+    safe = os.path.basename(filename)
+    
+    # Check in multiple locations
+    video_path = None
+    for directory in [UPLOADS_DIR, OUTPUTS_DIR]:
+        candidate = os.path.join(directory, safe)
+        if os.path.exists(candidate):
+            video_path = candidate
+            break
+    
+    if not video_path:
+        raise HTTPException(status_code=404, detail=f"Video file not found: {safe}")
+    
+    file_size = os.path.getsize(video_path)
+    mt, _ = mimetypes.guess_type(video_path)
+    if not mt:
+        mt = "video/mp4"
+    
+    # Handle Range requests (essential for video playback and seeking)
+    range_header = request.headers.get('range')
+    if range_header:
+        range_match = range_header.replace('bytes=', '').split('-')
+        start = int(range_match[0]) if range_match[0] else 0
+        end = int(range_match[1]) if len(range_match) > 1 and range_match[1] else file_size - 1
+        end = min(end, file_size - 1)
+        
+        def iter_video_range():
+            with open(video_path, 'rb') as f:
+                f.seek(start)
+                remaining = end - start + 1
+                while remaining > 0:
+                    chunk_size = min(1024 * 1024, remaining)  # 1MB chunks
+                    data = f.read(chunk_size)
+                    if not data:
+                        break
+                    remaining -= len(data)
+                    yield data
+        
+        return StreamingResponse(
+            iter_video_range(),
+            status_code=206,
+            media_type=mt,
+            headers={
+                "Content-Range": f"bytes {start}-{end}/{file_size}",
+                "Accept-Ranges": "bytes",
+                "Content-Length": str(end - start + 1),
+                "Cache-Control": "public, max-age=3600",
+                "Access-Control-Allow-Origin": "*",
+                "Access-Control-Expose-Headers": "Content-Range, Accept-Ranges, Content-Length",
+            }
+        )
+    
+    # Full file response
+    return FileResponse(
+        video_path,
+        media_type=mt,
+        headers={
+            "Accept-Ranges": "bytes",
+            "Cache-Control": "public, max-age=3600",
+            "Access-Control-Allow-Origin": "*",
         }
     )
 

@@ -15,6 +15,7 @@ def has_demucs() -> bool:
 def separate_with_demucs(audio_path: str, output_dir: str) -> dict:
     """
     Separate human vocals from background music using Meta Demucs AI (htdemucs).
+    Automatically uses NVIDIA CUDA GPU if available for 5-10x faster processing.
     Outputs:
       vocals_path: clean isolated dialogue vocals
       bgm_path: clean isolated background music and sound effects
@@ -22,9 +23,22 @@ def separate_with_demucs(audio_path: str, output_dir: str) -> dict:
     os.makedirs(output_dir, exist_ok=True)
     base_name = os.path.splitext(os.path.basename(audio_path))[0]
 
+    # Auto-detect GPU and enable CUDA acceleration if available
+    device_flag = ""
+    try:
+        import torch
+        if torch.cuda.is_available():
+            device_flag = "--device cuda"
+            gpu_name = torch.cuda.get_device_name(0)
+            print(f"⚡ Using NVIDIA CUDA GPU ({gpu_name}) for Demucs — 5-10x faster than CPU!")
+        else:
+            print(f"ℹ️ Using CPU for Demucs (no NVIDIA GPU detected)")
+    except ImportError:
+        print(f"ℹ️ Using CPU for Demucs (torch not available)")
+
     # Run Demucs CLI in two-stems mode (vocals / no_vocals)
     # Use sys.executable to ensure same Python/virtualenv is used on Windows and macOS
-    cmd = f'"{sys.executable}" -m demucs.separate -n htdemucs --two-stems=vocals -o "{output_dir}" "{audio_path}"'
+    cmd = f'"{sys.executable}" -m demucs.separate -n htdemucs --two-stems=vocals {device_flag} -o "{output_dir}" "{audio_path}"'
     print(f"Running Meta Demucs AI Vocal Separation on: {audio_path}...")
     audio_processor.run_command(cmd)
 
