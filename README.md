@@ -265,3 +265,26 @@ For technical support or inquiries:
 **Made with ❤️ for the Khmer content creation community** 🇰🇭
 
 🐉 **Dragon Dabber Pro** - Empowering Khmer Dubbing with AI
+
+
+---
+
+## v3.1 — CapCut-Style Dubbing Studio (Oct 2026)
+
+### New UI Features
+- **Dubber Dang Pro Top Bar** — Branding, nav tabs, upload, token counter, Export button
+- **Icon Rail** — Far-left panel: Dashboard / Media / Voice / Audio / Text / Effects / Layers
+- **Video Preview Panel** — Mini toolbar, canvas preview, seek bar, playback controls
+- **Dialogue Table** — Per-line editing: Start | End | Dub Text | Voice Profile | Audio
+- **RECAP Panel** — AI-generated recap (Short/Medium/Long), footage toggles, gap mode
+- **Bottom Timeline** — Video + Audio tracks, red playhead, zoom 0.2x–4x
+
+### License System
+- `generate_license.py` — Admin tool to generate lifetime/monthly keys
+- `license_key_generator_gui.py` — GUI license key generator
+- `license_key_generator_gui_enhanced.py` — Enhanced GUI with batch generation
+
+### Quick Start v3.1
+```bat
+RUN_APP_ENHANCED.bat
+```
