@@ -477,6 +477,7 @@ class DubbingStartRequest(BaseModel):
     femaleLeadVoice: Optional[str] = 'hang_phleung_char_6_female.mp3'
     geminiModel: Optional[str] = 'gemini-1.5-flash-latest'
     segments: Optional[list] = None
+    studioEngine: Optional[str] = 'khmer_offline'  # 'voxcpm_computer' | 'voxcpm_claude' | 'khmer_offline'
 
 class ScanTimelineRequest(BaseModel):
     filename: str
@@ -786,6 +787,81 @@ def api_delete_sponsor(sponsor_id: str):
     updated = [s for s in sponsors if str(s.get('id')) != str(sponsor_id)]
     save_sponsors_file(updated)
     return {'success': True, 'sponsors': updated}
+
+# --- NEW License Key System (Machine-Specific Activation) ---
+from services.license_manager import (
+    check_activation, activate_license, validate_license_key,
+    create_license_key as create_new_license, list_all_activations,
+    list_all_license_keys, deactivate_machine
+)
+
+class LicenseValidateRequest(BaseModel):
+    license_key: str
+
+class LicenseActivateRequest(BaseModel):
+    license_key: str
+
+@app.get('/api/license/status')
+def api_license_status():
+    """Check if current machine is activated"""
+    try:
+        result = check_activation()
+        return result
+    except Exception as e:
+        return {'activated': False, 'error': str(e)}
+
+@app.post('/api/license/validate')
+def api_license_validate(body: LicenseValidateRequest):
+    """Validate license key (before activation)"""
+    try:
+        result = validate_license_key(body.license_key)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/api/license/activate-machine')
+def api_license_activate_machine(body: LicenseActivateRequest):
+    """Activate license key on this machine"""
+    try:
+        result = activate_license(body.license_key)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/api/admin/license/activations')
+def api_admin_list_activations(request: Request):
+    """List all activated machines (Admin only)"""
+    require_admin(request)
+    try:
+        activations = list_all_activations()
+        return {'success': True, 'activations': activations}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.get('/api/admin/license/keys')
+def api_admin_list_license_keys(request: Request):
+    """List all license keys (Admin only)"""
+    require_admin(request)
+    try:
+        keys = list_all_license_keys()
+        return {'success': True, 'keys': keys}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@app.post('/api/admin/license/deactivate')
+def api_admin_deactivate_machine(request: Request, body: dict):
+    """Deactivate a specific machine (Admin only)"""
+    require_admin(request)
+    try:
+        machine_id = body.get('machine_id')
+        if not machine_id:
+            raise HTTPException(status_code=400, detail='machine_id required')
+        result = deactivate_machine(machine_id)
+        return result
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# --- OLD License Keys (VoxCPM Permission) - Keep for backward compatibility ---
 
 @app.get('/api/admin/license-keys')
 def api_admin_list_keys(request: Request):
@@ -1617,15 +1693,31 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
 
     job_id = f"job_{int(time.time() * 1000)}"
     
-    # Determine processing mode
-    voxcpm_mode = os.getenv('VOXCPM_MODE', 'pure_khmer')
-    processing_mode = 'pure_khmer'  # Default
+    # 🎯 Determine processing mode based on studioEngine (3 options)
+    studio_engine = body.studioEngine or 'khmer_offline'
+    
+    if studio_engine == 'voxcpm_computer':
+        # Option 1: VOXCPM2 COMPUTER (Local RTX / PyTorch Hardware)
+        processing_mode = 'voxcpm2_local'
+        os.environ['VOXCPM_MODE'] = 'local'
+        logger.info(f"🖥️ Studio Engine: VOXCPM2 COMPUTER (Local GPU/CPU)")
+    elif studio_engine == 'voxcpm_claude':
+        # Option 2: VOXCPM2 CLAUDE (Cloud Server / Claude AI / Colab / Kaggle)
+        processing_mode = 'voxcpm2_cloud'
+        os.environ['VOXCPM_MODE'] = 'cloud'
+        logger.info(f"☁️ Studio Engine: VOXCPM2 CLOUD (Colab/Kaggle Free GPU)")
+    else:
+        # Option 3: KHMER OFFLINE (Ultra-fast Edge / Offline TTS)
+        processing_mode = 'khmer_offline'
+        os.environ['VOXCPM_MODE'] = 'pure_khmer'
+        logger.info(f"⚡ Studio Engine: KHMER OFFLINE (Edge TTS Turbo)")
+    
+    # Legacy voiceId override support
     if body.voiceId and body.voiceId.startswith('voxcpm:'):
-        processing_mode = 'voxcpm2'
-    elif voxcpm_mode == 'elevenlabs':
+        if processing_mode == 'khmer_offline':
+            processing_mode = 'voxcpm2_local'
+    elif body.voiceId == 'elevenlabs':
         processing_mode = 'elevenlabs'
-    elif voxcpm_mode == 'cloud' or voxcpm_mode == 'local':
-        processing_mode = 'voxcpm2'
     
     job = {
         'id': job_id,
@@ -1727,7 +1819,8 @@ async def start_dubbing(body: DubbingStartRequest, background_tasks: BackgroundT
                         'maleLeadVoice': body.maleLeadVoice,
                         'femaleLeadVoice': body.femaleLeadVoice,
                         'geminiModel': body.geminiModel,
-                        'segments': body.segments
+                        'segments': body.segments,
+                        'studioEngine': studio_engine  # Pass studio engine to dubber
                     },
                     on_progress=on_prog
                 )
@@ -1878,8 +1971,10 @@ def broadcast_progress(job_id: str, progress_data: dict):
         for client_queue in progress_subscribers[job_id]:
             try:
                 client_queue.put_nowait(progress_data)
-            except:
-                pass
+            except queue.Full:
+                pass  # Queue is full, skip this update
+            except Exception as e:
+                logger.warning(f"Failed to send progress update: {e}")
     
     # Also update active_jobs for backward compatibility
     if job_id in active_jobs:

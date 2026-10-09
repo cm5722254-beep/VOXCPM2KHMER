@@ -4,6 +4,8 @@ import { Sidebar } from './components/layout/Sidebar';
 import { MobileNavDock } from './components/layout/MobileNavDock';
 import { DashboardView } from './components/dashboard/DashboardView';
 import { DubbingStudio } from './components/studio/DubbingStudio';
+import { EnhancedDubbingStudio } from './components/studio/EnhancedDubbingStudio';
+import { CapCutDubbingLayout } from './components/studio/CapCutDubbingLayout';
 import { CharacterLibrary } from './components/characters/CharacterLibrary';
 import { TranslationDesk } from './components/translation/TranslationDesk';
 import { AudioMixerConsole } from './components/mixer/AudioMixerConsole';
@@ -22,6 +24,7 @@ import { ExportModal } from './components/modals/ExportModal';
 import { QuickVoxcpmModal } from './components/modals/QuickVoxcpmModal';
 import { AdminUsersModal } from './components/modals/AdminUsersModal';
 import { LicenseActivationModal } from './components/modals/LicenseActivationModal';
+import { MachineActivationModal } from './components/modals/MachineActivationModal';
 import { LicenseGate } from './components/modals/LicenseGate';
 import { AddVoiceModal } from './components/modals/AddVoiceModal';
 import { EditVoiceModal } from './components/modals/EditVoiceModal';
@@ -434,6 +437,7 @@ export const App: React.FC = () => {
   const [isVoxModalOpen, setIsVoxModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
   const [isLicenseModalOpen, setIsLicenseModalOpen] = useState(false);
+  const [isMachineActivationOpen, setIsMachineActivationOpen] = useState(false);
   const [isAddVoiceOpen, setIsAddVoiceOpen] = useState(false);
   const [isDownloaderOpen, setIsDownloaderOpen] = useState(false);
   const [isSystemStatusOpen, setIsSystemStatusOpen] = useState(false);
@@ -672,6 +676,9 @@ export const App: React.FC = () => {
   useEffect(() => {
     // 1. Auto Auth by Machine ID (no login/register)
     autoMachineLogin();
+
+    // 1.5. Check Machine License Activation
+    checkMachineLicenseActivation();
 
     // 2. Config & Status
     loadConfigAndStatus();
@@ -967,6 +974,7 @@ export const App: React.FC = () => {
         femaleLeadVoice,
         geminiModel,
         segments: segments && segments.length > 0 ? segments : undefined,
+        studioEngine, // 🎯 Pass studioEngine to backend
       });
 
       if (res.jobId) {
@@ -1053,6 +1061,7 @@ export const App: React.FC = () => {
           femaleLeadVoice,
           geminiModel,
           segments: filename === uploadedFile?.filename && segments && segments.length > 0 ? segments : undefined,
+          studioEngine, // 🎯 Pass studioEngine to backend for 3 options routing
         });
 
         if (res.jobId) {
@@ -1267,6 +1276,25 @@ export const App: React.FC = () => {
       showToast(`⚠️ មិនអាចចាប់ Machine ID បានទេ: ${err.message}`, 'error');
     } finally {
       setIsAuthChecking(false);
+    }
+  };
+
+  const checkMachineLicenseActivation = async () => {
+    try {
+      const res = await fetch('/api/license/status');
+      const data = await res.json();
+      
+      if (!data.activated) {
+        // Show activation modal if not activated
+        setIsMachineActivationOpen(true);
+        console.log('⚠️ License not activated - showing activation modal');
+      } else {
+        console.log('✅ License activated:', data.key_code);
+      }
+    } catch (err) {
+      console.error('License check failed:', err);
+      // If license check fails, show activation modal to be safe
+      setIsMachineActivationOpen(true);
     }
   };
 
@@ -1679,12 +1707,12 @@ export const App: React.FC = () => {
           )}
 
           {/* Persistent Dubbing Studio so Video DOM is never destroyed when switching tabs */}
+          {/* CapCut-style Dubbing Layout — full Dubber Dang Pro chrome */}
           <div className={activeTab === 'tab-dubbing' ? 'flex-1 flex flex-col h-full overflow-hidden' : 'hidden'}>
-            <DubbingStudio
+            <CapCutDubbingLayout
               uploadedFile={uploadedFile}
               isUploadingFile={isUploadingFile}
               uploadProgress={uploadProgress}
-              uploadInfo={uploadInfo}
               onUploadFile={handleUploadFile}
               onRemoveFile={() => {
                 setUploadedFile(null);
@@ -1720,16 +1748,13 @@ export const App: React.FC = () => {
               onScanTimeline={handleScanTimeline}
               isScanningTimeline={isScanningTimeline}
               onAssemble={handleAssemble}
-              videoEffects={videoEffects}
-              onChangeEffects={setVideoEffects}
-              subtitleStyle={subtitleStyle}
-              onChangeSubtitleStyle={setSubtitleStyle}
               videoRef={videoRef}
               onOpenThumbnailStudio={handleOpenThumbnailStudio}
               onShowToast={showToast}
               characters={characters}
               onOpenTab={setActiveTab}
               onOpenExport={() => setIsExportOpen(true)}
+              onOpenSettings={() => setIsSettingsOpen(true)}
               engineMode={engineMode}
               onSwitchEngine={handleSwitchEngine}
               voxStatus={voxStatus}
@@ -1738,20 +1763,10 @@ export const App: React.FC = () => {
               onOpenLicenseModal={() => setIsLicenseModalOpen(true)}
               studioEngine={studioEngine}
               onSelectStudioEngine={setStudioEngine}
-              commercialOverlay={commercialOverlayConfig}
-              onOpenCommercialOverlay={() => setIsCommercialOverlayOpen(true)}
-              onOpenVideoTrimmer={() => setIsVideoTrimmerOpen(true)}
               voiceVolumeGain={voiceVolumeGain}
               onChangeVoiceVolumeGain={setVoiceVolumeGain}
-              khmerOfflineConfig={khmerOfflineConfig}
-              onChangeKhmerOfflineConfig={setKhmerOfflineConfig}
-              onStartOfflineDubbing={handleStartOfflineDubbing}
               onOpenGuide={() => setIsGuideOpen(true)}
               onOpenCustomizer={() => setIsCustomizerOpen(true)}
-              projectGroups={projectGroups}
-              activeGroupId={activeGroupId}
-              onSelectGroup={setActiveGroupId}
-              onOpenGroupManager={() => setIsGroupManagerOpen(true)}
               onOneClickDubbing={handleOneClickCinemaDubbing}
               onOpenRoadmap={() => setIsRoadmapModalOpen(true)}
             />
@@ -2191,6 +2206,15 @@ export const App: React.FC = () => {
           loadConfigAndStatus();
         }}
         onShowToast={showToast}
+      />
+
+      <MachineActivationModal
+        isOpen={isMachineActivationOpen}
+        blockClose={true}
+        onSuccess={() => {
+          setIsMachineActivationOpen(false);
+          showToast('🎉 License បានដំណើរការជោគជ័យ! អរគុណសម្រាប់ការប្រើប្រាស់ CHEAT DABBER TOOL', 'success');
+        }}
       />
 
       <AddVoiceModal

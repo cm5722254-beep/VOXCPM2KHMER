@@ -1,6 +1,6 @@
 import React, { Component, ErrorInfo, ReactNode } from 'react';
 import ReactDOM from 'react-dom/client';
-import App from './App';
+import { App } from './App';
 import './index.css';
 import { TranslationProvider } from './locales';
 import { AlertCircle, RotateCcw, ChevronDown, ChevronUp, Terminal } from 'lucide-react';

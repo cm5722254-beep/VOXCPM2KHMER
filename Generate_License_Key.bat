@@ -1,18 +1,25 @@
 @echo off
-title Khmer Dubbing Pro - License Manager PRO
 chcp 65001 >nul
-cd /d "%~dp0"
+title 👑 CHEAT DABBER TOOL - License Key Generator
 
-echo ====================================================
-echo   Khmer Dubbing Pro — License Manager PRO 2026
-echo   Opening Admin Key Management ^& Voucher Tool...
-echo ====================================================
+echo.
+echo ================================================================
+echo    👑 CHEAT DABBER TOOL - License Key Generator (Admin)
+echo ================================================================
+echo.
 
-if exist "Generate_License_Key.exe" (
-    start "" "Generate_License_Key.exe"
-) else if exist ".venv\Scripts\python.exe" (
-    start "" ".venv\Scripts\python.exe" license_manager.py
+REM Check if virtual environment exists
+if exist ".venv\Scripts\python.exe" (
+    echo [INFO] Using virtual environment Python...
+    ".venv\Scripts\python.exe" generate_license.py
+) else if exist "python.exe" (
+    echo [INFO] Using bundled Python...
+    python.exe generate_license.py
 ) else (
-    start "" python license_manager.py
+    echo [INFO] Using system Python...
+    python generate_license.py
 )
-exit
+
+echo.
+echo.
+pause

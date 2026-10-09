@@ -94,6 +94,30 @@ def main():
     # 3. Wait for server to bind
     time.sleep(2.0)
 
+    # 3.5. Check license activation before opening UI
+    try:
+        from services.license_manager import check_activation
+        activation_status = check_activation()
+        
+        if not activation_status.get('activated'):
+            print("⚠️ License not activated on this machine")
+            print("🔑 Opening license activation interface...")
+            # User will need to activate through the UI - modal will auto-show
+        else:
+            key_code = activation_status.get('key_code', 'N/A')
+            machine_id = activation_status.get('machine_id', 'N/A')
+            is_lifetime = activation_status.get('is_lifetime', False)
+            
+            if is_lifetime:
+                print(f"✅ License activated: {key_code} (Lifetime)")
+            else:
+                expires_at = activation_status.get('expires_at', 'N/A')
+                print(f"✅ License activated: {key_code} (Expires: {expires_at})")
+            print(f"🖥️ Machine ID: {machine_id}")
+    except Exception as e:
+        print(f"⚠️ License check failed: {e}")
+        print("⚠️ Continuing without license validation...")
+
     # 4. Perform initial update check (non-blocking)
     if update_manager:
         def initial_update_check():

@@ -519,8 +519,8 @@ class UnifiedDatabase:
         # Create unique index if not exists
         try:
             cur.execute('CREATE UNIQUE INDEX IF NOT EXISTS idx_mode_stats_user_mode ON mode_usage_stats(user_id, mode)')
-        except:
-            pass
+        except sqlite3.Error as e:
+            logger.debug(f"Index creation skipped (may already exist): {e}")
         
         conn.commit()
         conn.close()

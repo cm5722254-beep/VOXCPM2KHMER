@@ -8,6 +8,7 @@ import os
 import sys
 import json
 import hashlib
+import logging
 import requests
 import threading
 import time
@@ -15,6 +16,8 @@ import shutil
 from pathlib import Path
 from typing import Dict, List, Optional, Callable
 from datetime import datetime, timezone
+
+logger = logging.getLogger(__name__)
 
 
 class UpdateManager:
@@ -146,7 +149,8 @@ class UpdateManager:
             v2_parts = [int(x) for x in version2.replace("V", "").replace("PRO", "").replace("BETA", "").split(".") if x.isdigit()]
             
             return v1_parts > v2_parts
-        except:
+        except (ValueError, AttributeError, TypeError) as e:
+            logger.warning(f"Version comparison failed for {version1} vs {version2}: {e}")
             return version1 != version2
     
     def download_update(self, manifest: Dict = None) -> Dict:

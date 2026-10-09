@@ -1,0 +1,251 @@
+═══════════════════════════════════════════════════════════════
+  🔑 LicenseKeyGenerator.exe - Admin Quick Guide
+═══════════════════════════════════════════════════════════════
+
+📁 File: dist\LicenseKeyGenerator.exe (9.03 MB)
+👤 For: Administrators ONLY (Keep Private!)
+🎯 Purpose: Generate and manage license keys
+
+
+🚀 HOW TO USE
+─────────────────────────────────────────────────────────────
+
+1️⃣  Generate a New License Key
+   ────────────────────────────────────────────────────────
+   a. Double-click LicenseKeyGenerator.exe
+   b. Press [1] + Enter
+   c. Choose validity period:
+      • Press [1] for 7 days (Trial)
+      • Press [2] for 30 days (Monthly)
+      • Press [3] for 90 days (Quarterly)
+      • Press [4] for 180 days (Semi-Annual)
+      • Press [5] for 365 days (Annual)
+      • Press [6] for Lifetime (Forever)
+   d. Enter max activations (usually 1) + Enter
+   e. Enter customer notes (name, etc.) + Enter
+   f. ✅ LICENSE KEY GENERATED!
+   g. Copy the key (format: CDT-XXXX-XXXX-XXXX-XXXX)
+   h. Send to customer
+
+
+2️⃣  View All License Keys
+   ────────────────────────────────────────────────────────
+   a. Double-click LicenseKeyGenerator.exe
+   b. Press [2] + Enter
+   c. See all generated keys with:
+      • Creation date
+      • Validity period
+      • Activation count
+      • Active status
+      • Customer notes
+
+
+3️⃣  View All Activations
+   ────────────────────────────────────────────────────────
+   a. Double-click LicenseKeyGenerator.exe
+   b. Press [3] + Enter
+   c. See all activated machines:
+      • Machine ID (unique per computer)
+      • Computer name
+      • License key used
+      • Activation date
+      • Last seen date
+      • Expiration date
+
+
+4️⃣  Deactivate a Machine
+   ────────────────────────────────────────────────────────
+   When to use:
+   • Customer bought new computer
+   • Hardware upgrade (motherboard/CPU)
+   • Troubleshooting activation issues
+
+   Steps:
+   a. Double-click LicenseKeyGenerator.exe
+   b. Press [4] + Enter
+   c. See list of all activated machines
+   d. Enter number of machine to deactivate
+   e. Type "yes" to confirm
+   f. ✅ Machine deactivated!
+   g. Customer can now activate on new computer
+
+
+═══════════════════════════════════════════════════════════════
+
+
+💡 COMMON SCENARIOS
+─────────────────────────────────────────────────────────────
+
+📌 New Customer Signs Up
+   1. Customer sends Machine ID via Telegram
+   2. You generate license key (choose period)
+   3. Send key back to customer
+   4. Customer enters key → Activated! ✅
+
+
+📌 Customer Needs Extension
+   1. Generate new key with desired period
+   2. Send to customer
+   3. Customer enters new key
+   4. Old activation replaced with new one
+
+
+📌 Customer Changed Computer
+   1. View all activations (option 3)
+   2. Find old machine activation
+   3. Deactivate old machine (option 4)
+   4. Customer activates on new computer
+   5. Or: Generate new key for new machine
+
+
+📌 Check How Many Customers Active
+   1. View all activations (option 3)
+   2. Count active entries
+   3. See expiration dates
+   4. Plan renewals
+
+
+═══════════════════════════════════════════════════════════════
+
+
+⚠️  IMPORTANT NOTES
+─────────────────────────────────────────────────────────────
+
+🔒 KEEP THIS FILE PRIVATE!
+   • Don't share with customers
+   • Don't upload publicly
+   • Store securely
+
+💾 BACKUP DATABASE
+   • Location: data\license.db
+   • Backup weekly
+   • Contains all keys and activations
+
+🔑 KEY FORMAT
+   • Always: CDT-XXXX-XXXX-XXXX-XXXX
+   • Case insensitive (user can enter lowercase)
+   • Generated with cryptographic randomness
+
+🖥️ ONE MACHINE = ONE ACTIVATION
+   • Each computer has unique Machine ID
+   • Different computers need different activations
+   • Same key can be reused if max_activations > 1
+
+
+═══════════════════════════════════════════════════════════════
+
+
+📊 RECOMMENDED LICENSE PERIODS
+─────────────────────────────────────────────────────────────
+
+🟦 7 Days (Trial)
+   • For testing/demo
+   • Free or very low price
+   • Convert to paid after
+
+🟢 30 Days (Monthly)
+   • Short-term projects
+   • Recurring revenue
+   • Easy upgrade path
+
+🟣 365 Days (Annual)
+   • Most economical for customers
+   • Best value
+   • Lower admin work
+
+🟡 Lifetime
+   • Premium price
+   • No expiration
+   • One-time revenue
+
+
+═══════════════════════════════════════════════════════════════
+
+
+🐛 TROUBLESHOOTING
+─────────────────────────────────────────────────────────────
+
+Problem: "Database locked" error
+Solution: Close all instances of LicenseKeyGenerator.exe
+         Try again
+
+Problem: Can't find database file
+Solution: Run from original location (dist\)
+         Don't move EXE without data\ folder
+
+Problem: Key not working for customer
+Solution: 
+   1. Check key was entered correctly (copy-paste)
+   2. View all keys (option 2) - verify it exists
+   3. Check if already at max activations
+   4. Generate new key if needed
+
+
+═══════════════════════════════════════════════════════════════
+
+
+📞 SUPPORT WORKFLOW
+─────────────────────────────────────────────────────────────
+
+When customer contacts you:
+
+1. Ask for Machine ID
+   "Please send your Machine ID from activation window"
+
+2. Generate key
+   • Choose appropriate validity period
+   • Add customer name in notes
+   • Copy generated key
+
+3. Send key
+   "Here is your license key: CDT-XXXX-XXXX-XXXX-XXXX"
+   "Enter this in the activation window"
+
+4. Verify activation
+   • Check option 3 (View Activations)
+   • Confirm customer's machine appears
+   • Note: May take few seconds to update
+
+5. Follow up
+   "Activated successfully? Any issues?"
+
+
+═══════════════════════════════════════════════════════════════
+
+
+✅ BEST PRACTICES
+─────────────────────────────────────────────────────────────
+
+✓ Always add customer notes when generating keys
+✓ Keep track of keys in separate spreadsheet
+✓ Backup database weekly
+✓ Check activations regularly
+✓ Respond to customer requests within 24 hours
+✓ Generate test keys before customer buys
+✓ Monitor expiration dates
+✓ Remind customers 7 days before expiry
+
+
+═══════════════════════════════════════════════════════════════
+
+
+🎯 QUICK REFERENCE
+─────────────────────────────────────────────────────────────
+
+Generate Key:     Option 1
+List Keys:        Option 2
+View Activations: Option 3
+Deactivate:       Option 4
+Exit:             Option 5
+
+Database:     data\license.db
+Backup:       Copy data\ folder
+File Size:    9.03 MB
+Location:     dist\LicenseKeyGenerator.exe
+
+
+═══════════════════════════════════════════════════════════════
+
+          🔑 Keep This Tool Private & Secure! 🔑
+
+═══════════════════════════════════════════════════════════════
