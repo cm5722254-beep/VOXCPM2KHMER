@@ -1,20 +1,14 @@
 {
-  "update_server": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates",
-  "update_server_backup": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates",
-  "check_interval_seconds": 3600,
-  "auto_check_enabled": true,
-  "auto_download_enabled": true,
-  "auto_install_enabled": false,
-  "allow_beta_updates": false,
-  "modules_updatable": [
-    "services/*.py",
-    "patches/*.py",
-    "static/**/*",
-    "templates/**/*"
-  ],
-  "modules_protected": [
-    "desktop_app.py",
-    "server.py"
-  ],
-  "update_manifest_url": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/updates/manifest.json"
+  "currentVersion": "3.1.0",
+  "updateChannel": "stable",
+  "checkUrl": "https://raw.githubusercontent.com/cm5722254-beep/VOXCPM2KHMER/main/app_version.json",
+  "downloadUrl": "https://github.com/cm5722254-beep/VOXCPM2KHMER/releases/latest",
+  "autoCheck": true,
+  "checkIntervalHours": 24,
+  "lastChecked": "2026-10-09T17:00:00+07:00",
+  "releaseNotes": {
+    "3.1.0": "CapCut-style UI, dialogue table, RECAP panel, license system",
+    "3.0.0": "Enhanced dubbing studio, professional timeline, machine activation",
+    "2.1.0": "Dragon Dabber Pro rebrand, dark theme, GPU acceleration"
+  }
 }
